@@ -1,0 +1,36 @@
+SOURCELONG:Paths of the Righteous	SOURCESHORT:POTR	SOURCEWEB:http://paizo.com/store/downloads/pathfinder/pathfinderRPG/v5748btpy88yj	SOURCEDATE:2016-08
+
+# Class Name			Hit Dice	Type				Max Level		Source Page			Define							Combat bonus						FACT
+CLASS:Crimson Templar	HD:10		TYPE:PC.Prestige	MAXLEVEL:10		SOURCEPAGE:p.8		DEFINE:CrimsonTemplarLVL|0		BONUS:VAR|CrimsonTemplarLVL|CL		FACT:ClassType|PC	FACT:Abb|CrTmp
+# Class Name			Combat bonus																																															Save bonus																																		Modify VAR
+CLASS:Crimson Templar	BONUS:COMBAT|BASEAB|classlevel("APPLIEDAS=NONEPIC")|TYPE=Base.REPLACE|PREVAREQ:UseAlternateBABProgression,0		BONUS:VAR|ClassBABFull|classlevel("APPLIEDAS=NONEPIC")|PREVAREQ:UseFractionalBAB,1		BONUS:SAVE|BASE.Fortitude,BASE.Reflex|(classlevel("APPLIEDAS=NONEPIC")+1)/2		BONUS:SAVE|BASE.Will|(classlevel("APPLIEDAS=NONEPIC")+1)/3		BONUS:VAR|ClassSaveGood_Fortitude|classlevel("APPLIEDAS=NONEPIC")|PREVAREQ:UseFractionalSave,1		BONUS:VAR|ClassSaveGood_Reflex|classlevel("APPLIEDAS=NONEPIC")|PREVAREQ:UseFractionalSave,1		BONUS:VAR|ClassSavePoor_Will|classlevel("APPLIEDAS=NONEPIC")|PREVAREQ:UseFractionalSave,1
+# Class Name			Required Ability																					Required Skill			Required Alignment		PRETOTALAB			PREDEITY
+CLASS:Crimson Templar	PREABILITY:3,CATEGORY=FEAT,Exotic Weapon Proficiency(Sword (Bastard)),Power Attack,Vital Strike								PREALIGN:LG				PRETOTALAB:6		PREDEITY:1,Ragathiel
+# Class Name			Skill Pts/Lvl		Class Skill
+CLASS:Crimson Templar	STARTSKILLPTS:2		CSKILL:Bluff|Disguise|Fly|Heal|Intimidate|Knowledge (Planes)|Knowledge (Religion)|Perception|Sense Motive|Survival
+###Block: Normal Level Progression
+1	ABILITY:Crimson Templar Class Feature|AUTOMATIC|Crimson Templar ~ Fiendish Studies|Crimson Templar ~ Obedience|Crimson Templar ~ Shield of Wings
+2	ABILITY:Crimson Templar Class Feature|AUTOMATIC|Crimson Templar ~ Ruthlessness|Crimson Templar ~ Sneak Attack
+3	ABILITY:Crimson Templar Class Feature|AUTOMATIC|Crimson Templar ~ Bonus Feat
+4	ABILITY:Crimson Templar Class Feature|AUTOMATIC|Crimson Templar ~ Divine Boon|Crimson Templar ~ Heavenly Fire
+7	ABILITY:Crimson Templar Class Feature|AUTOMATIC|Crimson Templar ~ Immolate
+
+# Class Name			Hit Dice	Type				Max Level		Source Page			Define							Combat bonus						FACT
+CLASS:Heritor Knight	HD:10		TYPE:PC.Prestige	MAXLEVEL:10		SOURCEPAGE:p.16		DEFINE:HeritorKnightLVL|0		BONUS:VAR|HeritorKnightLVL|CL		FACT:ClassType|PC	FACT:Abb|HrKn
+# Class Name			Combat bonus																																															Save bonus																																		Modify VAR
+CLASS:Heritor Knight	BONUS:COMBAT|BASEAB|classlevel("APPLIEDAS=NONEPIC")|TYPE=Base.REPLACE|PREVAREQ:UseAlternateBABProgression,0		BONUS:VAR|ClassBABFull|classlevel("APPLIEDAS=NONEPIC")|PREVAREQ:UseFractionalBAB,1		BONUS:SAVE|BASE.Fortitude,BASE.Will|(classlevel("APPLIEDAS=NONEPIC")+1)/2		BONUS:SAVE|BASE.Reflex|(classlevel("APPLIEDAS=NONEPIC")+1)/3	BONUS:VAR|ClassSaveGood_Fortitude|classlevel("APPLIEDAS=NONEPIC")|PREVAREQ:UseFractionalSave,1		BONUS:VAR|ClassSaveGood_Will|classlevel("APPLIEDAS=NONEPIC")|PREVAREQ:UseFractionalSave,1		BONUS:VAR|ClassSavePoor_Reflex|classlevel("APPLIEDAS=NONEPIC")|PREVAREQ:UseFractionalSave,1
+# Class Name			Required Ability																					Required Skill							Required Alignment		PRETOTALAB			PREDEITY
+CLASS:Heritor Knight	PREABILITY:3,CATEGORY=FEAT,Iron Will,Skill Focus (Knowledge (Religion)),Weapon Focus (Longsword)	PRESKILL:1,Knowledge (Religion)=5		PREALIGN:LG,LN,NG		PRETOTALAB:6		PREDEITY:1,Iomedae
+# Class Name			Skill Pts/Lvl		Class Skill
+CLASS:Keritor Knight	STARTSKILLPTS:2		CSKILL:Diplomacy|Handle Animal|Heal|Intimidate|Knowledge (History)|Knowledge (Nobility)|Knowledge (Religion)|Perform (Oratory)|Ride|Sense Motive
+###Block: Normal Level Progression
+1	ABILITY:Heritor Knight Class Feature|AUTOMATIC|Heritor Knight ~ Skill and Heart as One|Heritor Knight ~ Savior of the Swallowed
+2	ABILITY:Heritor Knight Class Feature|AUTOMATIC|Heritor Knight ~ Heritor's Honor|Heritor Knight ~ Witches' Woe
+3	ABILITY:Heritor Knight Class Feature|AUTOMATIC|Heritor Knight ~ Skyreaver
+4	ABILITY:Heritor Knight Class Feature|AUTOMATIC|Heritor Knight ~ Wraithwall
+5	ABILITY:Heritor Knight Class Feature|AUTOMATIC|Heritor Knight ~ Mohrgbreaker
+6	ABILITY:Heritor Knight Class Feature|AUTOMATIC|Heritor Knight ~ Mighty Strike|Heritor Knight ~ Reforged Heart
+7	ABILITY:Heritor Knight Class Feature|AUTOMATIC|Heritor Knight ~ Image of Divinity
+8	ABILITY:Heritor Knight Class Feature|AUTOMATIC|Heritor Knight ~ Redeemer of Undeath
+9	ABILITY:Heritor Knight Class Feature|AUTOMATIC|Heritor Knight ~ Freed by Blood
+10	ABILITY:Heritor Knight Class Feature|AUTOMATIC|Heritor Knight ~ Sky Stride|Heritor Knight ~ Unveiling Mistress

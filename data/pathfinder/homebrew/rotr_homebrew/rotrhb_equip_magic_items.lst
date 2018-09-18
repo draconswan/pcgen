@@ -1,0 +1,20 @@
+# CVS $Revision$ $Author$ -- Sat Nov 23 14:46:39 2013 -- reformated by prettylst.pl v1.50 (build 22134)
+SOURCELONG:Rise of the Runelords Homebrew	SOURCESHORT:ROTRHB		SOURCEDATE:2017-08
+
+Ring of Lead Blades (Unarmed Strike)			TYPE:Magic.Ring			COST:4000		BONUS:WEAPONPROF=Unarmed Strike|DAMAGESIZE|1
+Ring of Strong Jaw								TYPE:Magic.Ring			COST:112000		BONUS:WEAPONPROF=TYPE.Natural|DAMAGESIZE|2
+Ring of Strong Jaw (Unarmed Strike)				TYPE:Magic.Ring			COST:112000		BONUS:WEAPONPROF=Unarmed Strike|DAMAGESIZE|2
+Ring of Lead Blades								TYPE:Magic.Ring			COST:4000		BONUS:WEAPONPROF=TYPE.Melee|DAMAGESIZE|1
+
+Phylactery of Positive Channeling.MOD			BONUS:VAR|MercifulWitchDoctorChannelPositiveEnergyDice|2|PREABILITY:1,CATEGORY=Special Ability,Merciful Witch Doctor ~ Merciful Channeling
+
+Chellen (Sword of Greed).MOD					EQMOD:Special Ability ~ Keen ~ Weapon.Special Ability ~ +5 ~ Weapon.Material ~ Adamantine ~ Weapon		BONUS:COMBAT|DAMAGESIZE|1
+#Chellen (Sword of Greed).MOD					EQMOD:Intelligent Item ~ Base.
+
+Sihedron Ring.MOD								BONUS:COMBAT|AC|3|TYPE=Deflection		BONUS:SAVE|ALL|3|TYPE=Resistance
+
+Helmet.COPY=Greed's Guard						TYPE:Magic.Minor Artifact.Head.Headgear		EQMOD:Material ~ Adamantine ~ Armor / Heavy.Special Ability ~ Bonus AC / Deflection|+5.Special Ability ~ Invigorating ~ Item
+
+Robe of the Archmagi (Black).COPY=Khalib's Robes	BONUS:STAT|INT|4|TYPE=Enhancement
+
+Ehdri's Amulet									TYPE:Magic.Wondrous.Amulet.AmuletOfMightyFists	COST:175000		WT:0.02			BONUS:COMBAT|AC|5|TYPE=NaturalArmorEnhancement		EQMOD:Special Ability ~ Holy ~ Amulet of Mighty Fists.Special Ability ~ Holy ~ Amulet of Mighty Fists.Special Ability ~ Flaming ~ Amulet of Mighty Fists.Special Ability ~ +2 ~ Amulet of Mighty Fists.Special Ability ~ Runeforged Weapon / Dominant ~ Amulet of Mighty Fists

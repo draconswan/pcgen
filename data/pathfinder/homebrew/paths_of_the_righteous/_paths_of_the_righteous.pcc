@@ -1,0 +1,56 @@
+CAMPAIGN:Pathfinder Campaign Setting: Paths of the Righteous
+KEY:Pathfinder Campaign Setting - Paths of the Righteous
+GAMEMODE:Pathfinder
+TYPE:Paizo Publishing.Pathfinder Campaign Setting
+RANK:3
+STATUS:ALPHA
+GENRE:Fantasy
+BOOKTYPE:Campaign Setting
+SETTING:Pathfinder Campaign Setting
+PRECAMPAIGN:1,INCLUDESBOOKTYPE=Core Rules
+PRECAMPAIGN:1,Advanced Class Guide
+PRECAMPAIGN:1,Advanced Player's Guide
+PRECAMPAIGN:1,Inner Sea Gods
+PRECAMPAIGN:1,Inner Sea World Guide
+#PRECAMPAIGN:1,Occult Adventures
+PRECAMPAIGN:1,Ultimate Combat
+PRECAMPAIGN:1,Ultimate Intrigue
+PRECAMPAIGN:1,Ultimate Magic
+PRECAMPAIGN:1,Chronicle of the Righteous
+PUBNAMELONG:Paizo Publishing
+PUBNAMESHORT:Paizo
+PUBNAMEWEB:http://paizo.com
+SOURCELONG:Paths of the Righteous
+SOURCESHORT:POTR
+ISOGL:YES
+
+#COVER:paths_of_the_righteous.jpg
+LOGO:@/publisher_logos/Paizo_Publishing.png
+URL:WEBSITE|http://www.paizo.com/|Visit Paizo Publishing!
+URL:WEBSITE|http://www.paizo.com/communityuse|Paizo's Community Use Policy.
+DESC:Walk the Path of Virtue.  Those who serve honorable causes and worship the gods of goodness face dangerous and devious threats. To bolster them in their quests, their religions develop potent techniques and astonishing powers to reward those who follow the noble and devout course without fail. Pathfinder Player Companion: Paths of the Righteous presents more than a dozen prestige classes, each associated with a different good-aligned deity and customized to enhance your gameplay, whether your character's a member of a widespread religion or one that's relatively obscure.  Inside this book, you'll find: Fourteen fully detailed prestige classes, from the undead-fighting Ashavic dancer to the rebellious rose warden to the mysterious stargazer.  New rules options for every religion featured, including a new witch patron, a magical weapon sure to delight any revolutionary, and a spell that invokes the aid of a vengeful angel.  Additional feats to bolster characters taking any prestige class, be they those of a religious bent or otherwise.  This Pathfinder Player Companion is intended for use with the Pathfinder Roleplaying Game and the Pathfinder campaign setting, but can easily be incorporated into any fantasy world.
+
+INFOTEXT:This dataset uses trademarks and/or copyrights owned by Paizo Publishing, LLC, which are used under Paizo's Community Use Policy. We are expressly prohibited from charging you to use or access this content. This dataset is not published, endorsed, or specifically approved by Paizo Publishing. For more information about Paizo's Community Use Policy, please visit paizo.com/communityuse. For more information about Paizo Publishing and Paizo products, please visit paizo.com.
+COPYRIGHT:Open Game License v 1.0a Copyright 2000, Wizards of the Coast, Inc.
+COPYRIGHT:System Reference Document. Copyright 2000, Wizards of the Coast, Inc; Authors: Jonathan Tweet, Monte Cook, Skip Williams, based on material by E. Gary Gygax and Dave Arneson.
+COPYRIGHT:Pathfinder Campaign Setting: Paths of the Righteous Copyright 2016, Paizo Publishing, LLC; Authors: Alexander Augunas, John Compton, Jenny Jarzabski, Isabelle Lee, Stephen Rowe, and Owen K.C. Stephens
+# Do not remove the EXTRAFILE comment.
+#EXTRAFILE:OGL.txt
+
+# Data files
+ABILITY:potr_abilities_class.lst
+ABILITY:potr_abilities_faith.lst
+ABILITYCATEGORY:potr_abilitycategories.lst
+CLASS:potr_classes.lst
+#DOMAIN:potr_domains.lst
+#EQUIPMENT:potr_equip.lst
+#SPELL:potr_spells.lst
+
+# Forward References
+#FORWARDREF:CLASSSPELLLIST|Alchemist,Inquisitor,Magus,Summoner,Witch
+
+
+#
+# End
+#
+

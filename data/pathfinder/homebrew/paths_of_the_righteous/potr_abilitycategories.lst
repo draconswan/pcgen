@@ -1,0 +1,5 @@
+# Ability Category									Visible				Editable?		Change Pool?																Category of Object			Type of Object														Plural description for UI					Display Location
+ABILITYCATEGORY:Crimson Templar Class Feature		VISIBLE:QUALIFY		EDITABLE:YES	EDITPOOL:NO																	CATEGORY:Special Ability	TYPE:Crimson Templar Class Feature.CrimsonTemplarClassFeatures		PLURAL:Crimson Templar Class Features		DISPLAYLOCATION:Class Features
+ABILITYCATEGORY:Crimson Templar Bonus Feat			VISIBLE:QUALIFY		EDITABLE:YES	EDITPOOL:YES	FRACTIONALPOOL:NO		POOL:Pool_CrimsonTemplarBonusFeat	CATEGORY:FEAT				TYPE:Combat															PLURAL:Crimson Templar Bonus Feats			DISPLAYLOCATION:Feats
+
+ABILITYCATEGORY:Heritor Knight Class Feature		VISIBLE:QUALIFY		EDITABLE:YES	EDITPOOL:NO																	CATEGORY:Special Ability	TYPE:Heritor Knight Class Feature.HeritorKnightClassFeatures		PLURAL:Heritor Knight Class Features		DISPLAYLOCATION:Class Features

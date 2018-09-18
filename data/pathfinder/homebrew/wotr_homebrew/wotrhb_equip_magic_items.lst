@@ -1,0 +1,7 @@
+# CVS $Revision$ $Author$ -- Sat Nov 23 14:46:39 2013 -- reformated by prettylst.pl v1.50 (build 22134)
+SOURCELONG:Wrath of the Righteous Homebrew	SOURCESHORT:WOTRHB		SOURCEDATE:2017-08
+
+Ring of Lead Blades (Unarmed Strike)			TYPE:Magic.Ring			COST:4000		BONUS:WEAPONPROF=Unarmed Strike|DAMAGESIZE|1
+Ring of Strong Jaw								TYPE:Magic.Ring			COST:112000		BONUS:WEAPONPROF=TYPE.Natural|DAMAGESIZE|2
+Ring of Strong Jaw (Unarmed Strike)				TYPE:Magic.Ring			COST:112000		BONUS:WEAPONPROF=Unarmed Strike|DAMAGESIZE|2
+Ring of Lead Blades								TYPE:Magic.Ring			COST:4000		BONUS:WEAPONPROF=TYPE.Melee|DAMAGESIZE|1

@@ -1,0 +1,17 @@
+# CVS $Revision$ $Author$ -- Sat Nov 23 14:46:39 2013 -- reformated by prettylst.pl v1.50 (build 22134)
+SOURCELONG:Wrath of the Righteous Homebrew	SOURCESHORT:WOTRHB		SOURCEDATE:2017-08
+
+Battered Pistol (Dragon)		OUTPUTNAME:Battered Dragon Pistol		PROFICIENCY:WEAPON|Pistol (Dragon)							TYPE:Weapon.Resizable.Exotic.Ranged.Standard.Piercing.Bludgeoning.Container.Projectile.Firearm.Battered.Pistol.Scatter				CONTAINS:1|FirearmBullet=1|FirearmPellet=1	COST:40	WT:3		CRITMULT:x4	CRITRANGE:1							DAMAGE:1d6					EQMOD:Steel									WIELD:OneHandOnly		RANGE:20	SIZE:M	SOURCEPAGE:p.139	SPROP:Misfire 1-2 (5 ft.); Scatter 15' cone
+
+Padded.MOD				BONUS:MISC|SPELLFAILURE|-5|PREVAREQ:DisableLightArmorSpellFailure,1
+Leather.MOD				BONUS:MISC|SPELLFAILURE|-10|PREVAREQ:DisableLightArmorSpellFailure,1
+Studded Leather.MOD		BONUS:MISC|SPELLFAILURE|-15|PREVAREQ:DisableLightArmorSpellFailure,1
+Chain Shirt.MOD			BONUS:MISC|SPELLFAILURE|-20|PREVAREQ:DisableLightArmorSpellFailure,1
+Hide.MOD				BONUS:MISC|SPELLFAILURE|-20|PREVAREQ:DisableMediumArmorSpellFailure,1
+Scale Mail.MOD			BONUS:MISC|SPELLFAILURE|-25|PREVAREQ:DisableMediumArmorSpellFailure,1
+Chainmail.MOD			BONUS:MISC|SPELLFAILURE|-30|PREVAREQ:DisableMediumArmorSpellFailure,1
+Breastplate.MOD			BONUS:MISC|SPELLFAILURE|-25|PREVAREQ:DisableMediumArmorSpellFailure,1
+Splint Mail.MOD			BONUS:MISC|SPELLFAILURE|-40|PREVAREQ:DisableHeavyArmorSpellFailure,1
+Banded Mail.MOD			BONUS:MISC|SPELLFAILURE|-35|PREVAREQ:DisableHeavyArmorSpellFailure,1
+Half-Plate.MOD			BONUS:MISC|SPELLFAILURE|-40|PREVAREQ:DisableHeavyArmorSpellFailure,1
+Full Plate.MOD			BONUS:MISC|SPELLFAILURE|-35|PREVAREQ:DisableHeavyArmorSpellFailure,1
