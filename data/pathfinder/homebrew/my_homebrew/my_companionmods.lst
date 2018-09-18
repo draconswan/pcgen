@@ -75,3 +75,6 @@ SOURCELONG:My Pathfinder Campaign	SOURCESHORT:MPC	SOURCEWEB:http://www.mywebsite
 #
 #The ABILITY:FEAT|VIRTUAL| tag is holding a list of feats that the character gains as virtual feats. Virtual Feats are granted to the character
 #regardless of the prerequisites.
+
+
+FOLLOWER:EvolvedCompanionFeatCount=1	TYPE:Cavalier Mount																																																																																														BONUS:ABILITYPOOL|Eidolon Evolution|mastervar("EvolvedCompanionFeatCount")

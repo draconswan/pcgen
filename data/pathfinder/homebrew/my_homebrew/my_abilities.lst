@@ -1,67 +1,58 @@
 SOURCELONG:My Pathfinder Campaign	SOURCESHORT:MPC	SOURCEWEB:http://www.mywebsite.com	SOURCEDATE:2008-01
 
-# Class Feature Blank
-#	KEY:xxx ~
-#	CATEGORY:Special Ability
-#	TYPE:xxx Class Feature.SpecialQuality
-#	SOURCEPAGE:p.
-#	DESC:
-
-# Race or Racial Trait Blank
-#	KEY:xxx ~
-#	CATEGORY:Special Ability
-#	TYPE:xxx Race Trait.Race Trait.SpecialQuality
-#	SOURCEPAGE:p.
-#	DESC:
-
-
 #insert your data here
+#Draconic Bloodline		KEY:Draconic Bloodline ~ Hybrid		CATEGORY:Blood of Dragons Bloodline		TYPE:BloodragerBloodline		BONUS:VAR|BloodlineCasterLVL|DragonDiscipleLVL|PREVARGTEQ:BloodragerLVL,1		BONUS:VAR|BloodlineLVL|DragonDiscipleLVL		BONUS:VAR|BloodlineProgressionLVL|DragonDiscipleLVL		BONUS:VAR|Sorcerer_Draconic_BloodlineArcana1|if(SorcererLVL>=1,0,-1)		BONUS:VAR|Sorcerer_Draconic_BloodlineSpells1|if(SorcererLVL>=1,0,-1)		BONUS:VAR|Sorcerer_Draconic_BloodlineClassSkill1|if(SorcererLVL>=1,0,-1)		BONUS:VAR|Sorcerer_Draconic_BloodlinePower1|1|PREVAREQ:Sorcerer_CF_BloodlinePower1,0|PREVARGTEQ:DragonDiscipleLVL,1		BONUS:VAR|Sorcerer_Draconic_BloodlinePower3|1|PREVAREQ:Sorcerer_CF_BloodlinePower3,0|PREMULT:1,[PREVARGTEQ:SorcererLVL,3],[PREVARGTEQ:DragonDiscipleLVL,3]		BONUS:VAR|Sorcerer_Draconic_BloodlinePower9|1|PREVAREQ:Sorcerer_CF_BloodlinePower9,0|PREMULT:1,[PREVARGTEQ:SorcererLVL,9],[PREVARGTEQ:DragonDiscipleLVL,9]		BONUS:VAR|Sorcerer_Draconic_BloodlinePower15|1|PREVAREQ:Sorcerer_CF_BloodlinePower15,0|PREMULT:1,[PREVARGTEQ:SorcererLVL,15],[PREVARGTEQ:DragonDiscipleLVL,15]		BONUS:VAR|Sorcerer_Draconic_BloodlinePower20|1|PREVAREQ:Sorcerer_CF_BloodlinePower20,0|PREMULT:1,[PREVARGTEQ:SorcererLVL,20],[PREVARGTEQ:DragonDiscipleLVL,20]		ABILITY:Internal|AUTOMATIC|Draconic Bloodline ~ Feat Tracker		ABILITY:Special Ability|AUTOMATIC|Sorcerer Bloodline ~ Draconic		ABILITY:Sorcerer Bloodline|AUTOMATIC|Draconic Bloodline		!PREABILITY:1,CATEGORY=Archetype,Sorcerer Archetype ~ Crossblooded
 
-#Every line that starts with a '#' is a comment. You may want to remove these comments, if you use this file to set up
-#your own data. Remember not to put the '#' at the start of your own data, as PCGen would see it as a comment only.
-#
-#When Running PCGen, you can select "Help > Documentation > List Files > List File Tag Index > Feat File tags" to find
-#out how the tags in the feats file work. Some of the tags used here are global tags. You will see an alphabetical
-#listing of all PCGen tags to the left of the documentation window. You can find the global tags there as well.
-#
-# Abilities are the newest method for all aspects of class & race abilities. Currently we use hidden feats to emulate
-# class and racial abilities. The advent of Abilities allows us to use one standard format for a variety of things.
-# Generally Abilities are exactly the same in format as a Feat with the exception of a NEW tag CATEGORY which tells
-# PCGen what the ability is to be categoried as - example: My Ability is part of the my_abilities category, So I can add
-# points only to the my_abilities allowing very small and restricted lists. Another example would be Fighter Bonus feats.
-#
-# Feat and ability are used through out this example as they almost the same thing - ABILITY can also be used to add "Feats"
-# using the CATEGORY:FEAT tag.
-# You can also use PREFEAT for any CATEGORY:FEAT, for the rest you'll need to use PREABILITY:x,CATEGORY=<category>,Foo,TYPE.Bar (x is the number)
-#####1st Example
+CATEGORY=Special Ability|Master Of Many Styles ~ Bonus Feat.MOD			BONUS:ABILITYPOOL|Monk Bonus Feat|-(1+MAX((MonkBonusFeatLVL+2)/4,0))
 
-#My Ability			CATEGORY:my_abilities		TYPE:General.DataMonkey		DESC:See Text						SOURCEPAGE:Custom
-#My Second Ability	CATEGORY:Special			TYPE:MonkeyFoo			DESC:This is the great second ability.		SOURCEPAGE:Custom	PREABILITY:1,CATEGORY=my_abilities,My Ability
+#Master of Many Style LoD Feats
+Linnorm Style			KEY:Monk Bonus Feat ~ Linnorm Style				CATEGORY:Special Ability		TYPE:MonkBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Linnorm Style			PREVARGTEQ:MonkBonusFeat_LinnormStyle,1			ABILITY:FEAT|VIRTUAL|Linnorm Style
+Linnorm Vengeance		KEY:Monk Bonus Feat ~ Linnorm Vengeance			CATEGORY:Special Ability		TYPE:MonkBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Linnorm Vengeance		PREVARGTEQ:MonkBonusFeat_LinnormVengeance,1		ABILITY:FEAT|VIRTUAL|Linnorm Vengeance
+Linnorm Wrath			KEY:Monk Bonus Feat ~ Linnorm Wrath				CATEGORY:Special Ability		TYPE:MonkBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Linnorm Wrath			PREVARGTEQ:MonkBonusFeat_LinnormWrath,1			ABILITY:FEAT|VIRTUAL|Linnorm Wrath
+Tatzlwyrm Claw Style	KEY:Monk Bonus Feat ~ Tatzlwyrm Claw Style		CATEGORY:Special Ability		TYPE:MonkBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Tatzlwyrm Claw Style	PREVARGTEQ:MonkBonusFeat_TatzlwyrmClawStyle,1	ABILITY:FEAT|VIRTUAL|Tatzlwyrm Claw Style
+Tatzlwyrm Grappler		KEY:Monk Bonus Feat ~ Tatzlwyrm Grappler		CATEGORY:Special Ability		TYPE:MonkBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Tatzlwyrm Grappler		PREVARGTEQ:MonkBonusFeat_TatzlwyrmGrappler,1	ABILITY:FEAT|VIRTUAL|Tatzlwyrm Grappler
+Tatzlwyrm Rake			KEY:Monk Bonus Feat ~ Tatzlwyrm Rake			CATEGORY:Special Ability		TYPE:MonkBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Tatzlwyrm Rake			PREVARGTEQ:MonkBonusFeat_TatzlwyrmRake,1		ABILITY:FEAT|VIRTUAL|Tatzlwyrm Rake
+Wyvern Fury Style		KEY:Monk Bonus Feat ~ Wyvern Fury Style			CATEGORY:Special Ability		TYPE:MonkBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Wyvern Fury Style		PREVARGTEQ:MonkBonusFeat_WyvernFuryStyle,1		ABILITY:FEAT|VIRTUAL|Wyvern Fury Style
+Wyvern Sting			KEY:Monk Bonus Feat ~ Wyvern Sting				CATEGORY:Special Ability		TYPE:MonkBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Wyvern Sting			PREVARGTEQ:MonkBonusFeat_WyvernSting,1			ABILITY:FEAT|VIRTUAL|Wyvern Sting
+Wyvern Wing				KEY:Monk Bonus Feat ~ Wyvern Wing				CATEGORY:Special Ability		TYPE:MonkBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Wyvern Wing				PREVARGTEQ:MonkBonusFeat_WyvernWing,1			ABILITY:FEAT|VIRTUAL|Wyvern Wing
 
-###SAMPLE FOR 'Ability by Skill'
-#Ac Ba			CATEGORY:AbilitybySkill		TYPE:AbilitybySkill.Movement	VISIBLE:YES		!PREABILITY:1,CATEGORY=AbilitybySkill,Ac Ba	PRESKILL:1,Tumble=12	PREVARLT:AbilitybySkillCount,AbilitybySkillMax	DEFINE:AbilitybySkillCount|0		DESC:<appropriate description>	BONUS:VAR|AbilitybySkillCount|1
+CATEGORY=Special Ability|Monk ~ Monk Bonus Feat.MOD	DEFINE:MonkBonusFeat_LinnormStyle|0
+CATEGORY=Special Ability|Monk ~ Monk Bonus Feat.MOD	DEFINE:MonkBonusFeat_LinnormVengeance|0
+CATEGORY=Special Ability|Monk ~ Monk Bonus Feat.MOD	DEFINE:MonkBonusFeat_LinnormWrath|0
+CATEGORY=Special Ability|Monk ~ Monk Bonus Feat.MOD	DEFINE:MonkBonusFeat_TatzlwyrmClawStyle|0
+CATEGORY=Special Ability|Monk ~ Monk Bonus Feat.MOD	DEFINE:MonkBonusFeat_TatzlwyrmGrappler|0
+CATEGORY=Special Ability|Monk ~ Monk Bonus Feat.MOD	DEFINE:MonkBonusFeat_TatzlwyrmRake|0
+CATEGORY=Special Ability|Monk ~ Monk Bonus Feat.MOD	DEFINE:MonkBonusFeat_WyvernFuryStyle|0
+CATEGORY=Special Ability|Monk ~ Monk Bonus Feat.MOD	DEFINE:MonkBonusFeat_WyvernSting|0
+CATEGORY=Special Ability|Monk ~ Monk Bonus Feat.MOD	DEFINE:MonkBonusFeat_WyvernWing|0
 
-#####
-#Each ability takes one line, just like a feat, and the first field must be the abilities' name. In the Example the name of the ability is My Ability.
-#When naming feats you should only use parentheses at the end of the name if the name is not duplicated elsewhere. This is
-#because of how PCGen names abilities which can be taken multiple times. For example, the Feat/ability Weapon Focus when taken will display
-#as Weapon Focus(Dagger). Another example is Armor Proficiency (Light), there is no feat named Armor Proficiency so this name
-#is fine. What is happening is when PCGen finds a feat with parentheses that duplicates the name of another feat it assumes
-#that feat is an instance of the one without parentheses and does not display the one with parentheses.
-#
-#The TYPE tag is holding a . (period) delimited list of the types the ability/feat is.
-#
-#The DESC tag is used to hold the description of the Ability/Feat. In our files we usually keep the description brief, so the user
-#still need to own the book to make use of the data, but for your personal files can get as elaborate as you want there.
-#
-#The MULT tag determines if a ability/feat can be taken multiple times. If the value is set to YES, then you MUST also use a CHOOSE
-#tag.
-#
-#The CHOOSE tag must be paired with a MULT:YES tag in feats for it to work properly. It will display a popup window that asks
-#for a selection according to what is being called for. There is a multitude of existing CHOOSE tags in PCGen. If you are
-#looking into the documentation under List File Tag Index, you can find them listed under the topic "CHOOSE tags".
-#
-#The BONUS tags are a group of similar tags, that grant some form of Bonus to another already existing tag. To read a description
-#of them, look in the List File Tag Index under the topic "Bonus tags".
-#
-#The SOURCEPAGE tag can be used to hold a reference to where you can find the feat. This will be displayed in PCGen.
+CATEGORY=Special Ability|Master Of Many Styles ~ Bonus Feat.MOD	BONUS:VAR|MonkBonusFeat_LinnormStyle|1|PREVARGTEQ:PreStatScore_WIS,13|PREABILITY:1,CATEGORY=FEAT,Improved Unarmed Strike|PREMULT:1,[PRETOTALAB:3],[PRECLASS:1,Monk=3]
+CATEGORY=Special Ability|Master Of Many Styles ~ Bonus Feat.MOD	BONUS:VAR|MonkBonusFeat_LinnormVengeance|1|PREVARGTEQ:PreStatScore_WIS,13|PREABILITY:2,CATEGORY=FEAT,Improved Unarmed Strike,Linnorm Style|PREMULT:1,[PRETOTALAB:6],[PRECLASS:1,Monk=6]
+CATEGORY=Special Ability|Master Of Many Styles ~ Bonus Feat.MOD	BONUS:VAR|MonkBonusFeat_LinnormWrath|1|PREVARGTEQ:PreStatScore_WIS,13|PREABILITY:3,CATEGORY=FEAT,Improved Unarmed Strike,Linnorm Style,Linnorm Vengeance|PREMULT:1,[PRETOTALAB:9],[PRECLASS:1,Monk=9]
+CATEGORY=Special Ability|Master Of Many Styles ~ Bonus Feat.MOD	BONUS:VAR|MonkBonusFeat_TatzlwyrmClawStyle|1|PREVARGTEQ:PreStatScore_DEX,13|PREABILITY:2,CATEGORY=FEAT,Improved Grapple,Improved Unarmed Strike|PRESKILL:1,Escape Artist=1
+CATEGORY=Special Ability|Master Of Many Styles ~ Bonus Feat.MOD	BONUS:VAR|MonkBonusFeat_TatzlwyrmGrappler|1|PREVARGTEQ:PreStatScore_DEX,13|PREABILITY:3,CATEGORY=FEAT,Improved Grapple,Improved Unarmed Strike,Tatzlwyrm Claw Style|PRESKILL:1,Escape Artist=3
+CATEGORY=Special Ability|Master Of Many Styles ~ Bonus Feat.MOD	BONUS:VAR|MonkBonusFeat_TatzlwyrmRake|1|PREVARGTEQ:PreStatScore_DEX,13|PREABILITY:4,CATEGORY=FEAT,Improved Grapple,Improved Unarmed Strike,Tatzlwyrm Claw Style,Tatzlwyrm Grappler|PRESKILL:1,Escape Artist=8
+CATEGORY=Special Ability|Master Of Many Styles ~ Bonus Feat.MOD	BONUS:VAR|MonkBonusFeat_WyvernFuryStyle|1|PREWEAPONPROF:1,Whip|PRESKILL:1,Acrobatics=3|PREABILITY:1,CATEGORY=Special Ability,Monk ~ Flurry of Blows,Brawler ~ Brawler's Flurry
+CATEGORY=Special Ability|Master Of Many Styles ~ Bonus Feat.MOD	BONUS:VAR|MonkBonusFeat_WyvernSting|1|PREWEAPONPROF:1,Whip|PRESKILL:1,Acrobatics=6|PREABILITY:1,CATEGORY=Special Ability,Monk ~ Flurry of Blows,Brawler ~ Brawler's Flurry|PREABILITY:1,CATEGORY=FEAT,Wyvern Fury Style
+CATEGORY=Special Ability|Master Of Many Styles ~ Bonus Feat.MOD	BONUS:VAR|MonkBonusFeat_WyvernWing|1|PREWEAPONPROF:1,Whip|PRESKILL:1,Acrobatics=10|PREABILITY:1,CATEGORY=Special Ability,Monk ~ Flurry of Blows,Brawler ~ Brawler's Flurry|PREABILITY:2,CATEGORY=FEAT,Wyvern Fury Style,Wyvern Sting
+
+Linnorm Style			KEY:Master Of Many Styles ~ Linnorm Style			CATEGORY:Special Ability		TYPE:MasterOfManyStylesBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Linnorm Style			PREVARGTEQ:PreStatScore_WIS,13		PREABILITY:1,CATEGORY=FEAT,Improved Unarmed Strike																															PREMULT:1,[PRETOTALAB:3],[PRECLASS:1,Monk=3]		ABILITY:FEAT|VIRTUAL|Linnorm Style
+Linnorm Vengeance		KEY:Master Of Many Styles ~ Linnorm Vengeance		CATEGORY:Special Ability		TYPE:MasterOfManyStylesBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Linnorm Vengeance		PREVARGTEQ:PreStatScore_WIS,13		PREABILITY:2,CATEGORY=FEAT,Improved Unarmed Strike,Linnorm Style																											PREMULT:1,[PRETOTALAB:6],[PRECLASS:1,Monk=6]		ABILITY:FEAT|VIRTUAL|Linnorm Vengeance
+Linnorm Wrath			KEY:Master Of Many Styles ~ Linnorm Wrath			CATEGORY:Special Ability		TYPE:MasterOfManyStylesBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Linnorm Wrath			PREVARGTEQ:PreStatScore_WIS,13		PREABILITY:3,CATEGORY=FEAT,Improved Unarmed Strike,Linnorm Style,Linnorm Vengeance																							PREMULT:1,[PRETOTALAB:9],[PRECLASS:1,Monk=9]		ABILITY:FEAT|VIRTUAL|Linnorm Wrath
+Tatzlwyrm Claw Style	KEY:Master Of Many Styles ~ Tatzlwyrm Claw Style	CATEGORY:Special Ability		TYPE:MasterOfManyStylesBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Tatzlwyrm Claw Style	PREVARGTEQ:PreStatScore_DEX,13		PREABILITY:2,CATEGORY=FEAT,Improved Grapple,Improved Unarmed Strike																											PRESKILL:1,Escape Artist=1							ABILITY:FEAT|VIRTUAL|Tatzlwyrm Claw Style
+Tatzlwyrm Grappler		KEY:Master Of Many Styles ~ Tatzlwyrm Grappler		CATEGORY:Special Ability		TYPE:MasterOfManyStylesBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Tatzlwyrm Grappler		PREVARGTEQ:PreStatScore_DEX,13		PREABILITY:3,CATEGORY=FEAT,Improved Grapple,Improved Unarmed Strike,Tatzlwyrm Claw Style																					PRESKILL:1,Escape Artist=3							ABILITY:FEAT|VIRTUAL|Tatzlwyrm Grappler
+Tatzlwyrm Rake			KEY:Master Of Many Styles ~ Tatzlwyrm Rake			CATEGORY:Special Ability		TYPE:MasterOfManyStylesBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Tatzlwyrm Rake			PREVARGTEQ:PreStatScore_DEX,13		PREABILITY:4,CATEGORY=FEAT,Improved Grapple,Improved Unarmed Strike,Tatzlwyrm Claw Style,Tatzlwyrm Grappler																	PRESKILL:1,Escape Artist=8							ABILITY:FEAT|VIRTUAL|Tatzlwyrm Rake
+Wyvern Fury Style		KEY:Master Of Many Styles ~ Wyvern Fury Style		CATEGORY:Special Ability		TYPE:MasterOfManyStylesBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Wyvern Fury Style		PREWEAPONPROF:1,Whip				PREABILITY:1,CATEGORY=Special Ability,Monk ~ Flurry of Blows,Brawler ~ Brawler's Flurry																						PRESKILL:1,Acrobatics=3								ABILITY:FEAT|VIRTUAL|Wyvern Fury Style
+Wyvern Sting			KEY:Master Of Many Styles ~ Wyvern Sting			CATEGORY:Special Ability		TYPE:MasterOfManyStylesBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Wyvern Sting			PREWEAPONPROF:1,Whip				PREABILITY:1,CATEGORY=Special Ability,Monk ~ Flurry of Blows,Brawler ~ Brawler's Flurry							PREABILITY:1,CATEGORY=FEAT,Wyvern Fury Style				PRESKILL:1,Acrobatics=6								ABILITY:FEAT|VIRTUAL|Wyvern Sting
+Wyvern Wing				KEY:Master Of Many Styles ~ Wyvern Wing				CATEGORY:Special Ability		TYPE:MasterOfManyStylesBonusFeat	VISIBLE:DISPLAY		!PREABILITY:1,CATEGORY=FEAT,Wyvern Wing				PREWEAPONPROF:1,Whip				PREABILITY:1,CATEGORY=Special Ability,Monk ~ Flurry of Blows,Brawler ~ Brawler's Flurry							PREABILITY:2,CATEGORY=FEAT,Wyvern Fury Style,Wyvern Sting	PRESKILL:1,Acrobatics=10							ABILITY:FEAT|VIRTUAL|Wyvern Wing
+
+CATEGORY=Special Ability|Monk ~ Still Mind.MOD				TYPE:Still Mind
+CATEGORY=Special Ability|Unchained Monk ~ Still Mind.MOD	TYPE:Still Mind
+
+CATEGORY=Special Ability|Ioun Stone / Emerald Ellipsoid.MOD		BONUS:HP|CURRENTMAX|5*(EmeraldStoneStack)|TYPE=Temporary																																																															SOURCEPAGE:p.44
+
+Thick Hide		CATEGORY:Special Ability	TYPE:GM_Award.SpecialQuality	PRERACE:1,Yeti	DESC:The abominable snowmen of the Kodars have thicker fur and hides than most yetis—their base natural armor bonus is +14 and they possess damage reduction 10/ piercing as a result.		BONUS:VAR|AC_Natural_Armor|14|TYPE=Base		DR:10/Piercing		COST:0
+
+Extra Skill Training	CATEGORY:Special Ability	TYPE:GM_Award.SpecialQuality	DESC:This character has more skills per level than others of their class	STACK:YES	MULT:YES	CHOOSE:NOCHOICE		DEFINE:SkillPointBonus|0		BONUS:VAR|SkillPointBonus|1		COST:0
+
+Profane Gift		CATEGORY:Special Ability	TYPE:GM_Award.SpecialQuality	DESC:This character has been given a profane gift from a Succubus.  They receive a +2 bonus to the stat of their choice.  A single creature may have no more than one profane gift from a succubus at a time. As long as the profane gift persists, the succubus can communicate telepathically with the target across any distance (and may use her suggestion spell-like ability through it). A profane gift is removed by dispel evil or dispel chaos. The succubus can remove it as well as a free action (causing 2d6 Charisma drain to the victim, no save).	MULT:YES	STACK:NO		CHOOSE:PCSTAT|STR|DEX|CON|INT|WIS|CHA	BONUS:STAT|%LIST|2|TYPE=Profane	COST:0

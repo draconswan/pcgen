@@ -1,0 +1,2 @@
+CATEGORY=Internal|Default.MOD		DEFINE:ActivateLegendaryProportions|0	ABILITY:Internal|AUTOMATIC|Temp Bonus ~ Legendary Proportions|PREVAREQ:ActivateLegendaryProportions,1
+Temp Bonus ~ Legendary Proportions		CATEGORY:Internal		BONUS:COMBAT|TOHIT.GRAPPLE|5|TYPE=Size	BONUS:SIZEMOD|NUMBER|1	BONUS:STAT|STR|6|TYPE=Size	BONUS:STAT|CON|4|TYPE=Size	BONUS:COMBAT|AC|6|TYPE=NaturalArmorEnhancement.STACK		BONUS:DR|Adamantine|10		BONUS:VAR|SizeIncrease|-1	BONUS:VAR|DamageSizeAdjustment|1	ABILITY:Internal|AUTOMATIC|Enlarge/Reduce Weapon List

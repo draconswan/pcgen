@@ -1,53 +1,39 @@
-# CVS $Revision$ $Author$ -- Sat Nov 23 14:46:39 2013 -- reformated by prettylst.pl v1.50 (build 22134)
 SOURCELONG:My Pathfinder Campaign	SOURCESHORT:MPC	SOURCEWEB:http://www.mywebsite.com	SOURCEDATE:2008-01
 
-#insert your data here
+Ring of Lead Blades (Unarmed Strike)			TYPE:Magic.Ring									COST:4000						BONUS:WEAPONPROF=Unarmed Strike|DAMAGESIZE|1
+Ring of Strong Jaw								TYPE:Magic.Ring									COST:112000						BONUS:WEAPONPROF=TYPE.Natural|DAMAGESIZE|2
+Ring of Strong Jaw (Unarmed Strike)				TYPE:Magic.Ring									COST:112000						BONUS:WEAPONPROF=Unarmed Strike|DAMAGESIZE|2
+Ring of Lead Blades								TYPE:Magic.Ring									COST:4000						BONUS:WEAPONPROF=TYPE.Melee|DAMAGESIZE|1
+Ring of Gravity Bow								TYPE:Magic.Ring									COST:4000						BONUS:WEAPONPROF=TYPE.Ranged|DAMAGESIZE|1
 
-#Every line that starts with a '#' is a comment. You may want to remove these comments, if you use this file to set up
-#your own data. Remember not to put the '#' at the start of your own data, as PCGen would see it as a comment only.
-#
-#When Running PCGen, you can select "Help > Documentation > List Files > List File Tag Index > Equipment File tags" to find
-#out how the tags in the races file work. Some of the tags used here are global tags. You will see an alphabetical listing
-#of all PCGen tags to the left of the documentation window. You can find the global tags there as well.
-#
-#
-#
-#
-#####1st Example
+Amulet of the Crusader Monk						TYPE:Magic.Wondrous.Amulet.AmuletOfMightyFists	COST:175000		WT:0.02			BONUS:COMBAT|AC|5|TYPE=NaturalArmorEnhancement		EQMOD:Special Ability ~ Axiomatic ~ Amulet of Mighty Fists.Special Ability ~ Holy ~ Amulet of Mighty Fists.Special Ability ~ Bane ~ Amulet of Mighty Fists|Outsiders (Evil)
 
-#Dagger		PROFICIENCY:WEAPON|Dagger		TYPE:Weapon.Resizable.Melee.Finesseable.Ranged.Thrown.Simple.Standard.Piercing.Slashing.Dagger		COST:2	WT:1		CRITMULT:x2		CRITRANGE:2		DAMAGE:1d4		EQMOD:Material ~ Steel		WIELD:Light		RANGE:10	SIZE:M
+2 Ioun Stones (Crimson Sphere)		OUTPUTNAME:2 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:48000		DEFINE:IounStoneINTBonus|0	BONUS:VAR|IounStoneINTBonus|4	ABILITY:Internal|AUTOMATIC|Equipment Bonus ~ Ioun Stone INT Bonus		SOURCEPAGE:p.44		SPROP:Adds a +2 Enhancement bonus to Intelligence.  Multiple stones stack up to +6 bonus.	
+3 Ioun Stones (Crimson Sphere)		OUTPUTNAME:3 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:72000		DEFINE:IounStoneINTBonus|0	BONUS:VAR|IounStoneINTBonus|6	ABILITY:Internal|AUTOMATIC|Equipment Bonus ~ Ioun Stone INT Bonus		SOURCEPAGE:p.44		SPROP:Adds a +2 Enhancement bonus to Intelligence.  Multiple stones stack up to +6 bonus.
 
-#####
-#
-#####2nd Example
+2 Ioun Stones (Amber Spindle)		OUTPUTNAME:2 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:10000		DEFINE:AmberStoneStack|0	BONUS:VAR|AmberStoneStack|1		BONUS:VAR|IounStoneFortitudeSaveBonus|1		BONUS:VAR|IounStoneReflexSaveBonus|1		BONUS:VAR|IounStoneWillSaveBonus|1		ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Amber Spindle		SOURCEPAGE:p.44		SPROP:Adds a +1 Resistance bonus to saving throws.  Multiple stones stack up to +5 bonus.
+3 Ioun Stones (Amber Spindle)		OUTPUTNAME:3 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:15000		DEFINE:AmberStoneStack|0	BONUS:VAR|AmberStoneStack|2		BONUS:VAR|IounStoneFortitudeSaveBonus|2		BONUS:VAR|IounStoneReflexSaveBonus|2		BONUS:VAR|IounStoneWillSaveBonus|2		ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Amber Spindle		SOURCEPAGE:p.44		SPROP:Adds a +1 Resistance bonus to saving throws.  Multiple stones stack up to +5 bonus.
+4 Ioun Stones (Amber Spindle)		OUTPUTNAME:4 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:20000		DEFINE:AmberStoneStack|0	BONUS:VAR|AmberStoneStack|3		BONUS:VAR|IounStoneFortitudeSaveBonus|3		BONUS:VAR|IounStoneReflexSaveBonus|3		BONUS:VAR|IounStoneWillSaveBonus|3		ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Amber Spindle		SOURCEPAGE:p.44		SPROP:Adds a +1 Resistance bonus to saving throws.  Multiple stones stack up to +5 bonus.
+5 Ioun Stones (Amber Spindle)		OUTPUTNAME:5 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:25000		DEFINE:AmberStoneStack|0	BONUS:VAR|AmberStoneStack|4		BONUS:VAR|IounStoneFortitudeSaveBonus|4		BONUS:VAR|IounStoneReflexSaveBonus|4		BONUS:VAR|IounStoneWillSaveBonus|4		ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Amber Spindle		SOURCEPAGE:p.44		SPROP:Adds a +1 Resistance bonus to saving throws.  Multiple stones stack up to +5 bonus.
 
-#Saddlebags		TYPE:Goods.Container.Mount.Resizable		CONTAINS:UNLIM|Any=UNLIM	COST:4	WT:8		SOURCEPAGE:Equipment
+2 Ioun Stones (Emerald Ellipsoid)	OUTPUTNAME:2 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:40000		DEFINE:EmeraldStoneStack|0	BONUS:VAR|EmeraldStoneStack|2	ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Emerald Ellipsoid	SOURCEPAGE:p.44		SPROP:Adds 5 temporary hit points.  Multiple stones stack, no known limit.
+3 Ioun Stones (Emerald Ellipsoid)	OUTPUTNAME:3 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:60000		DEFINE:EmeraldStoneStack|0	BONUS:VAR|EmeraldStoneStack|3	ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Emerald Ellipsoid	SOURCEPAGE:p.44		SPROP:Adds 5 temporary hit points.  Multiple stones stack, no known limit.
+4 Ioun Stones (Emerald Ellipsoid)	OUTPUTNAME:4 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:80000		DEFINE:EmeraldStoneStack|0	BONUS:VAR|EmeraldStoneStack|4	ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Emerald Ellipsoid	SOURCEPAGE:p.44		SPROP:Adds 5 temporary hit points.  Multiple stones stack, no known limit.
+5 Ioun Stones (Emerald Ellipsoid)	OUTPUTNAME:5 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:100000		DEFINE:EmeraldStoneStack|0	BONUS:VAR|EmeraldStoneStack|5	ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Emerald Ellipsoid	SOURCEPAGE:p.44		SPROP:Adds 5 temporary hit points.  Multiple stones stack, no known limit.
+6 Ioun Stones (Emerald Ellipsoid)	OUTPUTNAME:6 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:120000		DEFINE:EmeraldStoneStack|0	BONUS:VAR|EmeraldStoneStack|6	ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Emerald Ellipsoid	SOURCEPAGE:p.44		SPROP:Adds 5 temporary hit points.  Multiple stones stack, no known limit.
+7 Ioun Stones (Emerald Ellipsoid)	OUTPUTNAME:7 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:140000		DEFINE:EmeraldStoneStack|0	BONUS:VAR|EmeraldStoneStack|7	ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Emerald Ellipsoid	SOURCEPAGE:p.44		SPROP:Adds 5 temporary hit points.  Multiple stones stack, no known limit.
+8 Ioun Stones (Emerald Ellipsoid)	OUTPUTNAME:8 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:160000		DEFINE:EmeraldStoneStack|0	BONUS:VAR|EmeraldStoneStack|8	ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Emerald Ellipsoid	SOURCEPAGE:p.44		SPROP:Adds 5 temporary hit points.  Multiple stones stack, no known limit.
+9 Ioun Stones (Emerald Ellipsoid)	OUTPUTNAME:9 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:180000		DEFINE:EmeraldStoneStack|0	BONUS:VAR|EmeraldStoneStack|9	ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Emerald Ellipsoid	SOURCEPAGE:p.44		SPROP:Adds 5 temporary hit points.  Multiple stones stack, no known limit.
+10 Ioun Stones (Emerald Ellipsoid)	OUTPUTNAME:10 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:200000		DEFINE:EmeraldStoneStack|0	BONUS:VAR|EmeraldStoneStack|10	ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Emerald Ellipsoid	SOURCEPAGE:p.44		SPROP:Adds 5 temporary hit points.  Multiple stones stack, no known limit.
+11 Ioun Stones (Emerald Ellipsoid)	OUTPUTNAME:11 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:220000		DEFINE:EmeraldStoneStack|0	BONUS:VAR|EmeraldStoneStack|11	ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Emerald Ellipsoid	SOURCEPAGE:p.44		SPROP:Adds 5 temporary hit points.  Multiple stones stack, no known limit.
+12 Ioun Stones (Emerald Ellipsoid)	OUTPUTNAME:12 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:240000		DEFINE:EmeraldStoneStack|0	BONUS:VAR|EmeraldStoneStack|12	ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Emerald Ellipsoid	SOURCEPAGE:p.44		SPROP:Adds 5 temporary hit points.  Multiple stones stack, no known limit.
+13 Ioun Stones (Emerald Ellipsoid)	OUTPUTNAME:13 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:260000		DEFINE:EmeraldStoneStack|0	BONUS:VAR|EmeraldStoneStack|13	ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Emerald Ellipsoid	SOURCEPAGE:p.44		SPROP:Adds 5 temporary hit points.  Multiple stones stack, no known limit.
+14 Ioun Stones (Emerald Ellipsoid)	OUTPUTNAME:14 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:280000		DEFINE:EmeraldStoneStack|0	BONUS:VAR|EmeraldStoneStack|14	ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Emerald Ellipsoid	SOURCEPAGE:p.44		SPROP:Adds 5 temporary hit points.  Multiple stones stack, no known limit.
+15 Ioun Stones (Emerald Ellipsoid)	OUTPUTNAME:15 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:300000		DEFINE:EmeraldStoneStack|0	BONUS:VAR|EmeraldStoneStack|15	ABILITY:Special Ability|AUTOMATIC|Ioun Stone / Emerald Ellipsoid	SOURCEPAGE:p.44		SPROP:Adds 5 temporary hit points.  Multiple stones stack, no known limit.
 
-#####
-#The Dagger is an Example of a weapon, while the Saddlebags is an item that is set up to be used as a container for other
-#items. The first field is the item's name and is required.
-#
-#The PROFICIENCY tag is only used with weapons, armor and shields. It tells PCGen what Weapon Proficiency name to use from the weapprofs.lst, armorprofs.lst or shieldprofs.lst file.
-#
-#The TYPE tag is used for many filtering and PRExxx tags. TYPE:Armor items should also have the type of SLOTS it uses. This
-#is usually TYPE:Suit. TYPE:Container is a special type name. It activates the CONTAINS tag in the item. Every TYPE:Weapon
-#item must be also have either TYPE:Melee or TYPE:Ranged (TYPE:Weapon.Melee.Foo). TYPE:Double is a special weapon tag. It
-#activates three ALTxxx tags for the second head statistics.
-#
-#The CONTAINS tag is used to define how much and what a container can hold. Any object with CONTAINS must also be TYPE:Container
-#for the CONTAINS tag to be activated.
-#
-#The COST tag sets the cost of the item.
-#
-#The WT tag is holding the item's weight.
-#
-#The SOURCEPAGE tag can be used to hold a reference to where you can find the item. This will be displayed in PCGen.
-#
-#CRITMULT, CRITRANGE, DAMAGE, WIELD, and RANGE are tags that are associated with weapons. They can be used to set up the
-#various weapon stats.
+2 Ioun Stones (Onyx Rhomboid)		OUTPUTNAME:2 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:48000		DEFINE:IounStoneCONBonus|0		BONUS:VAR|IounStoneCONBonus|4		ABILITY:Internal|AUTOMATIC|Equipment Bonus ~ Ioun Stone CON Bonus		SOURCEPAGE:p.44		SPROP:Adds a +2 Enhancement bonus to Constitution.  Multiple stones stack up to +6 bonus.
+3 Ioun Stones (Onyx Rhomboid)		OUTPUTNAME:3 Ioun Stones, [NAME]	TYPE:Magic.Wondrous.Ioun		COST:72000		DEFINE:IounStoneCONBonus|0		BONUS:VAR|IounStoneCONBonus|6		ABILITY:Internal|AUTOMATIC|Equipment Bonus ~ Ioun Stone CON Bonus		SOURCEPAGE:p.44		SPROP:Adds a +2 Enhancement bonus to Constitution.  Multiple stones stack up to +6 bonus.
 
-#The SIZE tag determines the size of the Item. F=Fine, D=Diminutive, T=Tiny, S=Small, M=Medium, L=Large, H=Huge, G=Gargantuan,
-#C=Colossal.
-
-#The EQMOD tag calls an equipment modifier to be applied to the base item before looking at other tags. You will need to use
-#the equipment modifier's KEY with this tag, not it's name.
+Phylactery of Positive Channeling.COPY=Phylactery of Positive Channeling and Mental Superiority +2				TYPE:Magic.Wondrous.Headband.Intelligence		BONUS:ABILITYPOOL|Headband of Intellect Skill Choice|1				BONUS:STAT|INT,WIS,CHA|2|TYPE=Enhancement
+Phylactery of Positive Channeling.COPY=Phylactery of Positive Channeling and Mental Superiority +4				TYPE:Magic.Wondrous.Headband.Intelligence		BONUS:ABILITYPOOL|Headband of Intellect Skill Choice|2				BONUS:STAT|INT,WIS,CHA|4|TYPE=Enhancement
+Phylactery of Positive Channeling.COPY=Phylactery of Positive Channeling and Mental Superiority +6				TYPE:Magic.Wondrous.Headband.Intelligence		BONUS:ABILITYPOOL|Headband of Intellect Skill Choice|3				BONUS:STAT|INT,WIS,CHA|6|TYPE=Enhancement
