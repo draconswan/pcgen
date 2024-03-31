@@ -1,11 +1,12 @@
 package pcgen.output.model;
 
-import freemarker.template.TemplateHashModel;
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
 import pcgen.cdom.enumeration.ObjectKey;
 import pcgen.cdom.inst.CodeControl;
 import pcgen.output.base.SimpleWrapperLibrary;
+
+import freemarker.template.TemplateHashModel;
+import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
 
 /**
  * A CodeControlModel is a TemplateHashModel that wraps a CodeControl setting.
@@ -38,7 +39,7 @@ public class CodeControlModel implements TemplateHashModel
 	}
 
 	@Override
-	public boolean isEmpty() throws TemplateModelException
+	public boolean isEmpty()
 	{
 		return false;
 	}

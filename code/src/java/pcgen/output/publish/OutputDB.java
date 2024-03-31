@@ -19,19 +19,23 @@ package pcgen.output.publish;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-import freemarker.template.TemplateModel;
 import pcgen.base.util.CaseInsensitiveMap;
 import pcgen.base.util.DoubleKeyMap;
 import pcgen.cdom.base.ItemFacet;
 import pcgen.cdom.base.SetFacet;
 import pcgen.cdom.enumeration.CharID;
+import pcgen.cdom.util.CControl;
 import pcgen.core.GameMode;
 import pcgen.output.base.ModeModelFactory;
 import pcgen.output.base.ModelFactory;
+import pcgen.output.factory.ChannelFactory;
 import pcgen.output.factory.ItemModelFactory;
 import pcgen.output.factory.SetModelFactory;
 import pcgen.output.model.BooleanOptionModel;
+
+import freemarker.template.TemplateModel;
 
 /**
  * OutputDB is the OutputDatabase for building the Map to be provided to
@@ -48,18 +52,18 @@ public final class OutputDB
 	/**
 	 * The Map of string names to output models (that are dynamic based on a PC)
 	 */
-	private static DoubleKeyMap<Object, Object, ModelFactory> outModels =
+	private static final DoubleKeyMap<Object, Object, ModelFactory> outModels =
 			new DoubleKeyMap<>(CaseInsensitiveMap.class, CaseInsensitiveMap.class);
 
 	/**
 	 * The map of string names to models for global items (not PC dependent)
 	 */
-	private static Map<Object, TemplateModel> globalModels = new CaseInsensitiveMap<>();
+	private static final Map<Object, TemplateModel> globalModels = new CaseInsensitiveMap<>();
 
 	/**
 	 * The Map of string names to output models for the Game Mode
 	 */
-	private static Map<Object, ModeModelFactory> modeModels = new CaseInsensitiveMap<>();
+	private static final Map<Object, ModeModelFactory> modeModels = new CaseInsensitiveMap<>();
 
 	/**
 	 * Registers a new ModelFactory to be used in output
@@ -72,10 +76,7 @@ public final class OutputDB
 	 */
 	public static void registerModelFactory(String name, ModelFactory modelFactory)
 	{
-		if (modelFactory == null)
-		{
-			throw new IllegalArgumentException("Model Factory may not be null");
-		}
+		Objects.requireNonNull(modelFactory, "Model Factory may not be null");
 		String[] locationElements = name.split("\\.");
 		if (locationElements.length == 0)
 		{
@@ -121,6 +122,21 @@ public final class OutputDB
 	public static void register(String name, SetFacet<CharID, ?> facet)
 	{
 		registerModelFactory(name, new SetModelFactory(facet));
+	}
+
+	/**
+	 * Registers a new CControl with the OutputDatabase using the given name as the
+	 * interpolation for fetching information from the variable for the given CControl.
+	 * 
+	 * @param name
+	 *            The name as the interpolation for fetching information from the variable
+	 *            for the given CControl during output
+	 * @param control
+	 *            The CControl to be registered with the given name
+	 */
+	public static void register(String name, CControl control)
+	{
+		registerModelFactory(name, new ChannelFactory(control));
 	}
 
 	/**
@@ -173,11 +189,8 @@ public final class OutputDB
 	public static Map<String, Object> buildModeDataModel(GameMode mode)
 	{
 		Map<String, Object> input = new HashMap<>();
-		for (Object key : modeModels.keySet())
-		{
-			ModeModelFactory modelFactory = modeModels.get(key);
-			input.put(key.toString(), modelFactory.generate(mode));
-		}
+		modeModels.forEach((key, modelFactory) ->
+				input.put(key.toString(), modelFactory.generate(mode)));
 		return input;
 	}
 
@@ -196,10 +209,7 @@ public final class OutputDB
 	 */
 	public static void registerMode(String name, ModeModelFactory factory)
 	{
-		if (factory == null)
-		{
-			throw new IllegalArgumentException("Model Factory may not be null");
-		}
+		Objects.requireNonNull(factory, "Model Factory may not be null");
 		int dotLoc = name.indexOf('.');
 		if (dotLoc != -1)
 		{
@@ -274,7 +284,7 @@ public final class OutputDB
 	 */
 	public static Map<Object, TemplateModel> getGlobal()
 	{
-		CaseInsensitiveMap<TemplateModel> map = new CaseInsensitiveMap<>();
+		Map<Object, TemplateModel> map = new CaseInsensitiveMap<>();
 		map.putAll(globalModels);
 		return map;
 	}

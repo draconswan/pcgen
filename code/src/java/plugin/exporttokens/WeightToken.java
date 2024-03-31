@@ -18,7 +18,6 @@
  */
 package plugin.exporttokens;
 
-import pcgen.cdom.enumeration.BiographyField;
 import pcgen.core.Globals;
 import pcgen.core.display.CharacterDisplay;
 import pcgen.io.ExportHandler;
@@ -56,16 +55,14 @@ public class WeightToken extends AbstractExportToken
 	@Override
 	public String getToken(String tokenSource, CharacterDisplay display, ExportHandler eh)
 	{
-		String retString = "";
-
-		boolean suppressPcWeight = display.getSuppressBioField(BiographyField.WEIGHT);
+		String retString;
 		if ("WEIGHT".equals(tokenSource))
 		{
-			retString = suppressPcWeight ? "" : getWeightToken(display);
+			retString = getWeightToken(display);
 		}
 		else if ("WEIGHT.NOUNIT".equals(tokenSource))
 		{
-			retString = suppressPcWeight ? "" : getNoUnitWeight(display);
+			retString = getNoUnitWeight(display);
 		}
 		else
 		{

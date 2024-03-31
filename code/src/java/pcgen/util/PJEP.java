@@ -22,16 +22,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import pcgen.core.PlayerCharacter;
+import pcgen.core.VariableProcessor;
+import pcgen.persistence.lst.LstUtils;
+import pcgen.system.PluginLoader;
+
 import org.nfunk.jep.ASTFunNode;
 import org.nfunk.jep.JEP;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 import org.nfunk.jep.function.PostfixMathCommand;
-
-import pcgen.core.PlayerCharacter;
-import pcgen.core.VariableProcessor;
-import pcgen.persistence.lst.LstUtils;
-import pcgen.system.PluginLoader;
 
 /**
  * {@code PJEP}
@@ -63,7 +63,7 @@ public final class PJEP extends JEP
 		{
 
 			@Override
-			public void loadPlugin(Class clazz) throws Exception
+			public void loadPlugin(Class clazz)
 			{
 				addCommand(clazz);
 			}
@@ -92,7 +92,7 @@ public final class PJEP extends JEP
 			}
 			catch (InstantiationException | IllegalAccessException e)
 			{
-				e.printStackTrace();
+				Logging.errorPrint(e.getLocalizedMessage(), e);
 			}
 		}
 
@@ -132,12 +132,10 @@ public final class PJEP extends JEP
 	 */
 	public boolean isResultCachable(Node node)
 	{
-		if (node instanceof ASTFunNode)
+		if (node instanceof ASTFunNode funcNode)
 		{
-			ASTFunNode funcNode = (ASTFunNode) node;
-			if (funcNode.getPFMC() instanceof PCGenCommand)
+			if (funcNode.getPFMC() instanceof PCGenCommand cmd)
 			{
-				PCGenCommand cmd = (PCGenCommand) funcNode.getPFMC();
 				if (!cmd.getCachable())
 				{
 					return false;
@@ -235,6 +233,7 @@ public final class PJEP extends JEP
 				if (param2 instanceof Integer)
 				{
 					// Nothing to do, it's already an Integer
+					Logging.debugPrint("Nothing to do, it's already an Integer.");
 				}
 				else if (param2 instanceof Double)
 				{
@@ -250,7 +249,7 @@ public final class PJEP extends JEP
 				throw new ParseException("Invalid parameter count");
 			}
 
-			if (param1 instanceof String)
+			if (param1 instanceof String cl)
 			{
 				PlayerCharacter aPC = null;
 				if (parent instanceof VariableProcessor)
@@ -267,13 +266,12 @@ public final class PJEP extends JEP
 				}
 
 				// ";BEFORELEVEL="
-				String cl = (String) param1;
 				if (param2 != null)
 				{
 					cl += ";BEFORELEVEL=" + param2.toString();
 				}
 
-				inStack.push(new Double(aPC.getClassLevelString(cl, false)));
+				inStack.push(Double.valueOf(aPC.getClassLevelString(cl, false)));
 			}
 			else
 			{
@@ -316,4 +314,8 @@ public final class PJEP extends JEP
 		}
 	}
 
+	public static void clear()
+	{
+		commandList.clear();
+	}
 }

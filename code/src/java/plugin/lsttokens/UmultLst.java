@@ -81,7 +81,7 @@ public class UmultLst extends AbstractIntToken<CDOMObject> implements CDOMPrimar
 		}
 		if (mult != null)
 		{
-			if (mult.intValue() <= 0)
+			if (mult <= 0)
 			{
 				context.addWriteMessage(getTokenName() + " must be an integer > 0");
 				return null;
@@ -92,7 +92,7 @@ public class UmultLst extends AbstractIntToken<CDOMObject> implements CDOMPrimar
 		{
 			return null;
 		}
-		return list.toArray(new String[list.size()]);
+		return list.toArray(new String[0]);
 	}
 
 	@Override

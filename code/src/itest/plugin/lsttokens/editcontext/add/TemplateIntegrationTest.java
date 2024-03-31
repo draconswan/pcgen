@@ -19,8 +19,6 @@ package plugin.lsttokens.editcontext.add;
 
 import java.net.URISyntaxException;
 
-import org.junit.Test;
-
 import pcgen.cdom.base.CDOMObject;
 import pcgen.core.PCTemplate;
 import pcgen.persistence.PersistenceLayerException;
@@ -32,6 +30,9 @@ import plugin.lsttokens.editcontext.testsupport.AbstractListIntegrationTestCase;
 import plugin.lsttokens.testsupport.CDOMTokenLoader;
 import plugin.lsttokens.testsupport.TokenRegistration;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public class TemplateIntegrationTest extends
 		AbstractListIntegrationTestCase<CDOMObject, PCTemplate>
 {
@@ -41,6 +42,7 @@ public class TemplateIntegrationTest extends
 	private static CDOMTokenLoader<CDOMObject> loader = new CDOMTokenLoader<>();
 
 	@Override
+	@BeforeEach
 	public void setUp() throws PersistenceLayerException, URISyntaxException
 	{
 		super.setUp();

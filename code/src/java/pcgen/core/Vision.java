@@ -19,6 +19,8 @@
  */
 package pcgen.core;
 
+import java.util.Objects;
+
 import pcgen.base.formula.Formula;
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.base.CDOMReference;
@@ -45,10 +47,7 @@ public class Vision extends CDOMObject implements Comparable<Vision>
 
 	public Vision(VisionType type, Formula dist)
 	{
-		if (type == null)
-		{
-			throw new IllegalArgumentException("Vision Type cannot be null");
-		}
+		Objects.requireNonNull(type, "Vision Type cannot be null");
 		visionType = type;
 		if (!dist.isValid())
 		{
@@ -93,9 +92,8 @@ public class Vision extends CDOMObject implements Comparable<Vision>
 	@Override
 	public boolean equals(Object obj)
 	{
-		if (obj instanceof Vision)
+		if (obj instanceof Vision v)
 		{
-			Vision v = (Vision) obj;
 			return distance.equals(v.distance) && visionType.equals(v.visionType);
 		}
 		return false;
@@ -181,7 +179,8 @@ public class Vision extends CDOMObject implements Comparable<Vision>
 				catch (NumberFormatException nfe)
 				{
 					throw new IllegalArgumentException(
-						"Invalid Vision: " + visionType + ". Vision Distance with Foot character ' was not an integer");
+						"Invalid Vision: " + visionType + ". Vision Distance with Foot character ' was not an "
+								+ "integer", nfe);
 				}
 			}
 			distance = FormulaFactory.getFormulaFor(dist);

@@ -20,18 +20,19 @@ package actor.choose;
 import pcgen.cdom.base.Chooser;
 import pcgen.core.spell.Spell;
 import plugin.lsttokens.choose.SpellsToken;
+
 import actor.testsupport.AbstractPersistentCDOMChoiceActorTestCase;
 
 public class SpellsTokenTest extends
 		AbstractPersistentCDOMChoiceActorTestCase<Spell>
 {
 
-	static SpellsToken pca = new SpellsToken();
+	private static final SpellsToken PCA = new SpellsToken();
 
 	@Override
 	public Chooser<Spell> getActor()
 	{
-		return pca;
+		return PCA;
 	}
 
 	@Override

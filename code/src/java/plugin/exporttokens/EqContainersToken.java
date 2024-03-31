@@ -106,117 +106,39 @@ public class EqContainersToken extends Token
 				property = aTok.nextToken();
 			}
 
-			if (property.equals("ACCHECK"))
+			switch (property)
 			{
-				retString = Integer.toString(EqToken.getAcCheckTokenInt(pc, eq));
-			}
-			else if (property.equals("ACMOD"))
-			{
-				retString = Integer.toString(getAcModToken(pc, eq));
-			}
-			else if (property.equals("ALTCRIT"))
-			{
-				retString = getAltCritToken(eq);
-			}
-			else if (property.equals("ALTDAMAGE"))
-			{
-				retString = getAltDamageToken(pc, eq);
-			}
-			else if (property.equals("ATTACKS"))
-			{
-				retString = Double.toString(getAttacksToken(pc, eq));
-			}
-			else if (property.equals("CARRIED"))
-			{
-				retString = Float.toString(getCarriedToken(eq));
-			}
-			else if (property.equals("CONTENTS"))
-			{
-				retString = getContentsToken(eq, aTok);
-			}
-			else if (property.equals("CONTENTWEIGHT"))
-			{
-				retString = BigDecimalHelper.trimZeros(Float.toString(getContentWeightToken(pc, eq)));
-			}
-			else if (property.equals("COST"))
-			{
-				retString = BigDecimalHelper.trimZeros(getCostToken(pc, eq));
-			}
-			else if (property.equals("CRITMULT"))
-			{
-				retString = getCritMultToken(eq);
-			}
-			else if (property.equals("CRITRANGE"))
-			{
-				retString = EqToken.getCritRangeToken(pc, eq);
-			}
-			else if (property.equals("DAMAGE"))
-			{
-				retString = getDamageToken(pc, eq);
-			}
-			else if (property.equals("EDR"))
-			{
-				retString = Integer.toString(EqToken.getEdrTokenInt(pc, eq));
-			}
-			else if (property.equals("EQUIPPED"))
-			{
-				retString = getEquippedToken(eq);
-			}
-			else if (property.equals("ITEMWEIGHT"))
-			{
-				retString = BigDecimalHelper.trimZeros(Float.toString(getItemWeightToken(pc, eq)));
-			}
-			else if (property.equals("LOCATION"))
-			{
-				retString = getLocationToken(eq);
-			}
-			else if (property.equals("LONGNAME"))
-			{
-				retString = getLongNameToken(eq);
-			}
-			else if (property.equals("MAXDEX"))
-			{
-				retString = Integer.toString(EqToken.getMaxDexTokenInt(pc, eq));
-			}
-			else if (property.equals("MOVE"))
-			{
-				retString = getMoveToken(eq);
-			}
-			else if (property.equals("NAME") || property.equals("OUTPUTNAME"))
-			{
-				retString = getNameToken(eq, pc);
-			}
-			else if (property.equals("PROF"))
-			{
-				retString = eq.consolidatedProfName();
-			}
-			else if (property.equals("QTY"))
-			{
-				retString = BigDecimalHelper.trimZeros(Double.toString((getQuantityToken(eq))));
-			}
-			else if (property.equals("RANGE"))
-			{
-				retString = Integer.toString(EqToken.getRange(pc, eq).intValue());
-			}
-			else if (property.equals("SIZE"))
-			{
-				retString = getSizeToken(eq);
-			}
-			else if (property.equals("SPELLFAILURE"))
-			{
-				retString = Integer.toString(EqToken.getSpellFailureTokenInt(pc, eq));
-			}
-			else if (property.equals("SPROP"))
-			{
-				retString = getSPropToken(pc, eq);
-			}
-			else if (property.equals("TOTALWEIGHT") || property.equals("WT"))
-			{
-				retString = BigDecimalHelper.trimZeros(Float.toString(getTotalWeightToken(pc, eq)));
-			}
-			else if (property.equals("TYPE"))
-			{
-				retString = getTypeToken(eq, aTok);
+				case "ACCHECK" -> retString = Integer.toString(EqToken.getAcCheckTokenInt(pc, eq));
+				case "ACMOD" -> retString = Integer.toString(getAcModToken(pc, eq));
+				case "ALTCRIT" -> retString = getAltCritToken(eq);
+				case "ALTDAMAGE" -> retString = getAltDamageToken(pc, eq);
+				case "ATTACKS" -> retString = Double.toString(getAttacksToken(pc, eq));
+				case "CARRIED" -> retString = Float.toString(getCarriedToken(eq));
+				case "CONTENTS" -> retString = getContentsToken(eq, aTok);
+				case "CONTENTWEIGHT" -> retString =
+						BigDecimalHelper.trimZeros(Float.toString(getContentWeightToken(pc, eq)));
+				case "COST" -> retString = BigDecimalHelper.trimZeros(getCostToken(pc, eq));
+				case "CRITMULT" -> retString = getCritMultToken(eq);
+				case "CRITRANGE" -> retString = EqToken.getCritRangeToken(pc, eq);
+				case "DAMAGE" -> retString = getDamageToken(pc, eq);
+				case "EDR" -> retString = Integer.toString(EqToken.getEdrTokenInt(pc, eq));
+				case "EQUIPPED" -> retString = getEquippedToken(eq);
+				case "ITEMWEIGHT" -> retString = BigDecimalHelper.trimZeros(Float.toString(getItemWeightToken(pc,
+						eq)));
+				case "LOCATION" -> retString = getLocationToken(eq);
+				case "LONGNAME" -> retString = getLongNameToken(eq);
+				case "MAXDEX" -> retString = Integer.toString(EqToken.getMaxDexTokenInt(pc, eq));
+				case "MOVE" -> retString = getMoveToken(eq);
+				case "NAME", "OUTPUTNAME" -> retString = getNameToken(eq, pc);
+				case "PROF" -> retString = eq.consolidatedProfName();
+				case "QTY" -> retString = BigDecimalHelper.trimZeros(Double.toString((getQuantityToken(eq))));
+				case "RANGE" -> retString = Integer.toString(EqToken.getRange(pc, eq));
+				case "SIZE" -> retString = getSizeToken(eq);
+				case "SPELLFAILURE" -> retString = Integer.toString(EqToken.getSpellFailureTokenInt(pc, eq));
+				case "SPROP" -> retString = getSPropToken(pc, eq);
+				case "TOTALWEIGHT", "WT" -> retString =
+						BigDecimalHelper.trimZeros(Float.toString(getTotalWeightToken(pc, eq)));
+				case "TYPE" -> retString = getTypeToken(eq, aTok);
 			}
 		}
 		return retString;
@@ -230,7 +152,7 @@ public class EqContainersToken extends Token
 	 */
 	public static int getAcModToken(PlayerCharacter pc, Equipment eq)
 	{
-		return eq.getACMod(pc).intValue();
+		return eq.getACMod(pc);
 	}
 
 	/**
@@ -272,7 +194,7 @@ public class EqContainersToken extends Token
 	 */
 	public static float getCarriedToken(Equipment eq)
 	{
-		return eq.numberCarried().floatValue();
+		return eq.numberCarried();
 	}
 
 	/**
@@ -283,7 +205,7 @@ public class EqContainersToken extends Token
 	 */
 	public static String getContentsToken(Equipment eq, StringTokenizer aTok)
 	{
-		String retString = "";
+		String retString;
 		if (aTok.hasMoreTokens())
 		{
 			String aType = aTok.nextToken();
@@ -315,7 +237,7 @@ public class EqContainersToken extends Token
 		{
 			return 0;
 		}
-		return eq.getContainedWeight(pc).floatValue();
+		return eq.getContainedWeight(pc);
 	}
 
 	/**
@@ -352,8 +274,8 @@ public class EqContainersToken extends Token
 		if ((pc != null) && (eq.isNatural()))
 		{
 			retString = Globals.adjustDamage(retString,
-				pc.getDisplay().getRace().getSafe(FormulaKey.SIZE).resolve(pc, "").intValue(),
-				pc.getDisplay().sizeInt());
+				pc.sizeInt() - pc.getDisplay().getRace()
+					.getSafe(FormulaKey.SIZE).resolve(pc, "").intValue());
 		}
 
 		return retString;
@@ -381,7 +303,7 @@ public class EqContainersToken extends Token
 	 */
 	public static float getItemWeightToken(PlayerCharacter pc, Equipment eq)
 	{
-		return eq.getWeight(pc).floatValue();
+		return eq.getWeight(pc);
 	}
 
 	/**

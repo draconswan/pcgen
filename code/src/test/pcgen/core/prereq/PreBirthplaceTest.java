@@ -17,43 +17,33 @@
  */
 package pcgen.core.prereq;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import pcgen.AbstractCharacterTestCase;
-import pcgen.cdom.enumeration.PCAttribute;
+import pcgen.cdom.enumeration.PCStringKey;
 import pcgen.core.PlayerCharacter;
 import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.lst.prereq.PreParserFactory;
 
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>PreBirthplaceTest</code> tests that the PREBIRTHPLACE tag is
+ * {@code PreBirthplaceTest} tests that the PREBIRTHPLACE tag is
  * working correctly.
  */
-public class PreBirthplaceTest extends AbstractCharacterTestCase
+class PreBirthplaceTest extends AbstractCharacterTestCase
 {
-	public static void main(final String[] args)
-	{
-		TestRunner.run(PreBirthplaceTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PreBirthplaceTest.class);
-	}
-
 	/**
 	 * Test the PREBIRTHPLACE code.
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testAtt() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();
-		character.setPCAttribute(PCAttribute.BIRTHPLACE, "Klamath");
+		character.setPCAttribute(PCStringKey.BIRTHPLACE, "Klamath");
 
 		Prerequisite prereq;
 

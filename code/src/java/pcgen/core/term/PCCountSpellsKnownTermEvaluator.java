@@ -39,7 +39,7 @@ public class PCCountSpellsKnownTermEvaluator extends BasePCTermEvaluator impleme
 	@Override
 	public Float resolve(PlayerCharacter pc)
 	{
-		Float count = 0.0f;
+		float count = 0.0f;
 
 		if (SettingsHandler.getPrintSpellsWithPC())
 		{
@@ -56,7 +56,7 @@ public class PCCountSpellsKnownTermEvaluator extends BasePCTermEvaluator impleme
 
 				if (pObj != null)
 				{
-					count = (float) pc.getCharacterSpells(pObj, null, Globals.getDefaultSpellBook(), nums[1]).size();
+					count = pc.getCharacterSpells(pObj, null, Globals.getDefaultSpellBook(), nums[1]).size();
 				}
 			}
 		}

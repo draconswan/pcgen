@@ -17,41 +17,31 @@
  */
 package plugin.exporttokens;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import pcgen.AbstractCharacterTestCase;
 import pcgen.core.display.CharacterDisplay;
 import plugin.exporttokens.deprecated.SpaceToken;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>SpaceTokenTest</code> - Unit test for the SPACE output token
+ * {@code SpaceTokenTest} - Unit test for the SPACE output token
  */
 public class SpaceTokenTest extends AbstractCharacterTestCase
 {
-
-	/**
-	 * Quick test suite creation - adds all methods beginning with "test"
-	 * @return The Test suite
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(SpaceTokenTest.class);
-	}
-
-	/*
-	 * @see TestCase#setUp()
-	 */
+	@BeforeEach
 	@Override
-	protected void setUp() throws Exception
+	public void setUp() throws Exception
 	{
 		// Do Nothing
 	}
 
-	/*
-	 * @see TestCase#tearDown()
-	 */
+	@AfterEach
 	@Override
-	protected void tearDown() throws Exception
+	public void tearDown() throws Exception
 	{
 		// Do Nothing
 	}
@@ -59,6 +49,7 @@ public class SpaceTokenTest extends AbstractCharacterTestCase
 	/**
 	 * Test the SPACE token.
 	 */
+	@Test
 	public void testSpaceToken()
 	{
 		SpaceToken token = new SpaceToken();

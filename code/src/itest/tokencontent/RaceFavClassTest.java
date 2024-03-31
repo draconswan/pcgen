@@ -17,6 +17,10 @@
  */
 package tokencontent;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import pcgen.cdom.facet.FacetLibrary;
 import pcgen.cdom.facet.analysis.FavoredClassFacet;
 import pcgen.cdom.facet.input.RaceInputFacet;
@@ -30,7 +34,8 @@ import plugin.lsttokens.choose.ClassToken;
 import plugin.lsttokens.race.FavclassToken;
 import plugin.lsttokens.testsupport.TokenRegistration;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import tokenmodel.testsupport.AbstractTokenModelTest;
 import util.TestURI;
 
@@ -45,6 +50,7 @@ public class RaceFavClassTest extends AbstractTokenModelTest
 	private FavoredClassFacet fcFacet;
 
 	@Override
+	@BeforeEach
 	protected void setUp() throws Exception
 	{
 		super.setUp();

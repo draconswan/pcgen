@@ -19,36 +19,35 @@
  */
 package pcgen.gui2.tools;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-
-import org.apache.commons.lang3.StringUtils;
 
 import pcgen.core.SettingsHandler;
 import pcgen.gui2.UIPropertyContext;
 import pcgen.persistence.lst.LstFileLoader;
 import pcgen.system.ConfigurationSettings;
 import pcgen.system.LanguageBundle;
+import pcgen.system.PropertyContext;
 import pcgen.util.Logging;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * The singleton class {@code TipOfTheDayHandler} manages the list of tips.
  */
 public final class TipOfTheDayHandler
 {
-	private static final UIPropertyContext PROPERTY_CONTEXT = UIPropertyContext.createContext("TipOfTheDay");
+	private static final PropertyContext PROPERTY_CONTEXT = UIPropertyContext.createContext("TipOfTheDay");
 
 	private static TipOfTheDayHandler INSTANCE = null;
 
 	private List<String> tipList = null;
-	private int lastNumber = -1;
+	private int lastNumber;
 
 	/**
 	 * Create a new instance of TipOfTheDayHandler
@@ -82,10 +81,10 @@ public final class TipOfTheDayHandler
 		String tipsFileName = LanguageBundle.getString("in_tipsFileName"); //$NON-NLS-1$
 		String tipsFileNameDefault = "tips.txt"; //$NON-NLS-1$
 		final String tipsFilePath = systemDir + File.separator + "gameModes" + File.separator //$NON-NLS-1$
-			+ SettingsHandler.getGame().getName() + File.separator;
+			+ SettingsHandler.getGameAsProperty().get().getName() + File.separator;
 		final String tipsDefaultPath = systemDir + File.separator + "gameModes" + File.separator //$NON-NLS-1$
 			+ "default" + File.separator; //$NON-NLS-1$
-		String[] tipFiles = new String[]{tipsFilePath + tipsFileName, tipsDefaultPath + tipsFileName,
+		String[] tipFiles = {tipsFilePath + tipsFileName, tipsDefaultPath + tipsFileName,
 			tipsFilePath + tipsFileNameDefault, tipsDefaultPath + tipsFileNameDefault};
 
 		boolean loaded = false;
@@ -109,24 +108,17 @@ public final class TipOfTheDayHandler
 
 		if (!loaded)
 		{
-			Logging.errorPrint("Warning: game mode " + SettingsHandler.getGame().getName()
+			Logging.errorPrint("Warning: game mode " + SettingsHandler.getGameAsProperty().get().getName()
 				+ " is missing tips. Tried all of " + StringUtils.join(tipFiles, "\n"));
 		}
 
 	}
 
-	private void loadTipFile(String tipsFilePath) throws FileNotFoundException, IOException
+	private void loadTipFile(String tipsFilePath) throws IOException
 	{
-		final File tipsFile = new File(tipsFilePath);
+		String fileAsString = Files.readString(Path.of(tipsFilePath));
 
-		final BufferedReader tipsReader =
-				new BufferedReader(new InputStreamReader(new FileInputStream(tipsFile), "UTF-8"));
-		final int length = (int) tipsFile.length();
-		final char[] inputLine = new char[length];
-		tipsReader.read(inputLine, 0, length);
-		tipsReader.close();
-
-		final StringTokenizer aTok = new StringTokenizer(new String(inputLine), "\r\n", false);
+		final StringTokenizer aTok = new StringTokenizer(fileAsString, "\r\n", false);
 
 		while (aTok.hasMoreTokens())
 		{
@@ -174,6 +166,11 @@ public final class TipOfTheDayHandler
 		}
 
 		return "";
+	}
+
+	public static boolean shouldShowTipOfTheDay()
+	{
+		return PROPERTY_CONTEXT.getBoolean("showTipOfTheDay", true);
 	}
 
 }

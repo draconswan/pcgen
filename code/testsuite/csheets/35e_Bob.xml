@@ -109,10 +109,10 @@ BIO
 			</move>
 			<move>
 				<name>Fly</name>
-				<rate>445 ft.</rate>
-				<squares>89</squares>
+				<rate>345 ft.</rate>
+				<squares>69</squares>
 			</move>
-			<all>Walk 565 ft., Fly 445 ft.</all>
+			<all>Walk 565 ft., Fly 345 ft.</all>
 		</move>
 		<personality>
 			<trait></trait>
@@ -343,7 +343,7 @@ BIO
 		</skillpoints>
 		<list_mods>Acrobatics +5, Combat Focus +4, Domain Skill 1 +2, Domain Skill 2 +2, Linguistics +1, Poetry +1, Uber Scripting from five ranks in Test Coding Script +3</list_mods>
 		<max_class_skill_level>8</max_class_skill_level>
-		<max_cross_class_skill_level>4</max_cross_class_skill_level>
+		<max_cross_class_skill_level>4.0</max_cross_class_skill_level>
 		<skill>
 			<name>Acrobatics</name>
 			<ranks>3.0</ranks>
@@ -929,7 +929,7 @@ BIO
 			<critical>20/x2</critical>
 			<!-- Should be changed to a variable due to improved crit -->
 		</unarmed>
-		
+
 		<weapon>
 			<common>
 				<name>
@@ -946,13 +946,19 @@ BIO
 					<magic_hit>+0</magic_hit>
 					<total_hit>+16/+11/+6</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Both</hand>
 				<num_attacks>3</num_attacks>
 				<reach>5</reach>
 				<size>M</size>
 				<special_properties></special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type></type>
 				<weight>0</weight>
 				<sequence>0</sequence>

@@ -1,57 +1,58 @@
 package pcgen.io;
 
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
-import junit.framework.TestCase;
+
 import pcgen.cdom.base.Constants;
+
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Tests {@link PCGFile}.
  */
-public class PCGFileTest extends TestCase
+class PCGFileTest
 {
-
-	/**
-	 * Constructs a new {@link PCGFileTest}.
-	 *
-	 * @see pcgen.PCGenTestCase#PCGenTestCase()
-	 */
-	public PCGFileTest()
-	{
-		// Empty Constructor
-	}
-
-	/**
-	 * Constructs a new {@link PCGFileTest} with the given <var>name</var>.
-	 *
-	 * @see pcgen.PCGenTestCase#PCGenTestCase(String)
-	 */
-	public PCGFileTest(final String name)
-	{
-		super(name);
-	}
-
 	/** 	 
 	 * Tests {@link PCGFile#isPCGenCharacterFile(File)}
-	 * @throws Exception 	 
 	 */
-	public void testIsPCGenCharacterFile() throws Exception
+	@Test
+	void testIsPCGenCharacterFile() throws Exception
 	{
 		//file must exist for it to be true
-		assertFalse("Extension without filename", PCGFile.isPCGenCharacterFile(new File(
-				Constants.EXTENSION_CHARACTER_FILE)));
+		assertFalse(PCGFile.isPCGenCharacterFile(new File(
+				Constants.EXTENSION_CHARACTER_FILE)), "Extension without filename");
 		File temp = File.createTempFile("PCT", Constants.EXTENSION_CHARACTER_FILE);
-		assertTrue("File existence", PCGFile.isPCGenCharacterFile(temp));
-		temp.delete();
+		temp.deleteOnExit();
+		assertTrue( PCGFile.isPCGenCharacterFile(temp), "File existence");
+		assertTrue( PCGFile.isPCGenCharacterOrPartyFile(temp), "File existence");
 	}
 
-	public void testIsPCGenPartyFile() throws Exception
+	@Test
+	void testIsPCGenPartyFile() throws Exception
 	{
 		//file must exist for it to be true
-		assertFalse("Extension without filename", PCGFile.isPCGenPartyFile(new File(
-				Constants.EXTENSION_PARTY_FILE)));
+		assertFalse(PCGFile.isPCGenPartyFile(new File(
+				Constants.EXTENSION_PARTY_FILE)), "Extension without filename");
 		File temp = File.createTempFile("PCT", Constants.EXTENSION_PARTY_FILE);
-		assertTrue("File existence", PCGFile.isPCGenPartyFile(temp));
-		temp.delete();
+		temp.deleteOnExit();
+		assertTrue(PCGFile.isPCGenPartyFile(temp), "File existence");
+		assertTrue(PCGFile.isPCGenCharacterOrPartyFile(temp), "File existence");
+	}
+
+	@Test
+	void testIsPCGenLstFile() throws Exception
+	{
+		//file must exist for it to be true
+		assertFalse(PCGFile.isPCGenListFile(new File(
+				Constants.EXTENSION_LIST_FILE)), "Extension without filename");
+		File temp = File.createTempFile("LST", Constants.EXTENSION_LIST_FILE);
+		temp.deleteOnExit();
+		assertTrue(PCGFile.isPCGenListFile(temp), "File existence");
+		assertFalse(PCGFile.isPCGenCharacterOrPartyFile(temp), "File existence");
 	}
 
 }

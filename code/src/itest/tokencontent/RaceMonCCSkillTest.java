@@ -17,6 +17,10 @@
  */
 package tokencontent;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import pcgen.cdom.enumeration.ListKey;
 import pcgen.cdom.enumeration.ObjectKey;
 import pcgen.cdom.enumeration.SkillCost;
@@ -37,7 +41,8 @@ import plugin.lsttokens.race.MonccskillToken;
 import plugin.lsttokens.skill.ExclusiveToken;
 import plugin.lsttokens.testsupport.TokenRegistration;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import tokenmodel.testsupport.AbstractTokenModelTest;
 import util.TestURI;
 
@@ -54,7 +59,8 @@ public class RaceMonCCSkillTest extends AbstractTokenModelTest
 	private PCClass dragon;
 
 	@Override
-	protected void setUp() throws Exception
+	@BeforeEach
+	public void setUp() throws Exception
 	{
 		super.setUp();
 		lscFacet = FacetLibrary.getFacet(ListSkillCostFacet.class);

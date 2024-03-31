@@ -46,12 +46,12 @@ public final class AttackInfo
 	{
 		if (modifier.equals("TOTAL"))
 		{
-			if (attackType.equals("RANGED"))
+			if (attackType.equals(AttackType.RANGED))
 			{
 				int total = getTotalToken(pc, attackType);
 				return pc.getAttackString(AttackType.RANGED, total);
 			}
-			else if (attackType.equals("UNARMED"))
+			else if (attackType.equals(AttackType.UNARMED))
 			{
 				int total = getTotalToken(pc, AttackType.MELEE);
 				// TODO: Is this correct for 3.0 also?
@@ -84,36 +84,26 @@ public final class AttackInfo
 
 	public static String getSubToken(PlayerCharacter pc, AttackType attackType, String modifier)
 	{
-		if (modifier.equals("BASE"))
-		{
-			return Delta.toString(getBaseToken(pc));
-		}
-		else if (modifier.equals("EPIC"))
-		{
-			return Delta.toString(getEpicToken(pc));
-		}
-		else if (modifier.equals("MISC"))
-		{
-			return Delta.toString(getMiscToken(pc, attackType));
-		}
-		else if (modifier.equals("SIZE"))
-		{
-			return Delta.toString(getSizeToken(pc, attackType));
-		}
-		else if (modifier.equals("STAT"))
-		{
-			return Delta.toString(getStatToken(pc.getDisplay(), attackType));
-		}
-		else if (modifier.equals("TOTAL"))
-		{
-			// TOTAL is handled in getParsedToken()
-			//int total = getTotalToken(pc, "MELEE");
-			//return pc.getAttackString(Constants.ATTACKSTRING_MELEE, total);
-		}
-		else
-		{
-			return pc.getAttackString(attackType);
-		}
+        switch (modifier)
+        {
+            case "BASE":
+                return Delta.toString(getBaseToken(pc));
+            case "EPIC":
+                return Delta.toString(getEpicToken(pc));
+            case "MISC":
+                return Delta.toString(getMiscToken(pc, attackType));
+            case "SIZE":
+                return Delta.toString(getSizeToken(pc, attackType));
+            case "STAT":
+                return Delta.toString(getStatToken(pc.getDisplay(), attackType));
+            case "TOTAL":
+                // TOTAL is handled in getParsedToken()
+                //int total = getTotalToken(pc, "MELEE");
+                //return pc.getAttackString(Constants.ATTACKSTRING_MELEE, total);
+                break;
+            default:
+                return pc.getAttackString(attackType);
+        }
 		return "";
 	}
 

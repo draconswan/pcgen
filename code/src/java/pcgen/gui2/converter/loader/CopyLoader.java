@@ -24,7 +24,6 @@ import pcgen.cdom.enumeration.ListKey;
 import pcgen.core.Campaign;
 import pcgen.gui2.converter.ConversionDecider;
 import pcgen.gui2.converter.Loader;
-import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.lst.CampaignSourceEntry;
 
 public class CopyLoader implements Loader
@@ -38,7 +37,6 @@ public class CopyLoader implements Loader
 
 	@Override
 	public List<CDOMObject> process(StringBuilder sb, int line, String lineString, ConversionDecider decider)
-		throws PersistenceLayerException, InterruptedException
 	{
 		sb.append(lineString);
 		return null;
@@ -48,11 +46,6 @@ public class CopyLoader implements Loader
 	public List<CampaignSourceEntry> getFiles(Campaign c)
 	{
 		return c.getSafeListFor(listkey);
-	}
-
-	public String getLoadName()
-	{
-		return "Copy " + listkey.toString();
 	}
 
 }

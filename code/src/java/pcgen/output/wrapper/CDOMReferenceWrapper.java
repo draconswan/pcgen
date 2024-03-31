@@ -17,8 +17,6 @@
  */
 package pcgen.output.wrapper;
 
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
 import pcgen.cdom.base.CDOMReference;
 import pcgen.cdom.enumeration.CharID;
 import pcgen.cdom.facet.FacetLibrary;
@@ -26,6 +24,9 @@ import pcgen.cdom.facet.ObjectWrapperFacet;
 import pcgen.cdom.reference.CDOMSingleRef;
 import pcgen.output.base.PCGenObjectWrapper;
 import pcgen.output.base.SimpleWrapperLibrary;
+
+import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
 
 /**
  * A CNAbilitySelectionWrapper is an ObjectWrapper capable of producing a
@@ -38,14 +39,12 @@ public class CDOMReferenceWrapper implements PCGenObjectWrapper
 	@Override
 	public TemplateModel wrap(CharID id, Object o) throws TemplateModelException
 	{
-		if (o instanceof CDOMSingleRef)
+		if (o instanceof CDOMSingleRef<?> ref)
 		{
-			CDOMSingleRef<?> ref = (CDOMSingleRef<?>) o;
 			return WRAPPER_FACET.wrap(id, ref.get());
 		}
-		if (o instanceof CDOMReference)
+		if (o instanceof CDOMReference<?> ref)
 		{
-			CDOMReference<?> ref = (CDOMReference<?>) o;
 			/*
 			 * TODO is this correct? This would produce TYPE=Blah in some cases,
 			 * and we may want to spell them out?? Shouldn't both be an option?

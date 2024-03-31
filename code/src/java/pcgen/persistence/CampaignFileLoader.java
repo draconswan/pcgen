@@ -19,13 +19,11 @@
 package pcgen.persistence;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import org.apache.commons.lang3.StringUtils;
-
+import java.util.List;
 import pcgen.core.Campaign;
 import pcgen.core.Globals;
 import pcgen.persistence.lst.CampaignLoader;
@@ -39,11 +37,6 @@ public class CampaignFileLoader extends PCGenTask
 {
 	private File alternateSourceFolder = null;
 
-	/**
-	 * A list of URIs for PCC files to load. Populated by {@link #findPCCFiles(java.io.File) findPCCFiles}.
-	 */
-	private final LinkedList<URI> campaignFiles = new LinkedList<>();
-
 	@Override
 	public String getMessage()
 	{
@@ -51,55 +44,26 @@ public class CampaignFileLoader extends PCGenTask
 	}
 
 	@Override
-	public void execute()
+	public void run()
 	{
 		// Load the initial campaigns
+		RecursiveFileFinder recursiveFileFinder = new RecursiveFileFinder();
+		final List<URI> campaignFiles = new LinkedList<>();
 		if (alternateSourceFolder != null)
 		{
-			findPCCFiles(alternateSourceFolder);
+			recursiveFileFinder.findFiles(alternateSourceFolder, campaignFiles);
 		}
 		else
 		{
-			findPCCFiles(new File(ConfigurationSettings.getPccFilesDir()));
+			recursiveFileFinder.findFiles(new File(ConfigurationSettings.getPccFilesDir()), campaignFiles);
 			final String vendorDataDir = PCGenSettings.getVendorDataDir();
-			if (vendorDataDir != null)
-			{
-				findPCCFiles(new File(vendorDataDir));
-			}
-			final String homebrewDataDir = PCGenSettings.getHomebrewDataDir();
-			if (homebrewDataDir != null)
-			{
-				findPCCFiles(new File(homebrewDataDir));
-			}
-		}
+            recursiveFileFinder.findFiles(new File(vendorDataDir), campaignFiles);
+            final String homebrewDataDir = PCGenSettings.getHomebrewDataDir();
+            recursiveFileFinder.findFiles(new File(homebrewDataDir), campaignFiles);
+        }
 		setMaximum(campaignFiles.size());
-		loadCampaigns();
+		loadCampaigns(campaignFiles);
 		CampaignFileLoader.initCampaigns();
-	}
-
-	/**
-	 * Recursively looks inside a given directory for PCC files
-	 * and adds them to the {@link #campaignFiles campaignFiles} list.
-	 * @param aDirectory The directory to search.
-	 */
-	private void findPCCFiles(final File aDirectory)
-	{
-		final FilenameFilter pccFileFilter = (parentDir, fileName) -> StringUtils.endsWithIgnoreCase(fileName, ".pcc")
-			|| new File(parentDir, fileName).isDirectory();
-
-		if (!aDirectory.exists() || !aDirectory.isDirectory())
-		{
-			return;
-		}
-		for (final File file : aDirectory.listFiles(pccFileFilter))
-		{
-			if (file.isDirectory())
-			{
-				findPCCFiles(file);
-				continue;
-			}
-			campaignFiles.add(file.toURI());
-		}
 	}
 
 	/**
@@ -107,15 +71,14 @@ public class CampaignFileLoader extends PCGenTask
 	 * {@link #campaignFiles campaignFiles} to a {@link pcgen.persistence.lst.CampaignLoader CampaignLoader},
 	 * which will load the data within into the {@link pcgen.rules.context.LoadContext LoadContext}
 	 * of the {@link pcgen.core.Campaign Campaign}.
+	 * @param campaignFiles
 	 */
-	private void loadCampaigns()
+	private void loadCampaigns(List<URI> campaignFiles)
 	{
 		int progress = 0;
 		CampaignLoader campaignLoader = new CampaignLoader();
-		while (!campaignFiles.isEmpty())
+		for (URI uri : campaignFiles)
 		{
-			// Pull the first URI from the list
-			URI uri = campaignFiles.poll();
 			// Do not load campaign if already loaded
 			if (Globals.getCampaignByURI(uri, false) == null)
 			{
@@ -131,8 +94,7 @@ public class CampaignFileLoader extends PCGenTask
 					Logging.errorPrint("PersistanceLayer", ex);
 				}
 			}
-			progress++;
-			setProgress(progress);
+			setProgress(progress++);
 		}
 	}
 
@@ -144,6 +106,7 @@ public class CampaignFileLoader extends PCGenTask
 	{
 		// This may modify the globals list; need a local copy so
 		// the iteration doesn't fail.
+		// This may not be true.  this is only a shallow copy and doesn't duplicate the contents
 		Iterable<Campaign> initialCampaigns = new ArrayList<>(Globals.getCampaignList());
 
 		CampaignLoader campaignLoader = new CampaignLoader();

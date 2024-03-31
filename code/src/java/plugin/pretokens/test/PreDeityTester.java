@@ -11,6 +11,7 @@ import pcgen.base.util.CaseInsensitiveMap;
 import pcgen.base.util.Indirect;
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.enumeration.FactSetKey;
+import pcgen.cdom.util.CControl;
 import pcgen.core.Deity;
 import pcgen.core.display.CharacterDisplay;
 import pcgen.core.prereq.AbstractDisplayPrereqTest;
@@ -18,6 +19,7 @@ import pcgen.core.prereq.Prerequisite;
 import pcgen.core.prereq.PrerequisiteException;
 import pcgen.core.prereq.PrerequisiteOperator;
 import pcgen.core.prereq.PrerequisiteTest;
+import pcgen.output.channel.ChannelUtilities;
 import pcgen.system.LanguageBundle;
 
 /**
@@ -39,7 +41,8 @@ public class PreDeityTester extends AbstractDisplayPrereqTest implements Prerequ
 			try
 			{
 				String pantheon = prereq.getKey().substring(9);
-				Deity deity = display.getDeity();
+				Deity deity = (Deity) ChannelUtilities.readControlledChannel(
+					display.getCharID(), CControl.DEITYINPUT);
 				Set<Object> charDeityPantheon = Collections.newSetFromMap(new CaseInsensitiveMap<>());
 				if (deity != null)
 				{
@@ -83,13 +86,15 @@ public class PreDeityTester extends AbstractDisplayPrereqTest implements Prerequ
 				{
 					throw new PrerequisiteException(
 						LanguageBundle.getFormattedString(
-							"PreDeity.error.bad_coparator", prereq.toString())); //$NON-NLS-1$
+							"PreDeity.error.bad_coparator", prereq.toString()), e); //$NON-NLS-1$
 				}
 			}
 		}
 		else
 		{
-			final String charDeity = display.getDeity() != null ? display.getDeity().getKeyName() : ""; //$NON-NLS-1$
+			Deity deity = (Deity) ChannelUtilities.readControlledChannel(
+				display.getCharID(), CControl.DEITYINPUT);
+			final String charDeity = (deity != null) ? deity.getKeyName() : ""; //$NON-NLS-1$
 			if (prereq.getOperator().equals(PrerequisiteOperator.EQ)
 				|| prereq.getOperator().equals(PrerequisiteOperator.GTEQ))
 			{

@@ -17,11 +17,11 @@
  */
 package pcgen.io.exporttoken;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.enumeration.AspectName;
 import pcgen.cdom.enumeration.ListKey;
@@ -41,28 +41,17 @@ import pcgen.util.TestHelper;
 import pcgen.util.enumeration.Visibility;
 import plugin.lsttokens.testsupport.BuildUtilities;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>AbilityTokenTest</code> tests the functioning of the ABILITY 
+ * {@code AbilityTokenTest} tests the functioning of the ABILITY
  * token processing code. 
  */
 public class AbilityTokenTest extends AbstractCharacterTestCase
 {
-
-	/**
-	 * Quick test suite creation - adds all methods beginning with "test"
-	 * @return The Test suite
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(AbilityTokenTest.class);
-	}
-
-	private Ability skillFocus;
-
-	/*
-	 * @see TestCase#setUp()
-	 */
-    @Override
+	@BeforeEach
+	@Override
 	protected void setUp() throws Exception
 	{
 		super.setUp();
@@ -102,8 +91,7 @@ public class AbilityTokenTest extends AbstractCharacterTestCase
 		TestHelper.makeSkill("Listen", "Wisdom", wis, true,
 			SkillArmorCheck.NONE);
 
-		skillFocus =
-				TestHelper.makeAbility("Skill Focus", BuildUtilities.getFeatCat(), "General");
+		Ability skillFocus = TestHelper.makeAbility("Skill Focus", BuildUtilities.getFeatCat(), "General");
 		BonusObj aBonus = Bonus.newBonus(Globals.getContext(), "SKILL|LIST|3");
 		if (aBonus != null)
 		{
@@ -112,19 +100,20 @@ public class AbilityTokenTest extends AbstractCharacterTestCase
 		skillFocus.put(ObjectKey.MULTIPLE_ALLOWED, true);
 		Globals.getContext().unconditionallyProcess(skillFocus, "CHOOSE", "SKILL|ALL");
 		AbstractCharacterTestCase.applyAbility(character, BuildUtilities.getFeatCat(),
-			skillFocus, "KEY_Bluff");
+				skillFocus, "KEY_Bluff");
 		AbstractCharacterTestCase.applyAbility(character, BuildUtilities.getFeatCat(),
-			skillFocus, "KEY_Listen");
+				skillFocus, "KEY_Listen");
 		character.calcActiveBonuses();
 	}
 
 	/**
 	 * Tests the aspect subtoken of ABILITY without a specific aspect.
 	 */
+	@Test
 	public void testAspect()
 	{
 		AbilityToken tok = new AbilityToken();
-		ExportHandler eh = new ExportHandler(null);
+		ExportHandler eh = ExportHandler.createExportHandler(null);
 		PlayerCharacter character = getCharacter();
 
 		assertEquals(
@@ -135,10 +124,11 @@ public class AbilityTokenTest extends AbstractCharacterTestCase
 	/**
 	 * Tests the ASPECTCOUNT subtoken of ABILITY.
 	 */
+	@Test
 	public void testAspectCount()
 	{
 		AbilityToken tok = new AbilityToken();
-		ExportHandler eh = new ExportHandler(null);
+		ExportHandler eh = ExportHandler.createExportHandler(null);
 		PlayerCharacter character = getCharacter();
 
 		assertEquals("5", tok.getToken("ABILITY.FEAT.0.ASPECTCOUNT", character,
@@ -148,10 +138,11 @@ public class AbilityTokenTest extends AbstractCharacterTestCase
 	/**
 	 * Tests the ASPECT subtoken of ABILITY with an aspect specified.
 	 */
+	@Test
 	public void testSingleAspect()
 	{
 		AbilityToken tok = new AbilityToken();
-		ExportHandler eh = new ExportHandler(null);
+		ExportHandler eh = ExportHandler.createExportHandler(null);
 		PlayerCharacter character = getCharacter();
 
 		assertEquals(
@@ -172,10 +163,11 @@ public class AbilityTokenTest extends AbstractCharacterTestCase
 	/**
 	 * Tests the ASPECT subtoken of ABILITY with an invalid aspect specified.
 	 */
+	@Test
 	public void testNonExistantSingleAspect()
 	{
 		AbilityToken tok = new AbilityToken();
-		ExportHandler eh = new ExportHandler(null);
+		ExportHandler eh = ExportHandler.createExportHandler(null);
 		PlayerCharacter character = getCharacter();
 
 		assertEquals("", tok
@@ -192,10 +184,11 @@ public class AbilityTokenTest extends AbstractCharacterTestCase
 	/**
 	 * Tests the HASASPECT subtoken of ABILITY.
 	 */
+	@Test
 	public void testHasAspect()
 	{
 		AbilityToken tok = new AbilityToken();
-		ExportHandler eh = new ExportHandler(null);
+		ExportHandler eh = ExportHandler.createExportHandler(null);
 		PlayerCharacter character = getCharacter();
 
 		assertEquals("N", tok.getToken("ABILITY.FEAT.0.HASASPECT.3", character,
@@ -213,10 +206,11 @@ public class AbilityTokenTest extends AbstractCharacterTestCase
 	/**
 	 * Tests the name subtoken of ABILITY.
 	 */
+	@Test
 	public void testName()
 	{
 		AbilityToken tok = new AbilityToken();
-		ExportHandler eh = new ExportHandler(null);
+		ExportHandler eh = ExportHandler.createExportHandler(null);
 		PlayerCharacter character = getCharacter();
 
 		assertEquals(
@@ -230,10 +224,11 @@ public class AbilityTokenTest extends AbstractCharacterTestCase
 	/**
 	 * Tests the key subtoken of ABILITY.
 	 */
+	@Test
 	public void testKey()
 	{
 		AbilityToken tok = new AbilityToken();
-		ExportHandler eh = new ExportHandler(null);
+		ExportHandler eh = ExportHandler.createExportHandler(null);
 		PlayerCharacter character = getCharacter();
 
 		assertEquals(
@@ -248,10 +243,11 @@ public class AbilityTokenTest extends AbstractCharacterTestCase
 	/**
 	 * Tests the associated subtoken of ABILITY.
 	 */
+	@Test
 	public void testAssociated()
 	{
 		AbilityToken tok = new AbilityToken();
-		ExportHandler eh = new ExportHandler(null);
+		ExportHandler eh = ExportHandler.createExportHandler(null);
 		PlayerCharacter character = getCharacter();
 
 		assertEquals("",
@@ -267,10 +263,11 @@ public class AbilityTokenTest extends AbstractCharacterTestCase
 	/**
 	 * Tests the ASSOCIATEDCOUNT subtoken of ABILITY.
 	 */
+	@Test
 	public void testAssociatedCount()
 	{
 		AbilityToken tok = new AbilityToken();
-		ExportHandler eh = new ExportHandler(null);
+		ExportHandler eh = ExportHandler.createExportHandler(null);
 		PlayerCharacter character = getCharacter();
 
 		assertEquals("0",

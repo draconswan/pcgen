@@ -17,9 +17,9 @@
  */
 package tokenmodel.testsupport;
 
-import junit.framework.TestCase;
-import pcgen.base.calculation.FormulaModifier;
-import pcgen.base.util.FormatManager;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import pcgen.ControlTestSupport;
 import pcgen.cdom.base.FormulaFactory;
 import pcgen.cdom.base.Loadable;
 import pcgen.cdom.content.fact.FactDefinition;
@@ -36,7 +36,6 @@ import pcgen.cdom.facet.model.CheckFacet;
 import pcgen.cdom.facet.model.ClassFacet;
 import pcgen.cdom.facet.model.ClassLevelFacet;
 import pcgen.cdom.facet.model.CompanionModFacet;
-import pcgen.cdom.facet.model.DeityFacet;
 import pcgen.cdom.facet.model.DomainFacet;
 import pcgen.cdom.facet.model.ExpandedCampaignFacet;
 import pcgen.cdom.facet.model.LanguageFacet;
@@ -45,10 +44,8 @@ import pcgen.cdom.facet.model.SkillFacet;
 import pcgen.cdom.facet.model.StatFacet;
 import pcgen.cdom.facet.model.TemplateFacet;
 import pcgen.cdom.facet.model.WeaponProfModelFacet;
-import pcgen.cdom.formula.local.ModifierDecoration;
-import pcgen.cdom.inst.CodeControl;
-import pcgen.cdom.inst.GlobalModifiers;
 import pcgen.cdom.util.CControl;
+import pcgen.core.Deity;
 import pcgen.core.GameMode;
 import pcgen.core.Globals;
 import pcgen.core.Language;
@@ -58,16 +55,11 @@ import pcgen.core.PCStat;
 import pcgen.core.PlayerCharacter;
 import pcgen.core.SettingsHandler;
 import pcgen.core.SizeAdjustment;
-import pcgen.output.channel.ChannelUtilities;
 import pcgen.persistence.SourceFileLoader;
-import pcgen.persistence.lst.GlobalModifierLoader;
 import pcgen.rules.context.AbstractReferenceContext;
 import pcgen.rules.context.LoadContext;
-import pcgen.rules.persistence.TokenLibrary;
 import pcgen.rules.persistence.token.CDOMToken;
-import pcgen.rules.persistence.token.ModifierFactory;
 import pcgen.util.chooser.ChooserFactory;
-import pcgen.util.chooser.RandomChooser;
 import plugin.lsttokens.AutoLst;
 import plugin.lsttokens.TypeLst;
 import plugin.lsttokens.ability.MultToken;
@@ -78,7 +70,10 @@ import plugin.lsttokens.testsupport.BuildUtilities;
 import plugin.lsttokens.testsupport.TokenRegistration;
 import plugin.primitive.language.LangBonusToken;
 
-public abstract class AbstractTokenModelTest extends TestCase
+import org.junit.jupiter.api.BeforeEach;
+import util.FormatSupport;
+
+public abstract class AbstractTokenModelTest
 {
 
 	protected static final MultToken ABILITY_MULT_TOKEN = new MultToken();
@@ -133,7 +128,6 @@ public abstract class AbstractTokenModelTest extends TestCase
 	protected ClassFacet classFacet;
 	protected ClassLevelFacet classLevelFacet;
 	protected CompanionModFacet companionModFacet;
-	protected DeityFacet deityFacet;
 	protected DomainFacet domainFacet;
 	protected ExpandedCampaignFacet expandedCampaignFacet;
 	protected LanguageFacet languageFacet;
@@ -145,28 +139,10 @@ public abstract class AbstractTokenModelTest extends TestCase
 	protected TemplateInputFacet templateInputFacet;
 	protected WeaponProfModelFacet weaponProfModelFacet;
 
-	public AbstractTokenModelTest()
-	{
-		super();
-	}
-
-	public AbstractTokenModelTest(String string)
-	{
-		super(string);
-	}
-
-	@Override
+	@BeforeEach
 	protected void setUp() throws Exception
 	{
-		super.setUp();
 		setUpContext();
-	}
-
-	@Override
-	protected void tearDown() throws Exception
-	{
-		ChooserFactory.popChooserClassname();
-		super.tearDown();
 	}
 
 	protected <T extends Loadable> T create(Class<T> cl, String key)
@@ -191,7 +167,7 @@ public abstract class AbstractTokenModelTest extends TestCase
 
 	protected void setUpContext()
 	{
-		ChooserFactory.pushChooserClassname(RandomChooser.class.getName());
+		ChooserFactory.useRandomChooser();
 		TokenRegistration.clearTokens();
 		TokenRegistration.register(AUTO_LANG_TOKEN);
 		TokenRegistration.register(ABILITY_VISIBLE_TOKEN);
@@ -214,7 +190,6 @@ public abstract class AbstractTokenModelTest extends TestCase
 		classFacet = FacetLibrary.getFacet(ClassFacet.class);
 		classLevelFacet = FacetLibrary.getFacet(ClassLevelFacet.class);
 		companionModFacet = FacetLibrary.getFacet(CompanionModFacet.class);
-		deityFacet = FacetLibrary.getFacet(DeityFacet.class);
 		domainFacet = FacetLibrary.getFacet(DomainFacet.class);
 		expandedCampaignFacet =
 				FacetLibrary.getFacet(ExpandedCampaignFacet.class);
@@ -229,9 +204,29 @@ public abstract class AbstractTokenModelTest extends TestCase
 
 		Globals.setUseGUI(false);
 		Globals.emptyLists();
-		GameMode gamemode = SettingsHandler.getGame();
-		gamemode.clearLoadContext();
-		BuildUtilities.buildUnselectedRace(Globals.getContext());
+		final GameMode gameMode = SettingsHandler.getGameAsProperty().get();
+		gameMode.clearLoadContext();
+
+		context = Globals.getContext();
+		AbstractReferenceContext ref = context.getReferenceContext();
+		ControlTestSupport.enableFeature(context, CControl.ALIGNMENTFEATURE);
+
+		Deity none = new Deity();
+		none.setName("None");
+		ref.importObject(none);
+
+		ControlTestSupport.enableFeature(context, CControl.DOMAINFEATURE);
+
+		FormatSupport.addNoneAsDefault(context,
+			ref.getManufacturer(Deity.class));
+
+		BuildUtilities.buildUnselectedRace(context);
+		ref.importObject(BuildUtilities.createAlignment("None", "NONE"));
+		
+		FormatSupport.addNoneAsDefault(context,
+			ref.getManufacturer(PCAlignment.class));
+		FormatSupport.addBasicDefaults(context);
+		SourceFileLoader.defineBuiltinVariables(context);
 
 		str = BuildUtilities.createStat("Strength", "STR", "A");
 		str.put(VariableKey.getConstant("LOADSCORE"),
@@ -244,10 +239,6 @@ public abstract class AbstractTokenModelTest extends TestCase
 		wis = BuildUtilities.createStat("Wisdom", "WIS", "E");
 		cha = BuildUtilities.createStat("Charisma", "CHA", "F");
 
-		AbstractReferenceContext ref = Globals.getContext().getReferenceContext();
-		GlobalModifiers mods = ref.constructNowIfNecessary(GlobalModifiers.class,
-			GlobalModifierLoader.GLOBAL_MODIFIERS);
-		mods.addGrantedVariable(ChannelUtilities.createVarName("AlignmentInput"));
 		lg = BuildUtilities.createAlignment("Lawful Good", "LG");
 		ref.importObject(lg);
 		ln = BuildUtilities.createAlignment("Lawful Neutral", "LN");
@@ -266,10 +257,9 @@ public abstract class AbstractTokenModelTest extends TestCase
 		ref.importObject(cn);
 		ce = BuildUtilities.createAlignment("Chaotic Evil", "CE");
 		ref.importObject(ce);
-		ref.importObject(BuildUtilities.createAlignment("None", "NONE"));
 		ref.importObject(BuildUtilities.createAlignment("Deity's", "Deity"));
 
-		gamemode.setBonusFeatLevels("3|3");
+		gameMode.setBonusFeatLevels("3|3");
 
 		SettingsHandler.setGame("3.5");
 
@@ -291,7 +281,6 @@ public abstract class AbstractTokenModelTest extends TestCase
 		gargantuan = BuildUtilities.createSize("Gargantuan", 7);
 		colossal = BuildUtilities.createSize("Colossal", 8);
 
-		context = Globals.getContext();
 		create(Language.class, "Common");
 		BuildUtilities.createFact(context, "ClassType", PCClass.class);
 		FactDefinition<?, String> fd =
@@ -299,29 +288,6 @@ public abstract class AbstractTokenModelTest extends TestCase
 		fd.setSelectable(true);
 		context.getReferenceContext().importObject(BuildUtilities.getFeatCat());
 		SourceFileLoader.createLangBonusObject(Globals.getContext());
-		FormatManager<?> fmtManager = ref.getFormatManager("ALIGNMENT");
-		proc(fmtManager);
-		setAlignmentInputCodeControl(context, fmtManager, ref);
-	}
-
-	private void setAlignmentInputCodeControl(LoadContext context,
-		FormatManager<?> fmtManager, AbstractReferenceContext ref)
-	{
-		CodeControl ai = ref.constructCDOMObject(CodeControl.class, "Controller");
-		String channelName = ChannelUtilities.createVarName("AlignmentInput");
-		context.getVariableContext().assertLegalVariableID(
-			channelName, context.getActiveScope(), fmtManager);
-		String controlName = '*' + CControl.ALIGNMENTINPUT.getName();
-		ai.put(ObjectKey.getKeyFor(String.class, controlName), "AlignmentInput");
-	}
-
-	private <T> void proc(FormatManager<T> fmtManager)
-	{
-		Class<T> cl = fmtManager.getManagedClass();
-		ModifierFactory<T> m = TokenLibrary.getModifier(cl, "SET");
-		FormulaModifier<T> defaultModifier = m.getFixedModifier(fmtManager, "NONE");
-		context.getVariableContext().addDefault(cl,
-			new ModifierDecoration<>(defaultModifier));
 	}
 
 	public abstract CDOMToken<?> getToken();

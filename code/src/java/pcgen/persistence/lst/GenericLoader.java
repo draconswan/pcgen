@@ -19,12 +19,12 @@
 package pcgen.persistence.lst;
 
 import java.lang.reflect.Modifier;
+import java.util.Objects;
 import java.util.StringTokenizer;
 
 import pcgen.base.lang.UnreachableError;
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.enumeration.ObjectKey;
-import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.SystemLoader;
 import pcgen.rules.context.LoadContext;
 
@@ -34,10 +34,7 @@ public class GenericLoader<T extends CDOMObject> extends LstObjectFileLoader<T>
 
 	public GenericLoader(Class<T> cl)
 	{
-		if (cl == null)
-		{
-			throw new IllegalArgumentException("Class for GenericLoader cannot be null");
-		}
+		Objects.requireNonNull(cl, "Class for GenericLoader cannot be null");
 		if (Modifier.isAbstract(cl.getModifiers()))
 		{
 			throw new IllegalArgumentException("Class for GenericLoader must not be abstract");
@@ -50,20 +47,15 @@ public class GenericLoader<T extends CDOMObject> extends LstObjectFileLoader<T>
 					"Class for GenericLoader must have public zero-argument constructor");
 			}
 		}
-		catch (SecurityException e)
+		catch (SecurityException | NoSuchMethodException e)
 		{
-			throw new IllegalArgumentException("Class for GenericLoader must have public zero-argument constructor");
-		}
-		catch (NoSuchMethodException e)
-		{
-			throw new IllegalArgumentException("Class for GenericLoader must have zero-argument constructor");
+			throw new IllegalArgumentException("Class for GenericLoader must have public zero-argument constructor", e);
 		}
 		baseClass = cl;
 	}
 
 	@Override
 	public final T parseLine(LoadContext context, T object, String lstLine, SourceEntry source)
-		throws PersistenceLayerException
 	{
 		T po;
 		boolean isnew = false;
@@ -72,7 +64,6 @@ public class GenericLoader<T extends CDOMObject> extends LstObjectFileLoader<T>
 			try
 			{
 				po = baseClass.newInstance();
-				newConstructionActions(context, po);
 			}
 			catch (InstantiationException | IllegalAccessException e)
 			{
@@ -88,7 +79,7 @@ public class GenericLoader<T extends CDOMObject> extends LstObjectFileLoader<T>
 		final StringTokenizer colToken = new StringTokenizer(lstLine, SystemLoader.TAB_DELIM);
 		if (colToken.hasMoreTokens())
 		{
-			po.setName(colToken.nextToken().intern());
+			po.setName(colToken.nextToken());
 			po.put(ObjectKey.SOURCE_CAMPAIGN, source.getCampaign());
 			po.setSourceURI(source.getURI());
 			if (isnew)
@@ -106,11 +97,6 @@ public class GenericLoader<T extends CDOMObject> extends LstObjectFileLoader<T>
 		// One line each; finish the object and return null
 		completeObject(context, source, po);
 		return null;
-	}
-
-	protected void newConstructionActions(LoadContext context, T po)
-	{
-		//Nothing by default
 	}
 
 	@Override

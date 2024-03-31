@@ -21,6 +21,7 @@ import pcgen.base.calculation.AbstractNEPCalculation;
 import pcgen.base.calculation.BasicCalculation;
 import pcgen.base.formula.base.DependencyManager;
 import pcgen.base.formula.base.EvaluationManager;
+import pcgen.base.formula.base.FormulaSemantics;
 import pcgen.base.util.Indirect;
 
 /**
@@ -77,9 +78,8 @@ public final class IndirectCalculation<T> extends AbstractNEPCalculation<T>
 	@Override
 	public boolean equals(Object o)
 	{
-		if (o instanceof IndirectCalculation)
+		if (o instanceof IndirectCalculation<?> other)
 		{
-			IndirectCalculation<?> other = (IndirectCalculation<?>) o;
 			return other.getBasicCalculation().equals(getBasicCalculation()) && other.obj.equals(obj);
 		}
 		return false;
@@ -89,5 +89,14 @@ public final class IndirectCalculation<T> extends AbstractNEPCalculation<T>
 	public void getDependencies(DependencyManager fdm)
 	{
 		//CONSIDER: How does DependencyManager want to know about Indirect?
+	}
+
+	@Override
+	public void isValid(FormulaSemantics semantics)
+	{
+		/*
+		 * Since this is direct (already has a reference to the object), it has no
+		 * semantic issues (barring someone violating Generics)
+		 */
 	}
 }

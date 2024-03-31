@@ -20,9 +20,9 @@ package pcgen.system;
 
 import java.io.File;
 
-import org.apache.commons.lang3.SystemUtils;
-
 import pcgen.output.publish.OutputDB;
+
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  * This stores some of the properties that pcgen uses.
@@ -43,10 +43,7 @@ public final class PCGenSettings extends PropertyContext
 	public static final String OPTION_SOURCES_ALLOW_MULTI_LINE = "optionSourcesAllowMultiLine";
 	public static final String OPTION_SHOW_LICENSE = "showLicense";
 	public static final String OPTION_SHOW_MATURE_ON_LOAD = "showMatureOnLoad";
-	public static final String OPTION_SHOW_SPONSORS_ON_LOAD = "showSponsorsOnLoad";
 	public static final String OPTION_CREATE_PCG_BACKUP = "createPcgBackup";
-	public static final String OPTION_SHOW_HP_DIALOG_AT_LEVELUP = "showHPDialogAtLevelUp";
-	public static final String OPTION_SHOW_STAT_DIALOG_AT_LEVELUP = "showStatDialogAtLevelUp";
 	public static final String OPTION_SHOW_WARNING_AT_FIRST_LEVEL_UP = "showWarningAtFirstLevelUp";
 	public static final String OPTION_AUTO_RESIZE_EQUIP = "autoResizeEquip";
 	public static final String OPTION_SHOW_SKILL_MOD_BREAKDOWN = "showSkillModBreakdown";
@@ -54,11 +51,9 @@ public final class PCGenSettings extends PropertyContext
 	public static final String OPTION_SHOW_OUTPUT_NAME_FOR_OTHER_ITEMS = "showOutputNameForOtherItems";
 	public static final String OPTION_AUTOLOAD_SOURCES_AT_START = "autoloadSourcesAtStart";
 	public static final String OPTION_AUTOLOAD_SOURCES_WITH_PC = "autoloadSourcesWithPC";
-	public static final String OPTION_AUTOCREATE_MW_MAGIC_EQUIP = "autoCreateMagicMwEquip";
 	public static final String OPTION_ALLOW_OVERRIDE_DUPLICATES = "allowOverrideDuplicates";
 	public static final String OPTION_SKILL_FILTER = "skillsOutputFilter";
 	public static final String OPTION_GENERATE_TEMP_FILE_WITH_PDF = "generateTempFileWithPdf";
-	public static final String BROWSER_PATH = "browserPath";
 	/**
 	 * The key for the path to the character files.
 	 */
@@ -136,11 +131,6 @@ public final class PCGenSettings extends PropertyContext
 		return getInstance().getProperty(BACKUP_PCG_PATH);
 	}
 
-	public static String getBrowserPath()
-	{
-		return OPTIONS_CONTEXT.getProperty(BROWSER_PATH);
-	}
-
 	public static boolean getCreatePcgBackup()
 	{
 		return OPTIONS_CONTEXT.initBoolean(PCGenSettings.OPTION_CREATE_PCG_BACKUP, true);
@@ -161,12 +151,12 @@ public final class PCGenSettings extends PropertyContext
 		return getDirectory(CUSTOM_DATA_DIR);
 	}
 
-	public static String getSystemProperty(String key)
+	private static String getSystemProperty(String key)
 	{
 		return getInstance().getProperty(key);
 	}
 
-	public static Object setSystemProperty(String key, String value)
+	private static Object setSystemProperty(String key, String value)
 	{
 		return getInstance().setProperty(key, value);
 	}

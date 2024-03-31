@@ -17,6 +17,12 @@
  */
 package pcgen.cdom.testsupport;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,56 +32,35 @@ import java.util.Set;
 import pcgen.cdom.enumeration.CharID;
 import pcgen.cdom.enumeration.DataSetID;
 import pcgen.cdom.facet.base.AbstractSourcedListFacet;
-import pcgen.cdom.facet.event.DataFacetChangeEvent;
-import pcgen.cdom.facet.event.DataFacetChangeListener;
 import pcgen.core.bonus.BonusObj;
 import pcgen.rules.persistence.TokenLibrary;
 
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public abstract class AbstractSourcedListFacetTest<T> extends TestCase
+public abstract class AbstractSourcedListFacetTest<T>
 {
 	protected CharID id;
 	protected CharID altid;
+	protected TestFacetListener<T> listener;
 
-	private Listener listener = new Listener();
-	protected Object oneSource = new Object();
-
-	private class Listener implements DataFacetChangeListener<CharID, T>
+	@BeforeEach
+	public void setUp()
 	{
-
-		public int addEventCount;
-		public int removeEventCount;
-
-        @Override
-		public void dataAdded(DataFacetChangeEvent<CharID, T> dfce)
-		{
-			addEventCount++;
-		}
-
-        @Override
-		public void dataRemoved(DataFacetChangeEvent<CharID, T> dfce)
-		{
-			removeEventCount++;
-		}
-
-	}
-
-	@Override
-	public void setUp() throws Exception
-	{
-		super.setUp();
 		DataSetID cid = DataSetID.getID();
 		id = CharID.getID(cid);
 		altid = CharID.getID(cid);
+		listener = new TestFacetListener<T>();
 		getFacet().addDataFacetChangeListener(listener);
 	}
 
-	protected void assertEventCount(int a, int r)
+	@AfterEach
+	public void tearDown()
 	{
-		assertEquals(a, listener.addEventCount);
-		assertEquals(r, listener.removeEventCount);
+		id = null;
+		altid = null;
+		listener = null;
 	}
 
 	@Test
@@ -94,7 +79,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 	public void testRemoveAllUnsetEmpty()
 	{
 		// Not particularly a test, just make sure it doesn't throw an exception
-		getFacet().removeAll(id, oneSource);
+		getFacet().removeAll(id, new Object());
 	}
 
 	@Test
@@ -107,20 +92,11 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 	@Test
 	public void testTypeAddNull()
 	{
-		try
-		{
-			Object source1 = new Object();
-			getFacet().add(id, null, source1);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// Yep!
-		}
+		assertThrows(NullPointerException.class, () -> getFacet().add(id, null, new Object()));
 		testTypeUnsetZeroCount();
 		testTypeUnsetEmpty();
 		testTypeUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -128,20 +104,11 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 	{
 		//Remove to try to avoid any event being formed
 		getFacet().removeDataFacetChangeListener(listener);
-		try
-		{
-			Object source1 = new Object();
-			getFacet().add(null, getObject(), source1);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// Yep!
-		}
+		assertThrows(NullPointerException.class, () -> getFacet().add(null, getObject(), new Object()));
 		testTypeUnsetZeroCount();
 		testTypeUnsetEmpty();
 		testTypeUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -154,7 +121,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// No cross-pollution
 		assertEquals(0, getFacet().getCount(altid));
 		assertTrue(getFacet().isEmpty(altid));
@@ -173,7 +140,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// No cross-pollution
 		assertEquals(0, getFacet().getCount(altid));
 		assertTrue(getFacet().isEmpty(altid));
@@ -192,7 +159,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, still only once in set (and only one event)
 		getFacet().add(id, t1, source1);
 		assertEquals(1, getFacet().getCount(id));
@@ -200,7 +167,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -215,7 +182,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, still only once in set (and only one event)
 		getFacet().add(id, t1, source2);
 		assertEquals(1, getFacet().getCount(id));
@@ -223,7 +190,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -238,7 +205,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertNotNull(setofone);
 		assertEquals(1, setofone.size());
 		assertEquals(t1, setofone.iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		T t2 = getAltObject();
 		getFacet().add(id, t2, source1);
 		assertEquals(2, getFacet().getCount(id));
@@ -248,7 +215,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertEquals(2, setoftwo.size());
 		assertTrue(setoftwo.contains(t1));
 		assertTrue(setoftwo.contains(t2));
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 	}
 
 	@Test
@@ -266,17 +233,8 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 	@Test
 	public void testTypeAddAllNull()
 	{
-		try
-		{
-			Object source1 = new Object();
-			getFacet().addAll(id, null, source1);
-			fail();
-		}
-		catch (NullPointerException e)
-		{
-			// Expected
-		}
-		assertEventCount(0, 0);
+		assertThrows(NullPointerException.class, () -> getFacet().addAll(id, null, new Object()));
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -287,7 +245,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		testTypeUnsetZeroCount();
 		testTypeUnsetEmpty();
 		testTypeUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -307,7 +265,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertEquals(2, setoftwo.size());
 		assertTrue(setoftwo.contains(t1));
 		assertTrue(setoftwo.contains(t2));
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 		// Prove independence
 		pct.remove(t2);
 		assertEquals(2, getFacet().getCount(id));
@@ -336,7 +294,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertEquals(2, setoftwo.size());
 		assertTrue(setoftwo.contains(t1));
 		assertTrue(setoftwo.contains(t2));
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 		Object source2 = new Object();
 		T t3 = getThirdObject();
 		List<T> pct2 = new ArrayList<>();
@@ -351,7 +309,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertTrue(setofthree.contains(t1));
 		assertTrue(setofthree.contains(t2));
 		assertTrue(setofthree.contains(t3));
-		assertEventCount(3, 0);
+		listener.assertEventCount(3, 0);
 	}
 
 	@Test
@@ -369,7 +327,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertNotNull(setofone);
 		assertEquals(1, setofone.size());
 		assertTrue(setofone.contains(t1));
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -381,16 +339,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		pct.add(t1);
 		pct.add(null);
 		pct.add(t2);
-		try
-		{
-			Object source1 = new Object();
-			getFacet().addAll(id, pct, source1);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// Yep!
-		}
+		assertThrows(NullPointerException.class, () -> getFacet().addAll(id, pct, new Object()));
 		/*
 		 * TODO This should be zero, one or two???
 		 */
@@ -400,7 +349,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertNotNull(setoftwo);
 		assertEquals(1, setoftwo.size());
 		assertTrue(setoftwo.contains(t1));
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -411,7 +360,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		testTypeUnsetZeroCount();
 		testTypeUnsetEmpty();
 		testTypeUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -425,7 +374,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		Object source2 = new Object();
 		getFacet().remove(id, t1, source2);
 		// No change (wrong source)
@@ -434,7 +383,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -448,14 +397,14 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Remove
 		getFacet().remove(id, t1, source1);
 		assertEquals(0, getFacet().getCount(id));
 		assertTrue(getFacet().isEmpty(id));
 		assertNotNull(getFacet().getSet(id));
 		assertTrue(getFacet().getSet(id).isEmpty());
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 	}
 
 	@Test
@@ -469,7 +418,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Useless Remove
 		getFacet().remove(id, getAltObject(), source1);
 		assertEquals(1, getFacet().getCount(id));
@@ -477,7 +426,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -491,7 +440,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, still only once in set (but twice on that source)
 		getFacet().add(id, t1, source1);
 		assertEquals(1, getFacet().getCount(id));
@@ -499,19 +448,19 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Only one Remove required to clear (source Set not source List)
 		getFacet().remove(id, t1, source1);
 		testTypeUnsetZeroCount();
 		testTypeUnsetEmpty();
 		testTypeUnsetEmptySet();
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 		// Second remove useless
 		getFacet().remove(id, t1, source1);
 		testTypeUnsetZeroCount();
 		testTypeUnsetEmpty();
 		testTypeUnsetEmptySet();
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 	}
 
 	@Test
@@ -529,7 +478,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertNotNull(setofone);
 		assertEquals(1, setofone.size());
 		assertTrue(setofone.contains(t2));
-		assertEventCount(2, 1);
+		listener.assertEventCount(2, 1);
 	}
 
 	@Test
@@ -537,15 +486,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 	{
 		Object source1 = new Object();
 		getFacet().add(id, getObject(), source1);
-		try
-		{
-			getFacet().removeAll(id, null, source1);
-			fail();
-		}
-		catch (NullPointerException e)
-		{
-			// Expected
-		}
+		assertThrows(NullPointerException.class, () -> getFacet().removeAll(id, null, source1));
 	}
 
 	@Test
@@ -556,7 +497,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		testTypeUnsetZeroCount();
 		testTypeUnsetEmpty();
 		testTypeUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -574,9 +515,9 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		getFacet().add(id, t3, source2);
 		pct.add(t1);
 		pct.add(t3);
-		assertEventCount(3, 0);
+		listener.assertEventCount(3, 0);
 		getFacet().removeAll(id, pct, source1);
-		assertEventCount(3, 1);
+		listener.assertEventCount(3, 1);
 		assertEquals(2, getFacet().getCount(id));
 		assertFalse(getFacet().isEmpty(id));
 		Set<T> setoftwo = getFacet().getSet(id);
@@ -605,11 +546,11 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		getFacet().add(id, t2, source1);
 		getFacet().add(id, t3, source1);
 		getFacet().add(id, t3, source2);
-		assertEventCount(3, 0);
+		listener.assertEventCount(3, 0);
 		getFacet().removeAll(id, new Object());
-		assertEventCount(3, 0);
+		listener.assertEventCount(3, 0);
 		getFacet().removeAll(id, source1);
-		assertEventCount(3, 2);
+		listener.assertEventCount(3, 2);
 		Set<T> setofone = getFacet().getSet(id);
 		assertNotNull(setofone);
 		assertEquals(1, setofone.size());
@@ -629,9 +570,9 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		getFacet().add(id, t2, source1);
 		pct.add(t1);
 		pct.add(t1);
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 		getFacet().removeAll(id, pct, source1);
-		assertEventCount(2, 1);
+		listener.assertEventCount(2, 1);
 		assertEquals(1, getFacet().getCount(id));
 		assertFalse(getFacet().isEmpty(id));
 		Set<T> setofone = getFacet().getSet(id);
@@ -651,16 +592,8 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		getFacet().add(id, t2, source1);
 		pct.add(t1);
 		pct.add(null);
-		assertEventCount(2, 0);
-		try
-		{
-			getFacet().removeAll(id, pct, source1);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// OK
-		}
+		listener.assertEventCount(2, 0);
+		assertThrows(NullPointerException.class, () -> getFacet().removeAll(id, pct, source1));
 		// CONSIDER This was old behavior - prior to null being illegal
 		// assertEventCount(2, 1);
 		// assertEquals(1, getFacet().getCount(id));
@@ -683,9 +616,9 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		getFacet().add(id, t1, source1);
 		getFacet().add(id, t1, source2);
 		getFacet().add(id, t2, source2);
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 		Map<T, Set<Object>> map = getFacet().removeAll(id);
-		assertEventCount(2, 2);
+		listener.assertEventCount(2, 2);
 		assertNotNull(map);
 		assertEquals(2, map.size());
 		assertTrue(map.containsKey(t1));
@@ -881,7 +814,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertEquals(2, setoftwo.size());
 		assertTrue(setoftwo.contains(t1));
 		assertTrue(setoftwo.contains(t2));
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 		Object source2 = new Object();
 		T t3 = getThirdObject();
 		List<T> pct2 = new ArrayList<>();
@@ -900,7 +833,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertEquals(2, setoftwo.size());
 		assertTrue(setoftwo.contains(t1));
 		assertTrue(setoftwo.contains(t3));
-		assertEventCount(3, 0);
+		listener.assertEventCount(3, 0);
 		getFacet().remove(id, t3, source2);
 		List<? extends T> setofone = getFacet().getSet(id, source2);
 		assertNotNull(setofone);
@@ -929,7 +862,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertFalse(getFacet().isEmpty(id));
 		assertTrue(getFacet().containsFrom(id, source1));
 		assertFalse(getFacet().containsFrom(id, source2));
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 		T t3 = getThirdObject();
 		List<T> pct2 = new ArrayList<>();
 		pct2.add(t1);
@@ -939,7 +872,7 @@ public abstract class AbstractSourcedListFacetTest<T> extends TestCase
 		assertFalse(getFacet().isEmpty(id));
 		assertTrue(getFacet().containsFrom(id, source1));
 		assertTrue(getFacet().containsFrom(id, source2));
-		assertEventCount(3, 0);
+		listener.assertEventCount(3, 0);
 		getFacet().remove(id, t3, source2);
 		assertTrue(getFacet().containsFrom(id, source1));
 		assertTrue(getFacet().containsFrom(id, source2));

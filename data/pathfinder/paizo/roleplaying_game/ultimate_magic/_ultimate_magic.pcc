@@ -2,7 +2,6 @@
 CAMPAIGN:Ultimate Magic
 GAMEMODE:Pathfinder|Pathfinder_PFS
 TYPE:Paizo Publishing.Pathfinder RPG
-RANK:1
 STATUS:BETA
 GENRE:Fantasy
 BOOKTYPE:Supplement
@@ -16,6 +15,7 @@ SOURCELONG:Ultimate Magic
 SOURCESHORT:UM
 SOURCEWEB:http://paizo.com/pathfinderRPG/v5748btpy8g7s
 SOURCEDATE:2011-05
+RANK:201105
 ISOGL:YES
 
 
@@ -82,9 +82,6 @@ SHIELDPROF:um_profs_shield.lst
 WEAPONPROF:um_profs_weapon.lst
 
 HIDETYPE:FEAT|RevelationTargetOneOnly|FeatSkillFocusCraft|CrossbloodlineFeat|FeatSkillFocusPerform
-
-#Support
-ABILITY:support/um_abilities_class_acg.lst|PRECAMPAIGN:1,INCLUDES=Advanced Class Guide
 
 #MOVE TO CORE ESSENTIALS
 ABILITY:um_abilities_companion.lst

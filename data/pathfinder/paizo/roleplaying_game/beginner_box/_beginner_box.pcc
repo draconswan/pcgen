@@ -1,7 +1,6 @@
 CAMPAIGN:Beginner Box
 GAMEMODE:Pathfinder|Pathfinder_PFS
-TYPE:Paizo Publishing.Campaign Setting
-RANK:3
+TYPE:Paizo Publishing.Pathfinder RPG
 STATUS:BETA
 GENRE:Fantasy
 BOOKTYPE:Supplement
@@ -14,6 +13,7 @@ SOURCELONG:Beginner Box
 SOURCESHORT:BBox
 SOURCEWEB:http://paizo.com/products/btpy8osv
 SOURCEDATE:2011-10
+RANK:201110
 ISOGL:YES
 
 COVER:beginner_box.jpg
@@ -40,7 +40,7 @@ EQUIPMENT:bbox_equip_magic_items.lst
 # LICENSE MONKEY: Paul Grosse
 # RELEASE REVIEW #
 # BETA: Andrew Maitland (LegacyKing)
-# RELEASE: 
+# RELEASE:
 # Built for PCGen Version: 6.06.06
 # Updated to work with version: -
 # MINVER:6.6

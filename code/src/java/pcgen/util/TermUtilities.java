@@ -26,10 +26,10 @@ import pcgen.core.term.TermEvaulatorException;
 
 public final class TermUtilities
 {
-	public static final String D_STRING = "(?:NOT|ADD|IS)";
-	public static final Pattern D_PAT = Pattern.compile(D_STRING);
-	public static final String S_STRING = "(?:EQUIPPED|NOTEQUIPPED)";
-	public static final Pattern S_PAT = Pattern.compile(S_STRING);
+	private static final String D_STRING = "(?:NOT|ADD|IS)";
+	private static final Pattern D_PAT = Pattern.compile(D_STRING);
+	private static final String S_STRING = "(?:EQUIPPED|NOTEQUIPPED)";
+	private static final Pattern S_PAT = Pattern.compile(S_STRING);
 
 	private TermUtilities()
 	{
@@ -48,11 +48,10 @@ public final class TermUtilities
 				cur++;
 				if (cur >= types.length)
 				{
-					StringBuilder sB = new StringBuilder();
-					sB.append(types[cur - 1]);
-					sB.append(" must be followed by a type in ");
-					sB.append(originalText);
-					throw new TermEvaulatorException(sB.toString());
+                    String sB = types[cur - 1]
+                            + " must be followed by a type in "
+                            + originalText;
+                    throw new TermEvaulatorException(sB);
 				}
 				cur++;
 			}
@@ -63,12 +62,11 @@ public final class TermUtilities
 			}
 			else
 			{
-				StringBuilder sB = new StringBuilder();
-				sB.append("Spurious type \"");
-				sB.append(types[cur]);
-				sB.append("\" in ");
-				sB.append(originalText);
-				throw new TermEvaulatorException(sB.toString());
+                String sB = "Spurious type \""
+                        + types[cur]
+                        + "\" in "
+                        + originalText;
+                throw new TermEvaulatorException(sB);
 			}
 		}
 	}
@@ -86,11 +84,10 @@ public final class TermUtilities
 				cur++;
 				if (cur >= types.length)
 				{
-					StringBuilder sB = new StringBuilder();
-					sB.append(types[cur - 1]);
-					sB.append(" must be followed by a type in ");
-					sB.append(originalText);
-					throw new TermEvaulatorException(sB.toString());
+                    String sB = types[cur - 1]
+                            + " must be followed by a type in "
+                            + originalText;
+                    throw new TermEvaulatorException(sB);
 				}
 				cur++;
 			}
@@ -100,12 +97,11 @@ public final class TermUtilities
 			}
 			else
 			{
-				StringBuilder sB = new StringBuilder();
-				sB.append("Spurious type \"");
-				sB.append(types[cur]);
-				sB.append("\" in ");
-				sB.append(originalText);
-				throw new TermEvaulatorException(sB.toString());
+                String sB = "Spurious type \""
+                        + types[cur]
+                        + "\" in "
+                        + originalText;
+                throw new TermEvaulatorException(sB);
 			}
 		}
 	}
@@ -134,21 +130,20 @@ public final class TermUtilities
 		return expressionString.substring(fixed, expEnd);
 	}
 
-	public static int[] splitAndConvertIntegers(String expressionString, final String clause, int numOfFields)
+	static int[] splitAndConvertIntegers(String expressionString, final String clause, int numOfFields)
 		throws TermEvaulatorException
 	{
 		final String[] sA = clause.split("\\.", numOfFields);
 		if (sA.length < numOfFields)
 		{
-			StringBuilder sB = new StringBuilder();
-			sB.append("Invalid string ");
-			sB.append(clause);
-			sB.append(" following ");
-			sB.append(expressionString);
-			sB.append(" should be ");
-			sB.append(numOfFields);
-			sB.append(" integers separated by dots");
-			throw new TermEvaulatorException(sB.toString());
+            String sB = "Invalid string "
+                    + clause
+                    + " following "
+                    + expressionString
+                    + " should be "
+                    + numOfFields
+                    + " integers separated by dots";
+            throw new TermEvaulatorException(sB);
 		}
 
 		int[] fields = new int[numOfFields];
@@ -172,12 +167,11 @@ public final class TermUtilities
 		}
 		catch (NumberFormatException n)
 		{
-			StringBuilder sB = new StringBuilder();
-			sB.append("Invalid string following ");
-			sB.append(expressionString.substring(0, fixed));
-			sB.append(" in ");
-			sB.append(expressionString);
-			throw new TermEvaulatorException(sB.toString());
+			String sB = "Invalid string following "
+					+ expressionString.substring(0, fixed)
+					+ " in "
+					+ expressionString;
+			throw new TermEvaulatorException(sB, n);
 		}
 		return nums;
 	}

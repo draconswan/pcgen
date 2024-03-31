@@ -338,9 +338,6 @@ public abstract class BonusObj extends ConcretePrereqObject implements Serializa
 		return stringRepresentation;
 	}
 
-	/**
-	 * @see Object#toString()
-	 */
 	@Override
 	public String toString()
 	{
@@ -407,9 +404,9 @@ public abstract class BonusObj extends ConcretePrereqObject implements Serializa
 		return theStackingFlag;
 	}
 
-	protected abstract boolean parseToken(LoadContext context, final String token);
+	protected abstract boolean parseToken(LoadContext context, String token);
 
-	protected abstract String unparseToken(final Object obj);
+	protected abstract String unparseToken(Object obj);
 
 	public abstract String getBonusHandled();
 
@@ -430,8 +427,8 @@ public abstract class BonusObj extends ConcretePrereqObject implements Serializa
 
 			final String bString = aString.substring(x + 1, y);
 			buildDependMap(bString);
-			aString = new StringBuilder(aString.length()).append(aString.substring(0, x))
-				.append(aString.substring(y + 1)).toString();
+			aString = aString.substring(0, x)
+					+ aString.substring(y + 1);
 		}
 
 		if (aString.indexOf('(') >= 0 || aString.indexOf(')') >= 0 || aString.indexOf('%') >= 0)
@@ -469,12 +466,12 @@ public abstract class BonusObj extends ConcretePrereqObject implements Serializa
 				// now Check for MIN or MAX
 				while (!found)
 				{
-					if (newString.indexOf("MAX") >= 0)
+					if (newString.contains("MAX"))
 					{
 						testString = newString.substring(0, newString.indexOf("MAX"));
 						newString = newString.substring(newString.indexOf("MAX") + 3);
 					}
-					else if (newString.indexOf("MIN") >= 0)
+					else if (newString.contains("MIN"))
 					{
 						testString = newString.substring(0, newString.indexOf("MIN"));
 						newString = newString.substring(newString.indexOf("MIN") + 3);
@@ -496,8 +493,8 @@ public abstract class BonusObj extends ConcretePrereqObject implements Serializa
 						{
 							if (testString.startsWith("MOVE["))
 							{
-								testString = new StringBuilder(testString.length()).append("TYPE.")
-									.append(testString.substring(5, testString.length() - 1)).toString();
+								testString = "TYPE."
+										+ testString.substring(5, testString.length() - 1);
 							}
 							dependMap.put(testString.intern(), "1");
 							addImpliedDependenciesFor(testString);
@@ -514,19 +511,19 @@ public abstract class BonusObj extends ConcretePrereqObject implements Serializa
 	 */
 	private void addImpliedDependenciesFor(String aString)
 	{
-		if (aString.indexOf("SKILLINFO(") >= 0)
+		if (aString.contains("SKILLINFO("))
 		{
 			dependMap.put("JEPFORMULA", "1");
 		}
-		if (aString.indexOf("HP") >= 0)
+		if (aString.contains("HP"))
 		{
 			dependMap.put("CURRENTMAX", "1");
 		}
-		if (aString.indexOf("SKILL.") >= 0 || aString.indexOf("SKILLINFO") >= 0)
+		if (aString.contains("SKILL.") || aString.contains("SKILLINFO"))
 		{
 			dependMap.put("NAME|STAT", "1");
 		}
-		if (aString.indexOf("MODEQUIPMAXDEX") >= 0)
+		if (aString.contains("MODEQUIPMAXDEX"))
 		{
 			dependMap.put("MAXDEX", "1");
 		}
@@ -536,9 +533,6 @@ public abstract class BonusObj extends ConcretePrereqObject implements Serializa
 		}
 	}
 
-	/**
-	 * @see java.lang.Object#clone()
-	 */
 	@Override
 	public BonusObj clone() throws CloneNotSupportedException
 	{
@@ -582,11 +576,10 @@ public abstract class BonusObj extends ConcretePrereqObject implements Serializa
 		{
 			return true;
 		}
-		if (!(obj instanceof BonusObj))
+		if (!(obj instanceof BonusObj other))
 		{
 			return false;
 		}
-		BonusObj other = (BonusObj) obj;
 		return equalsPrereqObject(other) && bonusFormula.equals(other.bonusFormula) && bonusName.equals(other.bonusName)
 			&& bonusType.equals(other.bonusType) && theStackingFlag == other.theStackingFlag
 			&& bonusInfo.equals(other.bonusInfo);

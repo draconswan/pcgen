@@ -1,5 +1,6 @@
+#  Fri Nov 16 19:52:40 2018 -- reformated by PCGen PrettyLST v6.08.00
 # CVS $Revision: $ $Author: $ -- Wed Feb  3 13:47:16 2016 -- reformated by PCGen PrettyLST v6.06.00
-SOURCELONG:System Reference Document 5.0	SOURCESHORT:SRD5	SOURCEWEB:http://dnd.wizards.com/articles/features/systems-reference-document-srd	SOURCEDATE:2016-01
+SOURCELONG:System Reference Document	SOURCESHORT:SRD5	SOURCEWEB:http://dnd.wizards.com/articles/features/systems-reference-document-srd	SOURCEDATE:2016-01
 # Original Entry: See contributors listed in PCC file.
 
 # Celtic Deities
@@ -81,3 +82,6 @@ Thor			SORTKEY:05_Norse		KEY:Norse ~ Thor			DESC:Tempest, War Hammer						FACT:T
 Thrym			SORTKEY:05_Norse		KEY:Norse ~ Thrym			DESC:War White double-bladed axe					FACT:Title|Thrym, god of fire giants and cold				FACTSET:Pantheon|Norse		ALIGN:CE
 Tyr			SORTKEY:05_Norse		KEY:Norse ~ Tyr			DESC:Knowledge, War Sword						FACT:Title|Tyr, god of courage and strategy				FACTSET:Pantheon|Norse		ALIGN:LN
 Uller			SORTKEY:05_Norse		KEY:Norse ~ Uller			DESC:Nature Longbow							FACT:Title|Uller, god of hunting and winter				FACTSET:Pantheon|Norse		ALIGN:CN
+
+# Default
+None													DESC:None								FACT:Symbol|None																			GROUP:UNSELECTED

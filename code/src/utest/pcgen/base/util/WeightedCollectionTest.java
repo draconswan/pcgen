@@ -17,6 +17,15 @@
  */
 package pcgen.base.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,71 +34,35 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.TreeSet;
 
-import org.junit.Before;
-import org.junit.Test;
+import pcgen.TestConstants;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.jupiter.api.Test;
 
-public class WeightedCollectionTest
+class WeightedCollectionTest
 {
 
-	private static final Integer I3 = 3;
-
-	private static final Integer I2 = 2;
-
-	private static final Integer I1 = 1;
-
-	private WeightedCollection<Integer> wc;
-
-	@Before
-	public void setUp()
-	{
-		wc = new WeightedCollection<>();
-	}
-
-	@SuppressWarnings("unused")
 	@Test
 	public void testBadIntConstructor()
 	{
-		try
-		{
-			new WeightedCollection<Integer>(-5);
-			fail();
-		}
-		catch (IllegalArgumentException iae)
-		{
-			// OK
-		}
+		assertThrows(IllegalArgumentException.class,
+				() -> new WeightedCollection<Integer>(-5));
 	}
 
-	@SuppressWarnings("unused")
 	@Test
 	public void testBadCollectionConstructor()
 	{
-		try
-		{
-			new WeightedCollection<>((Collection<Integer>) null);
-			fail();
-		}
-		catch (NullPointerException | IllegalArgumentException npe)
-		{
-			// OK
-		}
+		assertThrows(NullPointerException.class,
+				() -> new WeightedCollection<>((Collection<Integer>) null));
 	}
 
 	@Test
 	public void testCollectionConstructorSemantics()
 	{
 		Collection<Integer> c = new ArrayList<>();
-		assertTrue(c.add(I1));
-		assertTrue(c.add(I2));
+		assertTrue(c.add(TestConstants.I1));
+		assertTrue(c.add(TestConstants.I2));
 		assertTrue(c.add(null));
-		WeightedCollection<Integer> col = new WeightedCollection<>(c);
+		AbstractCollection<Integer> col = new WeightedCollection<>(c);
 		assertEquals(3, col.size());
 		c.add(4);
 		assertEquals(3, col.size());
@@ -100,13 +73,14 @@ public class WeightedCollectionTest
 	@Test
 	public void testSize()
 	{
-		assertTrue(wc.add(I1));
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
+		assertTrue(wc.add(TestConstants.I1));
 		assertEquals(1, wc.size());
-		assertTrue(wc.add(I1));
+		assertTrue(wc.add(TestConstants.I1));
 		assertEquals(2, wc.size());
-		assertTrue(wc.add(I2));
+		assertTrue(wc.add(TestConstants.I2));
 		assertEquals(3, wc.size());
-		assertTrue(wc.add(I3));
+		assertTrue(wc.add(TestConstants.I3));
 		assertEquals(4, wc.size());
 		assertTrue(wc.add(null));
 		assertEquals(5, wc.size());
@@ -129,62 +103,51 @@ public class WeightedCollectionTest
 	@Test
 	public void testBadAddNegative()
 	{
-		try
-		{
-			wc.add(4, -3);
-			fail();
-		}
-		catch (IllegalArgumentException iae)
-		{
-			// OK
-		}
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
+		assertThrows(IllegalArgumentException.class, () -> wc.add(4, -3));
 	}
 
 	@Test
 	public void testBadAddZero()
 	{
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
 		assertFalse(wc.add(4, 0));
 	}
 
 	@Test
 	public void testBadAddAllNegative()
 	{
-		try
-		{
-			wc.addAll(Arrays.asList(3, 4, 5), -3);
-			fail();
-		}
-		catch (IllegalArgumentException iae)
-		{
-			// OK
-		}
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
+		assertThrows(IllegalArgumentException.class, () -> wc.addAll(Arrays.asList(3, 4, 5), -3));
 	}
 
 	@Test
 	public void testBadAddAllZero()
 	{
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
 		assertFalse(wc.addAll(Arrays.asList(3, 4, 5), 0));
 	}
 
 	@Test
 	public void testSimple()
 	{
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
 		assertTrue(wc.isEmpty());
-		assertFalse(wc.contains(I1));
-		assertTrue(wc.add(I1));
+		assertFalse(false);
+		assertTrue(wc.add(TestConstants.I1));
 		assertFalse(wc.isEmpty());
-		assertTrue(wc.contains(I1));
-		assertTrue(wc.contains(new Integer(1))); // value semantic
-		assertFalse(wc.contains(I2));
+		assertTrue(wc.contains(TestConstants.I1));
+		assertTrue(wc.contains(1)); // value semantic
+		assertFalse(wc.contains(TestConstants.I2));
 		assertEquals(1, wc.size());
-		assertTrue(wc.add(I1));
-		assertTrue(wc.contains(I1));
+		assertTrue(wc.add(TestConstants.I1));
+		assertTrue(wc.contains(TestConstants.I1));
 		assertEquals(2, wc.size());
-		assertFalse(wc.contains(I2));
-		assertTrue(wc.add(I2));
-		assertTrue(wc.contains(I2));
+		assertFalse(wc.contains(TestConstants.I2));
+		assertTrue(wc.add(TestConstants.I2));
+		assertTrue(wc.contains(TestConstants.I2));
 		assertEquals(3, wc.size());
-		assertTrue(wc.add(I3));
+		assertTrue(wc.add(TestConstants.I3));
 		assertEquals(4, wc.size());
 		assertFalse(wc.contains(null));
 		assertTrue(wc.add(null));
@@ -232,13 +195,15 @@ public class WeightedCollectionTest
 	@Test
 	public void testBadEquals()
 	{
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
 		assertNotNull(wc);
-		assertFalse(wc.equals(1));
+		assertNotEquals(1, wc);
 	}
 
 	@Test
 	public void testEquals()
 	{
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
 		assertTrue(wc.add(2, 5));
 		assertTrue(wc.add(1, 2));
 		WeightedCollection<Integer> wc2 = new WeightedCollection<>(15);
@@ -253,18 +218,18 @@ public class WeightedCollectionTest
 		assertTrue(wc2.add(1));
 		assertTrue(wc2.add(2));
 		assertTrue(wc2.add(1));
-		assertFalse(wc.equals(wc2));
-		assertFalse(wc2.equals(wc));
+		assertNotEquals(wc, wc2);
+		assertNotEquals(wc2, wc);
 		assertTrue(wc2.add(2));
 		assertEquals(wc2, wc);
 		assertEquals(wc2, wc);
 		assertEquals(wc.hashCode(), wc2.hashCode());
 		wc2.add(null);
-		assertFalse(wc.equals(wc2));
-		assertFalse(wc2.equals(wc));
+		assertNotEquals(wc, wc2);
+		assertNotEquals(wc2, wc);
 		wc.add(null, 2);
-		assertFalse(wc.equals(wc2));
-		assertFalse(wc2.equals(wc));
+		assertNotEquals(wc, wc2);
+		assertNotEquals(wc2, wc);
 		wc2.add(null);
 		assertEquals(wc2, wc);
 		assertEquals(wc2, wc);
@@ -274,6 +239,7 @@ public class WeightedCollectionTest
 	@Test
 	public void testToString()
 	{
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
 		assertEquals("WeightedCollection: []", wc.toString());
 		assertTrue(wc.add(1));
 		assertEquals("WeightedCollection: [1 (1)]", wc.toString());
@@ -284,45 +250,44 @@ public class WeightedCollectionTest
 	}
 
 	@Test
+	public void testEmptyIterator()
+	{
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
+		Iterator<Integer> emptyit = wc.unweightedIterator();
+		assertNotNull(emptyit);
+		assertFalse(emptyit.hasNext());
+	}
+	
+	@Test
 	public void testUnweightedHasNextIterator()
 	{
-		Iterator<Integer> it = wc.unweightedIterator();
-		assertNotNull(it);
-		assertFalse(it.hasNext());
-		assertTrue(wc.add(I1));
-		assertTrue(wc.add(I1));
-		assertTrue(wc.add(I2));
-		assertTrue(wc.add(I2));
-		assertTrue(wc.add(I3));
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
+		assertTrue(wc.add(TestConstants.I1));
+		assertTrue(wc.add(TestConstants.I1));
+		assertTrue(wc.add(TestConstants.I2));
+		assertTrue(wc.add(TestConstants.I2));
+		assertTrue(wc.add(TestConstants.I3));
 		assertTrue(wc.add(null));
 		assertTrue(wc.add(null));
 		assertEquals(7, wc.size());
-		it = wc.unweightedIterator();
+		Iterator<Integer> it = wc.unweightedIterator();
 		assertNotNull(it);
 		assertTrue(it.hasNext());
 		Object it1 = it.next();
-		assertEquals(I1, it1);
+		assertEquals(TestConstants.I1, it1);
 		assertTrue(it.hasNext());
 		Object it2 = it.next();
 		// remove 2
 		it.remove();
-		assertEquals(I2, it2);
+		assertEquals(TestConstants.I2, it2);
 		assertTrue(it.hasNext());
 		Object it3 = it.next();
-		assertEquals(I3, it3);
+		assertEquals(TestConstants.I3, it3);
 		assertTrue(it.hasNext());
 		Object it4 = it.next();
 		assertNull(it4);
 		assertFalse(it.hasNext());
-		try
-		{
-			it.next();
-			fail();
-		}
-		catch (NoSuchElementException e)
-		{
-			// OK
-		}
+		assertThrows(NoSuchElementException.class, () -> it.next());
 		assertEquals(5, wc.size());
 		assertFalse(wc.contains(it2));
 	}
@@ -330,46 +295,28 @@ public class WeightedCollectionTest
 	@Test
 	public void testUnweightedNextIterator()
 	{
-		Iterator<Integer> it = wc.unweightedIterator();
-		assertNotNull(it);
-		try
-		{
-			it.next();
-			fail();
-		}
-		catch (NoSuchElementException e)
-		{
-			// OK
-		}
-		assertTrue(wc.add(I1));
-		assertTrue(wc.add(I1));
-		assertTrue(wc.add(I2));
-		assertTrue(wc.add(I2));
-		assertTrue(wc.add(I3));
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
+		assertTrue(wc.add(TestConstants.I1));
+		assertTrue(wc.add(TestConstants.I1));
+		assertTrue(wc.add(TestConstants.I2));
+		assertTrue(wc.add(TestConstants.I2));
+		assertTrue(wc.add(TestConstants.I3));
 		assertTrue(wc.add(null));
 		assertTrue(wc.add(null));
 		assertEquals(7, wc.size());
-		it = wc.unweightedIterator();
+		Iterator<Integer> it = wc.unweightedIterator();
 		assertNotNull(it);
 		Object it1 = it.next();
-		assertEquals(I1, it1);
+		assertEquals(TestConstants.I1, it1);
 		Object it2 = it.next();
 		// remove 2
 		it.remove();
-		assertEquals(I2, it2);
+		assertEquals(TestConstants.I2, it2);
 		Object it3 = it.next();
-		assertEquals(I3, it3);
+		assertEquals(TestConstants.I3, it3);
 		Object it4 = it.next();
 		assertNull(it4);
-		try
-		{
-			it.next();
-			fail();
-		}
-		catch (NoSuchElementException e)
-		{
-			// OK
-		}
+		assertThrows(NoSuchElementException.class, () -> it.next());
 		assertEquals(5, wc.size());
 		assertFalse(wc.contains(it2));
 	}
@@ -377,34 +324,32 @@ public class WeightedCollectionTest
 	@Test
 	public void testWeightedHasNextIterator()
 	{
-		Iterator<Integer> it = wc.iterator();
-		assertNotNull(it);
-		assertFalse(it.hasNext());
-		assertTrue(wc.add(I1));
-		assertTrue(wc.add(I1));
-		assertTrue(wc.add(I2));
-		assertTrue(wc.add(I2));
-		assertTrue(wc.add(I3));
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
+		assertTrue(wc.add(TestConstants.I1));
+		assertTrue(wc.add(TestConstants.I1));
+		assertTrue(wc.add(TestConstants.I2));
+		assertTrue(wc.add(TestConstants.I2));
+		assertTrue(wc.add(TestConstants.I3));
 		assertTrue(wc.add(null));
 		assertTrue(wc.add(null));
 		assertEquals(7, wc.size());
-		it = wc.iterator();
+		Iterator<Integer> it = wc.iterator();
 		assertNotNull(it);
 		assertTrue(it.hasNext());
 		Object it1 = it.next();
-		assertEquals(I1, it1);
+		assertEquals(TestConstants.I1, it1);
 		assertTrue(it.hasNext());
 		Object it2 = it.next();
-		assertEquals(I1, it2);
+		assertEquals(TestConstants.I1, it2);
 		assertTrue(it.hasNext());
 		Object it3 = it.next();
-		assertEquals(I2, it3);
+		assertEquals(TestConstants.I2, it3);
 		assertTrue(it.hasNext());
 		Object it4 = it.next();
-		assertEquals(I2, it4);
+		assertEquals(TestConstants.I2, it4);
 		assertTrue(it.hasNext());
 		Object it5 = it.next();
-		assertEquals(I3, it5);
+		assertEquals(TestConstants.I3, it5);
 		assertTrue(it.hasNext());
 		Object it6 = it.next();
 		assertNull(it6);
@@ -412,114 +357,68 @@ public class WeightedCollectionTest
 		Object it7 = it.next();
 		assertNull(it7);
 		assertFalse(it.hasNext());
-		try
-		{
-			it.next();
-			fail();
-		}
-		catch (NoSuchElementException e)
-		{
-			// OK
-		}
+		assertThrows(NoSuchElementException.class, () -> it.next());
 	}
 
 	@Test
 	public void testWeightedNextIterator()
 	{
-		Iterator<Integer> it = wc.iterator();
-		assertNotNull(it);
-		try
-		{
-			it.next();
-			fail();
-		}
-		catch (NoSuchElementException e)
-		{
-			// OK
-		}
-		assertTrue(wc.add(I1));
-		assertTrue(wc.add(I1));
-		assertTrue(wc.add(I2));
-		assertTrue(wc.add(I2));
-		assertTrue(wc.add(I3));
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
+		assertTrue(wc.add(TestConstants.I1));
+		assertTrue(wc.add(TestConstants.I1));
+		assertTrue(wc.add(TestConstants.I2));
+		assertTrue(wc.add(TestConstants.I2));
+		assertTrue(wc.add(TestConstants.I3));
 		assertTrue(wc.add(null));
 		assertTrue(wc.add(null));
 		assertEquals(7, wc.size());
-		it = wc.iterator();
+		Iterator<Integer> it = wc.iterator();
 		assertNotNull(it);
 		Object it1 = it.next();
-		assertEquals(I1, it1);
+		assertEquals(TestConstants.I1, it1);
 		Object it2 = it.next();
-		assertEquals(I1, it2);
+		assertEquals(TestConstants.I1, it2);
 		Object it3 = it.next();
-		assertEquals(I2, it3);
+		assertEquals(TestConstants.I2, it3);
 		Object it4 = it.next();
-		assertEquals(I2, it4);
+		assertEquals(TestConstants.I2, it4);
 		Object it5 = it.next();
-		assertEquals(I3, it5);
+		assertEquals(TestConstants.I3, it5);
 		Object it6 = it.next();
 		assertNull(it6);
 		assertTrue(it.hasNext());
 		it.remove();
 		assertFalse(it.hasNext());
-		try
-		{
-			it.next();
-			fail();
-		}
-		catch (NoSuchElementException e)
-		{
-			// OK
-		}
+		assertThrows(NoSuchElementException.class, () -> it.next());
 	}
 
 	@Test
 	public void testBadWeightedRemove()
 	{
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
 		Iterator<Integer> it = wc.iterator();
-		try
-		{
-			it.remove();
-			fail();
-		}
-		catch (IllegalStateException | UnsupportedOperationException e)
-		{
-			// OK
-		}
+		assertThrows(IllegalStateException.class, () -> it.remove());
 	}
 
 	@Test
 	public void testBadUnweightedRemove()
 	{
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
 		Iterator<Integer> it = wc.unweightedIterator();
-		try
-		{
-			it.remove();
-			fail();
-		}
-		catch (IllegalStateException e)
-		{
-			// OK
-		}
+		assertThrows(IllegalStateException.class, () -> it.remove());
 	}
 
 	@Test
 	public void testBadGetRandomValue()
 	{
-		try
-		{
-			wc.getRandomValue();
-			fail();
-		}
-		catch (IndexOutOfBoundsException e)
-		{
-			// OK
-		}
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
+		assertThrows(IndexOutOfBoundsException.class, () -> wc.getRandomValue());
 	}
 
 	@Test
 	public void testGetRandomValue()
 	{
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
 		wc.add(1);
 		wc.add(1);
 		Object o = wc.getRandomValue();
@@ -533,34 +432,36 @@ public class WeightedCollectionTest
 	@Test
 	public void testGetWeight()
 	{
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
 		assertTrue(wc.isEmpty());
-		assertTrue(wc.add(I1));
-		assertEquals(1, wc.getWeight(I1));
-		assertTrue(wc.add(new Integer(1))); // value semantic
-		assertEquals(2, wc.getWeight(I1));
-		assertTrue(wc.add(I2));
-		assertEquals(1, wc.getWeight(I2));
+		assertTrue(wc.add(TestConstants.I1));
+		assertEquals(1, wc.getWeight(TestConstants.I1));
+		assertTrue(wc.add(1)); // value semantic
+		assertEquals(2, wc.getWeight(TestConstants.I1));
+		assertTrue(wc.add(TestConstants.I2));
+		assertEquals(1, wc.getWeight(TestConstants.I2));
 		assertTrue(wc.addAll(Arrays.asList(3, 4, null, 8), 2));
 		assertEquals(2, wc.getWeight(3));
-		assertTrue(wc.remove(I1));
-		assertEquals(0, wc.getWeight(I1));
-		assertFalse(wc.remove(I1));
-		assertEquals(0, wc.getWeight(I1));
+		assertTrue(wc.remove(TestConstants.I1));
+		assertEquals(0, wc.getWeight(TestConstants.I1));
+		assertFalse(wc.remove(TestConstants.I1));
+		assertEquals(0, wc.getWeight(TestConstants.I1));
 		assertEquals(0, wc.getWeight(875));
 		assertEquals(2, wc.getWeight(null));
 		wc.clear();
-		assertEquals(0, wc.getWeight(I2));
+		assertEquals(0, wc.getWeight(TestConstants.I2));
 	}
 
 	@Test
 	public void testNullComparatorConstructor()
 	{
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
 		WeightedCollection<String> swc = new WeightedCollection<>((Comparator<String>) null);
 		String s1 = "asting";
 		String s2 = "aString1";
 		String s3 = "Bobcat";
 		assertTrue(swc.isEmpty());
-		assertFalse(swc.contains(s1));
+		assertFalse(false);
 		assertTrue(swc.add(s1));
 		assertFalse(swc.isEmpty());
 		assertTrue(swc.contains(s1));
@@ -615,7 +516,7 @@ public class WeightedCollectionTest
 		assertEquals(23, swc.size());
 		assertFalse(swc.isEmpty());
 		assertEquals(swc, swc);
-		assertFalse(swc.equals(wc));
+		assertNotEquals(swc, wc);
 		swc.clear();
 		assertEquals(0, swc.size());
 		assertTrue(swc.isEmpty());
@@ -626,12 +527,13 @@ public class WeightedCollectionTest
 	@Test
 	public void testInsensitiveComparatorConstructor()
 	{
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
 		WeightedCollection<String> swc = new WeightedCollection<>(String.CASE_INSENSITIVE_ORDER);
 		String s1 = "asting";
 		String s2 = "aString1";
 		String s3 = "Bobcat";
 		assertTrue(swc.isEmpty());
-		assertFalse(swc.contains(s1));
+		assertFalse(false);
 		assertTrue(swc.add(s1));
 		assertFalse(swc.isEmpty());
 		assertTrue(swc.contains(s1));
@@ -648,15 +550,7 @@ public class WeightedCollectionTest
 		assertTrue(swc.add(s3));
 		assertEquals(4, swc.size());
 		assertFalse(swc.contains(null));
-		try
-		{
-			assertTrue(swc.add(null));
-			fail();
-		}
-		catch (NullPointerException e)
-		{
-			//ok
-		}
+		assertThrows(NullPointerException.class, () -> swc.add(null));
 		assertFalse(swc.contains("Cat"));
 		assertFalse(swc.contains("dog"));
 		assertFalse(swc.contains("Eagle"));
@@ -688,7 +582,7 @@ public class WeightedCollectionTest
 		assertEquals(13, swc.size());
 		assertFalse(swc.isEmpty());
 		assertEquals(swc, swc);
-		assertFalse(swc.equals(wc));
+		assertNotEquals(swc, wc);
 		swc.clear();
 		assertEquals(0, swc.size());
 	}
@@ -696,6 +590,7 @@ public class WeightedCollectionTest
 	@Test
 	public void testComparatorEquals()
 	{
+		WeightedCollection<Integer> wc = new WeightedCollection<>();
 		WeightedCollection<String> iwc = new WeightedCollection<>(String.CASE_INSENSITIVE_ORDER);
 		WeightedCollection<String> swc = new WeightedCollection<>();
 		assertTrue(iwc.isEmpty());
@@ -726,7 +621,7 @@ public class WeightedCollectionTest
 		ciSet.add("aString");
 		csSet.add("aString");
 		assertEquals(ciSet, csSet);
-		assertFalse(ciSet.toString().equals(csSet.toString()));
+		assertNotEquals(ciSet.toString(), csSet.toString());
 	}
 
 

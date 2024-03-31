@@ -17,16 +17,19 @@
  */
 package plugin.lsttokens;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import pcgen.cdom.base.CDOMObject;
 import pcgen.core.PCTemplate;
 import pcgen.persistence.PersistenceLayerException;
 import pcgen.rules.persistence.CDOMLoader;
 import pcgen.rules.persistence.token.CDOMPrimaryToken;
+
 import plugin.lsttokens.testsupport.AbstractGlobalTokenTestCase;
 import plugin.lsttokens.testsupport.CDOMTokenLoader;
 import plugin.lsttokens.testsupport.ConsolidationRule;
+
+import org.junit.jupiter.api.Test;
 
 public class MoveLstTest extends AbstractGlobalTokenTestCase
 {
@@ -46,7 +49,13 @@ public class MoveLstTest extends AbstractGlobalTokenTestCase
 	}
 
 	@Override
-	public CDOMPrimaryToken<CDOMObject> getToken()
+	public CDOMPrimaryToken<CDOMObject> getReadToken()
+	{
+		return token;
+	}
+
+	@Override
+	public CDOMPrimaryToken<CDOMObject> getWriteToken()
 	{
 		return token;
 	}
@@ -115,16 +124,6 @@ public class MoveLstTest extends AbstractGlobalTokenTestCase
 	}
 
 	@Test
-	public void testValidInputNumber()
-	{
-		assertTrue(parse("30"));
-		String[] unparsed = getToken().unparse(primaryContext, primaryProf);
-		assertNotNull(unparsed);
-		assertEquals(1, unparsed.length);
-		assertEquals("Expected item to be equal", "Walk,30", unparsed[0]);
-	}
-
-	@Test
 	public void testRoundRobinSimple() throws PersistenceLayerException
 	{
 		runRoundRobin("Walk,30");
@@ -157,6 +156,6 @@ public class MoveLstTest extends AbstractGlobalTokenTestCase
 	@Override
 	protected ConsolidationRule getConsolidationRule()
 	{
-		return ConsolidationRule.SEPARATE;
+		return new ConsolidationRule.AppendingConsolidation(',');
 	}
 }

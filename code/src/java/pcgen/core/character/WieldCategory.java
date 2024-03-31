@@ -35,6 +35,7 @@ import pcgen.core.QualifiedObject;
 import pcgen.core.SizeAdjustment;
 import pcgen.core.prereq.PrereqHandler;
 import pcgen.rules.context.AbstractReferenceContext;
+import pcgen.util.Logging;
 
 public final class WieldCategory implements Loadable
 {
@@ -43,7 +44,6 @@ public final class WieldCategory implements Loadable
 	private int handsRequired;
 	private boolean isFinessable;
 	private int sizeDifference;
-	private final Map<Integer, Float> damageMultiplier = new HashMap<>();
 	private final Map<Integer, CDOMSingleRef<WieldCategory>> wcSteps = new HashMap<>();
 	private final List<QualifiedObject<CDOMSingleRef<WieldCategory>>> categorySwitches = new ArrayList<>();
 
@@ -57,11 +57,6 @@ public final class WieldCategory implements Loadable
 	public void setSourceURI(URI source)
 	{
 		sourceURI = source;
-	}
-
-	public void setKeyName(String key)
-	{
-		setName(key);
 	}
 
 	@Override
@@ -125,20 +120,13 @@ public final class WieldCategory implements Loadable
 		if (previous != null)
 		{
 			// overwrite warning?
-		}
-	}
-
-	public void addDamageMult(int numHands, float mult)
-	{
-		Float previous = damageMultiplier.put(numHands, mult);
-		if (previous != null)
-		{
-			// overwrite warning?
+			Logging.log(Logging.WARNING, "There was a previous wield category, TODO complete dealing with this use case - overwrite?");
 		}
 	}
 
 	public WieldCategory getWieldCategoryStep(int steps)
 	{
+		assert steps != 0;
 		CDOMSingleRef<WieldCategory> wcRef = wcSteps.get(steps);
 		return wcRef == null ? null : wcRef.get();
 	}
@@ -183,11 +171,11 @@ public final class WieldCategory implements Loadable
 			int modWield = 0;
 			for (String eqType : eq.typeList())
 			{
-				final StringBuilder sB = new StringBuilder("WEAPONPROF=TYPE.");
-				sB.append(eqType);
 
 				// get the type bonus (ex TYPE.MARTIAL)
-				final int i = (int) pc.getTotalBonusTo(sB.toString(), "WIELDCATEGORY");
+				final int i = (int) pc.getTotalBonusTo("WEAPONPROF=TYPE." + eqType
+						// get the type bonus (ex TYPE.MARTIAL)
+						, "WIELDCATEGORY");
 
 				// get the highest bonus
 				if (i < modWield)
@@ -233,12 +221,11 @@ public final class WieldCategory implements Loadable
 	@Override
 	public boolean equals(Object o)
 	{
-		if (o instanceof WieldCategory)
+		if (o instanceof WieldCategory other)
 		{
 			/*
-			 * Light weight check due to ReferenceManufacturer enforcement
+			 * Lightweight check due to ReferenceManufacturer enforcement
 			 */
-			WieldCategory other = (WieldCategory) o;
 			return categoryName.equals(other.categoryName);
 		}
 		return false;

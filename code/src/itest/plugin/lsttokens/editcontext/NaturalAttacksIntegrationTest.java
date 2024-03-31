@@ -19,9 +19,6 @@ package plugin.lsttokens.editcontext;
 
 import java.net.URISyntaxException;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import pcgen.cdom.base.CDOMObject;
 import pcgen.core.Ability;
 import pcgen.persistence.PersistenceLayerException;
@@ -35,6 +32,9 @@ import plugin.lsttokens.editcontext.testsupport.TestContext;
 import plugin.lsttokens.testsupport.BuildUtilities;
 import plugin.lsttokens.testsupport.CDOMTokenLoader;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public class NaturalAttacksIntegrationTest extends
 		AbstractIntegrationTestCase<CDOMObject>
 {
@@ -42,7 +42,7 @@ public class NaturalAttacksIntegrationTest extends
 	private static CDOMTokenLoader<CDOMObject> loader = new CDOMTokenLoader<>();
 
 	@Override
-	@Before
+	@BeforeEach
 	public void setUp() throws PersistenceLayerException, URISyntaxException
 	{
 		super.setUp();

@@ -17,12 +17,14 @@
  */
 package pcgen.cdom.facet;
 
+import java.util.Optional;
+
 import pcgen.base.formula.base.ScopeInstance;
 import pcgen.base.formula.base.ScopeInstanceFactory;
 import pcgen.base.formula.base.VarScoped;
 import pcgen.cdom.enumeration.CharID;
 import pcgen.cdom.facet.base.AbstractItemFacet;
-import pcgen.cdom.formula.scope.GlobalScope;
+import pcgen.cdom.formula.scope.GlobalPCScope;
 
 /**
  * ScopeFacet stores the relationship from a Character, LegalScope, and
@@ -42,7 +44,7 @@ public class ScopeFacet extends AbstractItemFacet<CharID, ScopeInstanceFactory>
 	 */
 	public ScopeInstance getGlobalScope(CharID id)
 	{
-		return get(id).getGlobalInstance(GlobalScope.GLOBAL_SCOPE_NAME);
+		return get(id).getGlobalInstance(GlobalPCScope.GLOBAL_SCOPE_NAME);
 	}
 
 	/**
@@ -64,22 +66,23 @@ public class ScopeFacet extends AbstractItemFacet<CharID, ScopeInstanceFactory>
 	 */
 	public ScopeInstance get(CharID id, String legalScopeName, VarScoped scopedObject)
 	{
-		return get(id).get(legalScopeName, scopedObject);
+		return get(id).get(legalScopeName, Optional.of(scopedObject));
 	}
 
 	public ScopeInstance get(CharID id, VarScoped vs)
 	{
-		String localName = vs.getLocalScopeName();
+		Optional<String> localName = vs.getLocalScopeName();
 		VarScoped active = vs;
-		while (localName == null)
+		while (localName.isEmpty())
 		{
-			active = active.getVariableParent();
-			if (active == null)
+			Optional<VarScoped> parent = active.getVariableParent();
+			if (parent.isEmpty())
 			{
 				return getGlobalScope(id);
 			}
+			active = parent.get();
 			localName = active.getLocalScopeName();
 		}
-		return get(id, localName, vs);
+		return get(id, localName.get(), vs);
 	}
 }

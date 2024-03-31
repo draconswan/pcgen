@@ -16,24 +16,20 @@
 package pcgen.base.solver;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
-import org.junit.Before;
-import org.junit.Test;
+import java.util.Optional;
 
 import pcgen.base.calculation.BasicCalculation;
 import pcgen.base.calculation.CalculationModifier;
 import pcgen.base.calculation.FormulaModifier;
 import pcgen.base.calculation.NEPCalculation;
 import pcgen.base.format.ArrayFormatManager;
-import pcgen.base.format.NumberManager;
-import pcgen.base.format.StringManager;
+import pcgen.base.formatmanager.FormatUtilities;
 import pcgen.base.formula.base.DependencyManager;
 import pcgen.base.formula.base.EvaluationManager;
 import pcgen.base.formula.base.FormulaManager;
@@ -57,7 +53,7 @@ import pcgen.cdom.content.ProcessCalculation;
 import pcgen.cdom.formula.ManagerKey;
 import pcgen.cdom.formula.local.ModifierDecoration;
 import pcgen.cdom.formula.scope.EquipmentScope;
-import pcgen.cdom.formula.scope.GlobalScope;
+import pcgen.cdom.formula.scope.GlobalPCScope;
 import pcgen.cdom.formula.scope.PCGenScope;
 import pcgen.cdom.formula.scope.SkillScope;
 import pcgen.core.Skill;
@@ -66,28 +62,32 @@ import pcgen.rules.context.LoadContext;
 import pcgen.rules.context.RuntimeLoadContext;
 import pcgen.rules.context.RuntimeReferenceContext;
 import pcgen.rules.persistence.token.ModifierFactory;
+
 import plugin.function.GetOtherFunction;
 
-public class SetSolverManagerTest
+import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+class SetSolverManagerTest
 {
 
-	private final PCGenScope globalScope = new GlobalScope();
+	private final PCGenScope globalScope = new GlobalPCScope();
 	private TrackingVariableCache vc;
 	private ScopeManagerInst vsLib;
 	private VariableManager sl;
 	private FormulaManager fm;
 	private DynamicSolverManager manager;
-	private final FormatManager<Number> numberManager = new NumberManager();
-	private final FormatManager<String> stringManager = new StringManager();
 	private FormatManager<Skill> skillManager;
 	private ArrayFormatManager<String> arrayManager;
 	private ScopeInstanceFactory siFactory;
 	private RuntimeLoadContext context;
 	private MyManagerFactory managerFactory;
 
-	@Before
-	public void setUp() throws Exception
+	@BeforeEach
+	void setUp() throws Exception
 	{
+		SupplierValueStore mvs = new SupplierValueStore();
 		WriteableFunctionLibrary fl = new SimpleFunctionLibrary();
 		fl.addFunction(new GetOtherFunction());
 		OperatorLibrary ol = new SimpleOperatorLibrary();
@@ -100,41 +100,28 @@ public class SetSolverManagerTest
 		SkillScope skillScope = new SkillScope();
 		skillScope.setParent(globalScope);
 		vsLib.registerScope(skillScope);
-		sl = new VariableManager(vsLib);
-		arrayManager = new ArrayFormatManager<>(stringManager, '\n', ',');
+		sl = new VariableManager(vsLib, mvs);
+		arrayManager = new ArrayFormatManager<>(FormatUtilities.STRING_MANAGER, '\n', ',');
 		context = new RuntimeLoadContext(
 			RuntimeReferenceContext.createRuntimeReferenceContext(),
 			new ConsolidatedListCommitStrategy());
 		skillManager = context.getReferenceContext().getManufacturer(Skill.class);
 		managerFactory = new MyManagerFactory(context);
 		siFactory = new SimpleScopeInstanceFactory(vsLib);
-		fm = new SimpleFormulaManager(ol, sl, siFactory, vc, new SolverFactory());
+		fm = new SimpleFormulaManager(ol, sl, siFactory, vc, mvs);
 		fm = fm.getWith(FormulaManager.FUNCTION, fl);
-		SolverFactory solverFactory = new SolverFactory();
-		ModifierFactory am1 = new plugin.modifier.set.SetModifierFactory<>();
-		FormulaModifier emptyArrayMod =
-				am1.getModifier("", managerFactory, null, globalScope, arrayManager);
-		solverFactory.addSolverFormat(arrayManager.getManagedClass(),
-			new ModifierDecoration<>(emptyArrayMod));
+		SolverFactory solverFactory = new SimpleSolverFactory(mvs);
+		solverFactory.addSolverFormat(arrayManager, () -> new String[0]);
 		
-		ProcessCalculation calc =
-				new ProcessCalculation<>(new Skill(), new BasicSet(), skillManager);
-		CalculationModifier em = new CalculationModifier<>(calc, skillManager);
-		solverFactory.addSolverFormat(Skill.class, new ModifierDecoration<>(em));
+		Skill defaultSkill = new Skill();
+		solverFactory.addSolverFormat(skillManager, () -> defaultSkill);
 
 		manager = new DynamicSolverManager(fm, managerFactory, solverFactory, vc);
-		ModifierFactory mfn = new plugin.modifier.number.SetModifierFactory();
-		FormulaModifier mod =
-				mfn.getModifier("0", managerFactory, null, globalScope, numberManager);
-		mod.addAssociation("PRIORITY=0");
-		solverFactory.addSolverFormat(numberManager.getManagedClass(),
-			new ModifierDecoration<>(mod));
-		ModifierFactory mfs = new plugin.modifier.string.SetModifierFactory();
-		FormulaModifier mods =
-				mfs.getModifier("", managerFactory, null, globalScope, stringManager);
-		solverFactory.addSolverFormat(stringManager.getManagedClass(),
-			new ModifierDecoration<>(mods));
+		solverFactory.addSolverFormat(FormatUtilities.NUMBER_MANAGER, () -> 0);
+		solverFactory.addSolverFormat(FormatUtilities.STRING_MANAGER, () -> "");
 	}
+
+	//TODO Tear Down
 
 	@Test
 	public void testProcessDependentSet()
@@ -145,19 +132,18 @@ public class SetSolverManagerTest
 				(VariableID<String[]>) sl.getVariableID(scopeInst, "Regions");
 		manager.createChannel(regions);
 		Object[] array = vc.get(regions);
-		List<Object> list = Arrays.asList(array);
+		List<Object> list;
 		assertEquals(0, array.length);
 		assertTrue(vc.set.contains(regions));
 		assertEquals(1, vc.set.size());
 		vc.reset();
 
 		ModifierFactory am1 = new plugin.modifier.set.AddModifierFactory<>();
-		FormulaModifier mod = am1.getModifier("France,England", managerFactory, null,
-			globalScope, arrayManager);
+		FormulaModifier mod = am1.getModifier("France,England", arrayManager);
 		mod.addAssociation("PRIORITY=2000");
 		manager.addModifier(regions, new ModifierDecoration<>(mod), scopeInst);
 		array = vc.get(regions);
-		assertThat(2, is(array.length));
+		MatcherAssert.assertThat(2, is(array.length));
 		list = Arrays.asList(array);
 		assertTrue(list.contains("England"));
 		assertTrue(list.contains("France"));
@@ -166,12 +152,11 @@ public class SetSolverManagerTest
 		vc.reset();
 
 		ModifierFactory am2 = new plugin.modifier.set.AddModifierFactory<>();
-		mod = am2.getModifier("Greece,England", managerFactory, null, globalScope,
-			arrayManager);
+		mod = am2.getModifier("Greece,England", arrayManager);
 		mod.addAssociation("PRIORITY=3000");
 		manager.addModifier(regions, new ModifierDecoration<>(mod), scopeInst);
 		array = vc.get(regions);
-		assertThat(3, is(array.length));
+		MatcherAssert.assertThat(3, is(array.length));
 		list = Arrays.asList(array);
 		assertTrue(list.contains("England"));
 		assertTrue(list.contains("France"));
@@ -185,8 +170,8 @@ public class SetSolverManagerTest
 	public void testProcessDynamicSet()
 	{
 		LegalScope skillScope = vsLib.getScope("PC.SKILL");
-		sl.assertLegalVariableID("LocalVar", skillScope, numberManager);
-		sl.assertLegalVariableID("ResultVar", globalScope, numberManager);
+		sl.assertLegalVariableID("LocalVar", skillScope, FormatUtilities.NUMBER_MANAGER);
+		sl.assertLegalVariableID("ResultVar", globalScope, FormatUtilities.NUMBER_MANAGER);
 		sl.assertLegalVariableID("SkillVar", globalScope, skillManager);
 
 		Skill skill = new Skill();
@@ -194,16 +179,16 @@ public class SetSolverManagerTest
 		Skill skillalt = new Skill();
 		skillalt.setName("SkillAlt");
 
-		ScopeInstance scopeInste = siFactory.get("PC.SKILL", skill);
+		ScopeInstance scopeInste = siFactory.get("PC.SKILL", Optional.of(skill));
 		VariableID varIDe = sl.getVariableID(scopeInste, "LocalVar");
 		manager.createChannel(varIDe);
 		vc.put(varIDe, 2);
-		ScopeInstance scopeInsta = siFactory.get("PC.SKILL", skillalt);
+		ScopeInstance scopeInsta = siFactory.get("PC.SKILL", Optional.of(skillalt));
 		VariableID varIDa = sl.getVariableID(scopeInsta, "LocalVar");
 		manager.createChannel(varIDa);
 		vc.put(varIDa, 3);
 		ScopeInstance globalInst =
-				siFactory.getGlobalInstance(GlobalScope.GLOBAL_SCOPE_NAME);
+				siFactory.getGlobalInstance(GlobalPCScope.GLOBAL_SCOPE_NAME);
 		VariableID varIDq = sl.getVariableID(globalInst, "SkillVar");
 		manager.createChannel(varIDq);
 		VariableID varIDr = sl.getVariableID(globalInst, "ResultVar");
@@ -212,19 +197,18 @@ public class SetSolverManagerTest
 		ModifierFactory am1 = new plugin.modifier.number.SetModifierFactory();
 		ModifierFactory amString = new plugin.modifier.string.SetModifierFactory();
 		FormulaModifier mod2 =
-				am1.getModifier("2", managerFactory, fm, globalScope, numberManager);
+				am1.getModifier("2", FormatUtilities.NUMBER_MANAGER);
 		mod2.addAssociation("PRIORITY=2000");
 		FormulaModifier mod3 =
-				am1.getModifier("3", managerFactory, fm, globalScope, numberManager);
+				am1.getModifier("3", FormatUtilities.NUMBER_MANAGER);
 		mod3.addAssociation("PRIORITY=2000");
 		FormulaModifier mod4 =
-				am1.getModifier("4", managerFactory, fm, globalScope, numberManager);
+				am1.getModifier("4", FormatUtilities.NUMBER_MANAGER);
 		mod4.addAssociation("PRIORITY=3000");
 		String formula = "getOther(\"PC.SKILL\",SkillVar,LocalVar)";
 		context.getReferenceContext().importObject(skill);
 		context.getReferenceContext().importObject(skillalt);
-		FormulaModifier modf = am1.getModifier(formula, new MyManagerFactory(context), fm,
-			globalScope, numberManager);
+		FormulaModifier modf = am1.getModifier(formula, FormatUtilities.NUMBER_MANAGER);
 		modf.addAssociation("PRIORITY=2000");
 		
 		NEPCalculation calc1 = new ProcessCalculation<>(skill,
@@ -280,7 +264,7 @@ public class SetSolverManagerTest
 	{
 		private final LoadContext context;
 
-		public MyManagerFactory(LoadContext context)
+		private MyManagerFactory(LoadContext context)
 		{
 			this.context = Objects.requireNonNull(context);
 		}

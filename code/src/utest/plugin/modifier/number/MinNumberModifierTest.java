@@ -17,22 +17,21 @@
  */
 package plugin.modifier.number;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import junit.framework.TestCase;
 import pcgen.base.calculation.BasicCalculation;
 import pcgen.base.calculation.FormulaModifier;
 import pcgen.base.format.NumberManager;
-import pcgen.base.formula.base.ManagerFactory;
 import pcgen.base.util.FormatManager;
-import pcgen.cdom.formula.scope.GlobalScope;
-import pcgen.cdom.formula.scope.PCGenScope;
 import pcgen.rules.persistence.token.ModifierFactory;
+
 import plugin.modifier.testsupport.EvalManagerUtilities;
 
-public class MinNumberModifierTest extends TestCase
+import org.junit.jupiter.api.Test;
+
+public class MinNumberModifierTest
 {
-	private final PCGenScope varScope = new GlobalScope();
 	FormatManager<Number> numManager = new NumberManager();
 
 
@@ -42,7 +41,7 @@ public class MinNumberModifierTest extends TestCase
 		try
 		{
 			ModifierFactory m = new MinModifierFactory();
-			m.getModifier(null, new ManagerFactory(){}, null, null, null);
+			m.getModifier(null, null);
 			fail("Expected MaxModifier with null compare value to fail");
 		}
 		catch (IllegalArgumentException | NullPointerException e)
@@ -196,9 +195,9 @@ public class MinNumberModifierTest extends TestCase
 	{
 		MinModifierFactory factory = new MinModifierFactory();
 		FormulaModifier<Number> modifier =
-				factory.getModifier("6.5", new ManagerFactory(){}, null, varScope, numManager);
+				factory.getModifier("6.5", numManager);
 		modifier.addAssociation("PRIORITY=35");
-		assertEquals((35L <<32)+factory.getInherentPriority(), modifier.getPriority());
+		assertEquals((35L << 32) + factory.getInherentPriority(), modifier.getPriority());
 		assertEquals(numManager, modifier.getVariableFormat());
 		assertEquals(4.3, modifier.process(EvalManagerUtilities.getInputEM(4.3)));
 		assertEquals(6.5, modifier.process(EvalManagerUtilities.getInputEM(9.3)));

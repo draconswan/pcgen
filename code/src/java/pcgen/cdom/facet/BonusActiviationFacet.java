@@ -22,7 +22,6 @@ import pcgen.cdom.enumeration.CharID;
 import pcgen.cdom.facet.event.DataFacetChangeEvent;
 import pcgen.cdom.facet.event.DataFacetChangeListener;
 import pcgen.cdom.facet.model.CompanionModFacet;
-import pcgen.cdom.facet.model.DeityFacet;
 import pcgen.cdom.facet.model.DomainFacet;
 import pcgen.cdom.facet.model.RaceFacet;
 import pcgen.cdom.facet.model.SkillFacet;
@@ -43,8 +42,6 @@ public class BonusActiviationFacet implements DataFacetChangeListener<CharID, CD
 
 	private CompanionModFacet companionModFacet;
 
-	private DeityFacet deityFacet;
-
 	private DomainFacet domainFacet;
 
 	private SkillFacet skillFacet;
@@ -62,8 +59,6 @@ public class BonusActiviationFacet implements DataFacetChangeListener<CharID, CD
 	 * @param dfce
 	 *            The DataFacetChangeEvent containing the information about the
 	 *            change
-	 * 
-	 * @see pcgen.cdom.facet.event.DataFacetChangeListener#dataAdded(pcgen.cdom.facet.event.DataFacetChangeEvent)
 	 */
 	@Override
 	public void dataAdded(DataFacetChangeEvent<CharID, CDOMObject> dfce)
@@ -85,8 +80,6 @@ public class BonusActiviationFacet implements DataFacetChangeListener<CharID, CD
 	 * @param dfce
 	 *            The DataFacetChangeEvent containing the information about the
 	 *            change
-	 * 
-	 * @see pcgen.cdom.facet.event.DataFacetChangeListener#dataAdded(pcgen.cdom.facet.event.DataFacetChangeEvent)
 	 */
 	@Override
 	public void dataRemoved(DataFacetChangeEvent<CharID, CDOMObject> dfce)
@@ -107,11 +100,6 @@ public class BonusActiviationFacet implements DataFacetChangeListener<CharID, CD
 	public void setCompanionModFacet(CompanionModFacet companionModFacet)
 	{
 		this.companionModFacet = companionModFacet;
-	}
-
-	public void setDeityFacet(DeityFacet deityFacet)
-	{
-		this.deityFacet = deityFacet;
 	}
 
 	public void setDomainFacet(DomainFacet domainFacet)
@@ -139,7 +127,6 @@ public class BonusActiviationFacet implements DataFacetChangeListener<CharID, CD
 	{
 		raceFacet.addDataFacetChangeListener(1000, this);
 		companionModFacet.addDataFacetChangeListener(1000, this);
-		deityFacet.addDataFacetChangeListener(1000, this);
 		domainFacet.addDataFacetChangeListener(1000, this);
 		skillFacet.addDataFacetChangeListener(1000, this);
 		templateFacet.addDataFacetChangeListener(1000, this);

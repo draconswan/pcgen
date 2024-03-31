@@ -38,6 +38,7 @@ public class PreItemTester extends AbstractDisplayPrereqTest implements Prerequi
 {
 
 	// TODO Refactor this with all the equipment tests.
+	@SuppressWarnings("PMD.OneDeclarationPerLine")
 	@Override
 	public int passes(final Prerequisite prereq, final CharacterDisplay display, CDOMObject source)
 		throws PrerequisiteException
@@ -50,7 +51,7 @@ public class PreItemTester extends AbstractDisplayPrereqTest implements Prerequi
 		catch (NumberFormatException e)
 		{
 			throw new PrerequisiteException(
-				LanguageBundle.getFormattedString("PreItem.error.bad_operand", prereq.toString())); //$NON-NLS-1$
+				LanguageBundle.getFormattedString("PreItem.error.bad_operand", prereq.toString()), e); //$NON-NLS-1$
 		}
 
 		int runningTotal = 0;
@@ -73,14 +74,14 @@ public class PreItemTester extends AbstractDisplayPrereqTest implements Prerequi
 					// Check to see if the equipment matches
 					// all of the types in the requested list;
 					boolean bMatches = true;
-					for (int i = 0, x = typeList.size(); i < x; ++i)
-					{
-						if (!eq.isType(typeList.get(i)))
-						{
-							bMatches = false;
-							break;
-						}
-					}
+                    for (String s : typeList)
+                    {
+                        if (!eq.isType(s))
+                        {
+                            bMatches = false;
+                            break;
+                        }
+                    }
 					if (bMatches)
 					{
 						runningTotal++;

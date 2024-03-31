@@ -3,13 +3,15 @@ CAMPAIGN:Advanced Class Guide
 KEY:Advanced Class Guide
 GAMEMODE:Pathfinder|Pathfinder_PFS
 TYPE:Paizo Publishing.Pathfinder RPG
-STATUS:ALPHA
-RANK:1
+STATUS:BETA
 GENRE:Fantasy
 BOOKTYPE:Supplement
 SETTING:Pathfinder
 PRECAMPAIGN:1,INCLUDESBOOKTYPE=Core Rules
-PRECAMPAIGN:4,INCLUDES=Advanced Player's Guide,INCLUDES=Ultimate Magic,INCLUDES=Ultimate Combat,INCLUDES=Ultimate Equipment
+PRECAMPAIGN:1,INCLUDES=Advanced Player's Guide
+PRECAMPAIGN:1,INCLUDES=Ultimate Combat
+PRECAMPAIGN:1,INCLUDES=Ultimate Equipment
+PRECAMPAIGN:1,INCLUDES=Ultimate Magic
 !PRECAMPAIGN:1,Pathfinder RPG Core Supplements,Pathfinder RPG for Game Masters
 PUBNAMELONG:Paizo Inc.
 PUBNAMESHORT:Paizo
@@ -18,9 +20,10 @@ SOURCELONG:Advanced Class Guide
 SOURCESHORT:ACG
 SOURCEWEB:http://paizo.com/products/btpy92zi
 SOURCEDATE:2014-08
+RANK:201408
 ISOGL:YES
 
-#COVER:advanced_class_guide.jpg
+COVER:PZO1129.png
 LOGO:@/publisher_logos/Paizo_Publishing.png
 URL:WEBSITE|http://www.paizo.com/|Visit Paizo Publishing!
 URL:WEBSITE|http://www.paizo.com/communityuse|Paizo's Community Use Policy.
@@ -65,6 +68,8 @@ COMPANIONMOD:acg_companionmods.lst
 ABILITY:support/acg_abilities_arg.lst|PRECAMPAIGN:1,INCLUDES=Advanced Race Guide
 ABILITY:support/acg_abilities_cob.lst|PRECAMPAIGN:1,INCLUDES=Champions of Balance
 ABILITY:support/acg_abilities_dep.lst|PRECAMPAIGN:1,INCLUDES=Dragon Empires Primer
+ABILITY:support/acg_abilities_heog.lst|PRECAMPAIGN:1,INCLUDES=Heroes of Golarion
+ABILITY:support/acg_abilities_hh.lst|PRECAMPAIGN:1,INCLUDES=The Harrow Handbook
 ABILITY:support/acg_abilities_oog.lst|PRECAMPAIGN:1,INCLUDES=Orcs of Golarion
 ABILITY:support/acg_abilities_potr.lst|PRECAMPAIGN:1,INCLUDES=People of the River
 ABILITY:support/acg_abilities_psand.lst|PRECAMPAIGN:1,INCLUDES=People of the Sands

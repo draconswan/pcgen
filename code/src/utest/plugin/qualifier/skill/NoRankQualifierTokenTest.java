@@ -16,9 +16,14 @@
  */
 package plugin.qualifier.skill;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.net.URISyntaxException;
 import java.util.Collection;
 
+import pcgen.TestConstants;
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.base.ChooseInformation;
 import pcgen.cdom.enumeration.ObjectKey;
@@ -31,21 +36,19 @@ import pcgen.rules.persistence.token.CDOMPrimaryToken;
 import pcgen.rules.persistence.token.CDOMSecondaryToken;
 import pcgen.rules.persistence.token.QualifierToken;
 
-import org.junit.Test;
-import plugin.lsttokens.ChooseLst;
 import plugin.lsttokens.choose.SkillToken;
 import plugin.lsttokens.testsupport.AbstractQualifierTokenTestCase;
-import plugin.lsttokens.testsupport.CDOMTokenLoader;
 import plugin.lsttokens.testsupport.TokenRegistration;
 import plugin.lsttokens.testsupport.TransparentPlayerCharacter;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class NoRankQualifierTokenTest extends
 		AbstractQualifierTokenTestCase<CDOMObject, Skill>
 {
 
-	private static final CDOMPrimaryToken TOKEN = new ChooseLst();
 	private static final CDOMSecondaryToken SUBTOKEN = new SkillToken();
-	private static final CDOMLoader<CDOMObject> LOADER = new CDOMTokenLoader<>();
 	private Skill s1, s2, s3;
 	private PCClass cl1;
 
@@ -56,6 +59,7 @@ public class NoRankQualifierTokenTest extends
 		super("NORANK", null);
 	}
 
+	@BeforeEach
 	@Override
 	public void setUp() throws PersistenceLayerException, URISyntaxException
 	{
@@ -84,13 +88,13 @@ public class NoRankQualifierTokenTest extends
 	@Override
 	public CDOMLoader<CDOMObject> getLoader()
 	{
-		return LOADER;
+		return TestConstants.TOKEN_LOADER;
 	}
 
 	@Override
 	public CDOMPrimaryToken<CDOMObject> getToken()
 	{
-		return TOKEN;
+		return TestConstants.CHOOSE_TOKEN;
 	}
 
 	@Override

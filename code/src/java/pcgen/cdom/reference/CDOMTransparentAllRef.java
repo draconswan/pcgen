@@ -110,7 +110,6 @@ public class CDOMTransparentAllRef<T extends Loadable> extends CDOMGroupRef<T> i
 	 * 
 	 * @return A representation of this CDOMTransparentAllRef, suitable for
 	 *         storing in an LST file.
-	 * @see pcgen.cdom.base.CDOMReference#getLSTformat(boolean)
 	 */
 	@Override
 	public String getLSTformat(boolean useAny)
@@ -118,32 +117,16 @@ public class CDOMTransparentAllRef<T extends Loadable> extends CDOMGroupRef<T> i
 		return subReference.getLSTformat(useAny);
 	}
 
-	/**
-	 * Returns true if this CDOMTransparentAllRef is equal to the given Object.
-	 * Equality is defined as being another CDOMTransparentAllRef object with
-	 * equal Class represented by the reference. This is NOT a deep .equals, in
-	 * that neither the actual contents of this CDOMTransparentAllRef nor the
-	 * underlying CDOMGroupRef are tested.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj)
 	{
-		if (obj instanceof CDOMTransparentAllRef)
+		if (obj instanceof CDOMTransparentAllRef<?> ref)
 		{
-			CDOMTransparentAllRef<?> ref = (CDOMTransparentAllRef<?>) obj;
 			return getReferenceClass().equals(ref.getReferenceClass()) && getName().equals(ref.getName());
 		}
 		return false;
 	}
 
-	/**
-	 * Returns the consistent-with-equals hashCode for this
-	 * CDOMTransparentAllRef
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode()
 	{

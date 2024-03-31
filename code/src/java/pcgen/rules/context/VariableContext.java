@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 (C) Tom Parker <thpr@users.sourceforge.net>
+ * Copyright 2014-9 (C) Tom Parker <thpr@users.sourceforge.net>
  * 
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -18,11 +18,17 @@
 package pcgen.rules.context;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 import pcgen.base.calculation.FormulaModifier;
+import pcgen.base.calculation.IgnoreVariables;
+import pcgen.base.formula.base.DependencyManager;
 import pcgen.base.formula.base.FormulaFunction;
 import pcgen.base.formula.base.FormulaManager;
+import pcgen.base.formula.base.FormulaSemantics;
 import pcgen.base.formula.base.LegalScope;
 import pcgen.base.formula.base.ManagerFactory;
 import pcgen.base.formula.base.ScopeInstance;
@@ -31,6 +37,7 @@ import pcgen.base.formula.base.VariableID;
 import pcgen.base.formula.base.VariableLibrary;
 import pcgen.base.formula.base.WriteableFunctionLibrary;
 import pcgen.base.formula.base.WriteableVariableStore;
+import pcgen.base.formula.exception.SemanticsException;
 import pcgen.base.formula.inst.FormulaUtilities;
 import pcgen.base.formula.inst.NEPFormula;
 import pcgen.base.formula.inst.ScopeManagerInst;
@@ -38,20 +45,27 @@ import pcgen.base.formula.inst.SimpleFunctionLibrary;
 import pcgen.base.formula.inst.VariableManager;
 import pcgen.base.solver.DynamicSolverManager;
 import pcgen.base.solver.FormulaSetupFactory;
-import pcgen.base.solver.Modifier;
+import pcgen.base.solver.SimpleSolverFactory;
 import pcgen.base.solver.SolverFactory;
 import pcgen.base.solver.SolverManager;
+import pcgen.base.solver.SupplierValueStore;
 import pcgen.base.util.ComplexResult;
 import pcgen.base.util.FormatManager;
 import pcgen.cdom.base.FormulaFactory;
 import pcgen.cdom.enumeration.CharID;
+import pcgen.cdom.formula.ManagerKey;
 import pcgen.cdom.formula.PluginFunctionLibrary;
 import pcgen.cdom.formula.VariableChannel;
 import pcgen.cdom.formula.VariableChannelFactory;
 import pcgen.cdom.formula.VariableChannelFactoryInst;
+import pcgen.cdom.formula.VariableWrapper;
+import pcgen.cdom.formula.VariableWrapperFactory;
+import pcgen.cdom.formula.VariableWrapperFactoryInst;
 import pcgen.cdom.formula.scope.LegalScopeUtilities;
 import pcgen.cdom.formula.scope.PCGenScope;
-import pcgen.rules.persistence.MasterModifierFactory;
+import pcgen.cdom.helper.ReferenceDependency;
+import pcgen.rules.persistence.TokenLibrary;
+import pcgen.rules.persistence.token.ModifierFactory;
 import pcgen.util.Logging;
 
 /**
@@ -59,7 +73,8 @@ import pcgen.util.Logging;
  * and (in some cases) subsequently while the data set associated with the parent
  * LoadContext is operating.
  */
-public class VariableContext implements VariableChannelFactory, VariableLibrary
+public class VariableContext implements VariableChannelFactory,
+		VariableWrapperFactory, VariableLibrary
 {
 	/**
 	 * This is the FormulaSetupFactory for this VariableContext. This is used to generate
@@ -85,10 +100,16 @@ public class VariableContext implements VariableChannelFactory, VariableLibrary
 	private final WriteableFunctionLibrary myFunctionLibrary = new SimpleFunctionLibrary();
 
 	/**
+	 * The ValueStore for the FormulaSetupFactory and this VariableContext. Local so
+	 * that we can set the defaults for variable formats from data.
+	 */
+	private final SupplierValueStore myValueStore = new SupplierValueStore();
+
+	/**
 	 * The SolverFactory for the FormulaSetupFactory and this VariableContext. Local so
 	 * that we can set the defaults for variable formats from data.
 	 */
-	private final SolverFactory solverFactory = new SolverFactory();
+	private final SolverFactory solverFactory = new SimpleSolverFactory(myValueStore);
 
 	/**
 	 * The LegalScopeManager for the FormulaSetupFactory and this VariableContext. Local
@@ -101,15 +122,8 @@ public class VariableContext implements VariableChannelFactory, VariableLibrary
 	 * The VariableManager for the FormulaSetupFactory and this VariableContext. Local so
 	 * the data can assert legal variables.
 	 */
-	private final VariableManager variableManager = new VariableManager(legalScopeManager);
-
-	/**
-	 * The MasterModifierFactory for this VariableContext.
-	 * 
-	 * Lazy instantiation to avoid trying to pull the "Global" scope before it is loaded
-	 * from plugins.
-	 */
-	private MasterModifierFactory modFactory = null;
+	private final VariableManager variableManager =
+			new VariableManager(legalScopeManager, myValueStore);
 
 	/**
 	 * The naive FormulaManager for this VariableContext. This serves only as a base item
@@ -131,6 +145,13 @@ public class VariableContext implements VariableChannelFactory, VariableLibrary
 	private VariableChannelFactoryInst variableChannelFactory = new VariableChannelFactoryInst();
 
 	/**
+	 * Contains a VariableWrapperFactory used to develop VariableWrappers for this
+	 * VariableContext.
+	 */
+	private VariableWrapperFactoryInst variableWrapperFactory =
+			new VariableWrapperFactoryInst();
+
+	/**
 	 * Constructs a new VariableContext with the given ManagerFactory.
 	 * 
 	 * @param managerFactory
@@ -146,10 +167,10 @@ public class VariableContext implements VariableChannelFactory, VariableLibrary
 		}
 		FormulaUtilities.loadBuiltInFunctions(myFunctionLibrary);
 		LegalScopeUtilities.loadLegalScopeLibrary(legalScopeManager);
-		formulaSetupFactory.setFunctionLibrarySupplier(() -> myFunctionLibrary);
-		formulaSetupFactory.setSolverFactorySupplier(() -> solverFactory);
+		formulaSetupFactory.setValueStoreSupplier(() -> myValueStore);
 		formulaSetupFactory.setLegalScopeManagerSupplier(() -> legalScopeManager);
-		formulaSetupFactory.setVariableLibraryFunction(lsl -> variableManager);
+		formulaSetupFactory.setFunctionLibrarySupplier(() -> myFunctionLibrary);
+		formulaSetupFactory.setVariableLibraryFunction((lsm, vs) -> variableManager);
 	}
 
 	/**
@@ -170,17 +191,12 @@ public class VariableContext implements VariableChannelFactory, VariableLibrary
 		return loadFormulaManager;
 	}
 
-	/*
-	 * Lazy instantiation to avoid trying to pull the "Global" scope before it is loaded
-	 * from plugins
+	/**
+	 * Returns a new FormulaManager; method is designed to be used once with each PC.
 	 */
-	private MasterModifierFactory getModFactory()
+	public FormulaManager getPCFormulaManager()
 	{
-		if (modFactory == null)
-		{
-			modFactory = new MasterModifierFactory(getFormulaManager());
-		}
-		return modFactory;
+		return formulaSetupFactory.generate();
 	}
 
 	/**
@@ -197,10 +213,42 @@ public class VariableContext implements VariableChannelFactory, VariableLibrary
 	 *            by the FormulaModifier
 	 * @return a FormulaModifier based on the given information
 	 */
-	public <T> FormulaModifier<T> getModifier(String modType, String instructions, PCGenScope varScope,
+	public <T> FormulaModifier<T> getModifier(String modType,
+		String instructions, FormulaManager formulaManager, PCGenScope varScope,
 		FormatManager<T> formatManager)
 	{
-		return getModFactory().getModifier(modType, instructions, managerFactory, varScope, formatManager);
+		Class<T> varClass = formatManager.getManagedClass();
+		ModifierFactory<T> factory = TokenLibrary.getModifier(varClass, modType);
+		if (factory == null)
+		{
+			throw new IllegalArgumentException(
+				"Requested unknown ModifierType: " + varClass.getSimpleName() + " " + modType);
+		}
+		FormulaModifier<T> modifier =
+				factory.getModifier(instructions, formatManager);
+		
+		FormulaSemantics semantics = managerFactory.generateFormulaSemantics(formulaManager, varScope);
+		semantics = semantics.getWith(FormulaSemantics.INPUT_FORMAT, Optional.of(formatManager));
+		try
+		{
+			modifier.isValid(semantics);
+		}
+		catch (SemanticsException e)
+		{
+			throw new IllegalArgumentException("Invalid Semantics on Formula: "
+				+ modType + " ... " + e.getLocalizedMessage(), e);
+		}
+
+		/*
+		 * getDependencies needs to be called during LST load, so that object references are captured
+		 */
+		DependencyManager fdm = managerFactory.generateDependencyManager(formulaManager, null);
+		fdm = fdm.getWith(DependencyManager.SCOPE, Optional.of(varScope));
+		fdm = fdm.getWith(DependencyManager.VARSTRATEGY, Optional.of(new IgnoreVariables()));
+		fdm = fdm.getWith(ManagerKey.REFERENCES, new ReferenceDependency());
+		modifier.getDependencies(fdm);
+		modifier.addReferences(fdm.get(ManagerKey.REFERENCES).getReferences());
+		return modifier;
 	}
 
 	/**
@@ -307,74 +355,62 @@ public class VariableContext implements VariableChannelFactory, VariableLibrary
 	}
 
 	/**
-	 * Adds a relationship between a Solver format and a default Modifier for that format
+	 * Adds a relationship between a Solver format and a default Supplier for that format
 	 * of Solver to this VariableContext.
 	 * 
-	 * The default Modifier MUST NOT depend on anything (it must be able to accept both a
-	 * null ScopeInformation and null input value to its process method). (See
-	 * SetNumberModifier for an example of this)
-	 * 
-	 * The default Modifier for a format of Solver may not be redefined for a
-	 * SolverFactory. Once a given default Modifier has been established for a format of
+	 * The default Supplier for a format of Solver may not be redefined for a
+	 * SolverFactory. Once a given default Supplier has been established for a format of
 	 * Solver, this method MUST NOT be called a second time for that format of Solver.
 	 * 
 	 * @param <T>
-	 *            The format (class) of object changed by the given Modifier
+	 *            The format (class) of object changed by the given Supplier
 	 * @param varFormat
-	 *            The format of Solver for which the given Modifier should be the default
-	 *            value
-	 * @param defaultModifier
-	 *            The Modifier to be used as the default Modifier for the given Solver
-	 *            format
+	 *            The format (as a FormatManager) of Solver for which the given Supplier
+	 *            should be the default value
+	 * @param defaultValue
+	 *            The Supplier to be used to provide the default value for the given
+	 *            Solver format
 	 * @throws IllegalArgumentException
-	 *             if either parameter is null, if the given Modifier has dependencies, or
-	 *             if the given Solver format already has a default Modifier defined for
+	 *             if the given Solver format already has a default Supplier defined for
 	 *             this SolverFactory
 	 */
-	public <T> void addDefault(Class<T> varFormat, Modifier<T> defaultModifier)
+	public <T> void addDefault(FormatManager<T> varFormat, Supplier<T> defaultValue)
 	{
-		solverFactory.addSolverFormat(varFormat, defaultModifier);
+		solverFactory.addSolverFormat(varFormat, defaultValue);
 	}
 
 	/**
-	 * Returns the default value for a given Format (provided as a Class).
+	 * Returns the default value for a given Format (provided as a FormatManager).
 	 * 
 	 * @param <T>
 	 *            The format (class) of object for which the default value should be
 	 *            returned
 	 * @param variableFormat
-	 *            The Class (data format) for which the default value should be returned
+	 *            The FormatManager for which the default value should be returned
 	 * @return The default value for the given Format
 	 */
-	public <T> T getDefaultValue(Class<T> variableFormat)
+	public <T> T getDefaultValue(FormatManager<T> variableFormat)
 	{
 		return solverFactory.getDefault(variableFormat);
 	}
 
 	/**
-	 * Returns true if there is a default value set for the given FormatManager.
+	 * Returns true if there is a default modifier set for the given FormatManager.
+	 * 
+	 * Warning: This is NOT whether there is a Default Value for the given FormatManager.
+	 * This is a much simpler test that checks if there is a specifically provided Default
+	 * Modifier. The distinction here is that a format like ARRAY[NUMBER] will return
+	 * false from this; while it is legal, it never have a specifically defined default,
+	 * as it is a derived default value.
 	 * 
 	 * @param formatManager
-	 *            The FormatManager indicating the format for which the default value
-	 *            should be returned
-	 * @return true if there is a default value set for the given FormatManager; false
+	 *            The FormatManager indicating the format to check for a default modifier
+	 * @return true if there is a default modifier set for the given FormatManager; false
 	 *         otherwise
 	 */
-	public boolean hasSolver(FormatManager<?> formatManager)
+	public boolean hasDefaultModifier(FormatManager<?> formatManager)
 	{
-		/*
-		 * TODO This is an ugly hack. Note a fix has been pushed upstream in -formula, but
-		 * will require a significant new library update that I don't want to mix in here.
-		 */
-		try
-		{
-			solverFactory.getSolver(formatManager);
-			return true;
-		}
-		catch (IllegalArgumentException e)
-		{
-			return false;
-		}
+		return myValueStore.get(formatManager) != null;
 	}
 
 	/*
@@ -403,6 +439,12 @@ public class VariableContext implements VariableChannelFactory, VariableLibrary
 	{
 		variableManager.assertLegalVariableID(varName, varScope, formatManager);
 	}
+
+	@Override
+	public List<FormatManager<?>> getInvalidFormats()
+	{
+		return variableManager.getInvalidFormats();
+	}
 	/*
 	 * End: (Delegated) Items part of VariableLibrary interface
 	 */
@@ -429,5 +471,29 @@ public class VariableContext implements VariableChannelFactory, VariableLibrary
 	}
 	/*
 	 * End: (Delegated) Items part of VariableChannelFactory interface
+	 */
+
+	/*
+	 * Begin: (Delegated) Items part of VariableWrapperFactory interface
+	 */
+	@Override
+	public VariableWrapper<?> getWrapper(CharID id, VarScoped owner, String name)
+	{
+		return variableWrapperFactory.getWrapper(id, owner, name);
+	}
+
+	@Override
+	public VariableWrapper<?> getGlobalWrapper(CharID id, String name)
+	{
+		return variableWrapperFactory.getGlobalWrapper(id, name);
+	}
+
+	@Override
+	public void disconnect(VariableWrapper<?> variableWrapper)
+	{
+		variableWrapperFactory.disconnect(variableWrapper);
+	}
+	/*
+	 * End: (Delegated) Items part of VariableWrapperFactory interface
 	 */
 }

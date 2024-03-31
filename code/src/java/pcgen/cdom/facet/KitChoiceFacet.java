@@ -23,7 +23,6 @@ import pcgen.cdom.enumeration.CharID;
 import pcgen.cdom.enumeration.ListKey;
 import pcgen.cdom.facet.event.DataFacetChangeEvent;
 import pcgen.cdom.facet.event.DataFacetChangeListener;
-import pcgen.cdom.facet.model.DeityFacet;
 import pcgen.cdom.facet.model.DomainFacet;
 import pcgen.cdom.facet.model.RaceFacet;
 import pcgen.cdom.facet.model.SkillFacet;
@@ -43,8 +42,6 @@ public class KitChoiceFacet implements DataFacetChangeListener<CharID, CDOMObjec
 
 	private RaceFacet raceFacet;
 
-	private DeityFacet deityFacet;
-
 	private DomainFacet domainFacet;
 
 	private SkillFacet skillFacet;
@@ -61,8 +58,6 @@ public class KitChoiceFacet implements DataFacetChangeListener<CharID, CDOMObjec
 	 * @param dfce
 	 *            The DataFacetChangeEvent containing the information about the
 	 *            change
-	 * 
-	 * @see pcgen.cdom.facet.event.DataFacetChangeListener#dataAdded(pcgen.cdom.facet.event.DataFacetChangeEvent)
 	 */
 	@Override
 	public void dataAdded(DataFacetChangeEvent<CharID, CDOMObject> dfce)
@@ -87,8 +82,6 @@ public class KitChoiceFacet implements DataFacetChangeListener<CharID, CDOMObjec
 	 * @param dfce
 	 *            The DataFacetChangeEvent containing the information about the
 	 *            change
-	 * 
-	 * @see pcgen.cdom.facet.event.DataFacetChangeListener#dataRemoved(pcgen.cdom.facet.event.DataFacetChangeEvent)
 	 */
 	@Override
 	public void dataRemoved(DataFacetChangeEvent<CharID, CDOMObject> dfce)
@@ -106,11 +99,6 @@ public class KitChoiceFacet implements DataFacetChangeListener<CharID, CDOMObjec
 	public void setRaceFacet(RaceFacet raceFacet)
 	{
 		this.raceFacet = raceFacet;
-	}
-
-	public void setDeityFacet(DeityFacet deityFacet)
-	{
-		this.deityFacet = deityFacet;
 	}
 
 	public void setDomainFacet(DomainFacet domainFacet)
@@ -137,7 +125,6 @@ public class KitChoiceFacet implements DataFacetChangeListener<CharID, CDOMObjec
 	public void init()
 	{
 		raceFacet.addDataFacetChangeListener(this);
-		deityFacet.addDataFacetChangeListener(this);
 		domainFacet.addDataFacetChangeListener(this);
 		skillFacet.addDataFacetChangeListener(this);
 		templateFacet.addDataFacetChangeListener(this);

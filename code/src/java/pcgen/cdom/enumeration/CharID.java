@@ -18,6 +18,7 @@
 package pcgen.cdom.enumeration;
 
 import java.util.Map;
+import java.util.Objects;
 
 import pcgen.base.enumeration.TypeSafeConstant;
 import pcgen.cdom.base.PCGenIdentifier;
@@ -57,10 +58,7 @@ public final class CharID implements TypeSafeConstant, PCGenIdentifier
 
 	private CharID(DataSetID dsid)
 	{
-		if (dsid == null)
-		{
-			throw new IllegalArgumentException("DataSetID cannot be null");
-		}
+		Objects.requireNonNull(dsid, "DataSetID cannot be null");
 		ordinal = ordinalCount++;
 		datasetID = dsid;
 	}
@@ -84,5 +82,11 @@ public final class CharID implements TypeSafeConstant, PCGenIdentifier
 		CharID id = new CharID(dsid);
 		id.myFacetCache = AbstractStorageFacet.peekAtCache(id);
 		return id;
+	}
+
+	@Override
+	public DataSetID getDataSetID()
+	{
+		return this.datasetID;
 	}
 }

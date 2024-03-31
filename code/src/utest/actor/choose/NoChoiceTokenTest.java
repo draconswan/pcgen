@@ -19,18 +19,19 @@ package actor.choose;
 
 import pcgen.cdom.base.Chooser;
 import plugin.lsttokens.choose.NoChoiceToken;
+
 import actor.testsupport.AbstractPersistentChoiceActorTestCase;
 
 public class NoChoiceTokenTest extends
 		AbstractPersistentChoiceActorTestCase<String>
 {
 
-	static NoChoiceToken pca = new NoChoiceToken();
+	private static final NoChoiceToken PCA = new NoChoiceToken();
 
 	@Override
 	public Chooser<String> getActor()
 	{
-		return pca;
+		return PCA;
 	}
 
 	@Override

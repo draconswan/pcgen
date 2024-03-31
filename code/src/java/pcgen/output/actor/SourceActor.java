@@ -17,12 +17,12 @@
  */
 package pcgen.output.actor;
 
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.enumeration.CharID;
 import pcgen.output.base.OutputActor;
 import pcgen.output.model.SourceModel;
+
+import freemarker.template.TemplateModel;
 
 /**
  * An SourceActor is designed to process an interpolation and convert the source
@@ -35,7 +35,7 @@ import pcgen.output.model.SourceModel;
 public class SourceActor implements OutputActor<CDOMObject>
 {
 	@Override
-	public TemplateModel process(CharID id, CDOMObject d) throws TemplateModelException
+	public TemplateModel process(CharID id, CDOMObject d)
 	{
 		return new SourceModel(id, d);
 	}

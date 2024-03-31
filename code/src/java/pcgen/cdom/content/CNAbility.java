@@ -18,6 +18,7 @@
 package pcgen.cdom.content;
 
 import java.util.List;
+import java.util.Objects;
 
 import pcgen.base.formula.Formula;
 import pcgen.cdom.base.CDOMObject;
@@ -63,18 +64,9 @@ public class CNAbility extends ConcretePrereqObject
 	 */
 	CNAbility(Category<Ability> cat, Ability abil, Nature nat)
 	{
-		if (cat == null)
-		{
-			throw new IllegalArgumentException("Cannot build CNAbility with null Category");
-		}
-		if (abil == null)
-		{
-			throw new IllegalArgumentException("Cannot build CNAbility with null Ability");
-		}
-		if (nat == null)
-		{
-			throw new IllegalArgumentException("Cannot build CNAbility with null Nature");
-		}
+		Objects.requireNonNull(cat, "Cannot build CNAbility with null Category");
+		Objects.requireNonNull(abil, "Cannot build CNAbility with null Ability");
+		Objects.requireNonNull(nat, "Cannot build CNAbility with null Nature");
 		if (abil.getKeyName() == null || abil.getKeyName().isEmpty())
 		{
 			throw new IllegalArgumentException("Cannot build CNAbility when Ability has no key");
@@ -155,9 +147,8 @@ public class CNAbility extends ConcretePrereqObject
 	@Override
 	public boolean equals(Object o)
 	{
-		if (o instanceof CNAbility)
+		if (o instanceof CNAbility other)
 		{
-			CNAbility other = (CNAbility) o;
 			return category.equals(other.category) && ability.equals(other.ability) && nature == other.nature;
 		}
 		return false;
@@ -224,9 +215,6 @@ public class CNAbility extends ConcretePrereqObject
 		return ability.getDisplayName();
 	}
 
-	/**
-	 * @see pcgen.cdom.base.Reducible#getCDOMObject()
-	 */
 	@Override
 	public CDOMObject getCDOMObject()
 	{

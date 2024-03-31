@@ -20,8 +20,6 @@ package pcgen.core.chooser;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import pcgen.base.formula.Formula;
 import pcgen.cdom.base.ChooseDriver;
 import pcgen.cdom.base.ChooseInformation;
@@ -32,6 +30,8 @@ import pcgen.gui2.facade.Gui2InfoFactory;
 import pcgen.system.LanguageBundle;
 import pcgen.util.Logging;
 import pcgen.util.chooser.ChooserFactory;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class CDOMChoiceManager<T> implements ChoiceManagerList<T>
 {
@@ -62,12 +62,6 @@ public class CDOMChoiceManager<T> implements ChoiceManagerList<T>
 			selectedList.addAll(selected);
 		}
 		preChooserChoices = selectedList.size();
-	}
-
-	@Override
-	public String typeHandled()
-	{
-		throw new UnsupportedOperationException();
 	}
 
 	/**
@@ -270,8 +264,7 @@ public class CDOMChoiceManager<T> implements ChoiceManagerList<T>
 
 	protected String getTitle()
 	{
-		return new StringBuilder(50).append(info.getTitle()).append(" (").append(owner.getDisplayName()).append(')')
-			.toString();
+		return info.getTitle() + " (" + owner.getDisplayName() + ')';
 	}
 
 	@Override

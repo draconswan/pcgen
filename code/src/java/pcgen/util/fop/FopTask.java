@@ -23,6 +23,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 
 import javax.xml.transform.ErrorListener;
@@ -32,6 +34,10 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
+
+import pcgen.cdom.base.Constants;
+import pcgen.system.ConfigurationSettings;
+import pcgen.util.Logging;
 
 import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.FOUserAgent;
@@ -45,10 +51,6 @@ import org.apache.fop.events.EventFormatter;
 import org.apache.fop.events.EventListener;
 import org.apache.fop.events.model.EventSeverity;
 import org.apache.fop.render.Renderer;
-
-import pcgen.cdom.base.Constants;
-import pcgen.system.ConfigurationSettings;
-import pcgen.util.Logging;
 
 /**
  * This class is used to generate pdf files from an xml source. There are two ways to define the
@@ -182,7 +184,7 @@ public final class FopTask implements Runnable
 		{
 			userAgent.setProducer("PC Gen Character Generator");
 			userAgent.setAuthor(System.getProperty("user.name"));
-			userAgent.setCreationDate(new Date());
+			userAgent.setCreationDate(Date.from(LocalDateTime.now().toInstant(ZoneOffset.ofHours(0))));
 
 			userAgent.getEventBroadcaster().addEventListener(new FOPEventListener());
 
@@ -255,7 +257,7 @@ public final class FopTask implements Runnable
 		}
 
 		@Override
-		public void warning(TransformerException exception) throws TransformerException
+		public void warning(TransformerException exception)
 		{
 			SourceLocator locator = exception.getLocator();
 			Logging.log(Logging.WARNING, getLocation(locator) + exception.getMessage());

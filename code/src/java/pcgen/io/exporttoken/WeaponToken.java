@@ -21,12 +21,12 @@
 package pcgen.io.exporttoken;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import pcgen.base.lang.StringUtil;
 import pcgen.cdom.base.Constants;
@@ -37,11 +37,13 @@ import pcgen.cdom.enumeration.FormulaKey;
 import pcgen.cdom.enumeration.IntegerKey;
 import pcgen.cdom.enumeration.MapKey;
 import pcgen.cdom.enumeration.ObjectKey;
+import pcgen.cdom.enumeration.Type;
 import pcgen.cdom.inst.EquipmentHead;
 import pcgen.cdom.reference.CDOMSingleRef;
 import pcgen.cdom.util.CControl;
 import pcgen.cdom.util.ControlUtilities;
 import pcgen.core.Equipment;
+import pcgen.core.GameMode;
 import pcgen.core.Globals;
 import pcgen.core.PlayerCharacter;
 import pcgen.core.RuleConstants;
@@ -54,6 +56,7 @@ import pcgen.core.analysis.SizeUtilities;
 import pcgen.core.display.CharacterDisplay;
 import pcgen.core.display.UnarmedDamageDisplay;
 import pcgen.io.ExportHandler;
+import pcgen.system.LanguageBundle;
 import pcgen.util.Delta;
 import pcgen.util.Logging;
 import pcgen.util.enumeration.AttackType;
@@ -66,23 +69,23 @@ public class WeaponToken extends Token
 	/** Token Name */
 	public static final String TOKENNAME = "WEAPON";
 	/** PC Bonus = 0 */
-	public static final int WPTYPEBONUS_PC = 0;
+	private static final int WPTYPEBONUS_PC = 0;
 	/** Equipment Bonus = 1 */
-	public static final int WPTYPEBONUS_EQ = 1;
+	private static final int WPTYPEBONUS_EQ = 1;
 	/** Feat Bonus = 2 */
-	public static final int WPTYPEBONUS_FEAT = 2;
+	private static final int WPTYPEBONUS_FEAT = 2;
 	/** Template Bonus = 3 */
-	public static final int WPTYPEBONUS_TEMPLATE = 3;
+	private static final int WPTYPEBONUS_TEMPLATE = 3;
 	/** Damage Mode normal = 0 */
-	public static final int DAMAGEMODE_NORMAL = 0;
+	private static final int DAMAGEMODE_NORMAL = 0;
 	/** Damage Mode basic = 1 */
-	public static final int DAMAGEMODE_BASIC = 1;
+	private static final int DAMAGEMODE_BASIC = 1;
 	/** Damage Mode offhand = 2 */
-	public static final int DAMAGEMODE_OFFHAND = 2;
+	private static final int DAMAGEMODE_OFFHAND = 2;
 	/** Damage Mode twohands = 3 */
-	public static final int DAMAGEMODE_TWOHANDS = 3;
+	private static final int DAMAGEMODE_TWOHANDS = 3;
 	/** Damage Mode double = 4 */
-	public static final int DAMAGEMODE_DOUBLE = 4;
+	private static final int DAMAGEMODE_DOUBLE = 4;
 
 	// This defines if I should return the values
 	// based on weapon's location or not.
@@ -90,36 +93,30 @@ public class WeaponToken extends Token
 	// of the weapon and calculates all data
 	// with that setting
 	/** total hit = 0 */
-	public static final int HITMODE_TOTALHIT = 0;
+	private static final int HITMODE_TOTALHIT = 0;
 	/** One weapon = 1 */
-	public static final int HITMODE_BASEHIT = 1;
+	private static final int HITMODE_BASEHIT = 1;
 	/** Two weapons, this is primary, off-hand heavy = 2 */
-	public static final int HITMODE_TWPHITH = 2;
+	private static final int HITMODE_TWPHITH = 2;
 	/** Two weapons, this is primary, off-hand light = 3 */
-	public static final int HITMODE_TWPHITL = 3;
+	private static final int HITMODE_TWPHITL = 3;
 	/** Two weapons, this is off-hand (heavy) = 4 */
-	public static final int HITMODE_TWOHIT = 4;
+	private static final int HITMODE_TWOHIT = 4;
 	/** Two weapons, this is off-hand (heavy) = 4 */
-	public static final int HITMODE_TWFOHH = 4;
+	private static final int HITMODE_TWFOHH = 4;
 	/** Two weapons, this is off-hand (light) = 5 */
-	public static final int HITMODE_TWFOHL = 5;
+	private static final int HITMODE_TWFOHL = 5;
 	/** One weapon, off-hand = 6 */
-	public static final int HITMODE_OHHIT = 6;
+	private static final int HITMODE_OHHIT = 6;
 	/** One weapon, both-hands = 7 */
-	public static final int HITMODE_THHIT = 7;
+	private static final int HITMODE_THHIT = 7;
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getTokenName()
-	 */
 	@Override
 	public String getTokenName()
 	{
 		return TOKENNAME;
 	}
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getToken(java.lang.String, pcgen.core.PlayerCharacter, pcgen.io.ExportHandler)
-	 */
 	@Override
 	public String getToken(String tokenSource, PlayerCharacter pc, ExportHandler eh)
 	{
@@ -128,80 +125,52 @@ public class WeaponToken extends Token
 		aTok.nextToken();
 
 		int merge = Constants.MERGE_ALL;
-		int weapon = 0;
+		int weapon;
 		Equipment eq;
 
 		// First check to see if there is a MERGE token
 		String token = aTok.nextToken();
-		if (token.equals("MERGENONE"))
+		switch (token)
 		{
-			merge = Constants.MERGE_NONE;
-			token = aTok.nextToken();
-		}
-		else if (token.equals("MERGELOC"))
-		{
-			merge = Constants.MERGE_LOCATION;
-			token = aTok.nextToken();
-		}
-		else if (token.equals("MERGEALL"))
-		{
-			merge = Constants.MERGE_ALL;
-			token = aTok.nextToken();
+			case "MERGENONE" -> {
+				merge = Constants.MERGE_NONE;
+				token = aTok.nextToken();
+			}
+			case "MERGELOC" -> {
+				merge = Constants.MERGE_LOCATION;
+				token = aTok.nextToken();
+			}
+			case "MERGEALL" -> {
+				merge = Constants.MERGE_ALL;
+				token = aTok.nextToken();
+			}
 		}
 
 		List<Equipment> weaponList = pc.getExpandedWeapons(merge);
 
-		if (token.equals("ALL"))
+		switch (token)
 		{
-			token = aTok.nextToken();
-		}
-		else if (token.equals("EQUIPPED"))
-		{
-			// remove all weapons which are not equipped from list
-			for (Iterator<Equipment> it = weaponList.iterator(); it.hasNext();)
-			{
-				if (!it.next().isEquipped())
-				{
-					it.remove();
-				}
+			case "ALL" -> token = aTok.nextToken();
+			case "EQUIPPED" -> {
+				// remove all weapons which are not equipped from list
+				weaponList.removeIf(equipment -> !equipment.isEquipped());
+				token = aTok.nextToken();
 			}
-			token = aTok.nextToken();
-		}
-		else if (token.equals("NOT_EQUIPPED"))
-		{
-			// remove all weapons which are equipped from list
-			for (Iterator<Equipment> it = weaponList.iterator(); it.hasNext();)
-			{
-				if (it.next().isEquipped())
-				{
-					it.remove();
-				}
+			case "NOT_EQUIPPED" -> {
+				// remove all weapons which are equipped from list
+				weaponList.removeIf(Equipment::isEquipped);
+				token = aTok.nextToken();
 			}
-			token = aTok.nextToken();
-		}
-		else if (token.equals("CARRIED"))
-		{
-			// remove all weapons which are not carried from list
-			for (Iterator<Equipment> it = weaponList.iterator(); it.hasNext();)
-			{
-				if (it.next().numberCarried().intValue() == 0)
-				{
-					it.remove();
-				}
+			case "CARRIED" -> {
+				// remove all weapons which are not carried from list
+				weaponList.removeIf(equipment -> equipment.numberCarried().intValue() == 0);
+				token = aTok.nextToken();
 			}
-			token = aTok.nextToken();
-		}
-		else if (token.equals("NOT_CARRIED"))
-		{
-			// remove all weapons which are carried from list
-			for (Iterator<Equipment> it = weaponList.iterator(); it.hasNext();)
-			{
-				if (it.next().numberCarried().intValue() > 0)
-				{
-					it.remove();
-				}
+			case "NOT_CARRIED" -> {
+				// remove all weapons which are carried from list
+				weaponList.removeIf(equipment -> equipment.numberCarried().intValue() > 0);
+				token = aTok.nextToken();
 			}
-			token = aTok.nextToken();
 		}
 
 		weapon = getIntToken(token, 0);
@@ -234,7 +203,7 @@ public class WeaponToken extends Token
 	 * @param tokenSource The original source of the export token (for error reporting.)
 	 * @return The output for the token for the weapon and character.
 	 */
-	public String getWeaponToken(PlayerCharacter pc, Equipment eq, StringTokenizer aTok, String tokenSource)
+	protected String getWeaponToken(PlayerCharacter pc, Equipment eq, StringTokenizer aTok, String tokenSource)
 	{
 		String token = "";
 		if (aTok.hasMoreTokens())
@@ -302,280 +271,197 @@ public class WeaponToken extends Token
 			}
 		}
 
-		if (token.equals("NAME"))
+		switch (token)
 		{
-			boolean star = true;
-			if (aTok.hasMoreTokens())
-			{
-				if ("NOSTAR".equals(aTok.nextToken()))
-				{
-					star = false;
-				}
-			}
-			return getNameToken(eq, pc, star);
-		}
-		else if (token.equals("OUTPUTNAME"))
-		{
-			return getOutputNameToken(eq, pc);
-		}
-		else if (token.equals("LONGNAME"))
-		{
-			return getLongNameToken(eq);
-		}
-		else if (token.equals("ATTACKS"))
-		{
-			return String.valueOf(getAttacksToken(pc, eq));
-		}
-		else if (token.equals("AMMUNITIONCOUNT"))
-		{
-			return String.valueOf(getAmmunitionCountToken(pc, eq));
-		}
-		else if (token.equals("AMMUNITION"))
-		{
-			return getAmmunitionToken(pc, eq, ammo);
-		}
-		else if (token.equals("CONTENTSCOUNT"))
-		{
-			return String.valueOf(getContentsCountToken(eq));
-		}
-		else if (token.equals("CONTENTS"))
-		{
-			return getContentsToken(eq, content);
-		}
-		else if (token.equals("NUMATTACKS"))
-		{
-			return String.valueOf(getNumAttacksToken(pc, eq));
-		}
-		else if (token.equals("HEFT"))
-		{
-			return getHeft(pc, eq);
-		}
-		else if (token.equals("ISTYPE"))
-		{
-			if (aTok.hasMoreTokens())
-			{
-				return getIsTypeToken(eq, aTok.nextToken());
-			}
-			return "";
-		}
-		else if (token.equals("CRIT"))
-		{
-			return getCritToken(pc, eq);
-		}
-		else if (token.equals("MULT"))
-		{
-			return getMultToken(pc, eq);
-		}
-		else if (token.equals("RANGELIST"))
-		{
-			return getRangeListToken(eq, range, pc);
-		}
-		else if (token.equals("RANGE"))
-		{
-			boolean units = true;
-			if (aTok.hasMoreTokens())
-			{
-				if ("NOUNITS".equals(aTok.nextToken()))
-				{
-					units = false;
-				}
-			}
-			return getRangeToken(eq, pc, units);
-		}
-		else if (token.equals("SIZEMOD"))
-		{
-			return Delta.toString(getSizeModToken(pc));
-		}
-		else if (token.equals("TYPE"))
-		{
-			return getTypeToken(eq);
-		}
-		else if (token.equals("HIT") || token.equals("TOTALHIT"))
-		{
-			int attack = getIntToken(aTok, -1);
-			return getTotalHitToken(pc, eq, range, content, ammo, attack);
-		}
-		else if (token.equals("BASEHIT"))
-		{
-			int attack = getIntToken(aTok, -1);
-			return getBaseHitToken(pc, eq, range, content, ammo, attack);
-		}
-		else if (token.equals("TWPHITH"))
-		{
-			int attack = getIntToken(aTok, -1);
-			return getTwpHitHToken(pc, eq, range, content, ammo, attack);
-		}
-		else if (token.equals("TWPHITL"))
-		{
-			int attack = getIntToken(aTok, -1);
-			return getTwpHitLToken(pc, eq, range, content, ammo, attack);
-		}
-		else if (token.equals("TWOHIT"))
-		{
-			int attack = getIntToken(aTok, -1);
-			return getTwoHitToken(pc, eq, range, content, ammo, attack);
-		}
-		else if (token.equals("OHHIT"))
-		{
-			int attack = getIntToken(aTok, -1);
-			return getOHHitToken(pc, eq, range, content, ammo, attack);
-		}
-		else if (token.equals("THHIT"))
-		{
-			int attack = getIntToken(aTok, -1);
-			return getTHHitToken(pc, eq, range, content, ammo, attack);
-		}
-		else if (token.equals("CATEGORY"))
-		{
-			return getCategoryToken(eq);
-		}
-		else if (token.equals("HAND"))
-		{
-			return getHandToken(eq);
-		}
-		else if (token.equals("MAGICDAMAGE"))
-		{
-			return Delta.toString(getMagicDamageToken(pc, eq));
-		}
-		else if (token.equals("MAGICHIT"))
-		{
-			return Delta.toString(getMagicHitToken(pc, eq));
-		}
-		else if (token.equals("MISC"))
-		{
-			return Delta.toString(getMiscToken(pc, eq));
-		}
-		else if (token.equals("FEATDAMAGE"))
-		{
-			return Delta.toString(getFeatDamageToken(pc, eq));
-		}
-		else if (token.equals("FEATHIT"))
-		{
-			return Delta.toString(getFeatHitToken(pc, eq));
-		}
-		else if (token.equals("TEMPLATEDAMAGE"))
-		{
-			return Delta.toString(getTemplateDamageToken(pc, eq));
-		}
-		else if (token.equals("TEMPLATEHIT"))
-		{
-			return Delta.toString(getTemplateHitToken(pc, eq));
-		}
-		else if (token.equals("DAMAGE"))
-		{
-			return getDamageToken(pc, eq, range, content, ammo, false, false);
-		}
-		else if (token.equals("BASEDAMAGE"))
-		{
-			return getDamageToken(pc, eq, range, content, ammo, false, true);
-		}
-		else if (token.equals("BASICDAMAGE"))
-		{
-			return getBasicDamageToken(pc, eq, range, content, ammo, false);
-		}
-		else if (token.equals("THDAMAGE"))
-		{
-			return getTHDamageToken(pc, eq, range, content, ammo, false);
-		}
-		else if (token.equals("OHDAMAGE"))
-		{
-			return getOHDamageToken(pc, eq, range, content, ammo, false);
-		}
-		else if (token.equals("DAMAGEBONUS") || token.equals("BONUSDAMAGE"))
-		{
-			return getDamageToken(pc, eq, range, content, ammo, true, false);
-		}
-		else if (token.equals("BASEDAMAGEBONUS"))
-		{
-			return getDamageToken(pc, eq, range, content, ammo, true, true);
-		}
-		else if (token.equals("THDAMAGEBONUS"))
-		{
-			return getTHDamageToken(pc, eq, range, content, ammo, true);
-		}
-		else if (token.equals("OHDAMAGEBONUS"))
-		{
-			return getOHDamageToken(pc, eq, range, content, ammo, true);
-		}
-		else if (token.equals("SIZE"))
-		{
-			return getSizeToken(eq);
-		}
-		else if (token.equals("SPROP"))
-		{
-			return getSpropToken(pc, eq, content, ammo);
-		}
-		else if (token.equals("REACH"))
-		{
-			return getReachToken(pc, eq);
-		}
-		else if (token.equals("REACHUNIT"))
-		{
-			return Globals.getGameModeUnitSet().getDistanceUnit();
-		}
-		else if (token.equals("WT"))
-		{
-			return getWTToken(pc, eq);
-		}
-		else if (token.equals("RATEOFFIRE"))
-		{
-			FactKey<String> fk = FactKey.valueOf("RateOfFire");
-			String str = eq.getResolved(fk);
-			return (str == null) ? "" : str;
-		}
-		else if (token.equals("ISLIGHT"))
-		{
-			return getIsLightToken(pc, eq);
-		}
-		else if (token.equals("QUALITY"))
-		{
-			Map<String, String> qualityMap = eq.getMapFor(MapKey.QUALITY);
-			if (qualityMap != null)
-			{
+			case "NAME":
+				boolean star = true;
 				if (aTok.hasMoreTokens())
 				{
-					String next = aTok.nextToken();
-					try
+					if ("NOSTAR".equals(aTok.nextToken()))
 					{
-						int idx = Integer.parseInt(next);
-						for (String value : qualityMap.values())
+						star = false;
+					}
+				}
+				return getNameToken(eq, pc, star);
+			case "OUTPUTNAME":
+				return getOutputNameToken(eq, pc);
+			case "LONGNAME":
+				return getLongNameToken(eq);
+			case "ATTACKS":
+				return String.valueOf(getAttacksToken(pc, eq));
+			case "AMMUNITIONCOUNT":
+				return String.valueOf(getAmmunitionCountToken(pc, eq));
+			case "AMMUNITION":
+				return getAmmunitionToken(pc, eq, ammo);
+			case "CONTENTSCOUNT":
+				return String.valueOf(getContentsCountToken(eq));
+			case "CONTENTS":
+				return getContentsToken(eq, content);
+			case "NUMATTACKS":
+				return String.valueOf(getNumAttacksToken(pc, eq));
+			case "HEFT":
+				return getHeft(pc, eq);
+			case "ISTYPE":
+				if (aTok.hasMoreTokens())
+				{
+					return getIsTypeToken(eq, aTok.nextToken());
+				}
+				return "";
+			case "CRIT":
+				return getCritToken(pc, eq);
+			case "MULT":
+				return getMultToken(pc, eq);
+			case "RANGELIST":
+				return getRangeListToken(eq, range, pc);
+			case "RANGE":
+				boolean units = true;
+				if (aTok.hasMoreTokens())
+				{
+					if ("NOUNITS".equals(aTok.nextToken()))
+
+					{
+						units = false;
+					}
+				}
+				return getRangeToken(eq, pc, units);
+			case "SIZEMOD":
+				return Delta.toString(getSizeModToken(pc));
+			case "TYPE":
+				return getTypeToken(eq);
+			case "HIT":
+			case "TOTALHIT":
+			{
+				int attack = getIntToken(aTok, -1);
+				return getTotalHitToken(pc, eq, range, content, ammo, attack);
+			}
+			case "BASEHIT":
+			{
+				int attack = getIntToken(aTok, -1);
+				return getBaseHitToken(pc, eq, range, content, ammo, attack);
+			}
+			case "TWPHITH":
+			{
+				int attack = getIntToken(aTok, -1);
+				return getTwpHitHToken(pc, eq, range, content, ammo, attack);
+			}
+			case "TWPHITL":
+			{
+				int attack = getIntToken(aTok, -1);
+				return getTwpHitLToken(pc, eq, range, content, ammo, attack);
+			}
+			case "TWOHIT":
+			{
+				int attack = getIntToken(aTok, -1);
+				return getTwoHitToken(pc, eq, range, content, ammo, attack);
+			}
+			case "OHHIT":
+			{
+				int attack = getIntToken(aTok, -1);
+				return getOHHitToken(pc, eq, range, content, ammo, attack);
+			}
+			case "THHIT":
+			{
+				int attack = getIntToken(aTok, -1);
+				return getTHHitToken(pc, eq, range, content, ammo, attack);
+			}
+			case "CATEGORY":
+				return getCategoryToken(eq);
+			case "HAND":
+				return getHandToken(eq);
+			case "MAGICDAMAGE":
+				return Delta.toString(getMagicDamageToken(pc, eq));
+			case "MAGICHIT":
+				return Delta.toString(getMagicHitToken(pc, eq));
+			case "MISC":
+				return Delta.toString(getMiscToken(pc, eq));
+			case "FEATDAMAGE":
+				return Delta.toString(getFeatDamageToken(pc, eq));
+			case "FEATHIT":
+				return Delta.toString(getFeatHitToken(pc, eq));
+			case "TEMPLATEDAMAGE":
+				return Delta.toString(getTemplateDamageToken(pc, eq));
+			case "TEMPLATEHIT":
+				return Delta.toString(getTemplateHitToken(pc, eq));
+			case "DAMAGE":
+				return getDamageToken(pc, eq, range, content, ammo, false, false);
+			case "BASEDAMAGE":
+				return getDamageToken(pc, eq, range, content, ammo, false, true);
+			case "BASICDAMAGE":
+				return getBasicDamageToken(pc, eq, range, content, ammo, false);
+			case "THDAMAGE":
+				return getTHDamageToken(pc, eq, range, content, ammo, false);
+			case "OHDAMAGE":
+				return getOHDamageToken(pc, eq, range, content, ammo, false);
+			case "DAMAGEBONUS":
+			case "BONUSDAMAGE":
+				return getDamageToken(pc, eq, range, content, ammo, true, false);
+			case "BASEDAMAGEBONUS":
+				return getDamageToken(pc, eq, range, content, ammo, true, true);
+			case "THDAMAGEBONUS":
+				return getTHDamageToken(pc, eq, range, content, ammo, true);
+			case "OHDAMAGEBONUS":
+				return getOHDamageToken(pc, eq, range, content, ammo, true);
+			case "SIZE":
+				return getSizeToken(eq);
+			case "SPROP":
+				return getSpropToken(pc, eq, content, ammo);
+			case "REACH":
+				return getReachToken(pc, eq);
+			case "REACHUNIT":
+				return Globals.getGameModeUnitSet().getDistanceUnit();
+			case "WT":
+				return getWTToken(pc, eq);
+			case "RATEOFFIRE":
+				FactKey<String> fk = FactKey.valueOf("RateOfFire");
+				String str = eq.getResolved(fk);
+				return (str == null) ? "" : str;
+			case "ISLIGHT":
+				return getIsLightToken(pc, eq);
+			case "QUALITY":
+				Map<String, String> qualityMap = eq.getMapFor(MapKey.QUALITY);
+				if (qualityMap != null)
+				{
+					if (aTok.hasMoreTokens())
+					{
+						String next = aTok.nextToken();
+						try
 						{
-							idx--;
-							if (idx == 0)
+							int idx = Integer.parseInt(next);
+							for (String value : qualityMap.values())
+							{
+								idx--;
+								if (idx == 0)
+								{
+									return value;
+								}
+							}
+						} catch (NumberFormatException e)
+						{
+							String value = qualityMap.get(next);
+							if (value != null)
 							{
 								return value;
 							}
 						}
+						return "";
 					}
-					catch (NumberFormatException e)
+					Set<String> qualities = new TreeSet<>();
+					for (Map.Entry<String, String> me : qualityMap.entrySet())
 					{
-						String value = qualityMap.get(next);
-						if (value != null)
-						{
-							return value;
-						}
+						qualities
+								.add(me.getKey() + ": " + me.getValue());
 					}
-					return "";
+					return StringUtil.join(qualities, ", ");
 				}
-				Set<String> qualities = new TreeSet<>();
-				for (Map.Entry<String, String> me : qualityMap.entrySet())
+				return "";
+			case "CHARGES":
+				String retString = "";
+				int charges = eq.getRemainingCharges();
+				if (charges >= 0)
 				{
-					qualities
-						.add(new StringBuilder().append(me.getKey()).append(": ").append(me.getValue()).toString());
+					retString = String.valueOf(charges);
 				}
-				return StringUtil.join(qualities, ", ");
-			}
-			return "";
-		}
-		else if (token.equals("CHARGES"))
-		{
-			String retString = "";
-			int charges = eq.getRemainingCharges();
-			if (charges >= 0)
-			{
-				retString = String.valueOf(charges);
-			}
-			return retString;
+				return retString;
 
 		}
 		Logging.errorPrint("Invalid WEAPON token: " + tokenSource, new Throwable());
@@ -588,7 +474,7 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return is light sub token
 	 */
-	public static String getIsLightToken(PlayerCharacter pc, Equipment eq)
+	private static String getIsLightToken(PlayerCharacter pc, Equipment eq)
 	{
 		return eq.isWeaponLightForPC(pc) ? "TRUE" : "FALSE";
 	}
@@ -600,7 +486,7 @@ public class WeaponToken extends Token
 	 * @param star
 	 * @return name sub token
 	 */
-	public static String getNameToken(Equipment eq, PlayerCharacter pc, boolean star)
+	private static String getNameToken(Equipment eq, PlayerCharacter pc, boolean star)
 	{
 		StringBuilder sb = new StringBuilder();
 		if (eq.isEquipped() && star)
@@ -619,7 +505,7 @@ public class WeaponToken extends Token
 	 * @param pc
 	 * @return out put name token
 	 */
-	public static String getOutputNameToken(Equipment eq, PlayerCharacter pc)
+	private static String getOutputNameToken(Equipment eq, PlayerCharacter pc)
 	{
 		StringBuilder sb = new StringBuilder();
 		if (eq.isEquipped())
@@ -637,7 +523,7 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return long name sub token
 	 */
-	public static String getLongNameToken(Equipment eq)
+	private static String getLongNameToken(Equipment eq)
 	{
 		StringBuilder sb = new StringBuilder();
 		if (eq.isEquipped())
@@ -656,7 +542,7 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return Attacks sub token
 	 */
-	public static int getAttacksToken(PlayerCharacter pc, Equipment eq)
+	private static int getAttacksToken(PlayerCharacter pc, Equipment eq)
 	{
 		return (int) eq.bonusTo(pc, "WEAPON", "ATTACKS", true);
 	}
@@ -667,7 +553,7 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return ammunition count sub token
 	 */
-	public static int getAmmunitionCountToken(PlayerCharacter pc, Equipment eq)
+	private static int getAmmunitionCountToken(PlayerCharacter pc, Equipment eq)
 	{
 		int ammoCount = 0;
 		String containerCapacity = eq.getContainerCapacityString().toUpperCase();
@@ -676,7 +562,7 @@ public class WeaponToken extends Token
 		{
 			for (String type : equip.typeList())
 			{
-				if (containerCapacity.indexOf(type) >= 0)
+				if (containerCapacity.contains(type))
 				{
 					++ammoCount;
 					break;
@@ -694,7 +580,7 @@ public class WeaponToken extends Token
 	 * @param ammo
 	 * @return the ammunition token
 	 */
-	public static String getAmmunitionToken(PlayerCharacter pc, Equipment eq, int ammo)
+	private static String getAmmunitionToken(PlayerCharacter pc, Equipment eq, int ammo)
 	{
 		Equipment ammoUser = getAmmoUser(pc, eq, ammo);
 
@@ -710,7 +596,7 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return contents count sub token
 	 */
-	public static int getContentsCountToken(Equipment eq)
+	private static int getContentsCountToken(Equipment eq)
 	{
 		return eq.getContainedEquipmentCount();
 	}
@@ -721,7 +607,7 @@ public class WeaponToken extends Token
 	 * @param content
 	 * @return Get Contents token
 	 */
-	public static String getContentsToken(Equipment eq, int content)
+	private static String getContentsToken(Equipment eq, int content)
 	{
 		if (content > -1)
 		{
@@ -739,14 +625,14 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return heft token
 	 */
-	public static String getHeft(PlayerCharacter pc, Equipment eq)
+	private static String getHeft(PlayerCharacter pc, Equipment eq)
 	{
-		String retString = "";
-		if (pc.getDisplay().sizeInt() > eq.sizeInt())
+		String retString;
+		if (pc.sizeInt() > eq.sizeInt())
 		{
 			retString = "LIGHT";
 		}
-		else if (pc.getDisplay().sizeInt() == eq.sizeInt())
+		else if (pc.sizeInt() == eq.sizeInt())
 		{
 			retString = "MEDIUM";
 		}
@@ -763,7 +649,7 @@ public class WeaponToken extends Token
 	 * @param type
 	 * @return is type token
 	 */
-	public static String getIsTypeToken(Equipment eq, String type)
+	private static String getIsTypeToken(Equipment eq, String type)
 	{
 		return isTypeToken(eq, type) ? "TRUE" : "FALSE";
 	}
@@ -774,7 +660,7 @@ public class WeaponToken extends Token
 	 * @param type
 	 * @return is type token
 	 */
-	public static boolean isTypeToken(Equipment eq, String type)
+	private static boolean isTypeToken(Equipment eq, String type)
 	{
 		return eq.isType(type);
 	}
@@ -785,7 +671,7 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return MULT token
 	 */
-	public static String getMultToken(PlayerCharacter pc, Equipment eq)
+	private static String getMultToken(PlayerCharacter pc, Equipment eq)
 	{
 		String critMultVar = ControlUtilities.getControlToken(Globals.getContext(), CControl.CRITMULT);
 		if (critMultVar != null)
@@ -826,11 +712,9 @@ public class WeaponToken extends Token
 		{
 			return critMult1.toString();
 		}
-		StringBuilder sb = new StringBuilder();
-		sb.append(critMult1);
-		sb.append('/');
-		sb.append(critMult2);
-		return sb.toString();
+		return String.valueOf(critMult1)
+				+ '/'
+				+ critMult2;
 	}
 
 	/**
@@ -862,7 +746,7 @@ public class WeaponToken extends Token
 	 * @param aPC
 	 * @return range list token
 	 */
-	public static String getRangeListToken(Equipment eq, int range, PlayerCharacter aPC)
+	private static String getRangeListToken(Equipment eq, int range, PlayerCharacter aPC)
 	{
 		List<String> rangeList = getRangeList(eq, true, aPC);
 
@@ -881,10 +765,10 @@ public class WeaponToken extends Token
 	 * @param units
 	 * @return range token
 	 */
-	public static String getRangeToken(Equipment eq, PlayerCharacter pc, boolean units)
+	private static String getRangeToken(Equipment eq, PlayerCharacter pc, boolean units)
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append(Globals.getGameModeUnitSet().displayDistanceInUnitSet(EqToken.getRange(pc, eq).intValue()));
+		sb.append(Globals.getGameModeUnitSet().displayDistanceInUnitSet(EqToken.getRange(pc, eq)));
 
 		if (units)
 		{
@@ -898,7 +782,7 @@ public class WeaponToken extends Token
 	 * @param pc
 	 * @return the size mod token
 	 */
-	public static int getSizeModToken(PlayerCharacter pc)
+	private static int getSizeModToken(PlayerCharacter pc)
 	{
 		return (int) pc.getSizeAdjustmentBonusTo("TOHIT", "TOHIT");
 	}
@@ -908,7 +792,7 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return category token
 	 */
-	public static String getCategoryToken(Equipment eq)
+	private static String getCategoryToken(Equipment eq)
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append(weaponCategories(eq));
@@ -959,7 +843,7 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return type token
 	 */
-	public static String getTypeToken(Equipment eq)
+	private static String getTypeToken(Equipment eq)
 	{
 		String types = weaponTypes(eq, true);
 
@@ -976,7 +860,7 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return hand token
 	 */
-	public static String getHandToken(Equipment eq)
+	private static String getHandToken(Equipment eq)
 	{
 		String location = eq.getLocation().getString();
 		return location.replaceAll(".*\\(", "").replaceAll("\\(.*", "").replaceAll("\\).*", "");
@@ -988,13 +872,11 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return Magic damage token
 	 */
-	public static int getMagicDamageToken(PlayerCharacter pc, Equipment eq)
+	private static int getMagicDamageToken(PlayerCharacter pc, Equipment eq)
 	{
 		String profName = getProfName(eq);
-		int magicdamage =
-				eq.getBonusToDamage(pc, true) + (int) BonusCalc.charBonusTo(eq, "WEAPONPROF=" + profName, "DAMAGE", pc)
-					+ getWeaponProfTypeBonuses(pc, eq, "DAMAGE", WPTYPEBONUS_EQ);
-		return magicdamage;
+		return eq.getBonusToDamage(pc, true) + (int) BonusCalc.charBonusTo(eq, "WEAPONPROF=" + profName, "DAMAGE", pc)
+			+ getWeaponProfTypeBonuses(pc, eq, "DAMAGE", WPTYPEBONUS_EQ);
 	}
 
 	/**
@@ -1003,13 +885,11 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return magic to hit token
 	 */
-	public static int getMagicHitToken(PlayerCharacter pc, Equipment eq)
+	private static int getMagicHitToken(PlayerCharacter pc, Equipment eq)
 	{
 		String profName = getProfName(eq);
-		int magichit =
-				eq.getBonusToHit(pc, true) + (int) BonusCalc.charBonusTo(eq, "WEAPONPROF=" + profName, "TOHIT", pc)
-					+ getWeaponProfTypeBonuses(pc, eq, "TOHIT", WPTYPEBONUS_EQ);
-		return magichit;
+		return eq.getBonusToHit(pc, true) + (int) BonusCalc.charBonusTo(eq, "WEAPONPROF=" + profName, "TOHIT", pc)
+			+ getWeaponProfTypeBonuses(pc, eq, "TOHIT", WPTYPEBONUS_EQ);
 	}
 
 	/**
@@ -1018,14 +898,13 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return misc token
 	 */
-	public static int getMiscToken(PlayerCharacter pc, Equipment eq)
+	private static int getMiscToken(PlayerCharacter pc, Equipment eq)
 	{
 		String profName = getProfName(eq);
-		int miscBonus = ((int) pc.getTotalBonusTo("WEAPONPROF=" + profName, "TOHIT")
+		return ((int) pc.getTotalBonusTo("WEAPONPROF=" + profName, "TOHIT")
 			+ getWeaponProfTypeBonuses(pc, eq, "TOHIT", WPTYPEBONUS_PC))
 			- (int) pc.getDisplay().getStatBonusTo("TOHIT", "TYPE.MELEE")
 			- (int) pc.getSizeAdjustmentBonusTo("TOHIT", "TOHIT");
-		return miscBonus;
 	}
 
 	/**
@@ -1034,14 +913,12 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return feat damage token
 	 */
-	public static int getFeatDamageToken(PlayerCharacter pc, Equipment eq)
+	private static int getFeatDamageToken(PlayerCharacter pc, Equipment eq)
 	{
 		String profName = getProfName(eq);
-		int featBonus =
-				(int) pc.getFeatBonusTo("WEAPON", "DAMAGE") - (int) pc.getFeatBonusTo("WEAPON", "DAMAGE-SHORTRANGE")
-					+ (int) pc.getFeatBonusTo("WEAPONPROF=" + profName, "DAMAGE")
-					+ getWeaponProfTypeBonuses(pc, eq, "DAMAGE", WPTYPEBONUS_FEAT);
-		return featBonus;
+		return (int) pc.getFeatBonusTo("WEAPON", "DAMAGE") - (int) pc.getFeatBonusTo("WEAPON", "DAMAGE-SHORTRANGE")
+			+ (int) pc.getFeatBonusTo("WEAPONPROF=" + profName, "DAMAGE")
+			+ getWeaponProfTypeBonuses(pc, eq, "DAMAGE", WPTYPEBONUS_FEAT);
 	}
 
 	/**
@@ -1050,13 +927,11 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return Get feat to hit token
 	 */
-	public static int getFeatHitToken(PlayerCharacter pc, Equipment eq)
+	private static int getFeatHitToken(PlayerCharacter pc, Equipment eq)
 	{
 		String profName = getProfName(eq);
-		int featBonus =
-				(int) pc.getFeatBonusTo("WEAPON", "TOHIT") + (int) pc.getFeatBonusTo("WEAPONPROF=" + profName, "TOHIT")
-					+ getWeaponProfTypeBonuses(pc, eq, "TOHIT", WPTYPEBONUS_FEAT);
-		return featBonus;
+		return (int) pc.getFeatBonusTo("WEAPON", "TOHIT") + (int) pc.getFeatBonusTo("WEAPONPROF=" + profName, "TOHIT")
+			+ getWeaponProfTypeBonuses(pc, eq, "TOHIT", WPTYPEBONUS_FEAT);
 	}
 
 	/**
@@ -1065,13 +940,12 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return template damage token
 	 */
-	public static int getTemplateDamageToken(PlayerCharacter pc, Equipment eq)
+	private static int getTemplateDamageToken(PlayerCharacter pc, Equipment eq)
 	{
 		String profName = getProfName(eq);
-		int templateBonus = (int) pc.getTemplateBonusTo("WEAPON", "DAMAGE")
+		return (int) pc.getTemplateBonusTo("WEAPON", "DAMAGE")
 			+ (int) pc.getTemplateBonusTo("WEAPONPROF=" + profName, "DAMAGE")
 			+ getWeaponProfTypeBonuses(pc, eq, "DAMAGE", WPTYPEBONUS_TEMPLATE);
-		return templateBonus;
 	}
 
 	/**
@@ -1080,13 +954,12 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return to hit token
 	 */
-	public static int getTemplateHitToken(PlayerCharacter pc, Equipment eq)
+	private static int getTemplateHitToken(PlayerCharacter pc, Equipment eq)
 	{
 		String profName = getProfName(eq);
-		int templateBonus = (int) pc.getTemplateBonusTo("WEAPON", "TOHIT")
+		return (int) pc.getTemplateBonusTo("WEAPON", "TOHIT")
 			+ (int) pc.getTemplateBonusTo("WEAPONPROF=" + profName, "TOHIT")
 			+ getWeaponProfTypeBonuses(pc, eq, "TOHIT", WPTYPEBONUS_TEMPLATE);
-		return templateBonus;
 	}
 
 	/**
@@ -1094,20 +967,9 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return size token
 	 */
-	public static String getSizeToken(Equipment eq)
+	private static String getSizeToken(Equipment eq)
 	{
 		return eq.getSize();
-	}
-
-	/**
-	 * Get the SPROP token
-	 * @param pc
-	 * @param eq
-	 * @return SPROP token
-	 */
-	public static String getSpropToken(PlayerCharacter pc, Equipment eq)
-	{
-		return getSpropToken(pc, eq, -1, -1);
 	}
 
 	/**
@@ -1118,7 +980,7 @@ public class WeaponToken extends Token
 	 * @param ammo
 	 * @return SPROP token
 	 */
-	public static String getSpropToken(PlayerCharacter pc, Equipment eq, int content, int ammo)
+	private static String getSpropToken(PlayerCharacter pc, Equipment eq, int content, int ammo)
 	{
 		String sprop = eq.getSpecialProperties(pc);
 
@@ -1146,7 +1008,7 @@ public class WeaponToken extends Token
 
 				for (String type : equip.typeList())
 				{
-					if (containerCapacity.indexOf(type) >= 0)
+					if (containerCapacity.contains(type))
 					{
 						++ammoCount;
 						anEquip = equip;
@@ -1183,13 +1045,13 @@ public class WeaponToken extends Token
 	 * @param eq	the equipment
 	 * @return reach token
 	 */
-	public static String getReachToken(PlayerCharacter pc, Equipment eq)
+	private static String getReachToken(PlayerCharacter pc, Equipment eq)
 	{
 		String eqReach = pc.getControl("EQREACH");
 		int sum;
 		if (eqReach == null)
 		{
-			int dist = eq.getVariableValue(SettingsHandler.getGame().getWeaponReachFormula(), "", pc).intValue();
+			int dist = eq.getVariableValue(SettingsHandler.getGameAsProperty().get().getWeaponReachFormula(), "", pc).intValue();
 			String profName = getProfName(eq);
 			int iAdd = (int) pc.getTotalBonusTo("WEAPONPROF=" + profName, "REACH")
 				+ getWeaponProfTypeBonuses(pc, eq, "REACH", WPTYPEBONUS_PC);
@@ -1208,7 +1070,7 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return  weight in set token
 	 */
-	public static String getWTToken(PlayerCharacter pc, Equipment eq)
+	private static String getWTToken(PlayerCharacter pc, Equipment eq)
 	{
 		return Globals.getGameModeUnitSet().displayWeightInUnitSet(eq.getWeight(pc).doubleValue());
 	}
@@ -1219,7 +1081,7 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return number of attacks token
 	 */
-	public static int getNumAttacksToken(PlayerCharacter pc, Equipment eq)
+	private static int getNumAttacksToken(PlayerCharacter pc, Equipment eq)
 	{
 		String melee = getMeleeAttackString(pc);
 		String unarmed = getUnarmedAttackString(pc);
@@ -1251,7 +1113,7 @@ public class WeaponToken extends Token
 			}
 		}
 
-		if (weaponString.indexOf("/") > -1)
+		if (weaponString.contains("/"))
 		{
 			int i = weaponString.indexOf("/");
 			boolean progress = eq.getSafe(ObjectKey.ATTACKS_PROGRESS);
@@ -1277,7 +1139,7 @@ public class WeaponToken extends Token
 	 * @param eq
 	 * @return critical token
 	 */
-	public static String getCritToken(PlayerCharacter pc, Equipment eq)
+	private static String getCritToken(PlayerCharacter pc, Equipment eq)
 	{
 		StringBuilder sb = new StringBuilder();
 		String critRangeVar = ControlUtilities.getControlToken(Globals.getContext(), CControl.CRITRANGE);
@@ -1320,7 +1182,7 @@ public class WeaponToken extends Token
 
 			if (altCritRange != critrange)
 			{
-				sb.append("/" + altCritRange);
+				sb.append("/").append(altCritRange);
 
 				if (altCritRange < 20)
 				{
@@ -1335,19 +1197,6 @@ public class WeaponToken extends Token
 	 * Get damage token
 	 * @param pc
 	 * @param eq
-	 * @param bonusOnly
-	 * @param base
-	 * @return damage token
-	 */
-	public static String getDamageToken(PlayerCharacter pc, Equipment eq, boolean bonusOnly, boolean base)
-	{
-		return getDamageToken(pc, eq, -1, -1, -1, bonusOnly, base);
-	}
-
-	/**
-	 * Get damage token
-	 * @param pc
-	 * @param eq
 	 * @param range
 	 * @param content
 	 * @param ammo
@@ -1355,12 +1204,12 @@ public class WeaponToken extends Token
 	 * @param base
 	 * @return damage token
 	 */
-	public static String getDamageToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
-		boolean bonusOnly, boolean base)
+	private static String getDamageToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
+	                                     boolean bonusOnly, boolean base)
 	{
 		boolean isDouble = (eq.isDouble() && (eq.getLocation() == EquipmentLocation.EQUIPPED_TWO_HANDS));
 		boolean isDoubleSplit = (eq.isType("Head1") || eq.isType("Head2"));
-		int damageMode = DAMAGEMODE_NORMAL;
+		int damageMode;
 		int hands = 1;
 
 		if (eq.isNatural() && (eq.getLocation() == EquipmentLocation.EQUIPPED_SECONDARY))
@@ -1419,42 +1268,17 @@ public class WeaponToken extends Token
 	 * Get basic damage token
 	 * @param pc
 	 * @param eq
-	 * @param bonusOnly
-	 * @return basic damage token
-	 */
-	public static String getBasicDamageToken(PlayerCharacter pc, Equipment eq, boolean bonusOnly)
-	{
-		return getBasicDamageToken(pc, eq, -1, -1, -1, bonusOnly);
-	}
-
-	/**
-	 * Get basic damage token
-	 * @param pc
-	 * @param eq
 	 * @param range
 	 * @param content
 	 * @param ammo
 	 * @param bonusOnly
 	 * @return basic damage token
 	 */
-	public static String getBasicDamageToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
-		boolean bonusOnly)
+	private static String getBasicDamageToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
+	                                          boolean bonusOnly)
 	{
-		int damageMode = DAMAGEMODE_BASIC;
 		int hands = 1;
-		return getDamage(pc, eq, range, content, ammo, bonusOnly, hands, damageMode, false);
-	}
-
-	/**
-	 * Get two handed damage token
-	 * @param pc
-	 * @param eq
-	 * @param bonusOnly
-	 * @return two handed damage token
-	 */
-	public static String getTHDamageToken(PlayerCharacter pc, Equipment eq, boolean bonusOnly)
-	{
-		return getTHDamageToken(pc, eq, -1, -1, -1, bonusOnly);
+		return getDamage(pc, eq, range, content, ammo, bonusOnly, hands, DAMAGEMODE_BASIC, false);
 	}
 
 	/**
@@ -1467,24 +1291,11 @@ public class WeaponToken extends Token
 	 * @param bonusOnly
 	 * @return two handed damage token
 	 */
-	public static String getTHDamageToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
-		boolean bonusOnly)
+	private static String getTHDamageToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
+	                                       boolean bonusOnly)
 	{
-		int damageMode = DAMAGEMODE_TWOHANDS;
 		int hands = 2;
-		return getDamage(pc, eq, range, content, ammo, bonusOnly, hands, damageMode, false);
-	}
-
-	/**
-	 * Get Off hand damage token
-	 * @param pc
-	 * @param eq
-	 * @param bonusOnly
-	 * @return Off hand damage token
-	 */
-	public static String getOHDamageToken(PlayerCharacter pc, Equipment eq, boolean bonusOnly)
-	{
-		return getOHDamageToken(pc, eq, -1, -1, -1, bonusOnly);
+		return getDamage(pc, eq, range, content, ammo, bonusOnly, hands, DAMAGEMODE_TWOHANDS, false);
 	}
 
 	/**
@@ -1497,23 +1308,11 @@ public class WeaponToken extends Token
 	 * @param bonusOnly
 	 * @return Off hand damage token
 	 */
-	public static String getOHDamageToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
-		boolean bonusOnly)
+	private static String getOHDamageToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
+	                                       boolean bonusOnly)
 	{
-		int damageMode = DAMAGEMODE_OFFHAND;
 		int hands = 0;
-		return getDamage(pc, eq, range, content, ammo, bonusOnly, hands, damageMode, false);
-	}
-
-	/**
-	 * Get total hit token
-	 * @param pc
-	 * @param eq
-	 * @return total hit token
-	 */
-	public static String getTotalHitToken(PlayerCharacter pc, Equipment eq)
-	{
-		return getTotalHitToken(pc, eq, -1, -1, -1, -1);
+		return getDamage(pc, eq, range, content, ammo, bonusOnly, hands, DAMAGEMODE_OFFHAND, false);
 	}
 
 	/**
@@ -1526,13 +1325,13 @@ public class WeaponToken extends Token
 	 * @param attackNum
 	 * @return total hit token
 	 */
-	public static String getTotalHitToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
-		int attackNum)
+	private static String getTotalHitToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
+	                                       int attackNum)
 	{
 		CharacterDisplay display = pc.getDisplay();
 		boolean isDouble = (eq.isDouble() && (eq.getLocation() == EquipmentLocation.EQUIPPED_TWO_HANDS));
 		boolean isDoubleSplit = (eq.isType("Head1") || eq.isType("Head2"));
-		int hitMode = HITMODE_TOTALHIT;
+		int hitMode;
 
 		// First do unarmed.
 		if (eq.isUnarmed())
@@ -1627,39 +1426,16 @@ public class WeaponToken extends Token
 	 * Get base hit token
 	 * @param pc
 	 * @param eq
-	 * @return base hit token
-	 */
-	public static String getBaseHitToken(PlayerCharacter pc, Equipment eq)
-	{
-		return getBaseHitToken(pc, eq, -1, -1, -1, -1);
-	}
-
-	/**
-	 * Get base hit token
-	 * @param pc
-	 * @param eq
 	 * @param range
 	 * @param content
 	 * @param ammo
 	 * @param attackNum
 	 * @return base hit token
 	 */
-	public static String getBaseHitToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
-		int attackNum)
+	private static String getBaseHitToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
+	                                      int attackNum)
 	{
-		int hitMode = HITMODE_BASEHIT;
-		return getToHit(pc, eq, range, content, ammo, hitMode, attackNum);
-	}
-
-	/**
-	 * Get two weapon heavy off hand token
-	 * @param pc
-	 * @param eq
-	 * @return two weapon heavy off hand token
-	 */
-	public static String getTwpHitHToken(PlayerCharacter pc, Equipment eq)
-	{
-		return getTwpHitHToken(pc, eq, -1, -1, -1, -1);
+		return getToHit(pc, eq, range, content, ammo, HITMODE_BASEHIT, attackNum);
 	}
 
 	/**
@@ -1672,22 +1448,10 @@ public class WeaponToken extends Token
 	 * @param attackNum
 	 * @return two weapon heavy off hand token
 	 */
-	public static String getTwpHitHToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
-		int attackNum)
+	private static String getTwpHitHToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
+	                                      int attackNum)
 	{
-		int hitMode = HITMODE_TWPHITH;
-		return getToHit(pc, eq, range, content, ammo, hitMode, attackNum);
-	}
-
-	/**
-	 * Get two weapon light off hand token
-	 * @param pc
-	 * @param eq
-	 * @return two weapon light off hand token
-	 */
-	public static String getTwpHitLToken(PlayerCharacter pc, Equipment eq)
-	{
-		return getTwpHitLToken(pc, eq, -1, -1, -1, -1);
+		return getToHit(pc, eq, range, content, ammo, HITMODE_TWPHITH, attackNum);
 	}
 
 	/**
@@ -1700,22 +1464,10 @@ public class WeaponToken extends Token
 	 * @param attackNum
 	 * @return two weapon light off hand token
 	 */
-	public static String getTwpHitLToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
-		int attackNum)
+	private static String getTwpHitLToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
+	                                      int attackNum)
 	{
-		int hitMode = HITMODE_TWPHITL;
-		return getToHit(pc, eq, range, content, ammo, hitMode, attackNum);
-	}
-
-	/**
-	 * Get two hit token
-	 * @param pc
-	 * @param eq
-	 * @return two hit token
-	 */
-	public static String getTwoHitToken(PlayerCharacter pc, Equipment eq)
-	{
-		return getTwoHitToken(pc, eq, -1, -1, -1, -1);
+		return getToHit(pc, eq, range, content, ammo, HITMODE_TWPHITL, attackNum);
 	}
 
 	/**
@@ -1728,22 +1480,10 @@ public class WeaponToken extends Token
 	 * @param attackNum
 	 * @return two hit token
 	 */
-	public static String getTwoHitToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
-		int attackNum)
+	private static String getTwoHitToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
+	                                     int attackNum)
 	{
-		int hitMode = HITMODE_TWOHIT;
-		return getToHit(pc, eq, range, content, ammo, hitMode, attackNum);
-	}
-
-	/**
-	 * Get Off Hand Hit Token
-	 * @param pc
-	 * @param eq
-	 * @return Off Hand Hit Token
-	 */
-	public static String getOHHitToken(PlayerCharacter pc, Equipment eq)
-	{
-		return getOHHitToken(pc, eq, -1, -1, -1, -1);
+		return getToHit(pc, eq, range, content, ammo, HITMODE_TWOHIT, attackNum);
 	}
 
 	/**
@@ -1756,22 +1496,10 @@ public class WeaponToken extends Token
 	 * @param attackNum
 	 * @return Off Hand Hit Toke
 	 */
-	public static String getOHHitToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
-		int attackNum)
+	private static String getOHHitToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
+	                                    int attackNum)
 	{
-		int hitMode = HITMODE_OHHIT;
-		return getToHit(pc, eq, range, content, ammo, hitMode, attackNum);
-	}
-
-	/**
-	 * Get the TH Hit Token
-	 * @param pc
-	 * @param eq
-	 * @return the TH Hit Token
-	 */
-	public static String getTHHitToken(PlayerCharacter pc, Equipment eq)
-	{
-		return getTHHitToken(pc, eq, -1, -1, -1, -1);
+		return getToHit(pc, eq, range, content, ammo, HITMODE_OHHIT, attackNum);
 	}
 
 	/**
@@ -1784,11 +1512,10 @@ public class WeaponToken extends Token
 	 * @param attackNum
 	 * @return the TH Hit Token
 	 */
-	public static String getTHHitToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
-		int attackNum)
+	private static String getTHHitToken(PlayerCharacter pc, Equipment eq, int range, int content, int ammo,
+	                                    int attackNum)
 	{
-		int hitMode = HITMODE_THHIT;
-		return getToHit(pc, eq, range, content, ammo, hitMode, attackNum);
+		return getToHit(pc, eq, range, content, ammo, HITMODE_THHIT, attackNum);
 	}
 
 	private static String getToHit(PlayerCharacter pc, Equipment eq, int range, int content, int ammo, int hitMode,
@@ -1804,13 +1531,13 @@ public class WeaponToken extends Token
 			if ((!isDouble && !isDoubleSplit && (hitMode != HITMODE_THHIT)) || (isDoubleSplit
 				&& (hitMode == HITMODE_BASEHIT || hitMode == HITMODE_OHHIT || hitMode == HITMODE_TWPHITH)))
 			{
-				return SettingsHandler.getInvalidToHitText();
+				return LanguageBundle.getString("SettingsHandler.not.applicable");
 			}
 		}
 
 		if (eq.isMelee() && eq.isWeaponOutsizedForPC(pc) && !eq.isNatural())
 		{
-			return SettingsHandler.getInvalidToHitText();
+			return LanguageBundle.getString("SettingsHandler.not.applicable");
 		}
 
 		int weaponBaseBonus = (int) eq.bonusTo(pc, "WEAPON", "WEAPONBAB", true);
@@ -1918,8 +1645,7 @@ public class WeaponToken extends Token
 				baseBonus += pc.getOffHandLightBonus();
 			}
 
-			if ((hitMode == HITMODE_TWOHIT) || (hitMode == HITMODE_OHHIT) || (hitMode == HITMODE_TWFOHL)
-				|| (hitMode == HITMODE_TWFOHH))
+			if (hitMode == HITMODE_TWOHIT || hitMode == HITMODE_OHHIT || hitMode == HITMODE_TWFOHL)
 			{
 				secondaryBonus = (int) pc.getTotalBonusTo("COMBAT", "TOHIT-SECONDARY");
 
@@ -1963,6 +1689,7 @@ public class WeaponToken extends Token
 			//				baseBonus += (int) pc.getTotalBonusTo("WEAPONPROF=" + profName, "TOHITOVERSIZE");
 			//				baseBonus += getWeaponProfTypeBonuses(pc, eq, "TOHITOVERSIZE", WPTYPEBONUS_PC);
 			//			}
+			Logging.debugPrint("TODO - Fix If the character normally can't wield this weapon 1-handed, but for some reason they can (e.g. Monkey Grip) then check for TOHIT modifiers.");
 		}
 
 		if (hitMode == HITMODE_TWPHITH || hitMode == HITMODE_TWPHITL)
@@ -1970,8 +1697,7 @@ public class WeaponToken extends Token
 			baseBonus += primaryBonus;
 		}
 
-		if (hitMode == HITMODE_TWOHIT || hitMode == HITMODE_OHHIT || hitMode == HITMODE_TWFOHL
-			|| hitMode == HITMODE_TWFOHH)
+		if (hitMode == HITMODE_TWOHIT || hitMode == HITMODE_OHHIT || hitMode == HITMODE_TWFOHL)
 		{
 			baseBonus += secondaryBonus;
 		}
@@ -2045,7 +1771,7 @@ public class WeaponToken extends Token
 		if (range > -1)
 		{
 			int rangeSize = getRangeList(eq, true, pc).size();
-			int shortRange = SettingsHandler.getGame().getShortRangeDistance();
+			int shortRange = SettingsHandler.getGameAsProperty().get().getShortRangeDistance();
 
 			/* range here is an index that represents a number of range
 			 * increments, the actual distance is held in this range */
@@ -2065,7 +1791,7 @@ public class WeaponToken extends Token
 				}
 				// Long Range To-Hit Modifier
 				int defaultRange = Integer.parseInt(EqToken.getRange(pc, eq).toString());
-				int rangePenalty = SettingsHandler.getGame().getRangePenalty();
+				int rangePenalty = SettingsHandler.getGameAsProperty().get().getRangePenalty();
 				rangePenalty += pc.getTotalBonusTo("COMBAT", "RANGEPENALTY");
 
 				baseBonus += rangePenalty * (int) Math.max(Math.ceil(((float) thisRange / defaultRange)) - 1, 0);
@@ -2114,7 +1840,7 @@ public class WeaponToken extends Token
 		// or possibly the "Haste" spell cast on PC
 		extra_attacks += (int) pc.getTotalBonusTo("COMBAT", "ATTACKS");
 
-		String babProgression = null;
+		String babProgression;
 
 		/* The range == -1 here deals with the case where the weapon is both
 		 ranged and melee (e.g. a dagger).  The range == -1 indicates that
@@ -2225,7 +1951,7 @@ public class WeaponToken extends Token
 		// tokens
 		boolean considerEarlyExit = !isDouble && (hitMode == HITMODE_TWOHIT || display.isSecondaryWeapon(eq));
 
-		int toHit = 0;
+		int toHit;
 		int secondariesAdded = 0;
 
 		StringBuilder primaryAttack = new StringBuilder(20);
@@ -2268,7 +1994,7 @@ public class WeaponToken extends Token
 
 		if (secondaryAttack.length() != 0 && (hitMode == HITMODE_TOTALHIT || hitMode == HITMODE_TWOHIT))
 		{
-			totalAttack.append(";" + secondaryAttack);
+			totalAttack.append(";").append(secondaryAttack);
 		}
 
 		return totalAttack.toString();
@@ -2379,13 +2105,13 @@ public class WeaponToken extends Token
 			if (!isDouble && !isDoubleSplit && (damageMode != DAMAGEMODE_NORMAL) && (damageMode != DAMAGEMODE_TWOHANDS)
 				&& (damageMode != DAMAGEMODE_DOUBLE))
 			{
-				return SettingsHandler.getInvalidDmgText();
+				return LanguageBundle.getString("SettingsHandler.not.applicable");
 			}
 		}
 
 		if (eq.isMelee() && eq.isWeaponOutsizedForPC(pc) && !eq.isNatural())
 		{
-			return SettingsHandler.getInvalidDmgText();
+			return LanguageBundle.getString("SettingsHandler.not.applicable");
 		}
 
 		if (eq.isWeaponLightForPC(pc) && (hands == 2))
@@ -2420,7 +2146,7 @@ public class WeaponToken extends Token
 			{
 				if ((damString.charAt(index) == '+') || (damString.charAt(index) == '-'))
 				{
-					totalBonus = Delta.decode(damString.substring(index)).intValue();
+					totalBonus = Delta.decode(damString.substring(index));
 					break;
 				}
 			}
@@ -2557,6 +2283,7 @@ public class WeaponToken extends Token
 			// Thrown weapons just get stat bonus
 			// and its already been added in the
 			// getTotalBonusTo(TYPE) above
+			Logging.debugPrint("// Thrown weapons just get stat bonus and its already been added in the getTotalBonusTo(TYPE) above");
 		}
 		// If at short range, add SHORTRANGE bonus
 		if (range > -1)
@@ -2564,7 +2291,7 @@ public class WeaponToken extends Token
 			int rangeSize = getRangeList(eq, true, pc).size();
 
 			if ((range < rangeSize) && (Integer.parseInt(getRangeList(eq, true, pc).get(range)) <= SettingsHandler
-				.getGame().getShortRangeDistance()))
+				.getGameAsProperty().get().getShortRangeDistance()))
 			{
 				bonus += (int) eq.bonusTo(pc, "WEAPON", "DAMAGE-SHORTRANGE", true);
 				bonus += (int) pc.getTotalBonusTo("DAMAGE", "SHORTRANGE");
@@ -2592,7 +2319,7 @@ public class WeaponToken extends Token
 			int rangeSize = getRangeList(eq, true, pc).size();
 
 			if ((range < rangeSize) && (Integer.parseInt(getRangeList(eq, true, pc).get(range)) <= SettingsHandler
-				.getGame().getShortRangeDistance()))
+				.getGameAsProperty().get().getShortRangeDistance()))
 			{
 				weaponProfBonus += ((int) pc.getTotalBonusTo("WEAPONPROF=" + profKey, "DAMAGE-SHORTRANGE")
 					+ getWeaponProfTypeBonuses(pc, eq, "DAMAGE-SHORTRANGE", WPTYPEBONUS_PC));
@@ -2638,7 +2365,7 @@ public class WeaponToken extends Token
 		if (eq.isMonk() && eq.isUnarmed())
 		{
 			int eqSize = pc.getDisplay().getRace().getSafe(FormulaKey.SIZE).resolve(pc, "").intValue();
-			int iMod = pc.getDisplay().sizeInt();
+			int iMod = pc.sizeInt();
 
 			/* This modifies damage (by size) from the default when the race is
 			 * not the default size and the character is the default size for
@@ -2682,7 +2409,7 @@ public class WeaponToken extends Token
 				}
 			}
 
-			damString = Globals.adjustDamage(damString, eqSize, iMod);
+			damString = Globals.adjustDamage(damString, iMod - eqSize);
 		}
 		return damString;
 	}
@@ -2699,12 +2426,11 @@ public class WeaponToken extends Token
 		String profKey = getProfName(eq);
 		if (eq.isNatural())
 		{
-			//			int eqSize = Globals.sizeInt(pc.getRace().getSize());
-			int eqSize = pc.getDisplay().racialSizeInt();
-			int iMod = pc.getDisplay().sizeInt();
+			int eqSize = pc.racialSizeInt();
+			int iMod = pc.sizeInt();
 			iMod += (int) pc.getTotalBonusTo("WEAPONPROF=" + profKey, "DAMAGESIZE");
 			iMod += (int) pc.getTotalBonusTo("COMBAT", "DAMAGESIZE");
-			retString = Globals.adjustDamage(retString, eqSize, iMod);
+			retString = Globals.adjustDamage(retString, iMod - eqSize);
 		}
 		else
 		{
@@ -2712,7 +2438,7 @@ public class WeaponToken extends Token
 			int iMod = eqSize;
 			iMod += (int) pc.getTotalBonusTo("WEAPONPROF=" + profKey, "DAMAGESIZE");
 			iMod += (int) pc.getTotalBonusTo("COMBAT", "DAMAGESIZE");
-			retString = Globals.adjustDamage(retString, eqSize, iMod);
+			retString = Globals.adjustDamage(retString, iMod - eqSize);
 		}
 
 		return retString;
@@ -2732,7 +2458,7 @@ public class WeaponToken extends Token
 		{
 			for (String type : equip.typeList())
 			{
-				if (containerCapacity.indexOf(type) >= 0)
+				if (containerCapacity.contains(type))
 				{
 					++ammoCount;
 
@@ -2768,27 +2494,15 @@ public class WeaponToken extends Token
 			{
 				switch (index)
 				{
-					case WPTYPEBONUS_PC:
-						bonus += (int) pc.getTotalBonusTo("WEAPONPROF=TYPE." + tString, bonusType);
-						break;
-
-					case WPTYPEBONUS_EQ:
-						bonus += (int) BonusCalc.charBonusTo(eq, "WEAPONPROF=TYPE." + tString, bonusType, pc);
-						break;
-
-					case WPTYPEBONUS_FEAT:
-						bonus += (int) pc.getFeatBonusTo("WEAPONPROF=TYPE." + tString, bonusType);
-						break;
-
-					case WPTYPEBONUS_TEMPLATE:
-						bonus += (int) pc.getTemplateBonusTo("WEAPONPROF=TYPE." + tString, bonusType);
-						break;
-
-					default:
-						Logging.errorPrint(
+					case WPTYPEBONUS_PC -> bonus += (int) pc.getTotalBonusTo("WEAPONPROF=TYPE." + tString, bonusType);
+					case WPTYPEBONUS_EQ -> bonus +=
+							(int) BonusCalc.charBonusTo(eq, "WEAPONPROF=TYPE." + tString, bonusType, pc);
+					case WPTYPEBONUS_FEAT -> bonus += (int) pc.getFeatBonusTo("WEAPONPROF=TYPE." + tString, bonusType);
+					case WPTYPEBONUS_TEMPLATE -> bonus +=
+							(int) pc.getTemplateBonusTo("WEAPONPROF=TYPE." + tString, bonusType);
+					default -> Logging.errorPrint(
 							"In getWeaponProfTypeBonuses there is an unhandled case in a switch (the value is " + index
-								+ '.');
-						break;
+									+ '.');
 				}
 			}
 		}
@@ -2799,12 +2513,10 @@ public class WeaponToken extends Token
 	private static String weaponCategories(Equipment eq)
 	{
 		StringBuilder wc = new StringBuilder(10);
-		StringTokenizer aTok = new StringTokenizer(SettingsHandler.getGame().getWeaponCategories(), "|", false);
+		List<Type> categories = SettingsHandler.getGameAsProperty().get().getWeaponCategories();
 
-		while (aTok.hasMoreTokens())
+		for (Type type : categories)
 		{
-			String type = aTok.nextToken();
-
 			if (eq.isType(type, true))
 			{
 				if (wc.length() != 0)
@@ -2826,21 +2538,12 @@ public class WeaponToken extends Token
 
 	private static String weaponTypes(Equipment eq, boolean primary)
 	{
-		StringBuilder wt = new StringBuilder(10);
-		StringTokenizer aTok = new StringTokenizer(SettingsHandler.getGame().getWeaponTypes(), "|", false);
-
-		while (aTok.countTokens() >= 2)
-		{
-			String type = aTok.nextToken();
-			String abbrev = aTok.nextToken();
-
-			if (eq.isType(type, primary))
-			{
-				wt.append(abbrev);
-			}
-		}
-
-		return wt.toString();
+		GameMode game = SettingsHandler.getGameAsProperty().get();
+		TreeSet<String> set = game.getWeaponTypes().stream()
+			.filter(type -> eq.isType(type, primary))
+			.map(type -> game.getWeaponTypeAbbrev(type))
+			.collect(Collectors.toCollection(() -> new TreeSet<>()));
+		return StringUtil.join(set, "");
 	}
 
 	/**
@@ -2964,10 +2667,10 @@ public class WeaponToken extends Token
 	 * @param aPC
 	 * @return The range list
 	 */
-	public static List<String> getRangeList(Equipment eq, boolean addShortRange, final PlayerCharacter aPC)
+	private static List<String> getRangeList(Equipment eq, boolean addShortRange, final PlayerCharacter aPC)
 	{
 		final List<String> aList = new ArrayList<>();
-		final int baseRange = EqToken.getRange(aPC, eq).intValue();
+		final int baseRange = EqToken.getRange(aPC, eq);
 		int aRange = baseRange;
 		int maxIncrements = 0;
 
@@ -2985,14 +2688,14 @@ public class WeaponToken extends Token
 
 		for (int numIncrements = 0; numIncrements < maxIncrements; ++numIncrements)
 		{
-			if (aRange == SettingsHandler.getGame().getShortRangeDistance())
+			if (aRange == SettingsHandler.getGameAsProperty().get().getShortRangeDistance())
 			{
 				addShortRange = false;
 			}
 
-			if ((aRange > SettingsHandler.getGame().getShortRangeDistance()) && addShortRange)
+			if ((aRange > SettingsHandler.getGameAsProperty().get().getShortRangeDistance()) && addShortRange)
 			{
-				aList.add(Integer.toString(SettingsHandler.getGame().getShortRangeDistance()));
+				aList.add(Integer.toString(SettingsHandler.getGameAsProperty().get().getShortRangeDistance()));
 				addShortRange = false;
 			}
 
@@ -3019,7 +2722,7 @@ public class WeaponToken extends Token
 		return sb.toString();
 	}
 
-	public static StringBuilder getCritRangeHead(PlayerCharacter pc, EquipmentHead head, String critRangeVar)
+	static StringBuilder getCritRangeHead(PlayerCharacter pc, EquipmentHead head, String critRangeVar)
 	{
 		StringBuilder sb = new StringBuilder();
 		Integer range = (Integer) head.getLocalVariable(pc.getCharID(), critRangeVar);

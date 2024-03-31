@@ -17,6 +17,10 @@
  */
 package pcgen.core;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,8 +28,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import pcgen.AbstractCharacterTestCase;
 import pcgen.base.lang.UnreachableError;
 import pcgen.cdom.base.CDOMReference;
@@ -41,60 +43,23 @@ import pcgen.persistence.lst.GenericLoader;
 import pcgen.rules.context.LoadContext;
 import plugin.lsttokens.testsupport.BuildUtilities;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>PCTemplateTest</code> tests the fucntion of the PCTemplate class.
+ * {@code PCTemplateTest} tests the fucntion of the PCTemplate class.
  */
 public class PCTemplateTest extends AbstractCharacterTestCase
 {
 	private PCClass testClass;
 	private GenericLoader<PCTemplate> loader = new GenericLoader<>(PCTemplate.class);
-	
-	/**
-	 * Constructs a new <code>PCTemplateTest</code>.
-	 *
-	 * @see pcgen.PCGenTestCase#PCGenTestCase()
-	 */
-	public PCTemplateTest()
-	{
-		// Do Nothing
-	}
-
-	/**
-	 * Constructs a new <code>PCTemplateTest</code> with the given <var>name</var>.
-	 *
-	 * @param name the test case name
-	 *
-	 * @see pcgen.PCGenTestCase#PCGenTestCase(String)
-	 */
-	public PCTemplateTest(final String name)
-	{
-		super(name);
-	}
-
-	/**
-	 * Run the tests
-	 * @param args
-	 */
-	public static void main(final String[] args)
-	{
-		junit.textui.TestRunner.run(PCTemplateTest.class);
-	}
-
-	/**
-	 * Returns all the test methasVFeatshods in this class.
-	 * @return A <tt>TestSuite</tt>
-	 */
-	public static Test suite()
-	{
-		// quick method, adds all methods beginning with "test"
-		return new TestSuite(PCTemplateTest.class);
-	}
 
 	/**
 	 * Test the definition and application of abilities. 
 	 * @throws PersistenceLayerException 
 	 * @throws MalformedURLException 
 	 */
+	@Test
 	public void testAddAbility() throws PersistenceLayerException, MalformedURLException
 	{
 		LoadContext context = Globals.getContext();
@@ -160,6 +125,7 @@ public class PCTemplateTest extends AbstractCharacterTestCase
 	 * @throws PersistenceLayerException 
 	 * @throws MalformedURLException 
 	 */
+	@Test
 	public void testAddFeatAbility() throws PersistenceLayerException, MalformedURLException
 	{
 		LoadContext context = Globals.getContext();
@@ -225,6 +191,7 @@ public class PCTemplateTest extends AbstractCharacterTestCase
 	 * @throws PersistenceLayerException 
 	 * @throws MalformedURLException 
 	 */
+	@Test
 	public void testAddLevelAbility() throws PersistenceLayerException, MalformedURLException
 	{
 		LoadContext context = Globals.getContext();
@@ -312,6 +279,7 @@ public class PCTemplateTest extends AbstractCharacterTestCase
 	 * @throws PersistenceLayerException 
 	 * @throws MalformedURLException 
 	 */
+	@Test
 	public void testAddLevelFeatAbility() throws PersistenceLayerException, MalformedURLException
 	{
 		// Create some abilities to be added
@@ -390,10 +358,8 @@ public class PCTemplateTest extends AbstractCharacterTestCase
 			Nature.AUTOMATIC, ab1));
 		
 	}
-	
-	/**
-	 * @see pcgen.AbstractCharacterTestCase#setUp()
-	 */
+
+	@BeforeEach
 	@Override
 	protected void setUp() throws Exception
 	{
@@ -407,12 +373,4 @@ public class PCTemplateTest extends AbstractCharacterTestCase
 
 	}
 
-	/**
-	 * @see pcgen.AbstractCharacterTestCase#tearDown()
-	 */
-	@Override
-	protected void tearDown() throws Exception
-	{
-		super.tearDown();
-	}
 }

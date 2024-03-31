@@ -22,14 +22,12 @@ package pcgen.core;
 import java.util.HashMap;
 import java.util.Map;
 
-import pcgen.facade.core.XPTableFacade;
-
 /**
  * {@code XPTable}.
  * 
  */
 @SuppressWarnings("serial")
-public final class XPTable extends PObject implements XPTableFacade
+public final class XPTable extends PObject
 {
 	private final String name;
 	private final Map<String, LevelInfo> infoMap;
@@ -46,7 +44,6 @@ public final class XPTable extends PObject implements XPTableFacade
 		this.infoMap = new HashMap<>();
 	}
 
-	@Override
 	public String getName()
 	{
 		return name;
@@ -57,7 +54,6 @@ public final class XPTable extends PObject implements XPTableFacade
 		infoMap.put(level, levelInfo);
 	}
 
-	@Override
 	public LevelInfo getLevelInfo(String levelString)
 	{
 		return infoMap.get(levelString);
@@ -88,15 +84,10 @@ public final class XPTable extends PObject implements XPTableFacade
 	public boolean validateSequence(String levelValue)
 	{
 		int value = getIntValue(levelValue);
-		for (String key : infoMap.keySet())
-		{
-			int intValue = getIntValue(infoMap.get(key).getLevelString());
-			if (value < intValue)
-			{
-				return false;
-			}
-		}
-		return true;
+		return infoMap.values()
+		              .stream()
+		              .mapToInt(levelInfo -> getIntValue(levelInfo.getLevelString()))
+		              .noneMatch(intValue -> value < intValue);
 	}
 
 	private static int getIntValue(String level)

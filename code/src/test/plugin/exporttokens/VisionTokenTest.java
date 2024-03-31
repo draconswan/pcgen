@@ -17,13 +17,14 @@
  */
 package plugin.exporttokens;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import pcgen.AbstractCharacterTestCase;
 import pcgen.base.lang.UnreachableError;
 import pcgen.core.Campaign;
@@ -36,8 +37,12 @@ import pcgen.persistence.lst.CampaignSourceEntry;
 import pcgen.persistence.lst.GenericLoader;
 import pcgen.rules.context.LoadContext;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>VisionTokenTest</code> tests the function of the VISION token.  
+ * {@code VisionTokenTest} tests the function of the VISION token.
  */
 public class VisionTokenTest extends AbstractCharacterTestCase
 {
@@ -46,18 +51,7 @@ public class VisionTokenTest extends AbstractCharacterTestCase
 	private PCTemplate astralT;
 	private UnitSet metricUS;
 
-	/**
-	 * Quick test suite creation - adds all methods beginning with "test"
-	 * @return The Test suite
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(VisionTokenTest.class);
-	}
-
-	/*
-	 * @see TestCase#setUp()
-	 */
+	@BeforeEach
 	@Override
 	protected void setUp() throws Exception
 	{
@@ -100,14 +94,12 @@ public class VisionTokenTest extends AbstractCharacterTestCase
 		metricUS = new UnitSet();
 		metricUS.setName("Metric");
 		metricUS.setDistanceUnit("m");
-		metricUS.setDistanceFactor(new BigDecimal(0.3));
+		metricUS.setDistanceFactor(new BigDecimal("0.3"));
 		metricUS.setDistanceDisplayPattern(new DecimalFormat("#.##"));
-		SettingsHandler.getGame().getModeContext().getReferenceContext().importObject(metricUS);
+		SettingsHandler.getGameAsProperty().get().getModeContext().getReferenceContext().importObject(metricUS);
 	}
 
-	/*
-	 * @see TestCase#tearDown()
-	 */
+	@AfterEach
 	@Override
 	protected void tearDown() throws Exception
 	{
@@ -121,72 +113,75 @@ public class VisionTokenTest extends AbstractCharacterTestCase
 	/**
 	 * Test the list output of the vision tag.
 	 */
+	@Test
 	public void testList()
 	{
 		PlayerCharacter pc = getCharacter();
-		assertEquals("no vision", "", new VisionToken().getToken(
-			"VISION", pc, null));
+		assertEquals("", new VisionToken().getToken(
+			"VISION", pc, null), "no vision");
 
 		pc.addTemplate(darkvisionT);
 		pc.setDirty(true);
-		assertEquals("One vision method", "Darkvision (60')", new VisionToken().getToken(
-			"VISION", pc, null));
+		assertEquals("Darkvision (60')", new VisionToken().getToken(
+			"VISION", pc, null), "One vision method");
 
 		pc.addTemplate(lowlightT);
 		pc.setDirty(true);
-		assertEquals("Two vision", "Darkvision (60'), Low-light", new VisionToken().getToken(
-			"VISION", pc, null));
+		assertEquals("Darkvision (60'), Low-light", new VisionToken().getToken(
+			"VISION", pc, null), "Two vision");
 	}
 
 	/**
 	 * Test the output of individual vision entries.
 	 */
+	@Test
 	public void testPositional()
 	{
 		PlayerCharacter pc = getCharacter();
-		assertEquals("no vision", "", new VisionToken().getToken(
-			"VISION.0", pc, null));
+		assertEquals("", new VisionToken().getToken(
+			"VISION.0", pc, null), "no vision");
 
 		pc.addTemplate(darkvisionT);
 		pc.setDirty(true);
-		assertEquals("Darkvision", "Darkvision (60')", new VisionToken().getToken(
-			"VISION.0", pc, null));
-		assertEquals("vision over the maximum", "", new VisionToken().getToken(
-			"VISION.1", pc, null));
-		assertEquals("vision over the maximum", "", new VisionToken().getToken(
-			"VISION.100", pc, null));
-		assertEquals("vision under the minimum", "", new VisionToken().getToken(
-			"VISION.-1", pc, null));
+		assertEquals("Darkvision (60')", new VisionToken().getToken(
+			"VISION.0", pc, null), "Darkvision");
+		assertEquals("", new VisionToken().getToken(
+			"VISION.1", pc, null), "vision over the maximum");
+		assertEquals("", new VisionToken().getToken(
+			"VISION.100", pc, null), "vision over the maximum");
+		assertEquals("", new VisionToken().getToken(
+			"VISION.-1", pc, null), "vision under the minimum");
 
 		pc.addTemplate(lowlightT);
 		pc.addTemplate(astralT);
 		pc.setDirty(true);
-		assertEquals("Vision 1", "Darkvision (60')", new VisionToken().getToken(
-			"VISION.1", pc, null));
-		assertEquals("Vision 2", "Low-light", new VisionToken().getToken(
-			"VISION.2", pc, null));
-		assertEquals("Vision 0", "Astral (130')", new VisionToken().getToken(
-			"VISION.0", pc, null));
+		assertEquals("Darkvision (60')", new VisionToken().getToken(
+			"VISION.1", pc, null), "Vision 1");
+		assertEquals("Low-light", new VisionToken().getToken(
+			"VISION.2", pc, null), "Vision 2");
+		assertEquals("Astral (130')", new VisionToken().getToken(
+			"VISION.0", pc, null), "Vision 0");
 	}
 
 
 	/**
 	 * Test the list output of the vision tag with metric units.
 	 */
+	@Test
 	public void testListMetric()
 	{
 		PlayerCharacter pc = getCharacter();
 		pc.addTemplate(darkvisionT);
 		pc.setDirty(true);
-		assertTrue(SettingsHandler.getGame().selectUnitSet(metricUS.getDisplayName()));
+		assertTrue(SettingsHandler.getGameAsProperty().get().selectUnitSet(metricUS.getDisplayName()));
 
-		assertEquals("Metric range of one vision method", "Darkvision (18 m)", new VisionToken().getToken(
-			"VISION", pc, null));
+		assertEquals("Darkvision (18 m)", new VisionToken().getToken(
+			"VISION", pc, null), "Metric range of one vision method");
 
 		pc.addTemplate(lowlightT);
 		pc.setDirty(true);
-		assertEquals("Two vision metric", "Darkvision (18 m), Low-light", new VisionToken().getToken(
-			"VISION", pc, null));
+		assertEquals("Darkvision (18 m), Low-light", new VisionToken().getToken(
+			"VISION", pc, null), "Two vision metric");
 	}
 	
 }

@@ -38,8 +38,12 @@ import java.awt.Font;
  * <li>xx-small
  * </ul>
  */
-public class FontManipulation
+public final class FontManipulation
 {
+
+	private FontManipulation()
+	{
+	}
 
 	public static Font title(Font f)
 	{
@@ -80,29 +84,6 @@ public class FontManipulation
 	{
 		Font font = container.getFont();
 		container.setFont(xxlarge(font));
-	}
-
-	/**
-	 * For extra large font.
-	 * 
-	 * @param f
-	 *            base font
-	 */
-	public static Font xlarge(Font f)
-	{
-		return f.deriveFont(f.getSize() * 1.333f);
-	}
-
-	/**
-	 * For extra large font.
-	 * 
-	 * @param container
-	 *            element to change the font of
-	 */
-	public static void xlarge(Container container)
-	{
-		Font font = container.getFont();
-		container.setFont(xlarge(font));
 	}
 
 	/**
@@ -157,7 +138,7 @@ public class FontManipulation
 	 * @param f
 	 *            base font
 	 */
-	public static Font xsmall(Font f)
+	private static Font xsmall(Font f)
 	{
 		return f.deriveFont(f.getSize() * 0.833f);
 	}
@@ -205,17 +186,6 @@ public class FontManipulation
 	public static Font bold(Font f)
 	{
 		return f.deriveFont(Font.BOLD);
-	}
-
-	/**
-	 * For italic font.
-	 * 
-	 * @param f
-	 *            base font
-	 */
-	public static Font italic(Font f)
-	{
-		return f.deriveFont(Font.ITALIC);
 	}
 
 	/**

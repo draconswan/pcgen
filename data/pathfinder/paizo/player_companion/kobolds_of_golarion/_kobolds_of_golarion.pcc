@@ -1,12 +1,19 @@
 CAMPAIGN:Kobolds of Golarion
 GAMEMODE:Pathfinder|Pathfinder_PFS
 TYPE:Paizo Publishing.Pathfinder Player Companion
-RANK:3
 STATUS:BETA
 GENRE:Fantasy
 BOOKTYPE:Supplement
 SETTING:Pathfinder|Golarion
-PRECAMPAIGN:4,INCLUDESBOOKTYPE=Core Rules,INCLUDES=Bestiary,INCLUDES=Advanced Player's Guide,INCLUDES=Ultimate Magic
+PRECAMPAIGN:1,INCLUDES=Core Rulebook
+PRECAMPAIGN:1,INCLUDES=Bestiary,INCLUDES=Bestiary ~ Player Options Only
+PRECAMPAIGN:1,INCLUDES=Bestiary 2,INCLUDES=Bestiary 2 ~ Player Options Only
+PRECAMPAIGN:1,INCLUDES=Bestiary 3,INCLUDES=Bestiary 3 ~ Player Options Only
+PRECAMPAIGN:1,INCLUDES=Advanced Player's Guide
+PRECAMPAIGN:1,INCLUDES=Ultimate Magic
+PRECAMPAIGN:1,INCLUDES=Ultimate Equipment
+PRECAMPAIGN:1,INCLUDES=Advanced Race Guide
+PRECAMPAIGN:1,INCLUDES=Inner Sea World Guide
 PUBNAMELONG:Paizo Inc.
 PUBNAMESHORT:Paizo
 PUBNAMEWEB:http://paizo.com/
@@ -14,6 +21,7 @@ SOURCELONG:Pathfinder Player Companion: Kobolds of Golarion
 SOURCESHORT:KOG
 SOURCEWEB:http://paizo.com/products/btpy8yw0
 SOURCEDATE:2013-06
+RANK:201306
 ISOGL:YES
 
 COVER:kobolds_of_golarion.jpg
@@ -45,6 +53,9 @@ EQUIPMENT:kog_equip_general.lst
 ABILITY:kog_feats.lst
 KIT:kog_kits.lst
 SPELL:kog_spells.lst
+RACE:kog_races.lst
+
+PCC:@\pathfinder\paizo\roleplaying_game\core_essentials\races\kobold\_race.pcc
 
 
 # ENTRY DATE: 2016-05-09

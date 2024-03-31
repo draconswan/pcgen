@@ -38,14 +38,13 @@ public class VariableLoader extends Observable
 {
 
 	public final void parseLine(LoadContext context, String lstLine, SourceEntry source)
-		throws PersistenceLayerException
 	{
 		final StringTokenizer colToken = new StringTokenizer(lstLine, SystemLoader.TAB_DELIM);
 
 		//Need the IF so that it is not an empty line causing issues
 		if (colToken.hasMoreTokens())
 		{
-			String tok = colToken.nextToken().intern();
+			String tok = colToken.nextToken();
 			if (tok.indexOf(':') == -1)
 			{
 				tok = "GLOBAL:" + tok;
@@ -101,7 +100,7 @@ public class VariableLoader extends Observable
 		URI uri = sourceEntry.getURI();
 		notifyObservers(uri);
 
-		StringBuilder dataBuffer;
+		String dataBuffer;
 
 		try
 		{
@@ -116,7 +115,7 @@ public class VariableLoader extends Observable
 			return;
 		}
 
-		String aString = dataBuffer.toString();
+		String aString = dataBuffer;
 		if (context != null)
 		{
 			context.setSourceURI(uri);
@@ -134,26 +133,14 @@ public class VariableLoader extends Observable
 
 			if (line.trim().isEmpty())
 			{
-				// Ignore the line
+				Logging.debugPrint("Ignore the empty line.");
 			}
 			else
 			{
 				try
 				{
 					parseLine(context, line, sourceEntry);
-				}
-				catch (PersistenceLayerException ple)
-				{
-					String message = LanguageBundle.getFormattedString("Errors.LstFileLoader.ParseError", //$NON-NLS-1$
-						uri, i + 1, ple.getMessage());
-					Logging.errorPrint(message);
-					setChanged();
-					if (Logging.isDebugMode())
-					{
-						Logging.debugPrint("Parse error:", ple); //$NON-NLS-1$
-					}
-				}
-				catch (Throwable t)
+				} catch (Throwable t)
 				{
 					String message = LanguageBundle.getFormattedString("Errors.LstFileLoader.ParseError", //$NON-NLS-1$
 						uri, i + 1, t.getMessage());
@@ -163,7 +150,6 @@ public class VariableLoader extends Observable
 					if (Logging.isDebugMode())
 					{
 						Logging.errorPrint(LanguageBundle.getString("Errors.LstFileLoader.Ignoring"), t);
-						t.printStackTrace();
 					}
 				}
 			}

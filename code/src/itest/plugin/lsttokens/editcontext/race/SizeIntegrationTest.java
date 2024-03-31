@@ -19,9 +19,6 @@ package plugin.lsttokens.editcontext.race;
 
 import java.net.URISyntaxException;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import pcgen.core.Race;
 import pcgen.core.SizeAdjustment;
 import pcgen.persistence.PersistenceLayerException;
@@ -32,6 +29,9 @@ import plugin.lsttokens.editcontext.testsupport.TestContext;
 import plugin.lsttokens.race.SizeToken;
 import plugin.lsttokens.testsupport.BuildUtilities;
 import plugin.lsttokens.testsupport.CDOMTokenLoader;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SizeIntegrationTest extends AbstractIntegrationTestCase<Race>
 {
@@ -58,7 +58,7 @@ public class SizeIntegrationTest extends AbstractIntegrationTestCase<Race>
 	}
 
 	@Override
-	@Before
+	@BeforeEach
 	public void setUp() throws PersistenceLayerException, URISyntaxException
 	{
 		super.setUp();

@@ -17,18 +17,22 @@
  */
 package plugin.lsttokens.equipmentmodifier;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import pcgen.cdom.enumeration.ListKey;
+import pcgen.cdom.enumeration.Type;
 import pcgen.core.EquipmentModifier;
 import pcgen.rules.persistence.CDOMLoader;
 import pcgen.rules.persistence.token.CDOMPrimaryToken;
+
 import plugin.lsttokens.testsupport.AbstractTypeSafeListTestCase;
 import plugin.lsttokens.testsupport.CDOMTokenLoader;
 import plugin.lsttokens.testsupport.ConsolidationRule;
 
+import org.junit.jupiter.api.Test;
+
 public class ItypeTokenTest extends
-		AbstractTypeSafeListTestCase<EquipmentModifier, String>
+		AbstractTypeSafeListTestCase<EquipmentModifier, Type>
 {
 
 	static ItypeToken token = new ItypeToken();
@@ -53,9 +57,9 @@ public class ItypeTokenTest extends
 	}
 
 	@Override
-	public String getConstant(String string)
+	public Type getConstant(String string)
 	{
-		return string;
+		return Type.getConstant(string);
 	}
 
 	@Override
@@ -65,7 +69,7 @@ public class ItypeTokenTest extends
 	}
 
 	@Override
-	public ListKey<String> getListKey()
+	public ListKey<Type> getListKey()
 	{
 		return ListKey.ITEM_TYPES;
 	}

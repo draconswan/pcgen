@@ -21,13 +21,13 @@ package pcgen.gui2.tabs.spells;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.commons.lang3.StringUtils;
-
 import pcgen.facade.core.CharacterFacade;
 import pcgen.facade.core.SpellSupportFacade.RootNode;
 import pcgen.facade.core.SpellSupportFacade.SpellNode;
 import pcgen.gui2.tools.InfoPane;
 import pcgen.gui2.util.JTreeViewTable;
+
+import org.apache.commons.lang3.StringUtils;
 
 class SpellInfoHandler implements ListSelectionListener
 {
@@ -75,16 +75,14 @@ class SpellInfoHandler implements ListSelectionListener
 			{
 				obj = selectedTable.getSelectedObject();
 			}
-			if (obj instanceof SpellNode)
+			if (obj instanceof SpellNode node)
 			{
-				SpellNode node = (SpellNode) obj;
 				String text = character.getInfoFactory().getHTMLInfo(node.getSpell());
 				currText = text;
 				spellsPane.setText(text);
 			}
-			else if (obj instanceof RootNode)
+			else if (obj instanceof RootNode node)
 			{
-				RootNode node = (RootNode) obj;
 				String text = character.getInfoFactory().getSpellBookInfo(node.getName());
 				if (!StringUtils.isEmpty(text))
 				{

@@ -20,18 +20,19 @@ package actor.choose;
 import pcgen.cdom.base.Chooser;
 import pcgen.core.ArmorProf;
 import plugin.lsttokens.choose.ArmorProficiencyToken;
+
 import actor.testsupport.AbstractPersistentCDOMChoiceActorTestCase;
 
 public class ArmorProficiencyTokenTest extends
 		AbstractPersistentCDOMChoiceActorTestCase<ArmorProf>
 {
 
-	static ArmorProficiencyToken pca = new ArmorProficiencyToken();
+	private static final ArmorProficiencyToken PCA = new ArmorProficiencyToken();
 
 	@Override
 	public Chooser<ArmorProf> getActor()
 	{
-		return pca;
+		return PCA;
 	}
 
 	@Override

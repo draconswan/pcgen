@@ -77,13 +77,13 @@ public class EncumbranceToken extends AbstractNonEmptyToken<LoadInfo>
 		}
 
 		String moveFormula;
-		Integer checkPenalty;
+		int checkPenalty;
 		if (tokenCount == 4)
 		{
 			moveFormula = tokens[2];
 			try
 			{
-				checkPenalty = Integer.valueOf(tokens[3]);
+				checkPenalty = Integer.parseInt(tokens[3]);
 			}
 			catch (NumberFormatException e)
 			{
@@ -97,7 +97,7 @@ public class EncumbranceToken extends AbstractNonEmptyToken<LoadInfo>
 			checkPenalty = 0;
 		}
 
-		info.addLoadMultiplier(tokens[0].toUpperCase(), new Float(mult), moveFormula, checkPenalty);
+		info.addLoadMultiplier(tokens[0].toUpperCase(), (float) mult, moveFormula, checkPenalty);
 		return ParseResult.SUCCESS;
 	}
 
@@ -125,7 +125,7 @@ public class EncumbranceToken extends AbstractNonEmptyToken<LoadInfo>
 	{
 		if (info.getLoadMultiplierCount() == 0)
 		{
-			Logging.errorPrint("Warning: load.lst for game mode " + info.getDisplayName()
+			Logging.errorPrint("Error: load.lst for game mode " + info.getDisplayName()
 				+ " does not contain load category definitions. " + "No weight categories will be available. "
 				+ "Please refer to the documentation for the Load List file. See: " + info.getSourceURI());
 			return false;
@@ -133,7 +133,7 @@ public class EncumbranceToken extends AbstractNonEmptyToken<LoadInfo>
 		if ((info.getLoadMultiplier("LIGHT") == null) || (info.getLoadMultiplier("MEDIUM") == null)
 			|| (info.getLoadMultiplier("HEAVY") == null))
 		{
-			Logging.errorPrint("Warning: load.lst for game mode " + info.getDisplayName()
+			Logging.errorPrint("Error: load.lst for game mode " + info.getDisplayName()
 				+ " does not contain load category definitions " + "for 'Light', 'Medium' and 'Heavy'. "
 				+ "Please refer to the documentation for the Load List file. See: " + info.getSourceURI());
 			return false;

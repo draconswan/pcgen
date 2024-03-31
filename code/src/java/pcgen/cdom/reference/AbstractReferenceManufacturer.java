@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import javax.swing.event.EventListenerList;
@@ -41,6 +43,7 @@ import pcgen.cdom.base.CDOMReference;
 import pcgen.cdom.base.ClassIdentity;
 import pcgen.cdom.base.Loadable;
 import pcgen.cdom.content.RollMethod;
+import pcgen.cdom.inst.Dynamic;
 import pcgen.util.Logging;
 import pcgen.util.StringPClassUtil;
 
@@ -200,23 +203,23 @@ public abstract class AbstractReferenceManufacturer<T extends Loadable> implemen
 			if (type == null || type.isEmpty())
 			{
 				throw new IllegalArgumentException(
-					"Attempt to acquire empty Type " + "(the type String contains a null or empty element)");
+					"Attempt to acquire empty Type (the type String contains a null or empty element)");
 			}
 			if (type.indexOf('.') != -1)
 			{
-				throw new IllegalArgumentException("Cannot build Reference with type conaining a period: " + type);
+				throw new IllegalArgumentException("Cannot build Reference with type containing a period: " + type);
 			}
 			if (type.indexOf('=') != -1)
 			{
-				throw new IllegalArgumentException("Cannot build Reference with type conaining an equals: " + type);
+				throw new IllegalArgumentException("Cannot build Reference with type containing an equals: " + type);
 			}
 			if (type.indexOf(',') != -1)
 			{
-				throw new IllegalArgumentException("Cannot build Reference with type conaining a comma: " + type);
+				throw new IllegalArgumentException("Cannot build Reference with type containing a comma: " + type);
 			}
 			if (type.indexOf('|') != -1)
 			{
-				throw new IllegalArgumentException("Cannot build Reference with type conaining a pipe: " + type);
+				throw new IllegalArgumentException("Cannot build Reference with type containing a pipe: " + type);
 			}
 		}
 		Arrays.sort(types);
@@ -632,10 +635,7 @@ public abstract class AbstractReferenceManufacturer<T extends Loadable> implemen
 		 * continue that long term? Once tokens are truly tested this may not be
 		 * necessary or desirable.
 		 */
-		if (key == null)
-		{
-			throw new IllegalArgumentException("Cannot request a reference to null identifier");
-		}
+		Objects.requireNonNull(key, "Cannot request a reference to null identifier");
 		if (key.isEmpty())
 		{
 			throw new IllegalArgumentException("Cannot request a reference to an empty identifier");
@@ -846,31 +846,29 @@ public abstract class AbstractReferenceManufacturer<T extends Loadable> implemen
 			/*
 			 * CONSIDER Should get CDOMObject reference out of here :(
 			 */
-			if (good instanceof CDOMObject)
+			if (good instanceof CDOMObject cdo)
 			{
-				CDOMObject cdo = (CDOMObject) good;
-				for (int i = 0; i < list.size(); i++)
-				{
-					T dupe = list.get(i);
-					if (cdo.isCDOMEqual((CDOMObject) dupe))
-					{
-						for (Iterator<WeakReference<T>> it = manufactured.iterator(); it.hasNext();)
-						{
-							WeakReference<T> wr = it.next();
-							T mfg = wr.get();
-							if (mfg == null)
-							{
-								it.remove();
-							}
-							// Yes this is instance equality, not .equals
-							else if (mfg == good)
-							{
-								forgetObject(good);
-								break;
-							}
-						}
-					}
-				}
+				for (T dupe : list)
+                {
+                    if (cdo.isCDOMEqual((CDOMObject) dupe))
+                    {
+                        for (Iterator<WeakReference<T>> it = manufactured.iterator();it.hasNext();)
+                        {
+                            WeakReference<T> wr = it.next();
+                            T mfg = wr.get();
+                            if (mfg == null)
+                            {
+                                it.remove();
+                            }
+                            // Yes this is instance equality, not .equals
+                            else if (mfg == good)
+                            {
+                                forgetObject(good);
+                                break;
+                            }
+                        }
+                    }
+                }
 			}
 			if (duplicates.containsListFor(second))
 			{
@@ -1229,10 +1227,7 @@ public abstract class AbstractReferenceManufacturer<T extends Loadable> implemen
 	@Override
 	public void addDerivativeObject(T obj)
 	{
-		if (obj == null)
-		{
-			throw new IllegalArgumentException("Derivative Object cannot be null");
-		}
+		Objects.requireNonNull(obj, "Derivative Object cannot be null");
 		derivatives.add(obj);
 	}
 
@@ -1251,12 +1246,16 @@ public abstract class AbstractReferenceManufacturer<T extends Loadable> implemen
 	@Override
 	public Indirect<T> convertIndirect(String key)
 	{
-		return isResolved ? new BasicIndirect<T>(this, getActiveObject(key)) : getReference(key);
+		return isResolved ? new BasicIndirect<>(this, getActiveObject(key)) : getReference(key);
 	}
 
 	@Override
 	public String getIdentifierType()
 	{
+		if (Dynamic.class.equals(getManagedClass()))
+		{
+			return factory.getPersistentFormat();
+		}
 		return StringPClassUtil.getStringFor(getManagedClass());
 	}
 
@@ -1273,10 +1272,9 @@ public abstract class AbstractReferenceManufacturer<T extends Loadable> implemen
 	}
 
 	@Override
-	@SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract")
-	public FormatManager<?> getComponentManager()
+	public Optional<FormatManager<?>> getComponentManager()
 	{
-		return null;
+		return Optional.empty();
 	}
 
 	@Override

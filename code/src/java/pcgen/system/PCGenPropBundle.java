@@ -25,13 +25,13 @@ import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
-import org.apache.commons.lang3.StringUtils;
-
-import freemarker.template.ObjectWrapper;
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
+import pcgen.io.ExportUtilities;
 import pcgen.output.publish.OutputDB;
 import pcgen.util.Logging;
+
+import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This class is used to manage the properties of the PCGen application
@@ -40,7 +40,7 @@ import pcgen.util.Logging;
  */
 public final class PCGenPropBundle
 {
-	private static ResourceBundle d_properties = null;
+	private static ResourceBundle d_properties;
 	private static ResourceBundle autobuildProperties = null;
 
 	/*
@@ -48,14 +48,7 @@ public final class PCGenPropBundle
 	 */
 	static
 	{
-		try
-		{
-			d_properties = ResourceBundle.getBundle("pcgen/resources/prop/PCGenProp");
-		}
-		catch (MissingResourceException mre)
-		{
-			d_properties = null;
-		}
+		d_properties = ResourceBundle.getBundle("pcgen.system.prop.PCGenProp");
 
 		try
 		{
@@ -79,7 +72,7 @@ public final class PCGenPropBundle
 		//Safe as d_properties was constructed earlier in this block
 		try
 		{
-			TemplateModel wrappedVersion = ObjectWrapper.DEFAULT_WRAPPER.wrap(getVersionNumber());
+			TemplateModel wrappedVersion = ExportUtilities.getObjectWrapper().wrap(getVersionNumber());
 			OutputDB.addGlobalModel("version", wrappedVersion);
 		}
 		catch (TemplateModelException e)
@@ -138,7 +131,7 @@ public final class PCGenPropBundle
 	 */
 	public static String getMailingList()
 	{
-		return getPropValue("MailingList", "http://groups.yahoo.com/group/pcgen");
+		return getPropValue("MailingList", "https://pcgen.groups.io/g/main");
 	}
 
 	/**
@@ -185,7 +178,7 @@ public final class PCGenPropBundle
 	 */
 	public static String getWWWHome()
 	{
-		return getPropValue("WWWHome", "http://pcgen.sourceforge.net/");
+		return getPropValue("WWWHome", "http://pcgen.org/");
 	}
 
 	/**
@@ -199,32 +192,17 @@ public final class PCGenPropBundle
 	{
 		String result = null;
 
-		// Make sure the value is retrievable (no NullPointerExceptions)				
+		// Make sure the value is retrievable (no NullPointerExceptions)
 		if (propName != null)
 		{
-			if (d_properties != null)
+			try
 			{
-				try
-				{
-					result = d_properties.getString(propName);
-				}
-				catch (MissingResourceException mre)
-				{
-					// ignore; will handle later
-				}
+				result = d_properties.getString(propName);
 			}
-		}
-
-		// Set a missing string if the value is missing		
-		if (result == null)
-		{
-			if (fallback != null)
+			catch (MissingResourceException mre)
 			{
-				result = fallback;
-			}
-			else
-			{
-				result = "Missing property " + propName;
+				Logging.errorPrint("Missing property %s", propName, mre);
+				result = (StringUtils.isNotBlank(fallback) ? fallback : "Missing property " + propName);
 			}
 		}
 

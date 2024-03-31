@@ -25,6 +25,7 @@ import pcgen.core.EquipmentModifier;
 import pcgen.rules.context.LoadContext;
 import pcgen.rules.persistence.token.CDOMSecondaryToken;
 import pcgen.rules.persistence.token.ParseResult;
+import pcgen.util.Logging;
 
 public class SkillBonusToken implements CDOMSecondaryToken<EquipmentModifier>
 {
@@ -60,7 +61,7 @@ public class SkillBonusToken implements CDOMSecondaryToken<EquipmentModifier>
 		{
 			return new ParseResult.Fail("CHOOSE:" + getTokenName() + " arguments may not end with | : " + value);
 		}
-		if (value.indexOf("||") != -1)
+		if (value.contains("||"))
 		{
 			return new ParseResult.Fail("CHOOSE:" + getTokenName() + " arguments uses double separator || : " + value);
 		}
@@ -84,20 +85,18 @@ public class SkillBonusToken implements CDOMSecondaryToken<EquipmentModifier>
 			else if (tokString.startsWith("MAX="))
 			{
 				max = Integer.valueOf(tokString.substring(4));
-				// OK
 			}
 			else if (tokString.startsWith("TITLE="))
 			{
-				// OK
+				Logging.debugPrint("Do not process TITLE=");
 			}
 			else if (tokString.startsWith("INCREMENT="))
 			{
-				// OK
 				Integer.parseInt(tokString.substring(4));
 			}
 			else
 			{
-				// Assume it's a primitive skill??
+				Logging.debugPrint("Assume it's a primitive skill??");
 			}
 		}
 		if (max == null)
@@ -118,9 +117,7 @@ public class SkillBonusToken implements CDOMSecondaryToken<EquipmentModifier>
 				return new ParseResult.Fail("Cannot have MAX= less than MIN= in CHOOSE:STATBONUS: " + value);
 			}
 		}
-		StringBuilder sb = new StringBuilder(value.length() + 20);
-		sb.append(getTokenName()).append('|').append(value);
-		context.getObjectContext().put(obj, StringKey.CHOICE_STRING, sb.toString());
+		context.getObjectContext().put(obj, StringKey.CHOICE_STRING, getTokenName() + '|' + value);
 		return ParseResult.SUCCESS;
 	}
 
@@ -128,7 +125,7 @@ public class SkillBonusToken implements CDOMSecondaryToken<EquipmentModifier>
 	public String[] unparse(LoadContext context, EquipmentModifier eqMod)
 	{
 		String chooseString = context.getObjectContext().getString(eqMod, StringKey.CHOICE_STRING);
-		if (chooseString == null || chooseString.indexOf(getTokenName() + '|') == -1)
+		if (chooseString == null || !chooseString.contains(getTokenName() + '|'))
 		{
 			return null;
 		}

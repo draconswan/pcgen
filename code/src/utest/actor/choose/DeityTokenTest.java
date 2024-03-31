@@ -20,18 +20,19 @@ package actor.choose;
 import pcgen.cdom.base.Chooser;
 import pcgen.core.Deity;
 import plugin.lsttokens.choose.DeityToken;
+
 import actor.testsupport.AbstractPersistentCDOMChoiceActorTestCase;
 
 public class DeityTokenTest extends
 		AbstractPersistentCDOMChoiceActorTestCase<Deity>
 {
 
-	static DeityToken pca = new DeityToken();
+	private static final DeityToken PCA = new DeityToken();
 
 	@Override
 	public Chooser<Deity> getActor()
 	{
-		return pca;
+		return PCA;
 	}
 
 	@Override

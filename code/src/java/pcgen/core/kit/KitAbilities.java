@@ -63,13 +63,6 @@ public final class KitAbilities extends BaseKit
 		free = argFree;
 	}
 
-	/**
-	 * Returns a string representation of the object.
-	 *
-	 * @return  the string representation of the object
-	 *
-	 * @see     Object#toString()
-	 */
 	@Override
 	public String toString()
 	{
@@ -164,7 +157,8 @@ public final class KitAbilities extends BaseKit
 		boolean tooManyAbilities = false;
 		// Don't allow choosing of more than allotted number of abilities
 		int maxChoices = minCost > 0.0d
-			? aPC.getAvailableAbilityPool(category).divide(new BigDecimal(minCost)).intValue() : numberOfChoices;
+			? aPC.getAvailableAbilityPool(category).divide(new BigDecimal(String.valueOf(minCost))).intValue()
+				: numberOfChoices;
 		if (!isFree() && numberOfChoices > maxChoices)
 		{
 			numberOfChoices = maxChoices;
@@ -185,7 +179,6 @@ public final class KitAbilities extends BaseKit
 		}
 		else
 		{
-			selected = new ArrayList<>();
 			// Force user to make enough selections
 			while (true)
 			{
@@ -206,11 +199,8 @@ public final class KitAbilities extends BaseKit
 			if (isFree())
 			{
 				// Need to pay for it first
-				if (free)
-				{
-					aPC.adjustAbilities(category, BigDecimal.ONE);
-				}
-			}
+                aPC.adjustAbilities(category, BigDecimal.ONE);
+            }
 			if (ability.getCost() > aPC.getAvailableAbilityPool(category).doubleValue())
 			{
 				tooManyAbilities = true;
@@ -250,7 +240,7 @@ public final class KitAbilities extends BaseKit
 
 	/**
 	 * Returns if the skill will be purchased for free.
-	 * @return <code>true</code> if the skill will be free
+	 * @return {@code true} if the skill will be free
 	 */
 	public boolean isFree()
 	{

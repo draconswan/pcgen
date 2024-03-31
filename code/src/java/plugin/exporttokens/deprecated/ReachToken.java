@@ -32,9 +32,6 @@ import pcgen.io.exporttoken.Token;
 //REACH
 public class ReachToken extends Token
 {
-	/**
-	 * @see pcgen.io.exporttoken.Token#getTokenName()
-	 */
 	@Override
 	public String getTokenName()
 	{
@@ -80,6 +77,6 @@ public class ReachToken extends Token
 
 	public static String getSquaresToken(PlayerCharacter pc)
 	{
-		return new DecimalFormat("#.#").format(getReachToken(pc) / SettingsHandler.getGame().getSquareSize());
+		return new DecimalFormat("#.#").format(getReachToken(pc) / SettingsHandler.getGameAsProperty().get().getSquareSize());
 	}
 }

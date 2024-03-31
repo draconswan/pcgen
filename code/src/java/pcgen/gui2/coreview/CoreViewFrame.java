@@ -18,7 +18,6 @@
 package pcgen.gui2.coreview;
 
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -29,11 +28,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
-
-import org.apache.commons.lang3.StringUtils;
 
 import pcgen.cdom.meta.CorePerspective;
 import pcgen.facade.core.AbilityFacade;
@@ -43,7 +41,6 @@ import pcgen.facade.util.DefaultListFacade;
 import pcgen.facade.util.DelegatingListFacade;
 import pcgen.facade.util.ListFacade;
 import pcgen.gui2.tools.Utility;
-import pcgen.gui2.util.JComboBoxEx;
 import pcgen.gui2.util.JTreeViewTable;
 import pcgen.gui2.util.treeview.DataView;
 import pcgen.gui2.util.treeview.DataViewColumn;
@@ -54,17 +51,19 @@ import pcgen.gui2.util.treeview.TreeViewPath;
 import pcgen.system.LanguageBundle;
 import pcgen.util.Logging;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class CoreViewFrame extends JFrame
 {
 
-	private final JComboBoxEx<CorePerspective> perspectiveChooser;
+	private final JComboBox<CorePerspective> perspectiveChooser;
 	private final JTreeViewTable<CoreViewNodeFacade> viewTable;
 
-	public CoreViewFrame(Frame frame, CharacterFacade character)
+	public CoreViewFrame(CharacterFacade character)
 	{
 		viewTable = new JTreeViewTable<>();
 
-		perspectiveChooser = new JComboBoxEx<>();
+		perspectiveChooser = new JComboBox<>();
 		for (CorePerspective pers : CorePerspective.getAllConstants())
 		{
 			perspectiveChooser.addItem(pers);
@@ -73,11 +72,11 @@ public class CoreViewFrame extends JFrame
 
 		PerspectiveActionListener pal = new PerspectiveActionListener(coreViewTreeViewModel);
 		perspectiveChooser.addActionListener(pal);
-		initialize(character);
+		initialize();
 		perspectiveChooser.setSelectedItem(perspectiveChooser.getItemAt(0));
 	}
 
-	public void initialize(CharacterFacade character)
+	public void initialize()
 	{
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
@@ -106,7 +105,7 @@ public class CoreViewFrame extends JFrame
 		setTitle("Core Debug View");
 		getContentPane().setSize(500, 400);
 		pack();
-		Utility.centerComponent(this, true);
+		this.setLocationRelativeTo(null);
 	}
 
 	private final class PerspectiveActionListener implements ActionListener
@@ -246,19 +245,14 @@ public class CoreViewFrame extends JFrame
 		@Override
 		public Object getData(CoreViewNodeFacade obj, int column)
 		{
-			switch (column)
-			{
-				case 0:
-					return obj.getKey();
-				case 1:
-					return obj.getNodeType();
-				case 2:
-					return obj.getSource();
-				case 3:
-					return obj.getRequirements();
-				default:
-					return null;
-			}
+			return switch (column)
+					{
+						case 0 -> obj.getKey();
+						case 1 -> obj.getNodeType();
+						case 2 -> obj.getSource();
+						case 3 -> obj.getRequirements();
+						default -> null;
+					};
 		}
 
 		@Override

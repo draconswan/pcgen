@@ -18,12 +18,13 @@
 package pcgen.core.prereq;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 import pcgen.AbstractCharacterTestCase;
 import pcgen.base.lang.UnreachableError;
 import pcgen.cdom.enumeration.ListKey;
@@ -40,38 +41,21 @@ import pcgen.persistence.lst.prereq.PreParserFactory;
 import pcgen.util.TestHelper;
 import plugin.lsttokens.testsupport.BuildUtilities;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>PreArmorProfTest</code> tests that the PREARMORPROF tag is
+ * {@code PreArmorProfTest} tests that the PREARMORPROF tag is
  * working correctly.
  */
 public class PreArmorProfTest extends AbstractCharacterTestCase
 {
-	
-	/**
-	 * The main method.
-	 * 
-	 * @param args the arguments
-	 */
-	public static void main(final String[] args)
-	{
-		TestRunner.run(PreArmorProfTest.class);
-	}
-
-	/**
-	 * Suite.
-	 * 
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PreArmorProfTest.class);
-	}
-	
 	/**
 	 * Test with a simple armor proficiency.
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testOneOption() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
@@ -113,6 +97,7 @@ public class PreArmorProfTest extends AbstractCharacterTestCase
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testMultiple() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
@@ -153,6 +138,7 @@ public class PreArmorProfTest extends AbstractCharacterTestCase
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testType() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
@@ -180,6 +166,7 @@ public class PreArmorProfTest extends AbstractCharacterTestCase
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testInverse() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
@@ -222,6 +209,7 @@ public class PreArmorProfTest extends AbstractCharacterTestCase
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testArmorProfAddedWithAutoArmorProf() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
@@ -264,6 +252,7 @@ public class PreArmorProfTest extends AbstractCharacterTestCase
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testWithFeatThatGrantsBonus() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
@@ -313,10 +302,8 @@ public class PreArmorProfTest extends AbstractCharacterTestCase
 					);
 	
 	}
-	
-	/**
-	 * @see pcgen.AbstractCharacterTestCase#setUp()
-	 */
+
+	@BeforeEach
 	@Override
 	protected void setUp() throws Exception
 	{

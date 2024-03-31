@@ -2,12 +2,13 @@
 CAMPAIGN:Bestiary 2
 GAMEMODE:Pathfinder|Pathfinder_PFS
 TYPE:Paizo Publishing.Pathfinder RPG
-RANK:1
 STATUS:RELEASE
 GENRE:Fantasy
 BOOKTYPE:Supplement
 SETTING:Pathfinder
-PRECAMPAIGN:2,INCLUDES=Advanced Player's Guide,INCLUDES=Bestiary
+PRECAMPAIGN:1,INCLUDES=Advanced Player's Guide
+PRECAMPAIGN:1,INCLUDES=Bestiary
+!PRECAMPAIGN:1,Bestiary 2 ~ Player Options Only
 !PRECAMPAIGN:1,Pathfinder RPG Core Supplements,Pathfinder RPG for Game Masters
 PUBNAMELONG:Paizo Inc.
 PUBNAMESHORT:Paizo
@@ -16,6 +17,7 @@ SOURCELONG:Bestiary 2
 SOURCESHORT:B2
 SOURCEWEB:http://paizo.com/store/byCompany/p/paizoPublishingLLC/pathfinder/pathfinderRPG/v5748btpy8hif
 SOURCEDATE:2010-12
+RANK:201012
 ISOGL:YES
 
 COVER:bestiary_2.jpg
@@ -92,18 +94,19 @@ COPYRIGHT:PCGen dataset conversion for "Pathfinder RPG Bestiary 2" Copyright 201
 #Do Not Remove Comment
 #EXTRAFILE:OGL.txt
 
+DATACONTROL:b2__datacontrols.lst
+ABILITY:b2_abilities_globalvar.lst
 
-ABILITYCATEGORY:b2_abilitycategories.lst
 ABILITY:b2_abilities_race.lst
+ABILITYCATEGORY:b2_abilitycategories.lst
 EQUIPMENT:b2_equip_arms_armor.lst
 EQUIPMENT:b2_equip_general.lst
 KIT:b2_kits_race.lst
+LANGUAGE:b2_languages.lst
 RACE:b2_races.lst
 SKILL:b2_skills.lst
 TEMPLATE:b2_templates.lst
 WEAPONPROF:b2_profs_weapon.lst
 
-# Separate out races used by ARG to simplify dependencies
-ABILITY:b2_abilities_race_arg.lst
-ABILITYCATEGORY:b2_abilitycategories_arg.lst
-RACE:b2_races_arg.lst
+# Load player-useable races and options
+PCC:@\pathfinder\paizo\roleplaying_game\bestiary_2\_bestiary_2_for_players.pcc

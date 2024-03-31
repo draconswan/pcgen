@@ -16,10 +16,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 package pcgen.core.prereq;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.enumeration.ListKey;
 import pcgen.cdom.enumeration.StringKey;
@@ -31,8 +30,11 @@ import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.lst.prereq.PreParserFactory;
 import pcgen.util.TestHelper;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>PreLangTest</code> tests that the PRELANG tag is
+ * {@code PreLangTest} tests that the PRELANG tag is
  * working correctly.
  */
 public class PreLangTest extends AbstractCharacterTestCase
@@ -41,28 +43,16 @@ public class PreLangTest extends AbstractCharacterTestCase
 	final Language dwarven = new Language();
 	final Language halfling = new Language();
 
-	public static void main(final String[] args)
-	{
-		TestRunner.run(PreLangTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PreLangTest.class);
-	}
-
 	/**
 	 * Test the PRELANG code.
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testLang() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();
-		character.addFreeLanguage(elven, elven);
+		character.addAutoLanguage(elven, elven);
 
 		Prerequisite prereq;
 
@@ -82,7 +72,7 @@ public class PreLangTest extends AbstractCharacterTestCase
 		assertFalse("Character doesn't have Dwarven", PrereqHandler.passes(
 			prereq, character, null));
 
-		character.addFreeLanguage(dwarven, dwarven);
+		character.addAutoLanguage(dwarven, dwarven);
 
 		assertTrue("Character has Elven and Dwarven", PrereqHandler.passes(
 			prereq, character, null));
@@ -92,7 +82,7 @@ public class PreLangTest extends AbstractCharacterTestCase
 		assertFalse("Character doesn't have 3 langs", PrereqHandler.passes(
 			prereq, character, null));
 
-		character.addFreeLanguage(halfling, halfling);
+		character.addAutoLanguage(halfling, halfling);
 
 		assertTrue("Character has Elven, Dwarven, and Halfling", PrereqHandler
 			.passes(prereq, character, null));
@@ -103,8 +93,9 @@ public class PreLangTest extends AbstractCharacterTestCase
 			prereq, character, null));
 	}
 
+	@BeforeEach
     @Override
-	protected void setUp() throws Exception
+	public void setUp() throws Exception
 	{
 		super.setUp();
 

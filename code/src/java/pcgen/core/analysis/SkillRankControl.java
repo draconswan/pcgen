@@ -20,8 +20,7 @@ package pcgen.core.analysis;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
+import java.util.Objects;
 
 import pcgen.cdom.base.CDOMObjectUtilities;
 import pcgen.cdom.base.PersistentTransitionChoice;
@@ -42,6 +41,8 @@ import pcgen.core.utils.CoreUtility;
 import pcgen.util.Logging;
 import pcgen.util.enumeration.View;
 
+import org.apache.commons.lang3.StringUtils;
+
 public final class SkillRankControl
 {
 
@@ -59,6 +60,7 @@ public final class SkillRankControl
 	 */
 	public static Float getTotalRank(PlayerCharacter pc, Skill sk)
 	{
+		Objects.requireNonNull(sk);
 		if (pc == null)
 		{
 			Logging.errorPrint("Asked to get total rank for null character. Location was ", new Throwable());
@@ -82,7 +84,7 @@ public final class SkillRankControl
 			maxRanks = Math.max(maxRanks, baseRanks);
 			ranks = Math.min(maxRanks, ranks);
 		}
-		return new Float(ranks);
+		return (float) ranks;
 	}
 
 	/**
@@ -193,11 +195,8 @@ public final class SkillRankControl
 
 		if (!ignorePrereqs)
 		{
-			if (aClass != null)
-			{
-				aPC.setSkillPool(aClass, aClass.getSkillPool(aPC) - (int) (i * rankMod));
-			}
-		}
+            aPC.setSkillPool(aClass, aClass.getSkillPool(aPC) - (int) (i * rankMod));
+        }
 
 		return "";
 	}
@@ -241,7 +240,8 @@ public final class SkillRankControl
 					int maxLanguages = getTotalRank(aPC, sk).intValue();
 					if (selectedLanguages > maxLanguages)
 					{
-						newRank = curRank;
+						// Do nothing, handled above
+						Logging.log(Logging.DEBUG, "Although there were more selected langauges: " + selectedLanguages + " than max langauges: " + maxLanguages + " we dealth with that earlier.");
 					}
 				}
 			}

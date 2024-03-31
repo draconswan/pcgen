@@ -17,9 +17,10 @@
  */
 package pcgen.core.prereq;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.enumeration.ListKey;
 import pcgen.cdom.enumeration.StringKey;
@@ -38,8 +39,13 @@ import plugin.pretokens.parser.PreAbilityParser;
 import plugin.pretokens.parser.PreClassParser;
 import plugin.pretokens.parser.PreSkillParser;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import plugin.pretokens.test.PreMultTester;
+
 /**
- * <code>PreMultTest</code> tests that the PreMult class
+ * {@code PreMultTest} tests that the PreMult class
  * is working correctly.
  */
 
@@ -49,24 +55,9 @@ public class PreMultTest extends AbstractCharacterTestCase
 	private Skill knowledge;
 	private PCClass myClass;
 
-	public static void main(final String[] args)
-	{
-		TestRunner.run(PreMultTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PreMultTest.class);
-	}
-
-	/**
-	 * @see junit.framework.TestCase#setUp()
-	 */
+	@BeforeEach
     @Override
-	protected void setUp() throws Exception
+    public void setUp() throws Exception
 	{
 		super.setUp();
 		final PlayerCharacter character = getCharacter();
@@ -82,11 +73,9 @@ public class PreMultTest extends AbstractCharacterTestCase
 
 	}
 
-	/**
-	 * @see junit.framework.TestCase#tearDown()
-	 */
+	@AfterEach
     @Override
-	protected void tearDown() throws Exception
+    public void tearDown() throws Exception
 	{
 		knowledge = null;
 
@@ -101,6 +90,7 @@ public class PreMultTest extends AbstractCharacterTestCase
 	 * @throws PersistenceLayerException the persistence layer exception
 	 * @throws PrerequisiteException the prerequisite exception
 	 */
+	@Test
 	public void testCharWithMultipleSpellClasses() throws PersistenceLayerException, PrerequisiteException
 	{
 		LoadContext context = Globals.getContext();
@@ -129,7 +119,7 @@ public class PreMultTest extends AbstractCharacterTestCase
 				producer.parse("CLASS",
 					"1,SPELLCASTER.Arcane,SPELLCASTER.Arcane=2", false, false);
 
-		final PreMult test = new PreMult();
+		final PreMultTester test = new PreMultTester();
 		final int passes = test.passes(prereq, character, null);
 		assertEquals(1, passes);
 	}
@@ -142,6 +132,7 @@ public class PreMultTest extends AbstractCharacterTestCase
 	 * @throws PersistenceLayerException the persistence layer exception
 	 * @throws PrerequisiteException the prerequisite exception
 	 */
+	@Test
 	public void testMultiFeats() throws PersistenceLayerException, PrerequisiteException
 	{
 		final Ability metamagic1 = new Ability();
@@ -188,32 +179,32 @@ public class PreMultTest extends AbstractCharacterTestCase
 				producer.parse("FEAT", "3,TYPE=Metamagic,TYPE=ItemCreation",
 					false, false);
 
-		final PreMult test = new PreMult();
+		final PreMultTester test = new PreMultTester();
 		int passes = test.passes(prereq, character, null);
-		assertEquals("No feats should not pass", 0, passes);
+		assertEquals(0, passes, "No feats should not pass");
 
 		addAbility(BuildUtilities.getFeatCat(), metamagic1);
 		passes = test.passes(prereq, character, null);
-		assertEquals("One feat should not pass", 0, passes);
+		assertEquals(0, passes, "One feat should not pass");
 
 		addAbility(BuildUtilities.getFeatCat(), metamagic2);
 		passes = test.passes(prereq, character, null);
-		assertEquals("Two feats should not pass", 0, passes);
+		assertEquals(0, passes, "Two feats should not pass");
 
 		addAbility(BuildUtilities.getFeatCat(), metamagic3);
 		passes = test.passes(prereq, character, null);
-		assertEquals("Three feats should pass", 1, passes);
+		assertEquals(1, passes, "Three feats should pass");
 
 		removeAbility(BuildUtilities.getFeatCat(), metamagic3);
 		addAbility(BuildUtilities.getFeatCat(), item1);
 		passes = test.passes(prereq, character, null);
-		assertEquals("Three feats should pass", 1, passes);
+		assertEquals(1, passes, "Three feats should pass");
 
 		addAbility(BuildUtilities.getFeatCat(), item2);
 		addAbility(BuildUtilities.getFeatCat(), item3);
 		addAbility(BuildUtilities.getFeatCat(), metamagic3);
 		passes = test.passes(prereq, character, null);
-		assertEquals("Six feats should pass", 1, passes);
+		assertEquals(1, passes, "Six feats should pass");
 
 		removeAbility(BuildUtilities.getFeatCat(), metamagic3);
 		removeAbility(BuildUtilities.getFeatCat(), item3);
@@ -230,6 +221,7 @@ public class PreMultTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testMultiSkills() throws PersistenceLayerException
 	{
 		final PreSkillParser producer = new PreSkillParser();
@@ -239,8 +231,8 @@ public class PreMultTest extends AbstractCharacterTestCase
 					false, false);
 		final PlayerCharacter character = getCharacter();
 		boolean passes = PrereqHandler.passes(prereq, character, null);
-		assertFalse("Should not pass 2 knowledge skill test with 1 skill",
-			passes);
+		assertFalse(
+				passes, "Should not pass 2 knowledge skill test with 1 skill");
 
 		final Skill extraKnow = new Skill();
 		Globals.getContext().unconditionallyProcess(extraKnow, "CLASSES", "MyClass");
@@ -249,6 +241,6 @@ public class PreMultTest extends AbstractCharacterTestCase
 		SkillRankControl.modRanks(5.0, myClass, true, character, extraKnow);
 
 		passes = PrereqHandler.passes(prereq, character, null);
-		assertTrue("Should pass 2 knowledge skill test with 2 skills", passes);
+		assertTrue(passes, "Should pass 2 knowledge skill test with 2 skills");
 	}
 }

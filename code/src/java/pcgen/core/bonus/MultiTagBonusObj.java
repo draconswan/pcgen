@@ -55,13 +55,13 @@ public abstract class MultiTagBonusObj extends BonusObj
 	{
 		if (obj instanceof Integer)
 		{
-			return getBonusTag(((Integer) obj).intValue());
+			return getBonusTag((Integer) obj);
 		}
 
 		return (String) obj;
 	}
 
-	protected abstract String getBonusTag(final int tagNumber);
+	protected abstract String getBonusTag(int tagNumber);
 
 	protected abstract int getBonusTagLength();
 

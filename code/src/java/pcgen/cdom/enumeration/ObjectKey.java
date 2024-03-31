@@ -29,8 +29,6 @@ import java.util.Map;
 import pcgen.base.formula.Formula;
 import pcgen.base.lang.UnreachableError;
 import pcgen.base.util.CaseInsensitiveMap;
-import pcgen.base.util.DoubleKeyMapToList;
-import pcgen.cdom.base.CDOMList;
 import pcgen.cdom.base.CDOMListObject;
 import pcgen.cdom.base.Category;
 import pcgen.cdom.base.ChooseInformation;
@@ -90,6 +88,7 @@ import pcgen.util.enumeration.Visibility;
  * @param <T>
  *            The class of object stored by this ObjectKey.
  */
+@SuppressWarnings({"PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal", "checkstyle:FinalClass"})
 public class ObjectKey<T>
 {
 
@@ -111,13 +110,7 @@ public class ObjectKey<T>
 
 	public static final ObjectKey<Boolean> REMOVABLE = new ObjectKey<>(Boolean.TRUE);
 
-	public static final ObjectKey<SubRegion> SUBREGION = new ObjectKey<>(null);
-
 	public static final ObjectKey<Region> REGION = new ObjectKey<>(null);
-
-	public static final ObjectKey<Boolean> USETEMPLATENAMEFORSUBREGION = new ObjectKey<>(Boolean.FALSE);
-
-	public static final ObjectKey<Boolean> USETEMPLATENAMEFORREGION = new ObjectKey<>(Boolean.FALSE);
 
 	public static final ObjectKey<Gender> GENDER_LOCK = new ObjectKey<>(null);
 
@@ -242,13 +235,9 @@ public class ObjectKey<T>
 
 	public static final ObjectKey<Category<SubClass>> SUBCLASS_CATEGORY = new ObjectKey<>(null);
 
-	public static final ObjectKey<Nature> ABILITY_NATURE = new ObjectKey<>(Nature.NORMAL);
-
 	public static final ObjectKey<CDOMSingleRef<SizeAdjustment>> BASESIZE;
 
 	public static final ObjectKey<CDOMSingleRef<SizeAdjustment>> SIZE;
-
-	public static final ObjectKey<TransitionChoice<Region>> REGION_CHOICE = new ObjectKey<>(null);
 
 	public static final ObjectKey<Boolean> USE_MASTER_SKILL = new ObjectKey<>(Boolean.FALSE);
 
@@ -300,12 +289,7 @@ public class ObjectKey<T>
 
 	public static final ObjectKey<Destination> DESTINATION = new ObjectKey<>(null);
 
-	public static final ObjectKey<CDOMSingleRef<Ability>> FEATEQ_STRING = new ObjectKey<>(null);
-
 	public static final ObjectKey<Boolean> INTERNAL = new ObjectKey<>(Boolean.FALSE);
-
-	public static final ObjectKey<DoubleKeyMapToList<Spell, CDOMList<Spell>, Integer>> SPELL_PC_INFO =
-			new ObjectKey<>(null);
 
 	public static final ObjectKey<ClassSkillList> CLASS_SKILLLIST = new ObjectKey<>(null);
 
@@ -324,7 +308,7 @@ public class ObjectKey<T>
 	static
 	{
 		buildMap();
-		BASESIZE = new ObjectKey<CDOMSingleRef<SizeAdjustment>>(null)
+		BASESIZE = new ObjectKey<>(null)
 		{
 			@Override
 			public CDOMSingleRef<SizeAdjustment> getDefault()
@@ -334,7 +318,7 @@ public class ObjectKey<T>
 
 		};
 		map.put("BASESIZE", BASESIZE);
-		SIZE = new ObjectKey<CDOMSingleRef<SizeAdjustment>>(null)
+		SIZE = new ObjectKey<>(null)
 		{
 			@Override
 			public CDOMSingleRef<SizeAdjustment> getDefault()
@@ -392,27 +376,26 @@ public class ObjectKey<T>
 	{
 		map = new CaseInsensitiveMap<>();
 		Field[] fields = ObjectKey.class.getDeclaredFields();
-		for (int i = 0; i < fields.length; i++)
-		{
-			int mod = fields[i].getModifiers();
+        for (Field field : fields)
+        {
+            int mod = field.getModifiers();
 
-			if (java.lang.reflect.Modifier.isStatic(mod) && java.lang.reflect.Modifier.isFinal(mod)
-				&& java.lang.reflect.Modifier.isPublic(mod))
-			{
-				try
-				{
-					Object obj = fields[i].get(null);
-					if (obj instanceof ObjectKey)
-					{
-						map.put(fields[i].getName(), (ObjectKey<?>) obj);
-					}
-				}
-				catch (IllegalArgumentException | IllegalAccessException e)
-				{
-					throw new UnreachableError(e);
-				}
-			}
-		}
+            if (java.lang.reflect.Modifier.isStatic(mod) && java.lang.reflect.Modifier.isFinal(mod)
+                    && java.lang.reflect.Modifier.isPublic(mod))
+            {
+                try
+                {
+                    Object obj = field.get(null);
+                    if (obj instanceof ObjectKey)
+                    {
+                        map.put(field.getName(), (ObjectKey<?>) obj);
+                    }
+                } catch (IllegalArgumentException | IllegalAccessException e)
+                {
+                    throw new UnreachableError(e);
+                }
+            }
+        }
 	}
 
 	@Override

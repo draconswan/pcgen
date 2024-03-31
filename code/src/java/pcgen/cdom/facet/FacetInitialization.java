@@ -30,7 +30,6 @@ import pcgen.cdom.facet.model.CheckFacet;
 import pcgen.cdom.facet.model.ClassFacet;
 import pcgen.cdom.facet.model.ClassLevelFacet;
 import pcgen.cdom.facet.model.CompanionModFacet;
-import pcgen.cdom.facet.model.DeityFacet;
 import pcgen.cdom.facet.model.DomainFacet;
 import pcgen.cdom.facet.model.DynamicConsolidationFacet;
 import pcgen.cdom.facet.model.ExpandedCampaignFacet;
@@ -41,6 +40,7 @@ import pcgen.cdom.facet.model.SkillFacet;
 import pcgen.cdom.facet.model.StatFacet;
 import pcgen.cdom.facet.model.TemplateFacet;
 import pcgen.cdom.facet.model.VarScopedFacet;
+import pcgen.cdom.util.CControl;
 import pcgen.output.factory.CodeControlModelFactory;
 import pcgen.output.publish.OutputDB;
 
@@ -67,6 +67,7 @@ public final class FacetInitialization
 	{
 		doOtherInitialization();
 		doBridges();
+		ScopedDistributionFacet scopedDistributionFacet = FacetLibrary.getFacet(ScopedDistributionFacet.class);
 		GrantedVarFacet grantedVarFacet = FacetLibrary.getFacet(GrantedVarFacet.class);
 		TemplateFacet templateFacet = FacetLibrary.getFacet(TemplateFacet.class);
 		ConditionalTemplateFacet conditionalTemplateFacet = FacetLibrary.getFacet(ConditionalTemplateFacet.class);
@@ -97,7 +98,6 @@ public final class FacetInitialization
 		LevelFacet levelFacet = FacetLibrary.getFacet(LevelFacet.class);
 		SizeFacet sizeFacet = FacetLibrary.getFacet(SizeFacet.class);
 		BonusChangeFacet bonusChangeFacet = FacetLibrary.getFacet(BonusChangeFacet.class);
-		DeityFacet deityFacet = FacetLibrary.getFacet(DeityFacet.class);
 		DomainFacet domainFacet = FacetLibrary.getFacet(DomainFacet.class);
 		CompanionModFacet companionModFacet = FacetLibrary.getFacet(CompanionModFacet.class);
 		StatFacet statFacet = FacetLibrary.getFacet(StatFacet.class);
@@ -150,14 +150,13 @@ public final class FacetInitialization
 
 		bonusChangeFacet.addBonusChangeListener(sizeFacet, "SIZEMOD", "NUMBER");
 
-		grantedVarFacet.addDataFacetChangeListener(charObjectFacet); //model done
+		grantedVarFacet.addDataFacetChangeListener(scopedDistributionFacet); //model done
 
 		expandedCampaignFacet.addDataFacetChangeListener(charObjectFacet); //model done
 		globalModifierFacet.addDataFacetChangeListener(charObjectFacet); //model done
 		bioSetFacet.addDataFacetChangeListener(charObjectFacet); //model done
 		checkFacet.addDataFacetChangeListener(charObjectFacet); //model done
 		classFacet.addDataFacetChangeListener(charObjectFacet); //model done
-		deityFacet.addDataFacetChangeListener(charObjectFacet); //model done
 		domainFacet.addDataFacetChangeListener(charObjectFacet); //model done
 		raceFacet.addDataFacetChangeListener(charObjectFacet); //model done
 		sizeFacet.addDataFacetChangeListener(charObjectFacet);
@@ -182,7 +181,7 @@ public final class FacetInitialization
 		cdomSourceFacet.addDataFacetChangeListener(autoLangFacet);
 		cdomSourceFacet.addDataFacetChangeListener(dynamicWatchingFacet);
 
-		charObjectFacet.addDataFacetChangeListener(varScopedFacet);
+		cdomObjectFacet.addDataFacetChangeListener(varScopedFacet);
 		dynamicConsolidationFacet.addDataFacetChangeListener(varScopedFacet); //model done
 	}
 
@@ -218,7 +217,6 @@ public final class FacetInitialization
 		FacetLibrary.getFacet(ArmorProfFacet.class);
 		FacetLibrary.getFacet(MonsterClassFacet.class);
 		FacetLibrary.getFacet(KitChoiceFacet.class);
-		FacetLibrary.getFacet(RegionChoiceFacet.class);
 		FacetLibrary.getFacet(AddFacet.class);
 		FacetLibrary.getFacet(RemoveFacet.class);
 		FacetLibrary.getFacet(ModifierFacet.class);
@@ -237,5 +235,11 @@ public final class FacetInitialization
 		//and others just in case...
 		FacetLibrary.getFacet(ClassLevelChangeFacet.class);
 		FacetLibrary.getFacet(UnconditionalTemplateFacet.class);
+		
+		/*
+		 * As good of a place as any to do this
+		 */
+		OutputDB.register("deity", CControl.DEITYINPUT);
+		OutputDB.register("alignment", CControl.ALIGNMENTINPUT);
 	}
 }

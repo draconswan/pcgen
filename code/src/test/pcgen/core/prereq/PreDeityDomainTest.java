@@ -17,47 +17,40 @@
  */
 package pcgen.core.prereq;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.base.SimpleAssociatedObject;
 import pcgen.cdom.enumeration.ObjectKey;
 import pcgen.cdom.reference.CDOMDirectSingleRef;
+import pcgen.cdom.util.CControl;
 import pcgen.core.Deity;
 import pcgen.core.Domain;
 import pcgen.core.Globals;
 import pcgen.core.PlayerCharacter;
-import pcgen.output.channel.ChannelCompatibility;
+import pcgen.output.channel.ChannelUtilities;
+import pcgen.output.channel.compat.AlignmentCompat;
 import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.lst.prereq.PreParserFactory;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>PreDeityDomainTest</code> tests that the PREDEITYDOMAIN tag is
+ * {@code PreDeityDomainTest} tests that the PREDEITYDOMAIN tag is
  * working correctly.
  */
 public class PreDeityDomainTest extends AbstractCharacterTestCase
 {
 	private Deity deity;
 
-	public static void main(final String[] args)
-	{
-		TestRunner.run(PreDeityDomainTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PreDeityDomainTest.class);
-	}
-
 	/**
 	 * Test for a single domain.
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testSingle() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();
@@ -70,8 +63,9 @@ public class PreDeityDomainTest extends AbstractCharacterTestCase
 		assertFalse("Character has no deity selected", PrereqHandler.passes(
 			prereq, character, null));
 
-		ChannelCompatibility.setCurrentAlignment(character.getCharID(), ng);
-		character.setDeity(deity);
+		AlignmentCompat.setCurrentAlignment(character.getCharID(), ng);
+		ChannelUtilities.setControlledChannel(character.getCharID(),
+			CControl.DEITYINPUT, deity);
 
 		assertTrue("Character's deity has Good domain", PrereqHandler.passes(
 			prereq, character, null));
@@ -83,6 +77,7 @@ public class PreDeityDomainTest extends AbstractCharacterTestCase
 
 	}
 
+	@Test
 	public void testMultiple() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
@@ -95,8 +90,9 @@ public class PreDeityDomainTest extends AbstractCharacterTestCase
 		assertFalse("Character has no deity selected", PrereqHandler.passes(
 			prereq, character, null));
 
-		ChannelCompatibility.setCurrentAlignment(character.getCharID(), ng);
-		character.setDeity(deity);
+		AlignmentCompat.setCurrentAlignment(character.getCharID(), ng);
+		ChannelUtilities.setControlledChannel(character.getCharID(),
+			CControl.DEITYINPUT, deity);
 
 		assertTrue("Character's deity has Good domain", PrereqHandler.passes(
 			prereq, character, null));
@@ -112,6 +108,7 @@ public class PreDeityDomainTest extends AbstractCharacterTestCase
 			PrereqHandler.passes(prereq, character, null));
 	}
 
+	@BeforeEach
     @Override
 	protected void setUp() throws Exception
 	{

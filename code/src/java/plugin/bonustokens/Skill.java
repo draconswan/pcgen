@@ -31,11 +31,6 @@ public final class Skill extends BonusObj
 
 	private static final Class<pcgen.core.Skill> SKILL_CLASS = pcgen.core.Skill.class;
 
-	/**
-	 * Parse the bonus token.
-	 * @see pcgen.core.bonus.BonusObj#parseToken(LoadContext, java.lang.String)
-	 * @return True if successfully parsed.
-	 */
 	@Override
 	protected boolean parseToken(LoadContext context, final String token)
 	{
@@ -58,9 +53,7 @@ public final class Skill extends BonusObj
 			addBonusInfo(token);
 		}
 
-		if (!token.equals("LIST") && !token.startsWith("STAT.") && !token.equals("%CHOICE")
-			&& !token.startsWith("STAT=") && !token.equals("%LIST") && !token.equals("%VAR")
-			&& !token.equals("TYPE=%LIST"))
+		if (!token.startsWith("STAT.") && !token.equals("%CHOICE") && !token.startsWith("STAT=") && !token.equals("%LIST") && !token.equals("%VAR") && !token.equals("TYPE=%LIST"))
 		{
 			//This is done entirely for the side effects
 			context.forgetMeNot(TokenUtilities.getReference(context, SKILL_CLASS, token));
@@ -69,12 +62,6 @@ public final class Skill extends BonusObj
 		return true;
 	}
 
-	/**
-	 * Unparse the bonus token.
-	 * @see pcgen.core.bonus.BonusObj#unparseToken(java.lang.Object)
-	 * @param obj The object to unparse
-	 * @return The unparsed string.
-	 */
 	@Override
 	protected String unparseToken(final Object obj)
 	{

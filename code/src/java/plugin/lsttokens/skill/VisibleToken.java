@@ -58,41 +58,22 @@ public class VisibleToken extends AbstractNonEmptyToken<Skill> implements CDOMPr
 			}
 		}
 		Visibility vis;
-		if (visString.equals("YES"))
+		switch (visString)
 		{
-			vis = Visibility.DEFAULT;
-		}
-		else if (visString.equals("ALWAYS"))
-		{
-			vis = Visibility.DEFAULT;
-		}
-		else if (visString.equals("DISPLAY"))
-		{
-			vis = Visibility.DISPLAY_ONLY;
-		}
-		else if (visString.equals("GUI"))
-		{
-			vis = Visibility.DISPLAY_ONLY;
-		}
-		else if (visString.equals("EXPORT"))
-		{
-			vis = Visibility.OUTPUT_ONLY;
-		}
-		else if (visString.equals("CSHEET"))
-		{
-			vis = Visibility.OUTPUT_ONLY;
-		}
-		else if (visString.equals("NO"))
-		{
-			vis = Visibility.HIDDEN;
-		}
-		else
-		{
-			ComplexParseResult cpr = new ComplexParseResult();
-			cpr.addErrorMessage("Unexpected value used in " + getTokenName() + " in Skill");
-			cpr.addErrorMessage(' ' + value + " is not a valid value for " + getTokenName());
-			cpr.addErrorMessage(" Valid values in Skill are YES, ALWAYS, NO, DISPLAY, GUI, EXPORT, CSHEET");
-			return cpr;
+			case "YES" -> vis = Visibility.DEFAULT;
+			case "ALWAYS" -> vis = Visibility.DEFAULT;
+			case "DISPLAY" -> vis = Visibility.DISPLAY_ONLY;
+			case "GUI" -> vis = Visibility.DISPLAY_ONLY;
+			case "EXPORT" -> vis = Visibility.OUTPUT_ONLY;
+			case "CSHEET" -> vis = Visibility.OUTPUT_ONLY;
+			case "NO" -> vis = Visibility.HIDDEN;
+			default -> {
+				ComplexParseResult cpr = new ComplexParseResult();
+				cpr.addErrorMessage("Unexpected value used in " + getTokenName() + " in Skill");
+				cpr.addErrorMessage(' ' + value + " is not a valid value for " + getTokenName());
+				cpr.addErrorMessage(" Valid values in Skill are YES, ALWAYS, NO, DISPLAY, GUI, EXPORT, CSHEET");
+				return cpr;
+			}
 		}
 		context.getObjectContext().put(skill, ObjectKey.VISIBILITY, vis);
 		if (readOnly)

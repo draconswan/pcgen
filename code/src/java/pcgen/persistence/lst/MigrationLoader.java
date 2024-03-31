@@ -23,17 +23,16 @@ import java.net.URI;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.commons.lang3.StringUtils;
-
 import pcgen.base.lang.UnreachableError;
 import pcgen.core.SystemCollections;
 import pcgen.core.system.MigrationRule;
 import pcgen.core.system.MigrationRule.ObjectType;
 import pcgen.core.utils.CoreUtility;
-import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.SystemLoader;
 import pcgen.rules.context.LoadContext;
 import pcgen.util.Logging;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * MigrationLoader is a LstFileLoader that processes the migration.lst file
@@ -46,7 +45,7 @@ public class MigrationLoader extends LstLineFileLoader
 	private String invalidSourceKeyPattern = ".*[\\||\\\\|;|%|\\*|=|\\[|\\]].*";
 
 	@Override
-	public void parseLine(LoadContext context, String lstLine, URI sourceURI) throws PersistenceLayerException
+	public void parseLine(LoadContext context, String lstLine, URI sourceURI)
 	{
 
 		final StringTokenizer colToken = new StringTokenizer(lstLine, SystemLoader.TAB_DELIM);
@@ -155,7 +154,7 @@ public class MigrationLoader extends LstLineFileLoader
 			return null;
 		}
 
-		String objTypeKey = "";
+		String objTypeKey;
 		try
 		{
 			objTypeKey = firstToken.substring(0, idxColon);
@@ -176,7 +175,7 @@ public class MigrationLoader extends LstLineFileLoader
 			return null;
 		}
 
-		String key = "";
+		String key;
 		try
 		{
 			key = firstToken.substring(idxColon + 1);

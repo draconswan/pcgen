@@ -111,7 +111,7 @@ public class CNAbilitySelection extends ConcretePrereqObject implements Qualifyi
 				+ "must start with CATEGORY=, found: " + persistentFormat);
 		}
 		String cat = catString.substring(9);
-		AbilityCategory ac = SettingsHandler.getGame().getAbilityCategory(cat);
+		AbilityCategory ac = SettingsHandler.getGameAsProperty().get().getAbilityCategory(cat);
 		if (ac == null)
 		{
 			throw new IllegalArgumentException(
@@ -191,9 +191,8 @@ public class CNAbilitySelection extends ConcretePrereqObject implements Qualifyi
 	@Override
 	public boolean equals(Object o)
 	{
-		if (o instanceof CNAbilitySelection)
+		if (o instanceof CNAbilitySelection other)
 		{
-			CNAbilitySelection other = (CNAbilitySelection) o;
 			if (selection == null)
 			{
 				if (other.selection != null)
@@ -213,9 +212,6 @@ public class CNAbilitySelection extends ConcretePrereqObject implements Qualifyi
 		return false;
 	}
 
-	/**
-	 * @see pcgen.cdom.base.Reducible#getCDOMObject()
-	 */
 	@Override
 	public CDOMObject getCDOMObject()
 	{

@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,9 +28,9 @@ import pcgen.base.formula.Formula;
 import pcgen.base.util.NamedFormula;
 import pcgen.cdom.base.CDOMReference;
 import pcgen.cdom.base.Constants;
-import pcgen.cdom.enumeration.ObjectKey;
 import pcgen.cdom.helper.EqModRef;
 import pcgen.cdom.reference.CDOMSingleRef;
+import pcgen.cdom.util.CControl;
 import pcgen.core.Equipment;
 import pcgen.core.EquipmentModifier;
 import pcgen.core.EquipmentUtilities;
@@ -40,6 +39,7 @@ import pcgen.core.Kit;
 import pcgen.core.PlayerCharacter;
 import pcgen.core.SizeAdjustment;
 import pcgen.core.character.EquipSet;
+import pcgen.output.channel.ChannelUtilities;
 
 /**
  * {@code KitGear}.
@@ -184,7 +184,8 @@ public final class KitGear extends BaseKit
 		processLookups(aKit, aPC);
 
 		int aBuyRate = aKit.getBuyRate(aPC);
-		final BigDecimal pcGold = aPC.getGold();
+		BigDecimal pcGold = new BigDecimal(ChannelUtilities
+			.readControlledChannel(aPC.getCharID(), CControl.GOLDINPUT).toString());
 		final BigDecimal fixedTotalCost = aKit.getTotalCost(aPC);
 		if (fixedTotalCost != null)
 		{
@@ -196,13 +197,7 @@ public final class KitGear extends BaseKit
 		if (actingCost != null)
 		{
 			final BigDecimal bdMaxCost = new BigDecimal(Integer.toString(actingCost));
-			for (Iterator<Equipment> i = eqList.iterator(); i.hasNext();)
-			{
-				if (i.next().getCost(aPC).compareTo(bdMaxCost) > 0)
-				{
-					i.remove();
-				}
-			}
+			eqList.removeIf(equipment -> equipment.getCost(aPC).compareTo(bdMaxCost) > 0);
 		}
 		if (eqList.size() == 1)
 		{
@@ -236,14 +231,14 @@ public final class KitGear extends BaseKit
 			if (theEquipment.isType("Natural") || (sizeToPC != null && sizeToPC)
 				|| (!theEquipment.isWeapon() && !theEquipment.isAmmunition()))
 			{
-				tryResize = Globals.canResizeHaveEffect(theEquipment, null);
+				tryResize = Globals.canResizeHaveEffect(theEquipment.typeList());
 			}
 		}
 		else
 		{
 			if (sizeToPC != null && sizeToPC)
 			{
-				tryResize = Globals.canResizeHaveEffect(theEquipment, null);
+				tryResize = Globals.canResizeHaveEffect(theEquipment.typeList());
 			}
 			else
 			{
@@ -260,7 +255,7 @@ public final class KitGear extends BaseKit
 		{
 			// We need setBase() called.  The only way to do that is to resize.
 			// We will set the size to itself.
-			theEquipment.resizeItem(aPC, theEquipment.getSafe(ObjectKey.SIZE).get());
+			theEquipment.resizeItem(aPC, theEquipment.getSizeAdjustment());
 		}
 
 		//
@@ -301,27 +296,27 @@ public final class KitGear extends BaseKit
 		final BigDecimal eqCost = theEquipment.getCost(aPC);
 		if (aBuyRate != 0)
 		{
-			if (fixedTotalCost == null)
-			{
-				final BigDecimal bdBuyRate =
-						new BigDecimal(Integer.toString(aBuyRate)).multiply(new BigDecimal("0.01"));
+            final BigDecimal bdBuyRate =
+                    new BigDecimal(Integer.toString(aBuyRate)).multiply(new BigDecimal("0.01"));
 
-				// Check to see if the PC can afford to buy this equipment. If
-				// not, then decrement the quantity and try again.
-				theCost = eqCost.multiply(new BigDecimal(Integer.toString(theQty))).multiply(bdBuyRate);
+            // Check to see if the PC can afford to buy this equipment. If
+            // not, then decrement the quantity and try again.
+            theCost = eqCost.multiply(new BigDecimal(Integer.toString(theQty))).multiply(bdBuyRate);
 
-				while (theQty > 0)
-				{
-					if (theCost.compareTo(pcGold) <= 0) // PC has enough?
-					{
-						break;
-					}
+            while (theQty > 0)
+            {
+                if (theCost.compareTo(pcGold) <= 0) // PC has enough?
+                {
+                    break;
+                }
 
-					theCost = eqCost.multiply(new BigDecimal(Integer.toString(--theQty))).multiply(bdBuyRate);
-				}
-			}
+                theCost = eqCost.multiply(new BigDecimal(Integer.toString(--theQty))).multiply(bdBuyRate);
+            }
 
-			aPC.setGold(aPC.getGold().subtract(theCost));
+    		BigDecimal currentGold = new BigDecimal(ChannelUtilities
+    			.readControlledChannel(aPC.getCharID(), CControl.GOLDINPUT).toString());
+			ChannelUtilities.setControlledChannel(aPC.getCharID(),
+				CControl.GOLDINPUT, currentGold.subtract(theCost));
 		}
 
 		boolean outOfFunds = false;
@@ -346,7 +341,7 @@ public final class KitGear extends BaseKit
 
 		Equipment testApplyEquipment = theEquipment.clone();
 		// Temporarily add the equipment so we can see if we can equip it.
-		testApplyEquipment.setQty(new Float(theQty));
+		testApplyEquipment.setQty(Float.valueOf(theQty));
 		aPC.addEquipment(testApplyEquipment);
 		Equipment theTarget = null;
 		if (actingLocation != null)
@@ -382,7 +377,7 @@ public final class KitGear extends BaseKit
 			else
 			{
 				EquipSet eqSet =
-						aPC.addEquipToTarget(eSet, theTarget, theLocation, testApplyEquipment, new Float(-1.0f));
+						aPC.addEquipToTarget(eSet, theTarget, theLocation, testApplyEquipment, -1.0f);
 				if (eqSet == null)
 				{
 					warnings.add("GEAR: Could not equip " + testApplyEquipment.getName() + " to " + theLocation);
@@ -399,7 +394,7 @@ public final class KitGear extends BaseKit
 
 		if (existing == null)
 		{
-			theEquipment.setQty(new Float(theQty));
+			theEquipment.setQty(Float.valueOf(theQty));
 
 			aPC.addEquipment(theEquipment);
 			Globals.getContext().getReferenceContext().importObject(theEquipment);
@@ -434,9 +429,12 @@ public final class KitGear extends BaseKit
 		//
 		// Equip the item to the default EquipSet.
 		//
-		aPC.addEquipToTarget(eSet, theTarget, theLocation, theEquipment, new Float(theQty));
+		aPC.addEquipToTarget(eSet, theTarget, theLocation, theEquipment, (float) theQty);
 
-		aPC.setGold(aPC.getGold().subtract(theCost));
+		BigDecimal currentGold = new BigDecimal(ChannelUtilities
+			.readControlledChannel(aPC.getCharID(), CControl.GOLDINPUT).toString());
+		ChannelUtilities.setControlledChannel(aPC.getCharID(),
+			CControl.GOLDINPUT, currentGold.subtract(theCost));
 	}
 
 	@Override

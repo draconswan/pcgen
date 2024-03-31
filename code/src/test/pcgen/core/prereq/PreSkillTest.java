@@ -17,9 +17,9 @@
  */
 package pcgen.core.prereq;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.enumeration.ListKey;
 import pcgen.cdom.enumeration.Type;
@@ -33,36 +33,19 @@ import pcgen.persistence.lst.prereq.PreParserFactory;
 import pcgen.rules.context.LoadContext;
 import pcgen.util.TestHelper;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public class PreSkillTest extends AbstractCharacterTestCase
 {
+	private Skill balance = null;
+	private Skill knowledge = null;
+	private Skill tumble = null;
 
-	public static void main(final String[] args)
-	{
-		TestRunner.run(PreSkillTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PreSkillTest.class);
-	}
-
-	Skill balance = null;
-	Skill knowledge = null;
-	Skill knowledge2 = null;
-	Skill tumble = null;
-	Skill fake = null;
-	Skill fake2 = null;
-	Skill target = null;
-	Skill target2 = null;
-
-	/**
-	 * @see junit.framework.TestCase#setUp()
-	 */
+	@BeforeEach
 	@Override
-	protected void setUp() throws Exception
+	public void setUp() throws Exception
 	{
 		super.setUp();
 		final PlayerCharacter character = getCharacter();
@@ -78,8 +61,8 @@ public class PreSkillTest extends AbstractCharacterTestCase
 		TestHelper.addType(knowledge, "KNOWLEDGE.INT");
 		context.getReferenceContext().importObject(knowledge);
 		SkillRankControl.modRanks(6.0, myClass, true, character, knowledge);
-		
-		knowledge2 = new Skill();
+
+		Skill knowledge2 = new Skill();
 		context.unconditionallyProcess(knowledge2, "CLASSES", "MyClass");
 		knowledge2.setName("KNOWLEDGE (NATURE)");
 		TestHelper.addType(knowledge2, "KNOWLEDGE.INT");
@@ -99,20 +82,20 @@ public class PreSkillTest extends AbstractCharacterTestCase
 		balance.addToListFor(ListKey.TYPE, Type.getConstant("DEX"));
 		context.getReferenceContext().importObject(balance);
 		SkillRankControl.modRanks(4.0, myClass, true, character, balance);
-		
-		target = new Skill();
+
+		Skill target = new Skill();
 		context.unconditionallyProcess(target, "CLASSES", "MyClass");
 		target.setName("Target");
 		target.addToListFor(ListKey.TYPE, Type.getConstant("STR"));
 		context.getReferenceContext().importObject(target);
-		
-		target2 = new Skill();
+
+		Skill target2 = new Skill();
 		context.unconditionallyProcess(target2, "CLASSES", "MyClass");
 		target2.setName("Target2");
 		target2.addToListFor(ListKey.TYPE, Type.getConstant("STR"));
 		context.getReferenceContext().importObject(target2);
 
-		fake = new Skill();
+		Skill fake = new Skill();
 		context.unconditionallyProcess(fake, "CLASSES", "MyClass");
 		fake.setName("Fake");
 		fake.addToListFor(ListKey.TYPE, Type.getConstant("WIS"));
@@ -120,8 +103,8 @@ public class PreSkillTest extends AbstractCharacterTestCase
 		fake.addToListFor(ListKey.SERVES_AS_SKILL, CDOMDirectSingleRef.getRef(target2));
 		context.getReferenceContext().importObject(fake);
 		SkillRankControl.modRanks(6.0, myClass, true, character, fake);
-		
-		fake2 = new Skill();
+
+		Skill fake2 = new Skill();
 		context.unconditionallyProcess(fake2, "CLASSES", "MyClass");
 		fake2.setName("Fake 2");
 		fake2.addToListFor(ListKey.TYPE, Type.getConstant("INT"));
@@ -132,11 +115,9 @@ public class PreSkillTest extends AbstractCharacterTestCase
 		context.getReferenceContext().resolveReferences(null);
 	}
 
-	/**
-	 * @see junit.framework.TestCase#tearDown()
-	 */
+	@AfterEach
 	@Override
-	protected void tearDown() throws Exception
+	public void tearDown() throws Exception
 	{
 		knowledge = null;
 		balance = null;
@@ -145,8 +126,8 @@ public class PreSkillTest extends AbstractCharacterTestCase
 		super.tearDown();
 	}
 
-	
-	public void testDexType()
+	@Test
+	void testDexType()
 	{
 		final Prerequisite prereq = new Prerequisite();
 		prereq.setKind("skill");
@@ -159,8 +140,8 @@ public class PreSkillTest extends AbstractCharacterTestCase
 		assertTrue(passes);
 	}
 
-	
-	public void testDexTypeEqualsFails()
+	@Test
+	void testDexTypeEqualsFails()
 	{
 		final Prerequisite prereq = new Prerequisite();
 		prereq.setKind("skill");
@@ -173,8 +154,8 @@ public class PreSkillTest extends AbstractCharacterTestCase
 		assertFalse(passes);
 	}
 
-	
-	public void testDexTypeEqualsPasses()
+	@Test
+	void testDexTypeEqualsPasses()
 	{
 		final Prerequisite prereq = new Prerequisite();
 		prereq.setKind("skill");
@@ -187,8 +168,8 @@ public class PreSkillTest extends AbstractCharacterTestCase
 		assertTrue(passes);
 	}
 
-	
-	public void testKnowedgeSubType()
+	@Test
+	void testKnowedgeSubType()
 	{
 		final Prerequisite prereq = new Prerequisite();
 		prereq.setKind("skill");
@@ -203,8 +184,8 @@ public class PreSkillTest extends AbstractCharacterTestCase
 		assertTrue(passes);
 	}
 
-	
-	public void testKnowedgeSubTypeFail()
+	@Test
+	void testKnowedgeSubTypeFail()
 	{
 		final Prerequisite prereq = new Prerequisite();
 		prereq.setKind("skill");
@@ -218,8 +199,8 @@ public class PreSkillTest extends AbstractCharacterTestCase
 		assertFalse(passes);
 	}
 
-	
-	public void testKnowedgeSubTypePasesExact()
+	@Test
+	void testKnowedgeSubTypePasesExact()
 	{
 		final Prerequisite prereq = new Prerequisite();
 		prereq.setKind("skill");
@@ -233,8 +214,8 @@ public class PreSkillTest extends AbstractCharacterTestCase
 		assertTrue(passes);
 	}
 
-
-	public void testKnowedgeType()
+	@Test
+	void testKnowedgeType()
 	{
 		final Prerequisite prereq = new Prerequisite();
 		prereq.setKind("skill");
@@ -247,7 +228,7 @@ public class PreSkillTest extends AbstractCharacterTestCase
 		assertTrue(passes);
 	}
 
-	
+	@Test
 	public void testKnowedgeWrongSubType()
 	{
 		final Prerequisite prereq = new Prerequisite();
@@ -262,7 +243,7 @@ public class PreSkillTest extends AbstractCharacterTestCase
 		assertFalse(passes);
 	}
 
-	
+	@Test
 	public void testPass()
 	{
 		final PlayerCharacter character = getCharacter();
@@ -280,8 +261,8 @@ public class PreSkillTest extends AbstractCharacterTestCase
 		assertTrue(passes);
 	}
 
-	
-	public void testTotalType()
+	@Test
+	void testTotalType()
 	{
 		//		PreSkillTotalParser producer = new PreSkillTotalParser();
 
@@ -305,8 +286,8 @@ public class PreSkillTest extends AbstractCharacterTestCase
 		assertTrue(passes);
 	}
 
-	
-	public void testType()
+	@Test
+	void testType()
 	{
 		final Prerequisite subreq = new Prerequisite();
 		subreq.setKind("skill");
@@ -320,75 +301,80 @@ public class PreSkillTest extends AbstractCharacterTestCase
 		assertTrue(passes);
 	}
 
-
-	public void testLevelsTwoClasses() throws Exception
+	@Test
+	void testLevelsTwoClasses() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
 
 		final PreParserFactory factory = PreParserFactory.getInstance();
 		Prerequisite prereq = factory.parse("PRESKILL:2,Balance=4,Tumble=2");
 
-		assertEquals(true, PrereqHandler.passes(prereq, character, null));
+		assertTrue(PrereqHandler.passes(prereq, character, null));
 	}
-	public void testServesAsExactMatch() throws Exception
+
+	@Test
+	void testServesAsExactMatch() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
 
 		final PreParserFactory factory = PreParserFactory.getInstance();
 		Prerequisite prereq = factory.parse("PRESKILL:2,Target=4,Target2=4");
-		assertEquals(true, PrereqHandler.passes(prereq, character, null));
+		assertTrue(PrereqHandler.passes(prereq, character, null));
 		
 		prereq = factory.parse("PRESKILL:1,Target=5,Target2=5");
-		assertEquals(true, PrereqHandler.passes(prereq, character, null));
+		assertTrue(PrereqHandler.passes(prereq, character, null));
 		
 		prereq = factory.parse("PRESKILL:2,Target=7,Target2=7");
-		assertEquals(false, PrereqHandler.passes(prereq, character, null));
+		assertFalse(PrereqHandler.passes(prereq, character, null));
 		
 		prereq = factory.parse("PRESKILL:2,Target=4,Target2=7");
-		assertEquals(false, PrereqHandler.passes(prereq, character, null));
+		assertFalse(PrereqHandler.passes(prereq, character, null));
 	}
-	public void testServesAsTypeMatch() throws Exception
+
+	@Test
+	void testServesAsTypeMatch() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
 
 		final PreParserFactory factory = PreParserFactory.getInstance();
 		Prerequisite prereq = factory.parse("PRESKILL:1,TYPE.INT=4");
-		assertEquals(true, PrereqHandler.passes(prereq, character, null));
+		assertTrue(PrereqHandler.passes(prereq, character, null));
 	
 		prereq = factory.parse("PRESKILL:1,TYPE.STR=6");
-		assertEquals(true, PrereqHandler.passes(prereq, character, null));
+		assertTrue(PrereqHandler.passes(prereq, character, null));
 		
 		prereq = factory.parse("PRESKILL:1,TYPE.ST%=6");
-		assertEquals(true, PrereqHandler.passes(prereq, character, null));
+		assertTrue(PrereqHandler.passes(prereq, character, null));
 		
 		prereq = factory.parse("PRESKILL:1,TYPE.STR=7");
-		assertEquals(false, PrereqHandler.passes(prereq, character, null));
+		assertFalse(PrereqHandler.passes(prereq, character, null));
 		
 		prereq = factory.parse("PRESKILL:1,TYPE.ST%=7");
-		assertEquals(false, PrereqHandler.passes(prereq, character, null));
+		assertFalse(PrereqHandler.passes(prereq, character, null));
 		
 		
 		prereq = factory.parse("PRESKILL:1,TYPE.CHA=1");
-		assertEquals(false, PrereqHandler.passes(prereq, character, null));
+		assertFalse(PrereqHandler.passes(prereq, character, null));
 		
 		prereq = factory.parse("PRESKILL:1,TYPE.CH%=7");
-		assertEquals(false, PrereqHandler.passes(prereq, character, null));
+		assertFalse(PrereqHandler.passes(prereq, character, null));
 	}
-	
-	public void testServesAsTotalsMatch() throws Exception
+
+	@Test
+	void testServesAsTotalsMatch() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
 
 		final PreParserFactory factory = PreParserFactory.getInstance();
 		
 		Prerequisite prereq = factory.parse("PRESKILLTOT:Tumble,Target=18");
-		assertEquals(false, PrereqHandler.passes(prereq, character, null));
+		assertFalse(PrereqHandler.passes(prereq, character, null));
 		
 		prereq = factory.parse("PRESKILLTOT:Tumble,Target2=14");
-		assertEquals(true, PrereqHandler.passes(prereq, character, null));
+		assertTrue(PrereqHandler.passes(prereq, character, null));
 		
 		prereq = factory.parse("PRESKILLTOT:Foo,Target=40");
-		assertEquals(false, PrereqHandler.passes(prereq, character, null));
+		assertFalse(PrereqHandler.passes(prereq, character, null));
 		
 
 	}

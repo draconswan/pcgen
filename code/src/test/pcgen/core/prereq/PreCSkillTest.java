@@ -17,9 +17,9 @@
  */
 package pcgen.core.prereq;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.base.FormulaFactory;
 import pcgen.cdom.enumeration.FormulaKey;
@@ -34,8 +34,11 @@ import pcgen.core.Skill;
 import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.lst.prereq.PreParserFactory;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>PreCSkillTest</code> tests that the PRECSKILL tag is
+ * {@code PreCSkillTest} tests that the PRECSKILL tag is
  * working correctly.
  */
 public class PreCSkillTest extends AbstractCharacterTestCase
@@ -46,24 +49,12 @@ public class PreCSkillTest extends AbstractCharacterTestCase
 	private Skill spy3;
 	private Skill spot;
 
-	public static void main(final String[] args)
-	{
-		TestRunner.run(PreCSkillTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PreCSkillTest.class);
-	}
-
 	/**
 	 * Test that CSkill works.
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testCSkill() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();
@@ -120,6 +111,8 @@ public class PreCSkillTest extends AbstractCharacterTestCase
 		assertTrue("Character has 3 Spy Skills", PrereqHandler.passes(prereq,
 			character, null));
 	}
+
+	@Test
 	public void testCSkillServesAs() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
@@ -183,8 +176,10 @@ public class PreCSkillTest extends AbstractCharacterTestCase
 		
 		
 	}
+
+	@BeforeEach
     @Override
-	protected void setUp() throws Exception
+	public void setUp() throws Exception
 	{
 		super.setUp();
 

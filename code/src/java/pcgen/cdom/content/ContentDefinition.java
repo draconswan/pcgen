@@ -96,9 +96,10 @@ public abstract class ContentDefinition<T extends CDOMObject, F> extends UserCon
 	 */
 	public void setDisplayName(String name)
 	{
-		if (name == null)
+		if (name==null)
 		{
-			throw new IllegalArgumentException("Display Name cannot be null");
+			System.out.println("display name should not be null!");
+			return;
 		}
 		displayName = name;
 	}
@@ -147,10 +148,7 @@ public abstract class ContentDefinition<T extends CDOMObject, F> extends UserCon
 	 */
 	public FormatManager<?> setFormatManager(FormatManager<F> fmtManager)
 	{
-		if (fmtManager == null)
-		{
-			throw new IllegalArgumentException("Format Manager cannot be null");
-		}
+		Objects.requireNonNull(fmtManager, "Format Manager cannot be null");
 		FormatManager<?> returnValue = formatManager;
 		this.formatManager = fmtManager;
 		return returnValue;

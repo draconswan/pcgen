@@ -61,7 +61,7 @@ public class EqBuilderSpellToken implements CDOMSecondaryToken<EquipmentModifier
 		{
 			return new ParseResult.Fail("CHOOSE:" + getTokenName() + " arguments may not end with | : " + value);
 		}
-		if (value.indexOf("||") != -1)
+		if (value.contains("||"))
 		{
 			return new ParseResult.Fail("CHOOSE:" + getTokenName() + " arguments uses double separator || : " + value);
 		}
@@ -105,9 +105,7 @@ public class EqBuilderSpellToken implements CDOMSecondaryToken<EquipmentModifier
 			return new ParseResult.Fail(
 				"CHOOSE:" + getTokenName() + " must have 1 to 3 | delimited arguments: " + value);
 		}
-		StringBuilder sb = new StringBuilder(value.length() + 20);
-		sb.append(getTokenName()).append('|').append(value);
-		context.getObjectContext().put(obj, StringKey.CHOICE_STRING, sb.toString());
+		context.getObjectContext().put(obj, StringKey.CHOICE_STRING, getTokenName() + '|' + value);
 		return ParseResult.SUCCESS;
 	}
 
@@ -126,7 +124,7 @@ public class EqBuilderSpellToken implements CDOMSecondaryToken<EquipmentModifier
 		}
 		else
 		{
-			if (chooseString.indexOf(getTokenName() + '|') == -1)
+			if (!chooseString.contains(getTokenName() + '|'))
 			{
 				return null;
 			}

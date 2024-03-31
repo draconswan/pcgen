@@ -61,7 +61,7 @@ public class SpellTypeToken extends AbstractRestrictedSpellPrimitive
 			{
 				for (Integer level : levelInfo.getListFor(spellList))
 				{
-					if (allow(pc, level.intValue(), source, spell, null))
+					if (allow(pc, level, source, spell, null))
 					{
 						return true;
 					}
@@ -84,9 +84,8 @@ public class SpellTypeToken extends AbstractRestrictedSpellPrimitive
 		{
 			return true;
 		}
-		if (obj instanceof SpellTypeToken)
+		if (obj instanceof SpellTypeToken other)
 		{
-			SpellTypeToken other = (SpellTypeToken) obj;
 			if (spelltype == null)
 			{
 				return other.spelltype == null;

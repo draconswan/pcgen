@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import javax.swing.event.EventListenerList;
 
@@ -89,11 +90,8 @@ public class SkillRankFacet extends AbstractStorageFacet<CharID>
 
 	public void set(CharID id, Skill skill, PCClass pcc, double value)
 	{
-		if (skill == null)
-		{
-			throw new IllegalArgumentException("Skill cannot be null in add");
-		}
-		Float oldRank = getRank(id, skill);
+		Objects.requireNonNull(skill, "Skill cannot be null in add");
+		float oldRank = getRank(id, skill);
 		Map<Skill, Map<PCClass, Double>> map = getConstructingInfo(id);
 		Map<PCClass, Double> clMap = map.get(skill);
 		if (clMap == null)
@@ -103,7 +101,7 @@ public class SkillRankFacet extends AbstractStorageFacet<CharID>
 		}
 		clMap.put(pcc, value);
 
-		Float newRank = getRank(id, skill);
+		float newRank = getRank(id, skill);
 		support.fireSkillRankChangeEvent(id, skill, oldRank, newRank);
 	}
 
@@ -179,19 +177,16 @@ public class SkillRankFacet extends AbstractStorageFacet<CharID>
 
 	public void remove(CharID id, Skill sk, PCClass pcc)
 	{
-		if (sk == null)
-		{
-			throw new IllegalArgumentException("Skill cannot be null in remove");
-		}
+		Objects.requireNonNull(sk, "Skill cannot be null in remove");
 		Map<Skill, Map<PCClass, Double>> map = getInfo(id);
 		if (map != null)
 		{
 			Map<PCClass, Double> clMap = map.get(sk);
 			if (clMap != null)
 			{
-				Float oldRank = getRank(id, sk);
+				float oldRank = getRank(id, sk);
 				clMap.remove(pcc);
-				Float newRank = getRank(id, sk);
+				float newRank = getRank(id, sk);
 				support.fireSkillRankChangeEvent(id, sk, oldRank, newRank);
 			}
 		}
@@ -239,14 +234,8 @@ public class SkillRankFacet extends AbstractStorageFacet<CharID>
 		public SkillRankChangeEvent(CharID source, Skill sk, float oldRank, float newRank)
 		{
 			super(source);
-			if (source == null)
-			{
-				throw new IllegalArgumentException("CharID cannot be null");
-			}
-			if (sk == null)
-			{
-				throw new IllegalArgumentException("PCClass cannot be null");
-			}
+			Objects.requireNonNull(source, "CharID cannot be null");
+			Objects.requireNonNull(sk, "PCClass cannot be null");
 			charID = source;
 			skill = sk;
 			oldRnk = oldRank;

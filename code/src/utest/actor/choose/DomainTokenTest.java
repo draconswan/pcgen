@@ -20,18 +20,19 @@ package actor.choose;
 import pcgen.cdom.base.Chooser;
 import pcgen.core.Domain;
 import plugin.lsttokens.choose.DomainToken;
+
 import actor.testsupport.AbstractPersistentCDOMChoiceActorTestCase;
 
 public class DomainTokenTest extends
 		AbstractPersistentCDOMChoiceActorTestCase<Domain>
 {
 
-	static DomainToken pca = new DomainToken();
+	private static final DomainToken PCA = new DomainToken();
 
 	@Override
 	public Chooser<Domain> getActor()
 	{
-		return pca;
+		return PCA;
 	}
 
 	@Override

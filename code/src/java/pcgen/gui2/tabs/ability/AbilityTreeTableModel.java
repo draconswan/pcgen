@@ -29,7 +29,7 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.tree.MutableTreeNode;
 
-import pcgen.facade.core.AbilityCategoryFacade;
+import pcgen.core.AbilityCategory;
 import pcgen.facade.core.AbilityFacade;
 import pcgen.facade.core.CharacterFacade;
 import pcgen.facade.util.ListFacade;
@@ -60,7 +60,7 @@ public class AbilityTreeTableModel extends AbstractTreeTableModel implements Sor
 
 	private final CharacterFacade character;
 
-	public AbilityTreeTableModel(CharacterFacade character, ListFacade<AbilityCategoryFacade> categories)
+	public AbilityTreeTableModel(CharacterFacade character, ListFacade<AbilityCategory> categories)
 	{
 		this.character = character;
 		this.setRoot(new RootTreeTableNode(categories));
@@ -97,16 +97,13 @@ public class AbilityTreeTableModel extends AbstractTreeTableModel implements Sor
 	@Override
 	public String getColumnName(int column)
 	{
-		switch (column)
-		{
-			case 0:
-				return LanguageBundle.getString("in_featSelectedAbilities"); //$NON-NLS-1$
-			case 1:
-				return LanguageBundle.getString("in_featChoices"); //$NON-NLS-1$
+		return switch (column)
+				{
+					case 0 -> LanguageBundle.getString("in_featSelectedAbilities"); //$NON-NLS-1$
+					case 1 -> LanguageBundle.getString("in_featChoices"); //$NON-NLS-1$
 
-			default:
-				return "Unknown column";
-		}
+					default -> "Unknown column";
+				};
 
 	}
 
@@ -129,12 +126,12 @@ public class AbilityTreeTableModel extends AbstractTreeTableModel implements Sor
 		reload();
 	}
 
-	private class RootTreeTableNode extends DefaultSortableTreeTableNode implements ListListener<AbilityCategoryFacade>
+	private class RootTreeTableNode extends DefaultSortableTreeTableNode implements ListListener<AbilityCategory>
 	{
 
-		private final ListFacade<AbilityCategoryFacade> cats;
+		private final ListFacade<AbilityCategory> cats;
 
-		public RootTreeTableNode(ListFacade<AbilityCategoryFacade> cats)
+		public RootTreeTableNode(ListFacade<AbilityCategory> cats)
 		{
 			super(Collections.singletonList(new Object()));
 			this.cats = new SortedListFacade<>(Comparators.toStringIgnoreCaseComparator(), cats);
@@ -144,26 +141,26 @@ public class AbilityTreeTableModel extends AbstractTreeTableModel implements Sor
 
 		private void addChildren()
 		{
-			for (AbilityCategoryFacade category : cats)
+			for (AbilityCategory category : cats)
 			{
 				add(new CategoryTreeTableNode(category));
 			}
 		}
 
 		@Override
-		public void elementAdded(ListEvent<AbilityCategoryFacade> e)
+		public void elementAdded(ListEvent<AbilityCategory> e)
 		{
 			insertNodeInto(new CategoryTreeTableNode(e.getElement()), this, e.getIndex());
 		}
 
 		@Override
-		public void elementRemoved(ListEvent<AbilityCategoryFacade> e)
+		public void elementRemoved(ListEvent<AbilityCategory> e)
 		{
 			removeNodeFromParent((MutableTreeNode) getChildAt(e.getIndex()));
 		}
 
 		@Override
-		public void elementsChanged(ListEvent<AbilityCategoryFacade> e)
+		public void elementsChanged(ListEvent<AbilityCategory> e)
 		{
 			removeAllChildren();
 			addChildren();
@@ -171,7 +168,7 @@ public class AbilityTreeTableModel extends AbstractTreeTableModel implements Sor
 		}
 
 		@Override
-		public void elementModified(ListEvent<AbilityCategoryFacade> e)
+		public void elementModified(ListEvent<AbilityCategory> e)
 		{
 		}
 
@@ -182,7 +179,7 @@ public class AbilityTreeTableModel extends AbstractTreeTableModel implements Sor
 
 		private final ListFacade<AbilityFacade> abilities;
 
-		public CategoryTreeTableNode(AbilityCategoryFacade category)
+		public CategoryTreeTableNode(AbilityCategory category)
 		{
 			setUserObject(category);
 			setValues(Collections.singletonList(category));
@@ -207,8 +204,7 @@ public class AbilityTreeTableModel extends AbstractTreeTableModel implements Sor
 			List<Object> data = new ArrayList<>(2);
 			data.add(ability);
 			data.add(character.getInfoFactory().getChoices(ability));
-			DefaultTreeTableNode node = new DefaultSortableTreeTableNode(data);
-			return node;
+            return new DefaultSortableTreeTableNode(data);
 		}
 
 		@Override

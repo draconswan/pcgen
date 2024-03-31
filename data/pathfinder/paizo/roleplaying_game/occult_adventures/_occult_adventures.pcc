@@ -2,8 +2,7 @@ CAMPAIGN:Occult Adventures
 KEY:Occult Adventures
 GAMEMODE:Pathfinder|Pathfinder_PFS
 TYPE:Paizo Publishing.Pathfinder RPG
-STATUS:ALPHA
-RANK:1
+STATUS:BETA
 GENRE:Fantasy
 BOOKTYPE:Supplement
 SETTING:Pathfinder
@@ -15,6 +14,7 @@ SOURCELONG:Occult Adventures
 SOURCESHORT:OA
 SOURCEWEB:http://paizo.com/products/btpy9a0h
 SOURCEDATE:2015-07
+RANK:201507
 ISOGL:YES
 
 COVER:occult_adventures.jpg
@@ -48,6 +48,7 @@ COMPANIONMOD:oa_companionmods.lst
 EQUIPMENT:oa_equip.lst
 ABILITY:oa_feats.lst
 KIT:oa_kits.lst
+LANGUAGE:oa_languages.lst
 WEAPONPROF:oa_profs_weapon.lst
 RACE:oa_races.lst
 SPELL:oa_spells.lst

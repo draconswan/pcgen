@@ -378,7 +378,7 @@ BIO
 		</skillpoints>
 		<list_mods>Acrobatics +28, Appraise +6, Bluff +14, Climb +9, Craft (Traps) +6, Diplomacy +7, Disable Device +29, Disguise +16, Escape Artist +21, Fly +8, Handle Animal +4, Intimidate +6, Knowledge (Dungeoneering) +6, Knowledge (Engineering) +3, Knowledge (Geography) +14, Knowledge (Local) +9, Linguistics +6, Perception +18, Profession (Cook) +5, Sense Motive +7, Sleight of Hand +11, Stealth +25, Swim +11, Use Magic Device +13</list_mods>
 		<max_class_skill_level>12</max_class_skill_level>
-		<max_cross_class_skill_level>12</max_cross_class_skill_level>
+		<max_cross_class_skill_level>12.0</max_cross_class_skill_level>
 		<skill>
 			<name>Acrobatics</name>
 			<ranks>12.0</ranks>
@@ -981,7 +981,7 @@ BIO
 			<critical>20/x2</critical>
 			<!-- Should be changed to a variable due to improved crit -->
 		</unarmed>
-		
+
 		<weapon>
 			<common>
 				<name>
@@ -998,13 +998,19 @@ BIO
 					<magic_hit>+1</magic_hit>
 					<total_hit>+15/+10</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Off-hand</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>S</size>
 				<special_properties></special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>PS</type>
 				<weight>0</weight>
 				<sequence>0</sequence>
@@ -1085,13 +1091,19 @@ BIO
 					<magic_hit>+1</magic_hit>
 					<total_hit>+15/+10</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Primary</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>S</size>
 				<special_properties></special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>P</type>
 				<weight>1</weight>
 				<sequence>2</sequence>
@@ -1145,13 +1157,19 @@ BIO
 					<magic_hit>-2</magic_hit>
 					<total_hit>+14/+9</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Not Carried</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>M</size>
 				<special_properties>splash weapon, full-round action to prepare, 50% chance to ignite</special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>F</type>
 				<weight>1</weight>
 				<sequence>3</sequence>
@@ -1200,13 +1218,19 @@ BIO
 					<magic_hit>+0</magic_hit>
 					<total_hit>+16/+11</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Carried</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>S</size>
 				<special_properties></special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>B</type>
 				<weight>0</weight>
 				<sequence>4</sequence>
@@ -1255,13 +1279,19 @@ BIO
 					<magic_hit>+1</magic_hit>
 					<total_hit>+17/+12</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Carried</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>S</size>
 				<special_properties>nonlethal</special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>B</type>
 				<weight>1</weight>
 				<sequence>5</sequence>
@@ -1315,13 +1345,19 @@ BIO
 					<magic_hit>+0</magic_hit>
 					<total_hit>+16/+11</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Not Carried</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>S</size>
 				<special_properties></special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>PS</type>
 				<weight>0</weight>
 				<sequence>6</sequence>
@@ -1402,13 +1438,19 @@ BIO
 					<magic_hit>+1</magic_hit>
 					<total_hit>+12/+7</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Not Carried</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>S</size>
-				<special_properties>10 hp/inch, hardness 8</special_properties>
-				<template></template>
+				<special_properties>silver</special_properties>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>BP</type>
 				<weight>3</weight>
 				<sequence>8</sequence>
@@ -1462,13 +1504,19 @@ BIO
 					<magic_hit>+1</magic_hit>
 					<total_hit>+17/+12</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Not Carried</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>S</size>
-				<special_properties>30 hp/inch, hardness 10</special_properties>
-				<template></template>
+				<special_properties>cold iron</special_properties>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>P</type>
 				<weight>1</weight>
 				<sequence>9</sequence>
@@ -1523,7 +1571,7 @@ BIO
 			<maxdex>+6</maxdex>
 			<move></move>
 			<spellfail>10</spellfail>
-			<special_properties>30 hp/inch, hardness 15</special_properties>
+			<special_properties>mithral</special_properties>
 			<totalac>+5</totalac>
 			<type>Light</type>
 			<wt>6.25</wt>
@@ -1668,7 +1716,7 @@ BIO
 				<short>S</short>
 			</size>
 			<special_properties></special_properties>
-			<type>MAGIC.WEAPON.RESIZABLE.MELEE.SIMPLE.LIGHT.FINESSEABLE.RANGED.THROWN.PIERCING.SLASHING.DAGGER.BLADELIGHT.WEAPON GROUP BLADES LIGHT.WEAPON GROUP THROWN.CUSTOM.METAL.MASTERWORK.ENHANCEMENT.PLUS1</type>
+			<type>MAGIC.WEAPON.RESIZABLE.MELEE.SIMPLE.LIGHT.FINESSEABLE.RANGED.THROWN.PIERCING.SLASHING.DAGGER.BLADELIGHT.WEAPON GROUP BLADES LIGHT.WEAPON GROUP THROWN.CUSTOM.METAL.MASTERWORK.WEAPONENHANCEMENT.PLUS1</type>
 			<weight>0.5</weight>
 			<bonuslist></bonuslist>
 		</item>
@@ -1694,7 +1742,7 @@ BIO
 				<short>S</short>
 			</size>
 			<special_properties></special_properties>
-			<type>MAGIC.WEAPON.RESIZABLE.MELEE.MARTIAL.ONEHANDED.FINESSEABLE.PIERCING.MELEEPIERCING.SWORD.BLADELIGHT.WEAPON GROUP BLADES LIGHT.CUSTOM.METAL.MASTERWORK.ENHANCEMENT.PLUS1</type>
+			<type>MAGIC.WEAPON.RESIZABLE.MELEE.MARTIAL.ONEHANDED.FINESSEABLE.PIERCING.MELEEPIERCING.SWORD.BLADELIGHT.WEAPON GROUP BLADES LIGHT.WEAPON GROUP MELEE ONEHANDED PIERCING.CUSTOM.METAL.MASTERWORK.WEAPONENHANCEMENT.PLUS1</type>
 			<weight>1</weight>
 			<bonuslist></bonuslist>
 		</item>
@@ -1797,8 +1845,8 @@ BIO
 				<long>Small</long>
 				<short>S</short>
 			</size>
-			<special_properties>30 hp/inch, hardness 15</special_properties>
-			<type>MAGIC.ARMOR.LIGHT.ARMORPROFLIGHT.SUIT.CUSTOM.METAL.MITHRAL.MASTERWORK.ENHANCEMENT.PLUS1</type>
+			<special_properties>mithral</special_properties>
+			<type>MAGIC.ARMOR.LIGHT.ARMORPROFLIGHT.SUIT.CUSTOM.METAL.MITHRAL.MASTERWORK.ARMORENHANCEMENT.PLUS1</type>
 			<weight>6.25</weight>
 			<bonuslist></bonuslist>
 		</item>
@@ -1913,9 +1961,9 @@ BIO
 			<carried>1.0</carried>
 			<charges></charges>
 			<charges_used></charges_used>
-			<contents>9 lbs., 1 Flint and Steel, 2 Inkpen, 1 Bullseye Lantern, 1 Oil, 1 Potion of Cure Light Wounds, 1 Trail Ration, 1 Rope of Climbing, 1 Sealing Wax</contents>
-			<contents_num>8</contents_num>
-			<content_weight>9</content_weight>
+			<contents>9.5 lbs., 1 Map Case, 1 Flint and Steel, 2 Inkpen, 1 Bullseye Lantern, 1 Oil, 1 Potion of Cure Light Wounds, 1 Trail Ration, 1 Rope of Climbing, 1 Sealing Wax</contents>
+			<contents_num>9</contents_num>
+			<content_weight>9.5</content_weight>
 			<cost>50</cost>
 			<equipped>Y</equipped>
 			<location>Equipped</location>
@@ -1933,6 +1981,32 @@ BIO
 			<bonuslist></bonuslist>
 		</item>
 		<item>
+			<longname>Case, Map</longname>
+			<id></id>
+			<name>Map Case</name>
+			<carried>1.0</carried>
+			<charges></charges>
+			<charges_used></charges_used>
+			<contents>0 lbs., 1 Map of Inner Daggermark, 4 Parchment</contents>
+			<contents_num>2</contents_num>
+			<content_weight>0</content_weight>
+			<cost>1</cost>
+			<equipped>N</equipped>
+			<location>Backpack (Masterwork) (Small)</location>
+			<maxcharges>0</maxcharges>
+			<note></note>
+			<quantity>1</quantity>
+			<checkbox>1</checkbox>
+			<size>
+				<long>Medium</long>
+				<short>M</short>
+			</size>
+			<special_properties></special_properties>
+			<type>GOODS.CONTAINER.GENERAL</type>
+			<weight>0.5</weight>
+			<bonuslist></bonuslist>
+		</item>
+		<item>
 			<longname>Map of Inner Daggermark</longname>
 			<id></id>
 			<name>Map of Inner Daggermark</name>
@@ -1944,7 +2018,7 @@ BIO
 			<content_weight>0</content_weight>
 			<cost>0.2</cost>
 			<equipped>N</equipped>
-			<location>Carried</location>
+			<location>Map Case</location>
 			<maxcharges>0</maxcharges>
 			<note></note>
 			<quantity>1</quantity>
@@ -1959,7 +2033,7 @@ BIO
 			<bonuslist></bonuslist>
 		</item>
 		<item>
-			<longname>Parchment</longname>
+			<longname>Parchment (Sheet)</longname>
 			<id></id>
 			<name>Parchment</name>
 			<carried>4.0</carried>
@@ -1970,7 +2044,7 @@ BIO
 			<content_weight>0</content_weight>
 			<cost>0.2</cost>
 			<equipped>N</equipped>
-			<location>Carried</location>
+			<location>Map Case</location>
 			<maxcharges>0</maxcharges>
 			<note></note>
 			<quantity>4</quantity>
@@ -2141,7 +2215,7 @@ BIO
 			<bonuslist></bonuslist>
 		</item>
 		<item>
-			<longname>Rations, Trail, Per Day</longname>
+			<longname>Rations, Trail</longname>
 			<id></id>
 			<name>Trail Ration</name>
 			<carried>1.0</carried>
@@ -2167,7 +2241,7 @@ BIO
 			<bonuslist></bonuslist>
 		</item>
 		<item>
-			<longname>Rations, Trail, Per Day</longname>
+			<longname>Rations, Trail</longname>
 			<id></id>
 			<name>Trail Ration</name>
 			<carried>0.0</carried>
@@ -2297,7 +2371,7 @@ BIO
 			<bonuslist></bonuslist>
 		</item>
 		<item>
-			<longname>Coin, Gold Piece</longname>
+			<longname>Gold Piece</longname>
 			<id></id>
 			<name>Gold Piece</name>
 			<carried>1.0</carried>
@@ -2323,7 +2397,7 @@ BIO
 			<bonuslist></bonuslist>
 		</item>
 		<item>
-			<longname>Coin, Silver Piece</longname>
+			<longname>Silver Piece</longname>
 			<id></id>
 			<name>Silver Piece</name>
 			<carried>6.0</carried>
@@ -2407,9 +2481,9 @@ BIO
 			<carried>0.0</carried>
 			<charges></charges>
 			<charges_used></charges_used>
-			<contents>53.5 lbs., 1 Dagger (Small), 1 Bedroll, 1 Masterwork Morningstar (Small/Alchemical Silver), 1 Masterwork Rapier (Small/Cold Iron), 1 Riding Saddle, 1 Saddlebags, 1 Waterskin</contents>
+			<contents>73.5 lbs., 1 Dagger (Small), 1 Bedroll, 1 Masterwork Morningstar (Small/Alchemical Silver), 1 Masterwork Rapier (Small/Cold Iron), 1 Riding Saddle, 1 Saddlebags, 1 Waterskin</contents>
 			<contents_num>7</contents_num>
-			<content_weight>53.5</content_weight>
+			<content_weight>73.5</content_weight>
 			<cost>150</cost>
 			<equipped>N</equipped>
 			<location></location>
@@ -2499,7 +2573,7 @@ BIO
 				<long>Small</long>
 				<short>S</short>
 			</size>
-			<special_properties>10 hp/inch, hardness 8</special_properties>
+			<special_properties>silver</special_properties>
 			<type>WEAPON.RESIZABLE.MELEE.SIMPLE.ONEHANDED.BLUDGEONING.PIERCING.MACE.FLAIL.WEAPON GROUP FLAILS.CUSTOM.METAL.SILVER.MASTERWORK</type>
 			<weight>3</weight>
 			<bonuslist></bonuslist>
@@ -2525,8 +2599,8 @@ BIO
 				<long>Small</long>
 				<short>S</short>
 			</size>
-			<special_properties>30 hp/inch, hardness 10</special_properties>
-			<type>WEAPON.RESIZABLE.MELEE.MARTIAL.ONEHANDED.FINESSEABLE.PIERCING.MELEEPIERCING.SWORD.BLADELIGHT.WEAPON GROUP BLADES LIGHT.CUSTOM.METAL.MASTERWORK.COLDIRON</type>
+			<special_properties>cold iron</special_properties>
+			<type>WEAPON.RESIZABLE.MELEE.MARTIAL.ONEHANDED.FINESSEABLE.PIERCING.MELEEPIERCING.SWORD.BLADELIGHT.WEAPON GROUP BLADES LIGHT.WEAPON GROUP MELEE ONEHANDED PIERCING.CUSTOM.METAL.MASTERWORK.COLDIRON</type>
 			<weight>1</weight>
 			<bonuslist></bonuslist>
 		</item>
@@ -2563,9 +2637,9 @@ BIO
 			<carried>0.0</carried>
 			<charges></charges>
 			<charges_used></charges_used>
-			<contents>11 lbs., 1 Oil, 4 Trail Ration, 1 Grappling Hook, 1 Map Maker&#39;s Kit</contents>
-			<contents_num>4</contents_num>
-			<content_weight>11</content_weight>
+			<contents>31 lbs., 1 Oil, 4 Trail Ration, 1 Grappling Hook, 1 Map Maker&#39;s Kit, 1 Small Tent</contents>
+			<contents_num>5</contents_num>
+			<content_weight>31</content_weight>
 			<cost>4</cost>
 			<equipped>N</equipped>
 			<location>Riding Dog</location>
@@ -2635,6 +2709,32 @@ BIO
 			<bonuslist></bonuslist>
 		</item>
 		<item>
+			<longname>Tent</longname>
+			<id></id>
+			<name>Small Tent</name>
+			<carried>0.0</carried>
+			<charges></charges>
+			<charges_used></charges_used>
+			<contents></contents>
+			<contents_num>0</contents_num>
+			<content_weight>0</content_weight>
+			<cost>10</cost>
+			<equipped>N</equipped>
+			<location>Saddlebags</location>
+			<maxcharges>0</maxcharges>
+			<note></note>
+			<quantity>1</quantity>
+			<checkbox>1</checkbox>
+			<size>
+				<long>Medium</long>
+				<short>M</short>
+			</size>
+			<special_properties></special_properties>
+			<type>GOODS.GENERAL.RESIZABLE</type>
+			<weight>20</weight>
+			<bonuslist></bonuslist>
+		</item>
+		<item>
 			<longname>Waterskin</longname>
 			<id></id>
 			<name>Waterskin</name>
@@ -2661,7 +2761,7 @@ BIO
 			<bonuslist></bonuslist>
 		</item>
 		<total>
-			<weight>36.39 lbs.</weight>
+			<weight>36.89 lbs.</weight>
 			<value>49170.8 gp</value>
 			<load>Light</load>
 			<capacity>112.5</capacity>
@@ -2727,7 +2827,7 @@ BIO
 					<short>S</short>
 				</size>
 				<special_properties></special_properties>
-				<type>MAGIC.WEAPON.RESIZABLE.MELEE.SIMPLE.LIGHT.FINESSEABLE.RANGED.THROWN.PIERCING.SLASHING.DAGGER.BLADELIGHT.WEAPON GROUP BLADES LIGHT.WEAPON GROUP THROWN.CUSTOM.METAL.MASTERWORK.ENHANCEMENT.PLUS1</type>
+				<type>MAGIC.WEAPON.RESIZABLE.MELEE.SIMPLE.LIGHT.FINESSEABLE.RANGED.THROWN.PIERCING.SLASHING.DAGGER.BLADELIGHT.WEAPON GROUP BLADES LIGHT.WEAPON GROUP THROWN.CUSTOM.METAL.MASTERWORK.WEAPONENHANCEMENT.PLUS1</type>
 				<weight>0.5</weight>
 				<bonuslist></bonuslist>
 			</item>
@@ -2748,7 +2848,7 @@ BIO
 					<short>S</short>
 				</size>
 				<special_properties></special_properties>
-				<type>MAGIC.WEAPON.RESIZABLE.MELEE.MARTIAL.ONEHANDED.FINESSEABLE.PIERCING.MELEEPIERCING.SWORD.BLADELIGHT.WEAPON GROUP BLADES LIGHT.CUSTOM.METAL.MASTERWORK.ENHANCEMENT.PLUS1</type>
+				<type>MAGIC.WEAPON.RESIZABLE.MELEE.MARTIAL.ONEHANDED.FINESSEABLE.PIERCING.MELEEPIERCING.SWORD.BLADELIGHT.WEAPON GROUP BLADES LIGHT.WEAPON GROUP MELEE ONEHANDED PIERCING.CUSTOM.METAL.MASTERWORK.WEAPONENHANCEMENT.PLUS1</type>
 				<weight>1</weight>
 				<bonuslist></bonuslist>
 			</item>
@@ -2831,8 +2931,8 @@ BIO
 					<long>Small</long>
 					<short>S</short>
 				</size>
-				<special_properties>30 hp/inch, hardness 15</special_properties>
-				<type>MAGIC.ARMOR.LIGHT.ARMORPROFLIGHT.SUIT.CUSTOM.METAL.MITHRAL.MASTERWORK.ENHANCEMENT.PLUS1</type>
+				<special_properties>mithral</special_properties>
+				<type>MAGIC.ARMOR.LIGHT.ARMORPROFLIGHT.SUIT.CUSTOM.METAL.MITHRAL.MASTERWORK.ARMORENHANCEMENT.PLUS1</type>
 				<weight>6.25</weight>
 				<bonuslist></bonuslist>
 			</item>
@@ -2925,7 +3025,7 @@ BIO
 				<carried>1.0</carried>
 				<charges></charges>
 				<charges_used></charges_used>
-				<contents>9 lbs., 1 Flint and Steel, 2 Inkpen, 1 Bullseye Lantern, 1 Oil, 1 Potion of Cure Light Wounds, 1 Trail Ration, 1 Rope of Climbing, 1 Sealing Wax</contents>
+				<contents>9.5 lbs., 1 Map Case, 1 Flint and Steel, 2 Inkpen, 1 Bullseye Lantern, 1 Oil, 1 Potion of Cure Light Wounds, 1 Trail Ration, 1 Rope of Climbing, 1 Sealing Wax</contents>
 				<cost>50</cost>
 				<equipped>Y</equipped>
 				<location>Equipped</location>
@@ -2942,6 +3042,27 @@ BIO
 				<bonuslist></bonuslist>
 			</item>
 			<item>
+				<name>Map Case</name>
+				<carried>1.0</carried>
+				<charges></charges>
+				<charges_used></charges_used>
+				<contents>0 lbs., 1 Map of Inner Daggermark, 4 Parchment</contents>
+				<cost>1</cost>
+				<equipped>N</equipped>
+				<location>Backpack (Masterwork) (Small)</location>
+				<maxcharges>0</maxcharges>
+				<note></note>
+				<quantity>1</quantity>
+				<size>
+					<long>Medium</long>
+					<short>M</short>
+				</size>
+				<special_properties></special_properties>
+				<type>GOODS.CONTAINER.GENERAL</type>
+				<weight>0.5</weight>
+				<bonuslist></bonuslist>
+			</item>
+			<item>
 				<name>Map of Inner Daggermark</name>
 				<carried>1.0</carried>
 				<charges></charges>
@@ -2949,7 +3070,7 @@ BIO
 				<contents></contents>
 				<cost>0.2</cost>
 				<equipped>N</equipped>
-				<location>Carried</location>
+				<location>Map Case</location>
 				<maxcharges>0</maxcharges>
 				<note></note>
 				<quantity>1</quantity>
@@ -2970,7 +3091,7 @@ BIO
 				<contents></contents>
 				<cost>0.2</cost>
 				<equipped>N</equipped>
-				<location>Carried</location>
+				<location>Map Case</location>
 				<maxcharges>0</maxcharges>
 				<note></note>
 				<quantity>4</quantity>
@@ -3324,7 +3445,7 @@ BIO
 				<carried>0.0</carried>
 				<charges></charges>
 				<charges_used></charges_used>
-				<contents>53.5 lbs., 1 Dagger (Small), 1 Bedroll, 1 Masterwork Morningstar (Small/Alchemical Silver), 1 Masterwork Rapier (Small/Cold Iron), 1 Riding Saddle, 1 Saddlebags, 1 Waterskin</contents>
+				<contents>73.5 lbs., 1 Dagger (Small), 1 Bedroll, 1 Masterwork Morningstar (Small/Alchemical Silver), 1 Masterwork Rapier (Small/Cold Iron), 1 Riding Saddle, 1 Saddlebags, 1 Waterskin</contents>
 				<cost>150</cost>
 				<equipped>N</equipped>
 				<location></location>
@@ -3398,7 +3519,7 @@ BIO
 					<long>Small</long>
 					<short>S</short>
 				</size>
-				<special_properties>10 hp/inch, hardness 8</special_properties>
+				<special_properties>silver</special_properties>
 				<type>WEAPON.RESIZABLE.MELEE.SIMPLE.ONEHANDED.BLUDGEONING.PIERCING.MACE.FLAIL.WEAPON GROUP FLAILS.CUSTOM.METAL.SILVER.MASTERWORK</type>
 				<weight>3</weight>
 				<bonuslist></bonuslist>
@@ -3419,8 +3540,8 @@ BIO
 					<long>Small</long>
 					<short>S</short>
 				</size>
-				<special_properties>30 hp/inch, hardness 10</special_properties>
-				<type>WEAPON.RESIZABLE.MELEE.MARTIAL.ONEHANDED.FINESSEABLE.PIERCING.MELEEPIERCING.SWORD.BLADELIGHT.WEAPON GROUP BLADES LIGHT.CUSTOM.METAL.MASTERWORK.COLDIRON</type>
+				<special_properties>cold iron</special_properties>
+				<type>WEAPON.RESIZABLE.MELEE.MARTIAL.ONEHANDED.FINESSEABLE.PIERCING.MELEEPIERCING.SWORD.BLADELIGHT.WEAPON GROUP BLADES LIGHT.WEAPON GROUP MELEE ONEHANDED PIERCING.CUSTOM.METAL.MASTERWORK.COLDIRON</type>
 				<weight>1</weight>
 				<bonuslist></bonuslist>
 			</item>
@@ -3450,7 +3571,7 @@ BIO
 				<carried>0.0</carried>
 				<charges></charges>
 				<charges_used></charges_used>
-				<contents>11 lbs., 1 Oil, 4 Trail Ration, 1 Grappling Hook, 1 Map Maker&#39;s Kit</contents>
+				<contents>31 lbs., 1 Oil, 4 Trail Ration, 1 Grappling Hook, 1 Map Maker&#39;s Kit, 1 Small Tent</contents>
 				<cost>4</cost>
 				<equipped>N</equipped>
 				<location>Riding Dog</location>
@@ -3506,6 +3627,27 @@ BIO
 				<special_properties></special_properties>
 				<type>GOODS.TOOLS</type>
 				<weight>2</weight>
+				<bonuslist></bonuslist>
+			</item>
+			<item>
+				<name>Small Tent</name>
+				<carried>0.0</carried>
+				<charges></charges>
+				<charges_used></charges_used>
+				<contents></contents>
+				<cost>10</cost>
+				<equipped>N</equipped>
+				<location>Saddlebags</location>
+				<maxcharges>0</maxcharges>
+				<note></note>
+				<quantity>1</quantity>
+				<size>
+					<long>Medium</long>
+					<short>M</short>
+				</size>
+				<special_properties></special_properties>
+				<type>GOODS.GENERAL.RESIZABLE</type>
+				<weight>20</weight>
 				<bonuslist></bonuslist>
 			</item>
 			<item>
@@ -3565,7 +3707,7 @@ BIO
 		<feat>
 			<name>Combat Expertise</name>
 			<description>You can increase your defense at the expense of your accuracy.</description>
-			<type>COMBAT.ATTACKOPTION.MODIFYAC.INFERNALBLOODLINE.DREAMSPUNBLOODLINE.DRUIDSHAMANSERPENT</type>
+			<type>COMBAT.ATTACKOPTION.MODIFYAC.DRUIDSHAMANSERPENT</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>F</auto>
@@ -3575,7 +3717,7 @@ BIO
 		<feat>
 			<name>Dodge</name>
 			<description>Your training and reflexes allow you to react swiftly to avoid an opponent&#39;s attack.</description>
-			<type>COMBAT.CELESTIALBLOODLINE.ELEMENTALBLOODLINE.FEYBLOODLINE.AQUATICBLOODLINE.SHADOWBLOODLINE.STARSOULBLOODLINE.STORMBORNBLOODLINE.DRUIDSHAMANLION</type>
+			<type>COMBAT.DRUIDSHAMANLION</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>F</auto>
@@ -3585,7 +3727,7 @@ BIO
 		<feat>
 			<name>Fleet</name>
 			<description>You are faster than most.</description>
-			<type>GENERAL.VERDANTBLOODLINE</type>
+			<type>GENERAL</type>
 			<associated></associated>
 			<count>1</count>
 			<auto>F</auto>
@@ -3605,7 +3747,7 @@ BIO
 		<feat>
 			<name>Quick Draw</name>
 			<description>You can draw weapons faster than most.</description>
-			<type>COMBAT.SHADOWBLOODLINE</type>
+			<type>COMBAT</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>F</auto>
@@ -3625,7 +3767,7 @@ BIO
 		<feat>
 			<name>Weapon Finesse</name>
 			<description>You are trained in using your agility in melee combat, as opposed to brute strength.</description>
-			<type>COMBAT.CELESTIALBLOODLINE.ELEMENTALBLOODLINE.SHADOWBLOODLINE</type>
+			<type>COMBAT</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>F</auto>
@@ -3751,8 +3893,8 @@ BIO
 		</ability_object>
 		<ability_object>
 			<name>Fearless</name>
-			<description>Halflings receive a +2 racial bonus on saving throws against fear. This bonus stacks with the bonus granted by Halfling Luck.</description>
-			<type>RACIALTRAITS.SPECIALQUALITY.EXTRAORDINARY.HALFLINGRACIALTRAIT.HALFLINGRACIALDEFAULT.FEARLESS</type>
+			<description>Halflings receive a +2 racial bonus on all saving throws against fear. This bonus stacks with the bonus granted by halfling luck.</description>
+			<type>RACIALTRAITS.HALFLING RACIAL TRAIT.HALFLING RACIAL DEFAULT.SPECIALQUALITY</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>T</auto>
@@ -3763,7 +3905,7 @@ BIO
 		<ability_object>
 			<name>Halfling Luck</name>
 			<description>Halflings receive a +1 racial bonus on all saving throws.</description>
-			<type>RACIALTRAITS.SPECIALQUALITY.EXTRAORDINARY.HALFLINGRACIALTRAIT.HALFLINGRACIALDEFAULT.HALFLING LUCK</type>
+			<type>RACIALTRAITS.HALFLING RACIAL TRAIT.HALFLING RACIAL DEFAULT.SPECIALQUALITY</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>T</auto>
@@ -3795,8 +3937,8 @@ BIO
 		</ability_object>
 		<ability_object>
 			<name>Keen Senses</name>
-			<description>Halflings receive a +2 bonus on Perception skill checks.</description>
-			<type>RACIALTRAITS.SPECIALQUALITY.EXTRAORDINARY.HALFLINGRACIALTRAIT.HALFLINGRACIALDEFAULT.KEEN SENSES.KEENSENSES</type>
+			<description>Halflings receive a +2 racial bonus on Perception skill checks.</description>
+			<type>RACIALTRAITS.HALFLING RACIAL TRAIT.HALFLING RACIAL DEFAULT.SPECIALQUALITY</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>T</auto>
@@ -3829,7 +3971,7 @@ BIO
 		<ability_object>
 			<name>Sure-Footed</name>
 			<description>Halflings receive a +2 racial bonus on Acrobatics and Climb skill checks.</description>
-			<type>RACIALTRAITS.SPECIALQUALITY.EXTRAORDINARY.HALFLINGRACIALTRAIT.HALFLINGRACIALDEFAULT.SURE-FOOTED</type>
+			<type>RACIALTRAITS.HALFLING RACIAL TRAIT.HALFLING RACIAL DEFAULT.SPECIALQUALITY</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>T</auto>
@@ -3873,7 +4015,7 @@ BIO
 		<ability_object>
 			<name>Weapon Familiarity</name>
 			<description>Halflings are proficient with slings and treat any weapon with the word &quot;halfling&quot; in its name as a martial weapon.</description>
-			<type>RACIALTRAITS.SPECIALQUALITY.EXTRAORDINARY.HALFLINGRACIALTRAIT.HALFLINGRACIALDEFAULT.WEAPON FAMILIARITY</type>
+			<type>RACIALTRAITS.HALFLING RACIAL TRAIT.HALFLING RACIAL DEFAULT.SPECIALQUALITY.WEAPON FAMILIARITY</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>T</auto>
@@ -3905,17 +4047,6 @@ BIO
 			<category>Special Ability</category>
 		</ability_object>
 		<ability_object>
-			<name>Combat Trick</name>
-			<description>You gain a bonus combat feat.</description>
-			<type>ROGUECLASSFEATURES.SPECIALQUALITY.EXTRAORDINARY.ROGUETALENT</type>
-			<associated></associated>
-			<count>0</count>
-			<auto>F</auto>
-			<hidden>T</hidden>
-			<virtual>F</virtual>
-			<category>Special Ability</category>
-		</ability_object>
-		<ability_object>
 			<name>Improved Evasion</name>
 			<description>This works like Evasion, except that while you still take no damage on a successful Reflex saving throw against attacks, you henceforth take only half damage on a failed save. If you are helpless, you do not gain the benefit of Improved Evasion.</description>
 			<type>ROGUECLASSFEATURES.SPECIALQUALITY.EXTRAORDINARY.ROGUEADVANCEDTALENT</type>
@@ -3939,6 +4070,17 @@ BIO
 		</ability_object>
 		<!-- Hidden Automatic "Special Ability" Ability Objects -->
 		<ability_object>
+			<name>+2 Dexterity, +2 Charisma, -2 Strength</name>
+			<description>Halflings are nimble and strong-willed, but their small stature makes them weaker than other races.</description>
+			<type>RACIALTRAITS.HALFLING RACIAL TRAIT.HALFLING RACIAL DEFAULT.SPECIALQUALITY.RACIAL ABILITY SCORES</type>
+			<associated></associated>
+			<count>0</count>
+			<auto>T</auto>
+			<hidden>T</hidden>
+			<virtual>F</virtual>
+			<category>Special Ability</category>
+		</ability_object>
+		<ability_object>
 			<name>Evasion</name>
 			<description></description>
 			<type>INTERNAL.CLASSFEATURES.RANGERCLASSFEATURES.ROGUECLASSFEATURES.MONKCLASSFEATURES</type>
@@ -3950,20 +4092,9 @@ BIO
 			<category>Special Ability</category>
 		</ability_object>
 		<ability_object>
-			<name>Halfling Traits</name>
-			<description></description>
-			<type></type>
-			<associated></associated>
-			<count>0</count>
-			<auto>T</auto>
-			<hidden>T</hidden>
-			<virtual>F</virtual>
-			<category>Special Ability</category>
-		</ability_object>
-		<ability_object>
-			<name>Humanoid Traits</name>
-			<description></description>
-			<type></type>
+			<name>Languages</name>
+			<description>Halflings begin play speaking Common and Halfling. Halflings with high Intelligence scores can choose from the following: Dwarven, Elven, Gnome, and Goblin.</description>
+			<type>RACIALTRAITS.HALFLING RACIAL TRAIT.HALFLING RACIAL DEFAULT.SPECIALQUALITY.RACIAL LANGUAGE</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>T</auto>
@@ -3986,6 +4117,28 @@ BIO
 			<name>Rogue Talents</name>
 			<description></description>
 			<type>INTERNAL.ROGUECLASSFEATURES</type>
+			<associated></associated>
+			<count>0</count>
+			<auto>T</auto>
+			<hidden>T</hidden>
+			<virtual>F</virtual>
+			<category>Special Ability</category>
+		</ability_object>
+		<ability_object>
+			<name>Slow Speed</name>
+			<description>Halflings have a base speed of 20 feet.</description>
+			<type>RACIALTRAITS.HALFLING RACIAL TRAIT.HALFLING RACIAL DEFAULT.SPECIALQUALITY.RACIAL SPEED</type>
+			<associated></associated>
+			<count>0</count>
+			<auto>T</auto>
+			<hidden>T</hidden>
+			<virtual>F</virtual>
+			<category>Special Ability</category>
+		</ability_object>
+		<ability_object>
+			<name>Small</name>
+			<description>Halflings are Small creatures and gain a +1 size bonus to their AC, a +1 size bonus on attack rolls, a -1 penalty to their Combat Maneuver Bonus and Combat Maneuver Defense, and a +4 size bonus on Stealth checks.</description>
+			<type>RACIALTRAITS.HALFLING RACIAL TRAIT.HALFLING RACIAL DEFAULT.SPECIALQUALITY.RACIAL SIZE</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>T</auto>
@@ -4116,7 +4269,18 @@ BIO
 			<category>Internal</category>
 		</ability_object>
 		<ability_object>
-			<name>Race Traits ~ Halfling</name>
+			<name>Movement</name>
+			<description></description>
+			<type></type>
+			<associated></associated>
+			<count>0</count>
+			<auto>T</auto>
+			<hidden>F</hidden>
+			<virtual>F</virtual>
+			<category>Internal</category>
+		</ability_object>
+		<ability_object>
+			<name>Racial Traits ~ Halfling</name>
 			<description></description>
 			<type></type>
 			<associated></associated>
@@ -4139,6 +4303,17 @@ BIO
 		</ability_object>
 		<ability_object>
 			<name>Rogue Core Class Skills</name>
+			<description></description>
+			<type></type>
+			<associated></associated>
+			<count>0</count>
+			<auto>T</auto>
+			<hidden>F</hidden>
+			<virtual>F</virtual>
+			<category>Internal</category>
+		</ability_object>
+		<ability_object>
+			<name>Save Bonus Tracker</name>
 			<description></description>
 			<type></type>
 			<associated></associated>

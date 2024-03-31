@@ -55,7 +55,7 @@ public class AllToken extends AbstractRestrictedSpellPrimitive
 		{
 			for (Integer level : levelInfo.getListFor(spellList))
 			{
-				if (allow(pc, level.intValue(), "ANY", spell, null))
+				if (allow(pc, level, "ANY", spell, null))
 				{
 					return true;
 				}
@@ -77,9 +77,8 @@ public class AllToken extends AbstractRestrictedSpellPrimitive
 		{
 			return true;
 		}
-		if (obj instanceof AllToken)
+		if (obj instanceof AllToken other)
 		{
-			AllToken other = (AllToken) obj;
 			return equalsRestrictedPrimitive(other);
 		}
 		return false;

@@ -27,12 +27,6 @@ import pcgen.rules.context.LoadContext;
  */
 public final class SpellKnown extends BonusObj
 {
-	/**
-	 * Parse the bonus token.
-	 * @param token The token to parse.
-	 * @see pcgen.core.bonus.BonusObj#parseToken(LoadContext, java.lang.String)
-	 * @return True if successfully parsed.
-	 */
 	@Override
 	protected boolean parseToken(LoadContext context, final String token)
 	{
@@ -60,19 +54,12 @@ public final class SpellKnown extends BonusObj
 		return true;
 	}
 
-	/**
-	 * Unparse the bonus token.
-	 * @see pcgen.core.bonus.BonusObj#unparseToken(java.lang.Object)
-	 * @param obj The object to unparse
-	 * @return The unparsed string.
-	 */
 	@Override
 	protected String unparseToken(final Object obj)
 	{
 		final StringBuilder sb = new StringBuilder(30);
-		if (obj instanceof SpellCastInfo)
+		if (obj instanceof final SpellCastInfo sci)
 		{
-			final SpellCastInfo sci = (SpellCastInfo) obj;
 
 			if (sci.getType() != null)
 			{

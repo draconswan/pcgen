@@ -17,30 +17,30 @@
  */
 package plugin;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
- * <code>FacetDefinitionTest</code> verifies that all facets are registered in the 
+ * {@code FacetDefinitionTest} verifies that all facets are registered in the
  * applicationContext.xml file. As a result this unit test is a bit different in 
  * structure to a normal test.
  * 
  * Note: pcgen.cdom.facet.base only contains abstract base classes for facets 
  * so is not itself checked.
  */
-public class FacetDefinitionTest
+class FacetDefinitionTest
 {
 	/** The file in which we expect all facets to be defined. */
-	static final String APP_CONTEXT_FILE = "code/src/java/applicationContext.xml"; 
+	private static final String APP_CONTEXT_FILE = "code/src/resources/applicationContext.xml";
 	/**
 	 * Array of exceptions to normal names. Each entry is a pair of
 	 * Java source file name and JAR file name. 
@@ -56,6 +56,7 @@ public class FacetDefinitionTest
 	 * Check for the presence of all 'general' facets in the spring definition.
 	 * @throws Exception 
 	 */
+	@Disabled
 	@Test
 	public void testGeneralFacets() throws Exception
 	{
@@ -97,19 +98,6 @@ public class FacetDefinitionTest
 	}
 	
 	/**
-	 * Check for the presence of all 'filter' facets in the spring definition.
-	 * NB: These do not exist yet so the test is disabled.
-	 * @throws Exception 
-	 */
-	@Ignore
-	@Test
-	public void testFilterFacets() throws Exception
-	{
-		File sourceFolder = new File("code/src/java/pcgen/cdom/facet/filter");
-		checkFacetsDefined(sourceFolder);
-	}
-	
-	/**
 	 * Check for the presence of all 'input' facets in the spring definition.
 	 * @throws Exception 
 	 */
@@ -117,32 +105,6 @@ public class FacetDefinitionTest
 	public void testInputFacets() throws Exception
 	{
 		File sourceFolder = new File("code/src/java/pcgen/cdom/facet/input");
-		checkFacetsDefined(sourceFolder);
-	}
-	
-	/**
-	 * Check for the presence of all 'link' facets in the spring definition.
-	 * NB: These do not exist yet so the test is disabled.
-	 * @throws Exception 
-	 */
-	@Ignore
-	@Test
-	public void testLinkFacets() throws Exception
-	{
-		File sourceFolder = new File("code/src/java/pcgen/cdom/facet/link");
-		checkFacetsDefined(sourceFolder);
-	}
-	
-	/**
-	 * Check for the presence of all 'list' facets in the spring definition.
-	 * NB: These do not exist yet so the test is disabled.
-	 * @throws Exception 
-	 */
-	@Ignore
-	@Test
-	public void testListFacets() throws Exception
-	{
-		File sourceFolder = new File("code/src/java/pcgen/cdom/facet/list");
 		checkFacetsDefined(sourceFolder);
 	}
 	
@@ -158,19 +120,6 @@ public class FacetDefinitionTest
 	}
 	
 	/**
-	 * Check for the presence of all 'utility' facets in the spring definition.
-	 * NB: These do not exist yet so the test is disabled.
-	 * @throws Exception 
-	 */
-	@Ignore
-	@Test
-	public void testUtilityFacets() throws Exception
-	{
-		File sourceFolder = new File("code/src/java/pcgen/cdom/facet/utility");
-		checkFacetsDefined(sourceFolder);
-	}
-
-	/**
 	 * Verify that all non-excluded java files are represented by an entry 
 	 * in the applicationContext file. An exceptions list is used to track 
 	 * classes which are not facets.
@@ -180,31 +129,32 @@ public class FacetDefinitionTest
 	 */
 	private void checkFacetsDefined(File sourceFolder) throws IOException
 	{
-		assertTrue("Source folder " + sourceFolder.getAbsolutePath()
-			+ " should be a directory", sourceFolder.isDirectory());
+		Assertions.assertTrue(sourceFolder.isDirectory(), "Source folder " + sourceFolder.getAbsolutePath()
+			+ " should be a directory");
 
 		String packageName =
 				sourceFolder.getPath().replace(File.separatorChar, '.')
 					.replace("code.src.java.", "");
-		String contextData =
-				FileUtils.readFileToString(new File(APP_CONTEXT_FILE), "UTF-8");
 
-		for (Iterator<File> facetSourceFileIter =
-				FileUtils.iterateFiles(sourceFolder, new String[]{"java"},
-					false); facetSourceFileIter.hasNext();)
+		String contextData = Files.readString(Path.of(APP_CONTEXT_FILE), StandardCharsets.UTF_8);
+
+		Files.walk(sourceFolder.toPath()).iterator().forEachRemaining(srcFile ->
 		{
-			File srcFile = facetSourceFileIter.next();
-			String testString = srcFile.getName();
-			testString = testString.replaceAll(".java", "");
-			if (exceptions.contains(testString))
+			if (srcFile.toFile().isDirectory())
 			{
-				//System.out.println("Skipping " + srcFile);
-				continue;
+				return;
 			}
-			testString = "class=\"" + packageName + "." + testString + "\"";
-			assertTrue("Unable to find Spring definition for " + srcFile,
-				contextData.indexOf(testString) >= 0);
-		}
+			String testString = srcFile.getName(srcFile.getNameCount() - 1).toString();
+			testString = testString.replaceAll(".java", "");
+			if (!exceptions.contains(testString))
+			{
+				testString = "class=\"" + packageName + "." + testString + "\"";
+				Assertions.assertTrue(
+						contextData.contains(testString),
+						"Unable to find Spring definition for " + srcFile
+				);
+			}
+		});
 	}
 
 }

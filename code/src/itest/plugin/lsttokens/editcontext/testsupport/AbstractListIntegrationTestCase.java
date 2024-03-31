@@ -19,9 +19,6 @@ package plugin.lsttokens.editcontext.testsupport;
 
 import java.net.URISyntaxException;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.base.Constants;
 import pcgen.cdom.base.Loadable;
@@ -31,6 +28,9 @@ import plugin.pretokens.parser.PreClassParser;
 import plugin.pretokens.parser.PreRaceParser;
 import plugin.pretokens.writer.PreClassWriter;
 import plugin.pretokens.writer.PreRaceWriter;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public abstract class AbstractListIntegrationTestCase<T extends CDOMObject, TC extends Loadable>
 		extends AbstractIntegrationTestCase<T>
@@ -80,8 +80,8 @@ public abstract class AbstractListIntegrationTestCase<T extends CDOMObject, TC e
 	PreRaceParser prerace = new PreRaceParser();
 	PreRaceWriter preracewriter = new PreRaceWriter();
 
+	@BeforeEach
 	@Override
-	@Before
 	public void setUp() throws PersistenceLayerException, URISyntaxException
 	{
 		super.setUp();

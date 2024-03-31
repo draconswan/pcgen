@@ -17,6 +17,10 @@
  */
 package pcgen.io;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static pcgen.util.TestHelper.evaluateToken;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -25,8 +29,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.base.FormulaFactory;
 import pcgen.cdom.enumeration.FormulaKey;
@@ -55,8 +57,12 @@ import pcgen.rules.context.LoadContext;
 import pcgen.util.TestHelper;
 import plugin.lsttokens.testsupport.BuildUtilities;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>SkillTokenTest</code> contains tests to verify that the
+ * {@code SkillTokenTest} contains tests to verify that the
  * SKILL token and its sub tokens are working correctly.
  */
 
@@ -70,61 +76,36 @@ public class ExportHandlerTest extends AbstractCharacterTestCase
 	private Equipment gem = null;
 	private Equipment armor = null;
 
-	/**
-	 * Quick test suite creation - adds all methods beginning with "test"
-	 * @return The Test suite
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(ExportHandlerTest.class);
-	}
-
-	/**
-	 * Basic constructor, name only.
-	 * @param name The name of the test class.
-	 */
-	public ExportHandlerTest(String name)
-	{
-		super(name);
-	}
-
-	/**
-	 * @see pcgen.AbstractCharacterTestCase#setUp()
-	 */
+	@BeforeEach
 	@Override
 	protected void setUp() throws Exception
 	{
 		super.setUp();
-		PlayerCharacter character = getCharacter();
-		LoadContext context = Globals.getContext();
 
 		final LevelInfo levelInfo = new LevelInfo();
 		levelInfo.setLevelString("LEVEL");
 		levelInfo.setMaxClassSkillString("LEVEL+3");
 		levelInfo.setMaxCrossClassSkillString("(LEVEL+3)/2");
-		GameMode gamemode = SettingsHandler.getGame();
+		GameMode gamemode = SettingsHandler.getGameAsProperty().get();
 		gamemode.addLevelInfo("Default", levelInfo);
 
-		//Stats
-		setPCStat(character, dex, 16);
-		setPCStat(character, intel, 17);
+		LoadContext context = Globals.getContext();
+
 		BonusObj aBonus = Bonus.newBonus(context, "MODSKILLPOINTS|NUMBER|INT");
-		
+
 		if (aBonus != null)
 		{
 			intel.addToListFor(ListKey.BONUS, aBonus);
 		}
 
-		// Race
 		Race testRace = new Race();
 		testRace.setName("TestRace");
-		character.setRace(testRace);
+		context.getReferenceContext().importObject(testRace);
 
-		// Class
 		PCClass myClass = new PCClass();
-		myClass.setName("My Class");
+		myClass.setName("MyClass");
 		myClass.put(FormulaKey.START_SKILL_POINTS, FormulaFactory.getFormulaFor(3));
-		character.incrementClassLevel(5, myClass, true);
+		context.getReferenceContext().importObject(myClass);
 
 		// Skills
 		knowledge = new Skill[2];
@@ -134,18 +115,14 @@ public class ExportHandlerTest extends AbstractCharacterTestCase
 		TestHelper.addType(knowledge[0], "KNOWLEDGE.INT");
 		CDOMDirectSingleRef<PCStat> intelRef = CDOMDirectSingleRef.getRef(intel);
 		knowledge[0].put(ObjectKey.KEY_STAT, intelRef);
-		character.setSkillOrder(knowledge[0], 2);
 		Globals.getContext().getReferenceContext().importObject(knowledge[0]);
-		SkillRankControl.modRanks(8.0, myClass, true, character, knowledge[0]);
 
 		knowledge[1] = new Skill();
 		context.unconditionallyProcess(knowledge[1], "CLASSES", "MyClass");
 		knowledge[1].setName("KNOWLEDGE (RELIGION)");
 		TestHelper.addType(knowledge[1], "KNOWLEDGE.INT");
 		knowledge[1].put(ObjectKey.KEY_STAT, intelRef);
-		character.setSkillOrder(knowledge[1], 3);
 		Globals.getContext().getReferenceContext().importObject(knowledge[1]);
-		SkillRankControl.modRanks(5.0, myClass, true, character, knowledge[1]);
 
 		tumble = new Skill();
 		context.unconditionallyProcess(tumble, "CLASSES", "MyClass");
@@ -153,26 +130,20 @@ public class ExportHandlerTest extends AbstractCharacterTestCase
 		tumble.addToListFor(ListKey.TYPE, Type.getConstant("DEX"));
 		CDOMDirectSingleRef<PCStat> dexRef = CDOMDirectSingleRef.getRef(dex);
 		tumble.put(ObjectKey.KEY_STAT, dexRef);
-		character.setSkillOrder(tumble, 4);
 		Globals.getContext().getReferenceContext().importObject(tumble);
-		SkillRankControl.modRanks(7.0, myClass, true, character, tumble);
 
 		balance = new Skill();
 		context.unconditionallyProcess(balance, "CLASSES", "MyClass");
 		balance.setName("Balance");
 		balance.addToListFor(ListKey.TYPE, Type.getConstant("DEX"));
 		balance.put(ObjectKey.KEY_STAT, dexRef);
-		character.setSkillOrder(balance, 1);
 		aBonus = Bonus.newBonus(context, "SKILL|Balance|2|PRESKILL:1,Tumble=5|TYPE=Synergy.STACK");
-		
+
 		if (aBonus != null)
 		{
 			balance.addToListFor(ListKey.BONUS, aBonus);
 		}
 		Globals.getContext().getReferenceContext().importObject(balance);
-		SkillRankControl.modRanks(4.0, myClass, true, character, balance);
-
-		character.calcActiveBonuses();
 
 		weapon = new Equipment();
 		weapon.setName("TestWpn");
@@ -182,18 +153,39 @@ public class ExportHandlerTest extends AbstractCharacterTestCase
 		gem.setName("TestGem");
 		gem.addToListFor(ListKey.TYPE, Type.getConstant("gem"));
 		gem.setQty(1);
-		
+
 		armor = new Equipment();
 		armor.setName("TestArmorSuit");
 		TestHelper.addType(armor, "armor.suit");
 
-		context.getReferenceContext().buildDerivedObjects();
-		context.getReferenceContext().resolveReferences(null);
+		finishLoad();
+
+		PlayerCharacter character = getCharacter();
+		//Stats
+		setPCStat(character, dex, 16);
+		setPCStat(character, intel, 17);
+
+		// Race
+		character.setRace(testRace);
+
+		// Class
+		character.incrementClassLevel(5, myClass, true);
+
+		character.setSkillOrder(balance, 1);
+		character.setSkillOrder(knowledge[0], 2);
+		character.setSkillOrder(knowledge[1], 3);
+		character.setSkillOrder(tumble, 4);
+		SkillRankControl.modRanks(7.0, myClass, true, character, tumble);
+		SkillRankControl.modRanks(8.0, myClass, true, character, knowledge[0]);
+
+		SkillRankControl.modRanks(5.0, myClass, true, character, knowledge[1]);
+		SkillRankControl.modRanks(4.0, myClass, true, character, balance);
+
+		character.calcActiveBonuses();
+
 	}
 
-	/**
-	 * @see pcgen.AbstractCharacterTestCase#tearDown()
-	 */
+	@AfterEach
 	@Override
 	protected void tearDown() throws Exception
 	{
@@ -210,20 +202,21 @@ public class ExportHandlerTest extends AbstractCharacterTestCase
 	 *
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
+	@Test
 	public void testWpnLoop() throws IOException
 	{
 		PlayerCharacter character = getCharacter();
 
 		// Test each token for old and new syntax processing.
 
-		assertEquals("New format SKILL Token", "****", evaluateToken(
-			"FOR.0,100,1,**\\WEAPON.%.NAME\\**,NONE,NONE,1", character));
+		assertEquals("****", evaluateToken(
+			"FOR.0,100,1,**\\WEAPON.%.NAME\\**,NONE,NONE,1", character), "New format SKILL Token");
 		// Now assign a weapon
 		character.addEquipment(weapon);
 		EquipSet es = new EquipSet("1", "Default", "", weapon);
 		character.addEquipSet(es);
-		assertEquals("New format SKILL Token", "**TestWpn**", evaluateToken(
-			"FOR.0,100,1,**\\WEAPON.%.NAME\\**,NONE,NONE,1", character));
+		assertEquals("**TestWpn**", evaluateToken(
+			"FOR.0,100,1,**\\WEAPON.%.NAME\\**,NONE,NONE,1", character), "New format SKILL Token");
 	}
 
 	/**
@@ -231,66 +224,70 @@ public class ExportHandlerTest extends AbstractCharacterTestCase
 	 *
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
+	@Test
 	public void testEqtypeLoop() throws IOException
 	{
 		PlayerCharacter character = getCharacter();
 		final String gemLoop =
 				"FOR.0,COUNT[EQTYPE.Gem],1,\\EQTYPE.Gem.%.NAME\\: \\EQTYPE.Gem.%.QTY\\, ,<br/>,1";
 
-		assertEquals("Gem Loop - no gems", "",
-			evaluateToken(gemLoop, character));
+		assertEquals("",
+			evaluateToken(gemLoop, character), "Gem Loop - no gems"
+		);
 
 		// Now assign a gem
 		character.addEquipment(gem);
 		EquipSet es = new EquipSet("1", "Default", "", gem);
 		character.addEquipSet(es);
 		character.setDirty(true);
-		assertEquals("Gem loop - 1 gem", " TestGem: 1<br/>", evaluateToken(
-			gemLoop, character));
+		assertEquals(" TestGem: 1<br/>", evaluateToken(
+			gemLoop, character), "Gem loop - 1 gem");
 	}
 
+	@Test
 	public void testJepIif() throws IOException
 	{
 		PlayerCharacter character = getCharacter();
-		assertEquals("Basic JEP boolean", new Float(1.0), character
-			.getVariableValue("max(0,2)==2", ""));
-		assertEquals("JEP boolean in IF", "true", evaluateToken(
-			"OIF(max(0,2)==2,true,false)", character));
+		assertEquals(1.0f, (float)character
+			.getVariableValue("max(0,2)==2", ""), "Basic JEP boolean");
+		assertEquals("true", evaluateToken(
+			"OIF(max(0,2)==2,true,false)", character), "JEP boolean in IF");
 //		assertEquals("JEP boolean in IF", "true", evaluateToken(
 //			"|OIF(max(0,2)==2)|\ntrue\n|ELSE|\nfalse\n|ENDIF|", character));
 	}
-	
+
+	@Test
 	public void testFor() throws IOException
 	{
 		PlayerCharacter pc = getCharacter();
 		Ability dummyFeat1 = new Ability();
 		dummyFeat1.setName("1");
 		dummyFeat1.setCDOMCategory(BuildUtilities.getFeatCat());
-		
+
 		Ability dummyFeat2 = new Ability();
 		dummyFeat2.setName("2");
 		dummyFeat2.setCDOMCategory(BuildUtilities.getFeatCat());
-		
+
 		Ability dummyFeat3 = new Ability();
 		dummyFeat3.setName("3");
 		dummyFeat3.setCDOMCategory(BuildUtilities.getFeatCat());
-		
+
 		Ability dummyFeat4 = new Ability();
 		dummyFeat4.setName("4");
 		dummyFeat4.setCDOMCategory(BuildUtilities.getFeatCat());
-		
+
 		Ability dummyFeat5 = new Ability();
 		dummyFeat5.setName("5");
 		dummyFeat5.setCDOMCategory(BuildUtilities.getFeatCat());
-		
+
 		Ability dummyFeat6 = new Ability();
 		dummyFeat6.setName("6");
 		dummyFeat6.setCDOMCategory(BuildUtilities.getFeatCat());
-		
+
 		Ability dummyFeat7 = new Ability();
 		dummyFeat7.setName("7");
-		dummyFeat7.setCDOMCategory(BuildUtilities.getFeatCat());	
-		
+		dummyFeat7.setCDOMCategory(BuildUtilities.getFeatCat());
+
 		addAbility(BuildUtilities.getFeatCat(), dummyFeat1);
 		addAbility(BuildUtilities.getFeatCat(), dummyFeat2);
 		addAbility(BuildUtilities.getFeatCat(), dummyFeat3);
@@ -298,14 +295,16 @@ public class ExportHandlerTest extends AbstractCharacterTestCase
 		addAbility(BuildUtilities.getFeatCat(), dummyFeat5);
 		addAbility(BuildUtilities.getFeatCat(), dummyFeat6);
 		addAbility(BuildUtilities.getFeatCat(), dummyFeat7);
-		
-		assertEquals("Test for evaluates correctly", "----------------",
+
+		assertEquals("----------------",
 			evaluateToken(
-				"FOR.1,((24-STRLEN[SKILL.0])),24,-,NONE,NONE,1", pc));
-		assertEquals("Test for evaluates correctly", "                ",
+				"FOR.1,((24-STRLEN[SKILL.0])),24,-,NONE,NONE,1", pc), "Test for evaluates correctly"
+		);
+		assertEquals("                ",
 			evaluateToken(
-				"FOR.1,((24-STRLEN[SKILL.0])),24, ,NONE,NONE,1", pc));
-		
+				"FOR.1,((24-STRLEN[SKILL.0])),24, ,NONE,NONE,1", pc), "Test for evaluates correctly"
+		);
+
 		String tok = "DFOR."
 			+ "0"
 			+ ",${((count(\"ABILITIES\";\"CATEGORY=FEAT\")+1)/2)}"
@@ -316,38 +315,43 @@ public class ExportHandlerTest extends AbstractCharacterTestCase
 			+ ",["
 			+ ",]"
 			+ ",0";
-		
-		
+
+
 		//Logging.errorPrint( "DFOR Test: " + evaluateToken(tok, pc));
-		
-		
-		// Test DFOR with alternate syntax for jep passthrough.  ie, anything 
+
+
+		// Test DFOR with alternate syntax for jep passthrough.  ie, anything
 		// surrounded by ${x} will tbe sent straight to be processed.  We
-		// will assume that x is a well formed type of value.  This was to get around 
+		// will assume that x is a well formed type of value.  This was to get around
 		// the problems with DFOR not taking ((count("ABILITIES";"CATEGORY=FEAT")+1)
 		// since it could not figure out how to parse it to send to the right place.
-		assertEquals("Test for DFOR ", "[ 1  5 ][ 2  6 ][ 3  7 ][ 4   ]", 
-			evaluateToken(tok, pc));
-					
+		assertEquals("[ 1  5 ][ 2  6 ][ 3  7 ][ 4   ]",
+			evaluateToken(tok, pc), "Test for DFOR "
+		);
+
 	}
-	
+
+	@Test
 	public void testForNoMoreItems() throws IOException
 	{
 		PlayerCharacter pc = getCharacter();
-		assertEquals("Test for evaluates correctly", "SF",
+		assertEquals("SF",
 			evaluateToken(
-				"FOR.0,100,1,\\ARMOR.SUIT.ALL.%.NAME\\,S,F,1", pc));
+				"FOR.0,100,1,\\ARMOR.SUIT.ALL.%.NAME\\,S,F,1", pc), "Test for evaluates correctly"
+		);
 
 		// Now assign a gem
 		pc.addEquipment(armor);
 		EquipSet es = new EquipSet("1", "Default", "", armor);
 		pc.addEquipSet(es);
-		assertEquals("Test for evaluates correctly", "STestArmorSuitFSF",
+		assertEquals("STestArmorSuitFSF",
 			evaluateToken(
-				"FOR.0,100,1,\\ARMOR.SUIT.ALL.%.NAME\\,S,F,1", pc));
-		
+				"FOR.0,100,1,\\ARMOR.SUIT.ALL.%.NAME\\,S,F,1", pc), "Test for evaluates correctly"
+		);
+
 	}
-	
+
+	@Test
 	public void testExpressionOutput() throws IOException
 	{
 		LoadContext context = Globals.getContext();
@@ -365,12 +369,12 @@ public class ExportHandlerTest extends AbstractCharacterTestCase
 		dummyFeat2.setName("DummyFeat2");
 		dummyFeat2.setCDOMCategory(BuildUtilities.getFeatCat());
 		final BonusObj aBonus = Bonus.newBonus(context, "VAR|NegLevels|7");
-		
+
 		if (aBonus != null)
 		{
 			dummyFeat2.addToListFor(ListKey.BONUS, aBonus);
 		}
-		
+
 		AbilityCategory cat = context.getReferenceContext().constructCDOMObject(
 				AbilityCategory.class, "Maneuver");
 		AbilityCategory cat2 = context.getReferenceContext().constructCDOMObject(
@@ -378,51 +382,52 @@ public class ExportHandlerTest extends AbstractCharacterTestCase
 		Ability dummyFeat3 = new Ability();
 		dummyFeat3.setName("DummyFeat3");
 		dummyFeat3.setCDOMCategory(cat);
-		
+
 		Ability dummyFeat4 = new Ability();
 		dummyFeat4.setName("DummyFeat4");
 		dummyFeat4.setCDOMCategory(cat2);
-		
+
 		addAbility(BuildUtilities.getFeatCat(), dummyFeat);
 		addAbility(BuildUtilities.getFeatCat(), dummyFeat2);
 		addAbility(cat, dummyFeat3);
 		addAbility(cat2, dummyFeat4);
-		
-		assertEquals("Unsigned output", "7", evaluateToken(
-			"VAR.NegLevels.INTVAL", pc));
-		assertEquals("Signed output", "+7", evaluateToken(
-			"VAR.NegLevels.INTVAL.SIGN", pc));
-	
-		String tok = "";
-	
-		tok = "count(\"ABILITIES\", \"CATEGORY=Maneuver\")";		
+
+		assertEquals("7", evaluateToken(
+			"VAR.NegLevels.INTVAL", pc), "Unsigned output");
+		assertEquals("+7", evaluateToken(
+			"VAR.NegLevels.INTVAL.SIGN", pc), "Signed output");
+
+		String tok;
+
+		tok = "count(\"ABILITIES\", \"CATEGORY=Maneuver\")";
 		// if this evaluates math wise, the values should be string "1.0"
-		assertFalse("Token: |" + tok + "| != 1.0: ", evaluateToken(tok, pc).equals("1.0"));
-		
-		tok = "VAR.count(\"ABILITIES\", \"CATEGORY=Maneuver\")";		
-		assertTrue("Token: |" + tok + "| == 1.0: ",  evaluateToken(tok, pc).equals("1.0"));
-	
-		tok = "COUNT[\"ABILITIES\", \"CATEGORY=Maneuver\"]";		
-		assertFalse("Token: |" + tok + "| != 1.0: ",  evaluateToken(tok, pc).equals("1.0"));
-		
+		assertNotEquals("1.0", evaluateToken(tok, pc), "Token: |" + tok + "| != 1.0: ");
+
+		tok = "VAR.count(\"ABILITIES\", \"CATEGORY=Maneuver\")";
+		assertEquals("1.0", evaluateToken(tok, pc), "Token: |" + tok + "| == 1.0: ");
+
+		tok = "COUNT[\"ABILITIES\", \"CATEGORY=Maneuver\"]";
+		assertNotEquals("1.0", evaluateToken(tok, pc), "Token: |" + tok + "| != 1.0: ");
+
 		tok = "count(\"ABILITIES\", \"CATEGORY=Maneuver(Special)\")";
-		assertFalse("Token: |" + tok + "| != 1.0 ",  evaluateToken(tok, pc).equals("1.0"));
-		
+		assertNotEquals("1.0", evaluateToken(tok, pc), "Token: |" + tok + "| != 1.0 ");
+
 		tok = "${count(\"ABILITIES\", \"CATEGORY=Maneuver(Special)\")+5}";
-		assertFalse("Token: |" + tok + "| == 5.0 ",  evaluateToken(tok, pc).equals("5.0"));
-		
+		assertNotEquals("5.0", evaluateToken(tok, pc), "Token: |" + tok + "| == 5.0 ");
+
 		tok = "${count(\"ABILITIES\", \"CATEGORY=Maneuver(Special)\")+5}";
-		assertTrue("Token: |" + tok + "| != 6.0 ",  evaluateToken(tok, pc).equals("6.0"));
-		
+		assertEquals("6.0", evaluateToken(tok, pc), "Token: |" + tok + "| != 6.0 ");
+
 		tok = "${(count(\"ABILITIES\", \"CATEGORY=Maneuver(Special)\")+5)/3}";
-		assertFalse("Token: |" + tok + "| == 3.0 ",  evaluateToken(tok, pc).equals("3.0"));
-		
+		assertNotEquals("3.0", evaluateToken(tok, pc), "Token: |" + tok + "| == 3.0 ");
+
 		tok = "${(count(\"ABILITIES\", \"CATEGORY=Maneuver(Special)\")+5)/3}";
-		assertTrue("Token: |" + tok + "| != 2.0 ",  evaluateToken(tok, pc).equals("2.0"));
-		
-		
+		assertEquals("2.0", evaluateToken(tok, pc), "Token: |" + tok + "| != 2.0 ");
+
+
 	}
 
+	@Test
 	public void testPartyFor() throws IOException
 	{
 		String outputToken =
@@ -434,28 +439,15 @@ public class ExportHandlerTest extends AbstractCharacterTestCase
 		List<PlayerCharacter> pcs = new ArrayList<>();
 		pcs.add(getCharacter());
 		String result = evaluatePartyToken(outputToken, pcs).trim();
-		assertEquals("Party skills output", "<combatants>"
+		assertEquals("<combatants>"
 			+ System.getProperty("line.separator")
 			+ "<combatant>	<name></name>	<skills> Balance: +9;  KNOWLEDGE (ARCANA): +11;  "
 			+ "KNOWLEDGE (RELIGION): +8;  Tumble: +10; </skills></combatant>   </combatants>",
-			result);
+			result, "Party skills output"
+		);
 	}
-	
-	private String evaluateToken(String token, PlayerCharacter pc)
-		throws IOException
-	{
-		StringWriter retWriter = new StringWriter();
-		BufferedWriter bufWriter = new BufferedWriter(retWriter);
-		ExportHandler export = new ExportHandler(new File(""));
-		export.replaceToken(token, bufWriter, pc);
-		retWriter.flush();
 
-		bufWriter.flush();
-
-		return retWriter.toString();
-	}
-	
-	private String evaluatePartyToken(String token, List<PlayerCharacter> pcs)
+	private static String evaluatePartyToken(String token, List<PlayerCharacter> pcs)
 		throws IOException
 	{
 		// Create temp file.
@@ -471,7 +463,7 @@ public class ExportHandlerTest extends AbstractCharacterTestCase
 
 		StringWriter retWriter = new StringWriter();
 		BufferedWriter bufWriter = new BufferedWriter(retWriter);
-		ExportHandler export = new ExportHandler(temp);
+		ExportHandler export = ExportHandler.createExportHandler(temp);
 		export.write(pcs, bufWriter);
 		retWriter.flush();
 
@@ -479,4 +471,12 @@ public class ExportHandlerTest extends AbstractCharacterTestCase
 
 		return retWriter.toString();
 	}
+
+	@Override
+	protected void defaultSetupEnd()
+	{
+		//We will handle this locally
+	}
+
+
 }

@@ -17,56 +17,59 @@
  */
 package actor.choose;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import pcgen.cdom.content.AbilitySelection;
 import pcgen.cdom.enumeration.ObjectKey;
 import pcgen.core.Ability;
 import pcgen.core.Globals;
-import pcgen.core.SettingsHandler;
 import pcgen.rules.context.LoadContext;
 import pcgen.rules.persistence.token.ParseResult;
 import plugin.lsttokens.choose.AbilitySelectionToken;
 import plugin.lsttokens.choose.StringToken;
 import plugin.lsttokens.testsupport.BuildUtilities;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
  * Unit test of the class AbilitySelectionToken.
- * 
- * 
  */
 public class AbilitySelectionTokenTest
 {
 
-	static final AbilitySelectionToken PCA = new AbilitySelectionToken();
+	private static final AbilitySelectionToken PCA = new AbilitySelectionToken();
 
-	protected LoadContext context;
+	private LoadContext context;
 
-	@Before
-	public void setUp()
+	@BeforeEach
+	void setUp()
 	{
 		Globals.emptyLists();
-		SettingsHandler.getGame().clearLoadContext();
 		context = Globals.getContext();
-		
 		context.getReferenceContext().importObject(BuildUtilities.getFeatCat());
+	}
+
+	@AfterEach
+	void tearDown()
+	{
+		Globals.emptyLists();
+		context = null;
 	}
 
 	@Test
 	public void testEncodeChoice()
 	{
-		Ability item = construct("ItemName");
+		Ability item = BuildUtilities.buildFeat(context, "ItemName");
 		AbilitySelection as = new AbilitySelection(item, null);
 		assertEquals("CATEGORY=FEAT|ItemName", PCA.encodeChoice(as));
-		Ability paren = construct("ParenName (test)");
+		Ability paren = BuildUtilities.buildFeat(context, "ParenName (test)");
 		as = new AbilitySelection(paren, null);
 		assertEquals("CATEGORY=FEAT|ParenName (test)", PCA.encodeChoice(as));
-		Ability sel = construct("ChooseName");
+		Ability sel = BuildUtilities.buildFeat(context, "ChooseName");
 		sel.put(ObjectKey.MULTIPLE_ALLOWED, Boolean.TRUE);
 		StringToken st = new plugin.lsttokens.choose.StringToken();
 		ParseResult pr = st.parseToken(Globals.getContext(), sel, "selection|Acrobatics");
@@ -79,22 +82,15 @@ public class AbilitySelectionTokenTest
 	@Test
 	public void testDecodeChoice()
 	{
-		try
-		{
-			PCA.decodeChoice(context, "Category=Special Ability|ItemName");
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// OK
-		}
-		Ability item = construct("ItemName");
+		assertThrows(IllegalArgumentException.class,
+				() -> PCA.decodeChoice(context, "Category=Special Ability|ItemName"));
+		Ability item = BuildUtilities.buildFeat(context, "ItemName");
 		AbilitySelection as = new AbilitySelection(item, null);
 		assertEquals(as, PCA.decodeChoice(context, "CATEGORY=FEAT|ItemName"));
-		Ability paren = construct("ParenName (test)");
+		Ability paren = BuildUtilities.buildFeat(context, "ParenName (test)");
 		as = new AbilitySelection(paren, null);
 		assertEquals(as, PCA.decodeChoice(context, "CATEGORY=Feat|ParenName (test)"));
-		Ability sel = construct("ChooseName");
+		Ability sel = BuildUtilities.buildFeat(context, "ChooseName");
 		sel.put(ObjectKey.MULTIPLE_ALLOWED, Boolean.TRUE);
 		StringToken st = new plugin.lsttokens.choose.StringToken();
 		ParseResult pr = st.parseToken(Globals.getContext(), sel, "selection|Acrobatics");
@@ -102,13 +98,5 @@ public class AbilitySelectionTokenTest
 		Globals.getContext().commit();
 		as = new AbilitySelection(sel, "selection");
 		assertEquals(as, PCA.decodeChoice(context, "CATEGORY=Feat|ChooseName|selection"));
-	}
-
-	protected Ability construct(String one)
-	{
-		Ability a = BuildUtilities.getFeatCat().newInstance();
-		a.setName(one);
-		context.getReferenceContext().importObject(a);
-		return a;
 	}
 }

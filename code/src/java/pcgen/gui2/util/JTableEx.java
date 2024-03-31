@@ -24,6 +24,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -44,9 +45,6 @@ import pcgen.gui2.util.table.TableCellUtilities;
  */
 public class JTableEx extends JTable
 {
-
-	private static final long serialVersionUID = 514835142307946415L;
-
 	/** Constant for a double click action event. */
 	public static final int ACTION_DOUBLECLICK = 2042;
 	private boolean sortingEnabled;
@@ -54,31 +52,12 @@ public class JTableEx extends JTable
 	/**
 	 * Constructor
 	 */
-	public JTableEx()
+	JTableEx()
 	{
 		this(null, null, null);
 	}
 
-	/**
-	 * Constructor
-	 * @param tm
-	 */
-	public JTableEx(TableModel tm)
-	{
-		this(tm, null, null);
-	}
-
-	/**
-	 * Constructor
-	 * @param tm
-	 * @param tcm
-	 */
-	public JTableEx(TableModel tm, TableColumnModel tcm)
-	{
-		this(tm, tcm, null);
-	}
-
-	public JTableEx(TableModel tm, TableColumnModel tcm, ListSelectionModel lsm)
+	private JTableEx(TableModel tm, TableColumnModel tcm, ListSelectionModel lsm)
 	{
 		super(tm, tcm, lsm);
 		setFillsViewportHeight(true);
@@ -177,10 +156,7 @@ public class JTableEx extends JTable
 	@Override
 	public void setModel(TableModel dataModel)
 	{
-		if (dataModel == null)
-		{
-			throw new IllegalArgumentException("Cannot set a null TableModel");
-		}
+		Objects.requireNonNull(dataModel, "Cannot set a null TableModel");
 		if (this.dataModel != dataModel)
 		{
 			TableModel old = this.dataModel;
@@ -207,17 +183,6 @@ public class JTableEx extends JTable
 				}
 			}
 		}
-	}
-
-	/**
-	 * set horizontal alignment of column
-	 * and attach a new cell renderer
-	 * @param col
-	 * @param alignment
-	 **/
-	public void setColAlign(int col, int alignment)
-	{
-		getColumnModel().getColumn(col).setCellRenderer(new TableCellUtilities.AlignRenderer(alignment));
 	}
 
 }

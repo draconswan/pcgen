@@ -17,8 +17,7 @@
  */
 package pcgen.cdom.enumeration;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Objects;
 
 import pcgen.base.enumeration.TypeSafeConstant;
 import pcgen.base.util.CaseInsensitiveMap;
@@ -53,10 +52,7 @@ public final class VariableKey implements TypeSafeConstant
 
 	private VariableKey(String name)
 	{
-		if (name == null)
-		{
-			throw new IllegalArgumentException("Name for VariableKey cannot be null");
-		}
+		Objects.requireNonNull(name, "Name for VariableKey cannot be null");
 		ordinal = ordinalCount++;
 		fieldName = name;
 	}
@@ -133,24 +129,6 @@ public final class VariableKey implements TypeSafeConstant
 			throw new IllegalArgumentException(name + " is not a previously defined VariableKey");
 		}
 		return key;
-	}
-
-	/**
-	 * Returns a Collection of all of the Constants in this Class.
-	 * 
-	 * This collection maintains a reference to the Constants in this Class, so
-	 * if a new Constant is created, the Collection returned by this method will
-	 * be modified. (Beware of ConcurrentModificationExceptions)
-	 * 
-	 * @return a Collection of all of the Constants in this Class.
-	 */
-	public static Collection<VariableKey> getAllConstants()
-	{
-		if (typeMap == null)
-		{
-			return Collections.emptyList();
-		}
-		return Collections.unmodifiableCollection(typeMap.values());
 	}
 
 	/**

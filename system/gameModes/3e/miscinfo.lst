@@ -8,22 +8,13 @@
 LEVELMSG:Congratulations, you can advance with that much experience!
 #
 #
-ALIGNMENTNAME:Alignment
-HPNAME:Hit Points
-HPABBREV:HP
-#ALTHPNAME:
-#ALTHPABBREV:
 
 # AC tags can be used to display AC info by using appropriate name and abbrev.
-# ACNAME: and ACABBREV: are required for proper usage.
-# SHOWCLASSDEFENSE: determines whether BONUS:COMBAT|AC|x|TYPE=ClassDefense value is reflected
 ACNAME:Armor Class
-ACABBREV:AC
 
 #
 #misc. currency specific items
 #
-CURRENCYUNIT:Gold
 CURRENCYUNITABBREV:gp
 
 #
@@ -37,19 +28,7 @@ BONUSSTACKS:Defense.Dodge.Circumstance.NotRanged.NotFlatFooted
 
 # The following determine whether some Class-related variables are displayed
 # on the Classes tab.
-# SHOWCLASSDEFENSE: determines whether BONUS:COMBAT|AC|x|TYPE=ClassDefense value is displayed.
-# DISPLAYVARIABLExTEXT: determines the Label displayed for the variable
-# DISPLAYVARIABLExNAME: determines the variable displayed.  This must match the DEFINE:
-# variable in order to be displayed
-# up to 3 variables can be displayed in this manner
 
-SHOWCLASSDEFENSE:No
-#DISPLAYVARIABLE1TEXT:
-#DISPLAYVARIABLE1NAME:
-#DISPLAYVARIABLE2TEXT:
-#DISPLAYVARIABLE2NAME:
-#DISPLAYVARIABLE3TEXT:
-#DISPLAYVARIABLE3NAME:
 
 #
 # Whether or not the game mode displays these tabs
@@ -74,7 +53,6 @@ TAB:TEMPMOD		NAME:in_InfoTempMod	CONTEXT:tabpages\tabtemporarybonuses.html
 # use & for mnemonic, && for & (MENUENTRY only)
 #
 MENUENTRY:3e
-MENUTOOLTIP:Use 3.0 character creation settings
 DISPLAYORDER:1
 ALLOWEDMODES:3e|DnD|Xcrawl
 #
@@ -200,28 +178,28 @@ BASEDICE:1d12	UP:2d8,2d8,4d6,4d8,8d6,8d8		DOWN:1d8,1d6,1d4,1d3,1d2,1,0
 # Number of hands required to wield weapon categories
 #									Object Size difference
 #											Damage multiplier: hands = multiplier
-WIELDCATEGORY:Light		HANDS:1		FINESSABLE:Yes	SIZEDIFF:-1	DAMAGEMULT:1=1,2=1
-WIELDCATEGORY:OneHanded		HANDS:1					SIZEDIFF:0	DAMAGEMULT:1=1,2=1.5
-WIELDCATEGORY:TwoHanded		HANDS:2					SIZEDIFF:1	DAMAGEMULT:2=1.5
+WIELDCATEGORY:Light			HANDS:1		FINESSABLE:Yes	SIZEDIFF:-1
+WIELDCATEGORY:OneHanded		HANDS:1						SIZEDIFF:0
+WIELDCATEGORY:TwoHanded		HANDS:2						SIZEDIFF:1
 #WIELDCATEGORY:TooSmall		HANDS:999
 WIELDCATEGORY:TooLarge		HANDS:999
 WIELDCATEGORY:Unusable		HANDS:999
-WIELDCATEGORY:None		HANDS:0
+WIELDCATEGORY:None			HANDS:0
 
 # Light weapon vs PC size changes
-#WIELDCATEGORY:Light		PREVARLTEQ:EQUIP.SIZE.INT,PC.SIZE.INT-1	SWITCH:TooSmall
+#WIELDCATEGORY:Light	PREVARLTEQ:EQUIP.SIZE.INT,PC.SIZE.INT-1	SWITCH:TooSmall
 WIELDCATEGORY:Light		PREVAREQ:EQUIP.SIZE.INT,PC.SIZE.INT+1	SWITCH:OneHanded
 WIELDCATEGORY:Light		PREVAREQ:EQUIP.SIZE.INT,PC.SIZE.INT+2	SWITCH:TwoHanded
 WIELDCATEGORY:Light		PREVARGTEQ:EQUIP.SIZE.INT,PC.SIZE.INT+3	SWITCH:TooLarge
 
 # OneHanded weapon vs PC size changes
-#WIELDCATEGORY:OneHanded		PREVARLTEQ:EQUIP.SIZE.INT,PC.SIZE.INT-2	SWITCH:TooSmall
+#WIELDCATEGORY:OneHanded	PREVARLTEQ:EQUIP.SIZE.INT,PC.SIZE.INT-2	SWITCH:TooSmall
 WIELDCATEGORY:OneHanded		PREVARLTEQ:EQUIP.SIZE.INT,PC.SIZE.INT-1	SWITCH:Light
 WIELDCATEGORY:OneHanded		PREVAREQ:EQUIP.SIZE.INT,PC.SIZE.INT+1	SWITCH:TwoHanded
 WIELDCATEGORY:OneHanded		PREVARGTEQ:EQUIP.SIZE.INT,PC.SIZE.INT+2	SWITCH:TooLarge
 
 # TwoHanded weapon vs PC size changes
-#WIELDCATEGORY:TwoHanded		PREVARLTEQ:EQUIP.SIZE.INT,PC.SIZE.INT-3	SWITCH:TooSmall
+#WIELDCATEGORY:TwoHanded	PREVARLTEQ:EQUIP.SIZE.INT,PC.SIZE.INT-3	SWITCH:TooSmall
 WIELDCATEGORY:TwoHanded		PREVARLTEQ:EQUIP.SIZE.INT,PC.SIZE.INT-2	SWITCH:Light
 WIELDCATEGORY:TwoHanded		PREVAREQ:EQUIP.SIZE.INT,PC.SIZE.INT-1	SWITCH:OneHanded
 WIELDCATEGORY:TwoHanded		PREVARGTEQ:EQUIP.SIZE.INT,PC.SIZE.INT+1	SWITCH:TooLarge
@@ -229,13 +207,12 @@ WIELDCATEGORY:TwoHanded		PREVARGTEQ:EQUIP.SIZE.INT,PC.SIZE.INT+1	SWITCH:TooLarge
 #
 # Wield Category Steps
 #  This is used when figuring bonuses that allow you to wield Larger or Smaller size weapons
-WCSTEPSFORMULA:EQUIP.SIZE.INT-PC.SIZE.INT
 
-#WIELDCATEGORY:TooSmall		UP:Light|OneHanded|TwoHanded					ZERO:Light
-WIELDCATEGORY:Light		UP:OneHanded|TwoHanded
-WIELDCATEGORY:OneHanded		UP:TwoHanded			DOWN:Light
-WIELDCATEGORY:TwoHanded						DOWN:OneHanded|Light
-WIELDCATEGORY:TooLarge						DOWN:TwoHanded|OneHanded|Light	ZERO:TwoHanded
+#WIELDCATEGORY:TooSmall		UP:Light|OneHanded|TwoHanded
+WIELDCATEGORY:Light			UP:OneHanded|TwoHanded
+WIELDCATEGORY:OneHanded		UP:TwoHanded					DOWN:Light
+WIELDCATEGORY:TwoHanded										DOWN:OneHanded|Light
+WIELDCATEGORY:TooLarge										DOWN:TwoHanded|OneHanded|Light
 
 #
 # Dice rolling methods for character creation

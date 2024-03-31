@@ -19,8 +19,7 @@ package pcgen.io;
 
 import java.util.Arrays;
 
-import org.junit.Test;
-
+import pcgen.cdom.util.CControl;
 import pcgen.core.Deity;
 import pcgen.core.GameMode;
 import pcgen.core.NoteItem;
@@ -29,8 +28,13 @@ import pcgen.core.PCTemplate;
 import pcgen.core.SettingsHandler;
 import pcgen.core.Skill;
 import pcgen.io.testsupport.AbstractSaveRestoreTest;
-import pcgen.output.channel.ChannelCompatibility;
+import pcgen.output.channel.ChannelUtilities;
+import pcgen.output.channel.compat.AlignmentCompat;
+
 import plugin.lsttokens.pcclass.HdToken;
+
+import org.junit.jupiter.api.Test;
+
 
 public class BasicSaveRestoreTest extends AbstractSaveRestoreTest
 {
@@ -47,7 +51,7 @@ public class BasicSaveRestoreTest extends AbstractSaveRestoreTest
 	{
 		Deity deity = create(Deity.class, "MyDeity");
 		finishLoad();
-		pc.setDeity(deity);
+		ChannelUtilities.setControlledChannel(id, CControl.DEITYINPUT, deity);
 		runRoundRobin(null);
 	}
 
@@ -67,7 +71,7 @@ public class BasicSaveRestoreTest extends AbstractSaveRestoreTest
 	public void testAlignment()
 	{
 		finishLoad();
-		ChannelCompatibility.setCurrentAlignment(pc.getCharID(), le);
+		AlignmentCompat.setCurrentAlignment(pc.getCharID(), le);
 		runRoundRobin(null);
 	}
 
@@ -123,11 +127,12 @@ public class BasicSaveRestoreTest extends AbstractSaveRestoreTest
 	@Test
 	public void testCharacterType()
 	{
-		GameMode mode = SettingsHandler.getGame();
-		mode.setCharacterTypeList(Arrays.asList("Default",
+		final GameMode gameMode = SettingsHandler.getGameAsProperty().get();
+		gameMode.setCharacterTypeList(Arrays.asList("Default",
 				"MyType"));
 		finishLoad();
-		pc.setCharacterType("MyType");
+		ChannelUtilities.setControlledChannel(pc.getCharID(),
+			CControl.CHARACTERTYPE, "MyType");
 		runRoundRobin(null);
 	}
 

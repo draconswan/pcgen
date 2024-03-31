@@ -17,7 +17,6 @@
  */
 package pcgen.gui2.converter;
 
-import java.awt.CardLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -25,10 +24,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.WindowConstants;
-
-import org.apache.commons.lang3.SystemUtils;
 
 import pcgen.gui2.converter.panel.CampaignPanel;
 import pcgen.gui2.converter.panel.ConvertSubPanel;
@@ -38,7 +34,6 @@ import pcgen.gui2.converter.panel.SourceSelectionPanel;
 import pcgen.gui2.converter.panel.StartupPanel;
 import pcgen.gui2.converter.panel.SummaryPanel;
 import pcgen.gui2.converter.panel.WriteDirectoryPanel;
-import pcgen.gui2.tools.Utility;
 import pcgen.persistence.CampaignFileLoader;
 import pcgen.persistence.GameModeFileLoader;
 import pcgen.system.ConfigurationSettings;
@@ -47,11 +42,11 @@ import pcgen.system.PCGenPropBundle;
 import pcgen.system.PropertyContextFactory;
 import pcgen.util.Logging;
 
+import org.apache.commons.lang3.SystemUtils;
+
 public final class PCGenDataConvert extends JFrame
 {
 	private static final long serialVersionUID = 3921586726890440663L;
-
-	private final JPanel contentPanel = new JPanel(new CardLayout());
 
 	private static PropertyContextFactory configFactory;
 
@@ -91,7 +86,7 @@ public final class PCGenDataConvert extends JFrame
 
 		frame.getContentPane().add(installPanel);
 		frame.pack();
-		Utility.centerComponent(frame, false);
+		frame.setLocationRelativeTo(null);
 		return frame;
 	}
 

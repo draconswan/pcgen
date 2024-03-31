@@ -4,13 +4,16 @@
  */
 package pcgen.core.prereq;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.enumeration.ListKey;
 import pcgen.cdom.enumeration.ObjectKey;
@@ -31,36 +34,19 @@ import pcgen.rules.context.LoadContext;
 import pcgen.util.TestHelper;
 import plugin.pretokens.parser.PreVariableParser;
 
+import org.junit.jupiter.api.Test;
+
 /**
  * Tests PREVAR token
  */
 public class PreVarTest extends AbstractCharacterTestCase
 {
-
-	/**
-	 * Main
-	 * 
-	 * @param args
-	 */
-	public static void main(final String[] args)
-	{
-		TestRunner.run(PreVarTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PreVarTest.class);
-	}
-
-	
 	/**
 	 * Test var pass.
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testVarPass() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();
@@ -83,6 +69,7 @@ public class PreVarTest extends AbstractCharacterTestCase
 				prereq, character, null));
 	}
 
+	@Test
 	public void testMutiplePositive() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
@@ -108,6 +95,7 @@ public class PreVarTest extends AbstractCharacterTestCase
 
 	}
 
+	@Test
 	public void testMutipleNegative() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
@@ -133,6 +121,7 @@ public class PreVarTest extends AbstractCharacterTestCase
 
 	}
 
+	@Test
 	public void test2857849a()
 	{
 		final PCClass warrior = new PCClass();
@@ -154,12 +143,13 @@ public class PreVarTest extends AbstractCharacterTestCase
 			character.incrementClassLevel(1, warrior);
 			assertTrue(notawarrior.qualifies(character, notawarrior));
 		}
-		catch (URISyntaxException | PersistenceLayerException e)
+		catch (URISyntaxException e)
 		{
 			fail(e.getMessage());
 		}
 	}
 
+	@Test
 	public void test2857849and2862276()
 	{
 		LoadContext context = Globals.getContext();
@@ -181,12 +171,13 @@ public class PreVarTest extends AbstractCharacterTestCase
 			setPCStat(character, intel, 16);
 			assertTrue(spellcaster.qualifies(character, spellcaster));
 		}
-		catch (URISyntaxException | PersistenceLayerException e)
+		catch (URISyntaxException e)
 		{
 			fail(e.getMessage());
 		}
 	}
 
+	@Test
 	public void test2857848a()
 	{
 		LoadContext context = Globals.getContext();
@@ -215,12 +206,13 @@ public class PreVarTest extends AbstractCharacterTestCase
 			assertEquals(5, SkillModifier.modifier(concentration, character)
 					.intValue());
 		}
-		catch (URISyntaxException | PersistenceLayerException e)
+		catch (URISyntaxException e)
 		{
 			fail(e.getMessage());
 		}
 	}
 
+	@Test
 	public void test2857848b()
 	{
 		final PCClass warrior = new PCClass();
@@ -251,12 +243,13 @@ public class PreVarTest extends AbstractCharacterTestCase
 			assertEquals(5, SkillModifier.modifier(concentration, character)
 					.intValue());
 		}
-		catch (URISyntaxException | PersistenceLayerException e)
+		catch (URISyntaxException e)
 		{
 			fail(e.getMessage());
 		}
 	}
 
+	@Test
 	public void test2857848c()
 	{
 		final PCClass warrior = new PCClass();
@@ -293,12 +286,13 @@ public class PreVarTest extends AbstractCharacterTestCase
 			assertEquals(5, SkillModifier.modifier(concentration, character)
 					.intValue());
 		}
-		catch (URISyntaxException | PersistenceLayerException e)
+		catch (URISyntaxException e)
 		{
 			fail(e.getMessage());
 		}
 	}
 
+	@Test
 	public void test2856622()
 	{
 		LoadContext context = Globals.getContext();
@@ -326,12 +320,13 @@ public class PreVarTest extends AbstractCharacterTestCase
 			character.incrementClassLevel(1, warrior);
 			assertTrue(sab.qualifies(character, warrior));
 		}
-		catch (URISyntaxException | PersistenceLayerException e)
+		catch (URISyntaxException e)
 		{
 			fail(e.getMessage());
 		}
 	}
 
+	@Test
 	public void test2856626()
 	{
 		LoadContext context = Globals.getContext();

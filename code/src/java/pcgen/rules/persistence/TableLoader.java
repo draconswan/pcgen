@@ -88,6 +88,7 @@ public class TableLoader extends LstLineFileLoader
 	 * either blank lines or comment lines. Both of those should be ignored
 	 * prior to the line being passed to a LineProcessor.
 	 */
+	@FunctionalInterface
 	public interface LineProcessor
 	{
 		/**
@@ -227,7 +228,7 @@ public class TableLoader extends LstLineFileLoader
 			throws PersistenceLayerException
 		{
 			ParsingSeparator ps = generateCSVSeparator(lstLine);
-			List<String> columnNames = new ArrayList<String>();
+			List<String> columnNames = new ArrayList<>();
 			boolean first = true;
 			boolean foundEmpty = false;
 			while (ps.hasNext())

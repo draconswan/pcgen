@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import org.apache.commons.lang3.StringUtils;
-
 import pcgen.base.util.HashMapToList;
 import pcgen.cdom.base.CDOMList;
 import pcgen.cdom.base.Constants;
@@ -58,6 +56,8 @@ import pcgen.facade.util.DefaultReferenceFacade;
 import pcgen.facade.util.ListFacade;
 import pcgen.facade.util.ReferenceFacade;
 import pcgen.util.Logging;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * SpellBuilderFacadeImpl prepares the data for display in the Spell Choice 
@@ -134,7 +134,7 @@ public class SpellBuilderFacadeImpl implements SpellBuilderFacade
 		requiredType = Type.NONE;
 		if (equip != null)
 		{
-			Type[] knownTypes = new Type[]{Type.POTION, Type.SCROLL, Type.WAND, Type.RING};
+			Type[] knownTypes = {Type.POTION, Type.SCROLL, Type.WAND, Type.RING};
 			for (Type itemType : knownTypes)
 			{
 				if (equip.isType(itemType.toString()))
@@ -177,11 +177,11 @@ public class SpellBuilderFacadeImpl implements SpellBuilderFacade
 		// Add in any relevant restrictions from preferences on crafting
 		if (requiredType == Type.POTION)
 		{
-			maxSpellLevel = Math.min(maxSpellLevel, SettingsHandler.getMaxPotionSpellLevel());
+			maxSpellLevel = Math.min(maxSpellLevel, SettingsHandler.maxPotionSpellLevel().get());
 		}
 		else if (requiredType == Type.WAND)
 		{
-			maxSpellLevel = Math.min(maxSpellLevel, SettingsHandler.getMaxWandSpellLevel());
+			maxSpellLevel = Math.min(maxSpellLevel, SettingsHandler.maxWandSpellLevel().get());
 		}
 	}
 
@@ -223,20 +223,9 @@ public class SpellBuilderFacadeImpl implements SpellBuilderFacade
 			{
 				switch (aString.charAt(11))
 				{
-					case 'Y':
-						spellBooks = true;
-
-						break;
-
-					case 'N':
-						spellBooks = false;
-
-						break;
-
-					default:
-						spellBooks = null;
-
-						break;
+					case 'Y' -> spellBooks = true;
+					case 'N' -> spellBooks = false;
+					default -> spellBooks = null;
 				}
 			}
 			else if (aString.equals("METAMAGIC=N"))
@@ -373,7 +362,7 @@ public class SpellBuilderFacadeImpl implements SpellBuilderFacade
 				else
 				// must have books
 				{
-					if (!(obj instanceof PCClass) || !obj.getSafe(ObjectKey.SPELLBOOK))
+					if (!obj.getSafe(ObjectKey.SPELLBOOK))
 					{
 						classes.remove(i);
 					}
@@ -385,9 +374,8 @@ public class SpellBuilderFacadeImpl implements SpellBuilderFacade
 			}
 		}
 
-		List<InfoFacade> allObjects = new ArrayList<>();
 		Globals.sortPObjectListByName(classes);
-		allObjects.addAll(classes);
+		List<InfoFacade> allObjects = new ArrayList<>(classes);
 		Globals.sortPObjectListByName(domains);
 		allObjects.addAll(domains);
 

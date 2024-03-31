@@ -28,7 +28,6 @@ import pcgen.cdom.enumeration.Nature;
 import pcgen.cdom.reference.CDOMSingleRef;
 import pcgen.core.AbilityCategory;
 import pcgen.core.PlayerCharacter;
-import pcgen.persistence.PersistenceLayerException;
 import pcgen.util.Logging;
 
 /**
@@ -102,7 +101,7 @@ public class AbilitySelector extends ConcretePrereqObject
 	}
 
 	@Override
-	public String getLstFormat() throws PersistenceLayerException
+	public String getLstFormat()
 	{
 		return "%LIST";
 	}
@@ -137,9 +136,8 @@ public class AbilitySelector extends ConcretePrereqObject
 	@Override
 	public boolean equals(Object o)
 	{
-		if (o instanceof AbilitySelector)
+		if (o instanceof AbilitySelector other)
 		{
-			AbilitySelector other = (AbilitySelector) o;
 			return source.equals(other.source) && category.equals(other.category) && nature == other.nature;
 		}
 		return false;

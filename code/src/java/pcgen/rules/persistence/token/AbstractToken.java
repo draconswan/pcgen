@@ -19,14 +19,14 @@ package pcgen.rules.persistence.token;
 
 import java.util.Collection;
 
-import org.apache.xml.utils.XMLChar;
-
 import pcgen.base.lang.UnreachableError;
 import pcgen.core.prereq.Prerequisite;
 import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.lst.prereq.PreParserFactory;
 import pcgen.rules.context.LoadContext;
 import pcgen.util.Logging;
+
+import org.apache.xml.utils.XMLChar;
 
 public abstract class AbstractToken
 {
@@ -42,7 +42,7 @@ public abstract class AbstractToken
 		{
 			Logging.errorPrint("Error Initializing PreParserFactory");
 			Logging.errorPrint("  " + ple.getMessage(), ple);
-			throw new UnreachableError();
+			throw new UnreachableError(ple);
 		}
 	}
 
@@ -101,7 +101,7 @@ public abstract class AbstractToken
 		{
 			return new ParseResult.Fail(getTokenName() + " arguments may not end with " + separator + " : " + value);
 		}
-		if (value.indexOf(String.valueOf(new char[]{separator, separator})) != -1)
+		if (value.contains(String.valueOf(new char[]{separator, separator})))
 		{
 			return new ParseResult.Fail(
 				getTokenName() + " arguments uses double separator " + separator + separator + " : " + value);

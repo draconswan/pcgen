@@ -41,7 +41,6 @@ public final class PCClassLoader extends LstObjectFileLoader<PCClass>
 {
 	@Override
 	public PCClass parseLine(LoadContext context, PCClass target, String lstLine, SourceEntry source)
-		throws PersistenceLayerException
 	{
 		if (lstLine.startsWith("SUBCLASS:") || lstLine.startsWith("SUBCLASSLEVEL:"))
 		{
@@ -50,7 +49,7 @@ public final class PCClassLoader extends LstObjectFileLoader<PCClass>
 				Logging.errorPrint("Ignoring line: " + lstLine + " as SUBCLASS* type line appeared before CLASS: line");
 				return null;
 			}
-			SubClass subClass = null;
+			SubClass subClass;
 
 			if (lstLine.startsWith("SUBCLASS:"))
 			{
@@ -67,7 +66,7 @@ public final class PCClassLoader extends LstObjectFileLoader<PCClass>
 				if (subClass == null)
 				{
 					subClass = new SubClass();
-					subClass.setName(n.intern());
+					subClass.setName(n);
 					subClass.put(ObjectKey.SOURCE_CAMPAIGN, source.getCampaign());
 					subClass.setSourceURI(source.getURI());
 					target.addSubClass(subClass);
@@ -81,7 +80,7 @@ public final class PCClassLoader extends LstObjectFileLoader<PCClass>
 				{
 					subClass = subClassList.get(subClassList.size() - 1);
 					subClass.addToListFor(ListKey.SUB_CLASS_LEVEL,
-						new DeferredLine(source, lstLine.substring(14).intern()));
+						new DeferredLine(source, lstLine.substring(14)));
 				}
 			}
 			return target;
@@ -95,7 +94,7 @@ public final class PCClassLoader extends LstObjectFileLoader<PCClass>
 					"Ignoring line: " + lstLine + " as SUBSTITUTIONCLASS* type line appeared before CLASS: line");
 				return null;
 			}
-			SubstitutionClass substitutionClass = null;
+			SubstitutionClass substitutionClass;
 
 			if (lstLine.startsWith("SUBSTITUTIONCLASS:"))
 			{
@@ -117,7 +116,7 @@ public final class PCClassLoader extends LstObjectFileLoader<PCClass>
 				if (substitutionClass == null)
 				{
 					substitutionClass = new SubstitutionClass();
-					substitutionClass.setName(name.intern());
+					substitutionClass.setName(name);
 					substitutionClass.put(ObjectKey.SOURCE_CAMPAIGN, source.getCampaign());
 					substitutionClass.setSourceURI(source.getURI());
 					target.addSubstitutionClass(substitutionClass);
@@ -136,7 +135,7 @@ public final class PCClassLoader extends LstObjectFileLoader<PCClass>
 				{
 					substitutionClass = substitutionClassList.get(substitutionClassList.size() - 1);
 					substitutionClass.addToListFor(ListKey.SUB_CLASS_LEVEL,
-						new DeferredLine(source, lstLine.substring(18).intern()));
+						new DeferredLine(source, lstLine.substring(18)));
 				}
 			}
 			return target;
@@ -146,7 +145,6 @@ public final class PCClassLoader extends LstObjectFileLoader<PCClass>
 	}
 
 	private PCClass parseClassLine(LoadContext context, String lstLine, SourceEntry source, PCClass pcClass)
-		throws PersistenceLayerException
 	{
 		int tabLoc = lstLine.indexOf(SystemLoader.TAB_DELIM);
 		String lineIdentifier;
@@ -166,14 +164,14 @@ public final class PCClassLoader extends LstObjectFileLoader<PCClass>
 		{
 			String name = lineIdentifier.substring(6);
 
-			if (pcClass == null || !name.equals(pcClass.getKeyName()) && (name.indexOf(".MOD") < 0))
+			if (pcClass == null || !name.equals(pcClass.getKeyName()) && (!name.contains(".MOD")))
 			{
 				if (pcClass != null)
 				{
 					completeObject(context, source, pcClass);
 				}
 				pcClass = new PCClass();
-				pcClass.setName(name.intern());
+				pcClass.setName(name);
 				pcClass.setSourceURI(source.getURI());
 				pcClass.put(ObjectKey.SOURCE_CAMPAIGN, source.getCampaign());
 				context.addStatefulInformation(pcClass);
@@ -183,7 +181,7 @@ public final class PCClassLoader extends LstObjectFileLoader<PCClass>
 			else if (name.endsWith(".MOD"))
 			{
 				pcClass = context.getReferenceContext().silentlyGetConstructedCDOMObject(PCClass.class,
-					name.substring(0, name.length() - 4).intern());
+					name.substring(0, name.length() - 4));
 			}
 			parseLineIntoClass(context, pcClass, source, restOfLine);
 		}
@@ -195,7 +193,7 @@ public final class PCClassLoader extends LstObjectFileLoader<PCClass>
 	}
 
 	private void parseFullClassLevelLine(LoadContext context, SourceEntry source, PCClass pcClass,
-		String lineIdentifier, String restOfLine) throws PersistenceLayerException
+		String lineIdentifier, String restOfLine)
 	{
 		try
 		{
@@ -246,7 +244,7 @@ public final class PCClassLoader extends LstObjectFileLoader<PCClass>
 	}
 
 	public void parseClassLevelLine(LoadContext context, PCClass pcClass, int lvl, SourceEntry source,
-		String restOfLine) throws PersistenceLayerException
+		String restOfLine)
 	{
 		if (restOfLine == null)
 		{
@@ -275,7 +273,7 @@ public final class PCClassLoader extends LstObjectFileLoader<PCClass>
 
 			String key = token.substring(0, colonLoc);
 			String value = (colonLoc == token.length() - 1) ? null : token.substring(colonLoc + 1);
-			if (context.processToken(classlevel, key.intern(), value.intern()))
+			if (context.processToken(classlevel, key, value))
 			{
 				context.commit();
 			}
@@ -289,7 +287,6 @@ public final class PCClassLoader extends LstObjectFileLoader<PCClass>
 	}
 
 	public void parseLineIntoClass(LoadContext context, PCClass pcClass, SourceEntry source, String restOfLine)
-		throws PersistenceLayerException
 	{
 		if (restOfLine == null)
 		{
@@ -317,7 +314,7 @@ public final class PCClassLoader extends LstObjectFileLoader<PCClass>
 
 			String key = token.substring(0, colonLoc);
 			String value = (colonLoc == token.length() - 1) ? null : token.substring(colonLoc + 1);
-			if (context.processToken(pcClass, key.intern(), value.intern()))
+			if (context.processToken(pcClass, key, value))
 			{
 				context.commit();
 			}
@@ -331,7 +328,7 @@ public final class PCClassLoader extends LstObjectFileLoader<PCClass>
 	}
 
 	private void parseRepeatClassLevel(LoadContext context, String restOfLine, SourceEntry source, PCClass pcClass,
-		int iLevel, String colString) throws PersistenceLayerException
+		int iLevel, String colString)
 	{
 		//
 		// REPEAT:<level increment>|<consecutive>|<max level>
@@ -481,28 +478,20 @@ public final class PCClassLoader extends LstObjectFileLoader<PCClass>
 		{
 			context.setSourceURI(dl.source.getURI());
 			String lstLine = dl.lstLine;
-			try
+			int tabLoc = lstLine.indexOf(SystemLoader.TAB_DELIM);
+			String lineIdentifier;
+			String restOfLine;
+			if (tabLoc == -1)
 			{
-				int tabLoc = lstLine.indexOf(SystemLoader.TAB_DELIM);
-				String lineIdentifier;
-				String restOfLine;
-				if (tabLoc == -1)
-				{
-					lineIdentifier = lstLine;
-					restOfLine = null;
-				}
-				else
-				{
-					lineIdentifier = lstLine.substring(0, tabLoc);
-					restOfLine = lstLine.substring(tabLoc + 1);
-				}
-				parseFullClassLevelLine(context, dl.source, sc, lineIdentifier, restOfLine);
+				lineIdentifier = lstLine;
+				restOfLine = null;
 			}
-			catch (PersistenceLayerException ple)
+			else
 			{
-				Logging.log(Logging.LST_ERROR, "Error parsing " + sc.getClass().getSimpleName() + " line: "
-					+ cl.getKeyName() + " " + sc.getKeyName() + " " + lstLine, ple);
+				lineIdentifier = lstLine.substring(0, tabLoc);
+				restOfLine = lstLine.substring(tabLoc + 1);
 			}
+			parseFullClassLevelLine(context, dl.source, sc, lineIdentifier, restOfLine);
 		}
 	}
 

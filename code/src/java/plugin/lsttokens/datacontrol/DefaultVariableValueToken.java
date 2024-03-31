@@ -17,16 +17,13 @@
  */
 package plugin.lsttokens.datacontrol;
 
-import pcgen.base.calculation.FormulaModifier;
 import pcgen.base.util.FormatManager;
+import pcgen.base.util.Indirect;
 import pcgen.cdom.base.Constants;
 import pcgen.cdom.content.DefaultVarValue;
-import pcgen.cdom.formula.local.ModifierDecoration;
 import pcgen.rules.context.LoadContext;
-import pcgen.rules.persistence.TokenLibrary;
 import pcgen.rules.persistence.token.AbstractNonEmptyToken;
 import pcgen.rules.persistence.token.CDOMPrimaryToken;
-import pcgen.rules.persistence.token.ModifierFactory;
 import pcgen.rules.persistence.token.ParseResult;
 
 /**
@@ -57,7 +54,7 @@ public class DefaultVariableValueToken extends AbstractNonEmptyToken<DefaultVarV
 		{
 			return new ParseResult.Fail(getTokenName() + " arguments may not start with " + separator + " : " + value);
 		}
-		if (value.indexOf(String.valueOf(new char[]{separator, separator})) != -1)
+		if (value.contains(String.valueOf(new char[]{separator, separator})))
 		{
 			return new ParseResult.Fail(
 				getTokenName() + " arguments uses double separator " + separator + separator + " : " + value);
@@ -92,37 +89,29 @@ public class DefaultVariableValueToken extends AbstractNonEmptyToken<DefaultVarV
 	private <T> ParseResult subProcess(LoadContext context, DefaultVarValue dvv, String defaultValue,
 		FormatManager<T> fmtManager)
 	{
-		Class<T> cl = fmtManager.getManagedClass();
-		ModifierFactory<T> m = TokenLibrary.getModifier(cl, "SET");
-		if (m == null)
-		{
-			return new ParseResult.Fail("ModifierType " + fmtManager.getIdentifierType() + " requires a SET modifier");
-		}
-		FormulaModifier<T> defaultModifier;
+		Indirect<T> supplier;
 		try
 		{
-			defaultModifier =
-					context.getVariableContext().getModifier("SET", defaultValue, context.getActiveScope(), fmtManager);
+			supplier = fmtManager.convertIndirect(defaultValue);
 		}
 		catch (IllegalArgumentException e)
 		{
 			return new ParseResult.Fail(
-				"ModifierType " + fmtManager.getIdentifierType() + " could not be initialized to a default value of: "
+				"ModifierType " + fmtManager.getIdentifierType()
+					+ " could not be initialized to a default value of: "
 					+ defaultValue + " due to " + e.getLocalizedMessage());
 		}
-		defaultModifier.addAssociation("PRIORITY=0");
-		dvv.setModifier(defaultModifier);
-		context.getVariableContext().addDefault(cl, new ModifierDecoration<>(defaultModifier));
+		dvv.setIndirect(supplier);
+		context.getVariableContext().addDefault(fmtManager, supplier);
 		return ParseResult.SUCCESS;
 	}
 
 	@Override
 	public String[] unparse(LoadContext context, DefaultVarValue dvv)
 	{
-		StringBuilder sb = new StringBuilder();
-		sb.append(dvv.getFormatManager().getIdentifierType());
-		sb.append(Constants.PIPE);
-		sb.append(dvv.getModifier().getInstructions());
-		return new String[]{sb.toString()};
+		String sb = dvv.getFormatManager().getIdentifierType()
+				+ Constants.PIPE
+				+ dvv.getIndirect().getUnconverted();
+		return new String[]{sb};
 	}
 }

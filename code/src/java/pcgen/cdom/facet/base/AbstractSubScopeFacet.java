@@ -24,9 +24,12 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
+import pcgen.base.util.ArrayUtilities;
 import pcgen.cdom.enumeration.CharID;
 import pcgen.cdom.facet.event.SubScopeFacetChangeEvent;
 import pcgen.cdom.facet.event.SubScopeFacetChangeListener;
@@ -52,18 +55,9 @@ public class AbstractSubScopeFacet<S1, S2, T> extends AbstractStorageFacet<CharI
 
 	public void add(CharID id, S1 scope1, S2 scope2, T obj, Object source)
 	{
-		if (scope1 == null)
-		{
-			throw new IllegalArgumentException("Scope 1 cannot be null");
-		}
-		if (scope2 == null)
-		{
-			throw new IllegalArgumentException("Scope 2 cannot be null");
-		}
-		if (obj == null)
-		{
-			throw new IllegalArgumentException("Object cannot be null");
-		}
+		Objects.requireNonNull(scope1, "Scope 1 cannot be null");
+		Objects.requireNonNull(scope2, "Scope 2 cannot be null");
+		Objects.requireNonNull(obj, "Object cannot be null");
 		Map<S1, Map<S2, Map<T, Set<Object>>>> map = getConstructingInfo(id);
 		Map<S2, Map<T, Set<Object>>> scope1Map = map.computeIfAbsent(scope1, k -> new IdentityHashMap<>());
 		Map<T, Set<Object>> scope2Map = scope1Map.computeIfAbsent(scope2, k -> new IdentityHashMap<>());
@@ -83,18 +77,9 @@ public class AbstractSubScopeFacet<S1, S2, T> extends AbstractStorageFacet<CharI
 
 	public void remove(CharID id, S1 scope1, S2 scope2, T obj, Object source)
 	{
-		if (scope1 == null)
-		{
-			throw new IllegalArgumentException("Scope 1 cannot be null");
-		}
-		if (scope2 == null)
-		{
-			throw new IllegalArgumentException("Scope 2 cannot be null");
-		}
-		if (obj == null)
-		{
-			throw new IllegalArgumentException("Object cannot be null");
-		}
+		Objects.requireNonNull(scope1, "Scope 1 cannot be null");
+		Objects.requireNonNull(scope2, "Scope 2 cannot be null");
+		Objects.requireNonNull(obj, "Object cannot be null");
 		Map<S1, Map<S2, Map<T, Set<Object>>>> map = getInfo(id);
 		if (map == null)
 		{
@@ -136,14 +121,8 @@ public class AbstractSubScopeFacet<S1, S2, T> extends AbstractStorageFacet<CharI
 
 	public Collection<T> getSet(CharID id, S1 scope1, S2 scope2)
 	{
-		if (scope1 == null)
-		{
-			throw new IllegalArgumentException("Scope 1 cannot be null");
-		}
-		if (scope2 == null)
-		{
-			throw new IllegalArgumentException("Scope 2 cannot be null");
-		}
+		Objects.requireNonNull(scope1, "Scope 1 cannot be null");
+		Objects.requireNonNull(scope2, "Scope 2 cannot be null");
 		Map<S1, Map<S2, Map<T, Set<Object>>>> map = getInfo(id);
 		if (map == null)
 		{
@@ -164,14 +143,8 @@ public class AbstractSubScopeFacet<S1, S2, T> extends AbstractStorageFacet<CharI
 
 	public int getSize(CharID id, S1 scope1, S2 scope2)
 	{
-		if (scope1 == null)
-		{
-			throw new IllegalArgumentException("Scope 1 cannot be null");
-		}
-		if (scope2 == null)
-		{
-			throw new IllegalArgumentException("Scope 2 cannot be null");
-		}
+		Objects.requireNonNull(scope1, "Scope 1 cannot be null");
+		Objects.requireNonNull(scope2, "Scope 2 cannot be null");
 		Map<S1, Map<S2, Map<T, Set<Object>>>> map = getInfo(id);
 		if (map == null)
 		{
@@ -192,14 +165,8 @@ public class AbstractSubScopeFacet<S1, S2, T> extends AbstractStorageFacet<CharI
 
 	public boolean contains(CharID id, S1 scope1, S2 scope2, T obj)
 	{
-		if (scope1 == null)
-		{
-			throw new IllegalArgumentException("Scope 1 cannot be null");
-		}
-		if (scope2 == null)
-		{
-			throw new IllegalArgumentException("Scope 2 cannot be null");
-		}
+		Objects.requireNonNull(scope1, "Scope 1 cannot be null");
+		Objects.requireNonNull(scope2, "Scope 2 cannot be null");
 		Map<S1, Map<S2, Map<T, Set<Object>>>> map = getInfo(id);
 		if (map == null)
 		{
@@ -368,91 +335,15 @@ public class AbstractSubScopeFacet<S1, S2, T> extends AbstractStorageFacet<CharI
 	 *            The ScopeFacetChangeListener to receive
 	 *            TwoScopeFacetChangeEvents from this AbstractScopeFacet
 	 */
+	@SuppressWarnings("unchecked")
 	public void addSubScopeFacetChangeListener(int priority,
 		SubScopeFacetChangeListener<? super S1, ? super S2, ? super T> listener)
 	{
-		SubScopeFacetChangeListener<? super S1, ? super S2, ? super T>[] dfcl = listeners.get(priority);
-		int newSize = (dfcl == null) ? 1 : (dfcl.length + 1);
-		SubScopeFacetChangeListener<? super S1, ? super S2, ? super T>[] newArray =
-				new SubScopeFacetChangeListener[newSize];
-		if (dfcl != null)
-		{
-			System.arraycopy(dfcl, 0, newArray, 1, dfcl.length);
-		}
-		newArray[0] = listener;
-		listeners.put(priority, newArray);
-	}
-
-	/**
-	 * Removes a ScopeFacetChangeListener so that it will no longer receive
-	 * TwoScopeFacetChangeEvents from this AbstractScopeFacet. This will remove
-	 * the data facet change listener from the default priority (zero).
-	 * 
-	 * Note that if the given ScopeFacetChangeListener has been registered under
-	 * a different priority, it will still receive events at that priority
-	 * level.
-	 * 
-	 * @param listener
-	 *            The ScopeFacetChangeListener to be removed
-	 */
-	public void removeSubScopeFacetChangeListener(
-		SubScopeFacetChangeListener<? super S1, ? super S2, ? super T> listener)
-	{
-		removeSubScopeFacetChangeListener(0, listener);
-	}
-
-	/**
-	 * Removes a ScopeFacetChangeListener so that it will no longer receive
-	 * TwoScopeFacetChangeEvents from the source DataFacet. This will remove the
-	 * data facet change listener from the given priority.
-	 * 
-	 * Note that if the given ScopeFacetChangeListener has been registered under
-	 * a different priority, it will still receive events at that priority
-	 * level.
-	 * 
-	 * @param listener
-	 *            The ScopeFacetChangeListener to be removed
-	 */
-	public void removeSubScopeFacetChangeListener(int priority,
-		SubScopeFacetChangeListener<? super S1, ? super S2, ? super T> listener)
-	{
-		SubScopeFacetChangeListener<? super S1, ? super S2, ? super T>[] dfcl = listeners.get(priority);
-		if (dfcl == null)
-		{
-			// No worries
-			return;
-		}
-		int foundLoc = -1;
-		int newSize = dfcl.length - 1;
-		for (int i = newSize; i >= 0; i--)
-		{
-			if (dfcl[i] == listener)
-			{
-				foundLoc = i;
-				break;
-			}
-		}
-		if (foundLoc != -1)
-		{
-			if (dfcl.length == 1)
-			{
-				listeners.remove(priority);
-			}
-			else
-			{
-				SubScopeFacetChangeListener<? super S1, ? super S2, ? super T>[] newArray =
-						new SubScopeFacetChangeListener[newSize];
-				if (foundLoc != 0)
-				{
-					System.arraycopy(dfcl, 0, newArray, 0, foundLoc);
-				}
-				if (foundLoc != newSize)
-				{
-					System.arraycopy(dfcl, foundLoc + 1, newArray, foundLoc, newSize - foundLoc);
-				}
-				listeners.put(priority, newArray);
-			}
-		}
+		SubScopeFacetChangeListener<? super S1, ? super S2, ? super T>[] dfcl =
+				listeners.get(priority);
+		dfcl = Optional.ofNullable(dfcl).orElse(new SubScopeFacetChangeListener[0]);
+		listeners.put(priority, ArrayUtilities.prependOnCopy(listener, dfcl,
+			SubScopeFacetChangeListener.class));
 	}
 
 	/**
@@ -495,14 +386,10 @@ public class AbstractSubScopeFacet<S1, S2, T> extends AbstractStorageFacet<CharI
 				SubScopeFacetChangeListener dfcl = dfclArray[i];
 				switch (ccEvent.getEventType())
 				{
-					case SubScopeFacetChangeEvent.DATA_ADDED:
-						dfcl.dataAdded(ccEvent);
-						break;
-					case SubScopeFacetChangeEvent.DATA_REMOVED:
-						dfcl.dataRemoved(ccEvent);
-						break;
-					default:
-						break;
+					case SubScopeFacetChangeEvent.DATA_ADDED -> dfcl.dataAdded(ccEvent);
+					case SubScopeFacetChangeEvent.DATA_REMOVED -> dfcl.dataRemoved(ccEvent);
+					default -> {
+					}
 				}
 			}
 		}

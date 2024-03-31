@@ -15,13 +15,13 @@
  */
 package pcgen.output.actor;
 
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.enumeration.CharID;
 import pcgen.cdom.enumeration.ObjectKey;
 import pcgen.output.base.OutputActor;
 import pcgen.output.model.VisibleToModel;
+
+import freemarker.template.TemplateModel;
 
 /**
  * An IsVisibleToActor is designed to process an interpolation and convert the Visibility
@@ -33,7 +33,7 @@ import pcgen.output.model.VisibleToModel;
 public class IsVisibleToActor implements OutputActor<CDOMObject>
 {
 	@Override
-	public TemplateModel process(CharID id, CDOMObject d) throws TemplateModelException
+	public TemplateModel process(CharID id, CDOMObject d)
 	{
 		return new VisibleToModel(d.getSafe(ObjectKey.VISIBILITY));
 	}

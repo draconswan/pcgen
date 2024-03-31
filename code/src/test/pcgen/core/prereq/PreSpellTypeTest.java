@@ -17,9 +17,9 @@
  */
 package pcgen.core.prereq;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import pcgen.AbstractCharacterTestCase;
 import pcgen.core.Globals;
 import pcgen.core.PCClass;
@@ -29,28 +29,20 @@ import pcgen.persistence.lst.prereq.PreParserFactory;
 import pcgen.rules.context.LoadContext;
 import plugin.lsttokens.testsupport.BuildUtilities;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public class PreSpellTypeTest extends AbstractCharacterTestCase
 {
 
 	private PCClass wiz;
 	private PCClass cle;
 
-	public static void main(final String[] args)
-	{
-		TestRunner.run(PreSpellTypeTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PreSpellTypeTest.class);
-	}
-
+	@BeforeEach
 	@Override
-	protected void additionalSetUp() throws Exception
+	public void setUp() throws Exception
 	{
+		super.setUp();
 		LoadContext context = Globals.getContext();
 		wiz = context.getReferenceContext().constructCDOMObject(PCClass.class, "Wizard");
 		BuildUtilities.setFact(wiz, "SpellType", "Arcane");
@@ -92,8 +84,11 @@ public class PreSpellTypeTest extends AbstractCharacterTestCase
 		context.getReferenceContext().importObject(cure);
 		context.unconditionallyProcess(cure, "CLASSES", "Cleric=1");
 		context.unconditionallyProcess(cure, "TYPE", "Divine");
+
+		finishLoad();
 	}
 
+	@Test
 	public void testSimpleType() throws Exception
 	{
 		final Prerequisite prereq = new Prerequisite();
@@ -113,6 +108,7 @@ public class PreSpellTypeTest extends AbstractCharacterTestCase
 		assertTrue(passes);
 	}
 
+	@Test
 	public void testTwoType() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
@@ -128,6 +124,7 @@ public class PreSpellTypeTest extends AbstractCharacterTestCase
 		assertTrue(passes);
 	}
 
+	@Test
 	public void testTwoClassType() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
@@ -150,6 +147,7 @@ public class PreSpellTypeTest extends AbstractCharacterTestCase
 		assertTrue(passes);
 	}
 
+	@Test
 	public void testNotSimpleType() throws Exception
 	{
 		final Prerequisite prereq = new Prerequisite();
@@ -169,6 +167,7 @@ public class PreSpellTypeTest extends AbstractCharacterTestCase
 		assertFalse(passes);
 	}
 
+	@Test
 	public void testNotTwoType() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
@@ -184,6 +183,7 @@ public class PreSpellTypeTest extends AbstractCharacterTestCase
 		assertFalse(passes);
 	}
 
+	@Test
 	public void testNotTwoClassType() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
@@ -204,5 +204,11 @@ public class PreSpellTypeTest extends AbstractCharacterTestCase
 		character.incrementClassLevel(1, cle);
 		passes = PrereqHandler.passes(prereq, character, null);
 		assertFalse(passes);
+	}
+
+	@Override
+	protected void defaultSetupEnd()
+	{
+		//Nothing, we will trigger ourselves
 	}
 }

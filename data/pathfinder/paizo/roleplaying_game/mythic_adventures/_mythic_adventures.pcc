@@ -2,8 +2,7 @@
 CAMPAIGN:Mythic Adventures
 GAMEMODE:Pathfinder
 TYPE:Paizo Publishing.Pathfinder RPG
-RANK:3
-STATUS:ALPHA
+STATUS:BETA
 GENRE:Fantasy
 BOOKTYPE:Supplement
 SETTING:Pathfinder
@@ -17,6 +16,7 @@ SOURCELONG:Mythic Adventures
 SOURCESHORT:MA
 SOURCEWEB:http://paizo.com/products/btpy8ywe
 SOURCEDATE:2013-08
+RANK:201308
 ISOGL:YES
 
 COVER:MythicAdventures.jpeg

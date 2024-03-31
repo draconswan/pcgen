@@ -27,14 +27,14 @@ import pcgen.util.Logging;
 
 /**
  * {@code LanguageBundle} manages the localisation of the PCGen interface.
- * It provides a set of features to translate il8n keys into text in the 
+ * It provides a set of features to translate i18n keys into text in the
  * language chosen in preferences.
  *
  */
 public final class LanguageBundle
 {
 	/** Key primarily for use in IDE il8n tools. */
-	private static final String BUNDLE_NAME = "pcgen.resources.lang"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "pcgen.lang"; //$NON-NLS-1$
 
 	/** Undefined Property */
 	private static final String UNDEFINED = " not defined."; //$NON-NLS-1$
@@ -108,7 +108,7 @@ public final class LanguageBundle
 			init();
 		}
 
-		String value = null;
+		String value;
 		try
 		{
 			value = bundle.getString(key);
@@ -133,15 +133,8 @@ public final class LanguageBundle
 		}
 		Logging.log(Logging.INFO, MessageFormat.format("Initialising language bundle with locale {0}.", //$NON-NLS-1$
 			Locale.getDefault()));
-		try
-		{
-			bundle = ResourceBundle.getBundle(BUNDLE_NAME + ".LanguageBundle"); //$NON-NLS-1$
-		}
-		catch (MissingResourceException mrex)
-		{
-			bundle = null;
-			Logging.errorPrint("Can't find language bundle", mrex); //$NON-NLS-1$
-		}
+
+		bundle = ResourceBundle.getBundle(BUNDLE_NAME + ".LanguageBundle"); //$NON-NLS-1$
 	}
 
 	/**
@@ -165,7 +158,7 @@ public final class LanguageBundle
 	 * Allow pretty formatting of multiplier. For example, if d is 0.5d, it 
 	 * returns x 1/2 ( 
 	 * @param d a double value
-	 * @return a formated String
+	 * @return a formatted String
 	 */
 	public static String getPrettyMultiplier(double d)
 	{
@@ -185,5 +178,10 @@ public final class LanguageBundle
 		{
 			return MessageFormat.format(getString("in_multiply"), d); //$NON-NLS-1$
 		}
+	}
+
+	public static ResourceBundle getBundle()
+	{
+		return bundle;
 	}
 }

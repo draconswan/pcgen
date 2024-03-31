@@ -17,9 +17,10 @@
  */
 package pcgen.core.prereq;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.base.FormulaFactory;
 import pcgen.cdom.enumeration.FormulaKey;
@@ -34,32 +35,23 @@ import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.lst.prereq.PreParserFactory;
 import pcgen.rules.context.LoadContext;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>PreHPTest</code> tests that the PREHP tag is
+ * {@code PreHPTest} tests that the PREHP tag is
  * working correctly.
  */
 public class PreHPTest extends AbstractCharacterTestCase
 {
 	PCClass myClass = new PCClass();
 
-	public static void main(final String[] args)
-	{
-		TestRunner.run(PreHPTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PreHPTest.class);
-	}
-
 	/**
 	 * Test the PREHP code.
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testHP() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();
@@ -93,6 +85,7 @@ public class PreHPTest extends AbstractCharacterTestCase
 			character, null));
 	}
 
+	@BeforeEach
     @Override
 	protected void setUp() throws Exception
 	{

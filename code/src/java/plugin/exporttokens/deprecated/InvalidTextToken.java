@@ -18,38 +18,31 @@
  */
 package plugin.exporttokens.deprecated;
 
-import pcgen.core.SettingsHandler;
 import pcgen.core.display.CharacterDisplay;
 import pcgen.io.ExportHandler;
 import pcgen.io.exporttoken.AbstractExportToken;
+import pcgen.system.LanguageBundle;
 import pcgen.util.Logging;
 
 //PAPERINFO
 public class InvalidTextToken extends AbstractExportToken
 {
-	/**
-	 * @see pcgen.io.exporttoken.Token#getTokenName()
-	 */
 	@Override
 	public String getTokenName()
 	{
 		return "INVALIDTEXT";
 	}
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getToken(java.lang.String, pcgen.core.PlayerCharacter, pcgen.io.ExportHandler)
-	 */
 	@Override
 	public String getToken(String tokenSource, CharacterDisplay display, ExportHandler eh)
 	{
-		String sourceText = tokenSource.substring(12);
+		String sourceText = tokenSource.substring(getTokenName().length() + 1);
 
 		switch (sourceText)
 		{
 			case "TOHIT":
-				return SettingsHandler.getInvalidToHitText();
 			case "DAMAGE":
-				return SettingsHandler.getInvalidDmgText();
+				return LanguageBundle.getString("SettingsHandler.not.applicable");
 			default:
 				Logging.errorPrint("Invalid INVALIDTEXT token:" + tokenSource);
 				return "";

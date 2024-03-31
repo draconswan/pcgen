@@ -28,11 +28,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
 import java.util.StringTokenizer;
 
 import pcgen.base.lang.UnreachableError;
@@ -65,6 +65,7 @@ import pcgen.core.WeaponProf;
 import pcgen.core.bonus.Bonus;
 import pcgen.core.bonus.BonusObj;
 import pcgen.core.spell.Spell;
+import pcgen.io.ExportHandler;
 import pcgen.persistence.CampaignFileLoader;
 import pcgen.persistence.GameModeFileLoader;
 import pcgen.persistence.PersistenceLayerException;
@@ -78,21 +79,25 @@ import pcgen.system.ConfigurationSettings;
 import pcgen.system.Main;
 import pcgen.system.PCGenTask;
 import pcgen.system.PropertyContextFactory;
+import plugin.lsttokens.testsupport.BuildUtilities;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import plugin.lsttokens.testsupport.BuildUtilities;
 
 /**
  * Helps Junit tests
  */
 @SuppressWarnings("nls")
-public class TestHelper
+public final class TestHelper
 {
 	private static boolean loaded = false;
-	private static LstObjectFileLoader<Equipment> eqLoader = new GenericLoader<>(Equipment.class);
-	private static LstObjectFileLoader<Ability>   abLoader = new AbilityLoader();
-	private static CampaignSourceEntry source = null;
+	private static final LstObjectFileLoader<Equipment> eqLoader = new GenericLoader<>(Equipment.class);
+	private static final LstObjectFileLoader<Ability>   abLoader = new AbilityLoader();
+	private static CampaignSourceEntry source;
+
+	private TestHelper()
+	{
+	}
 
 	/**
 	 * Make some size adjustments
@@ -120,7 +125,7 @@ public class TestHelper
 				.silentlyGetConstructedCDOMObject(SizeAdjustment.class, "M").put(
 						ObjectKey.IS_DEFAULT_SIZE, true);
 	}
-	
+
 	/**
 	 * Make some equipment
 	 * @param input Equipment source line to be parsed
@@ -169,7 +174,7 @@ public class TestHelper
 	{
 		if (!loaded)
 		{
-			pcgen.system.Main.createLoadPluginTask().execute();
+			pcgen.system.Main.createLoadPluginTask().run();
 			loaded = true;
 		}
 	}
@@ -187,7 +192,7 @@ public class TestHelper
 			Class<?> clazz = aClass;
 			while (true)
 			{
-				for (final Field f : Arrays.asList(clazz.getDeclaredFields()))
+				for (final Field f : clazz.getDeclaredFields())
 				{
 					if (f.getName().equals(fieldName))
 					{
@@ -290,7 +295,7 @@ public class TestHelper
 
 		try
 		{
-			if (null == source)
+			if (source == null)
 			{
 				try
 				{
@@ -313,8 +318,8 @@ public class TestHelper
 		return false;
 	}
 
-	
-	
+
+
 	/**
 	 * Set the important info about a WeaponProf
 	 * @param name The weaponprof name
@@ -396,7 +401,7 @@ public class TestHelper
 	}
 
 	/**
-	 * Set the important info about a Kit. Note the key of the kit created will 
+	 * Set the important info about a Kit. Note the key of the kit created will
 	 * be the provided name with KEY_ added at the front. e.g. KEY_name
 	 * @param name The kit name
 	 * @return The kit (which has also been added to global storage)
@@ -425,7 +430,7 @@ public class TestHelper
 		Globals.getContext().getReferenceContext().importObject(aTemplate);
 		return aTemplate;
 	}
-	
+
 	/**
      * Get the Ability Category of the Ability object passed in.  If it does
      * not exist in the game mode, a new object wil be created and added to
@@ -441,7 +446,7 @@ public class TestHelper
 
 	public static void addType(CDOMObject cdo, String string)
 	{
-		List<String> stringList = Arrays.asList(string.split("\\."));
+		String[] stringList = string.split("\\.");
 		for (String s : stringList)
 		{
 			cdo.addToListFor(ListKey.TYPE, Type.getConstant(s));
@@ -450,7 +455,7 @@ public class TestHelper
 
 	/**
 	 * Checks to see if this PC has the weapon proficiency key aKey
-	 * 
+	 *
 	 * @param aKey
 	 * @return boolean
 	 */
@@ -463,32 +468,29 @@ public class TestHelper
 	}
 
 	/**
-	 * Locate the data folder which contains the primary set of LST data. This 
-	 * defaults to the data folder under the current directory, but can be 
-	 * customised in the config.ini folder. 
+	 * Locate the data folder which contains the primary set of LST data. This
+	 * defaults to the data folder under the current directory, but can be
+	 * customised in the config.ini folder.
 	 * @return The path of the data folder.
 	 */
 	public static String findDataFolder()
 	{
 		// Set the pcc location to "data"
 		String pccLoc = "data";
-		try
+		// Read in options.ini and override the pcc location if it exists
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(
+				new FileInputStream("config.ini"), StandardCharsets.UTF_8)))
 		{
-			// Read in options.ini and override the pcc location if it exists
-			BufferedReader br =
-					new BufferedReader(new InputStreamReader(
-						new FileInputStream("config.ini"), "UTF-8"));
 			while (br.ready())
 			{
 				String line = br.readLine();
 				if (line != null
-					&& line.startsWith("pccFilesPath="))
+						&& line.startsWith("pccFilesPath="))
 				{
 					pccLoc = line.substring(13);
 					break;
 				}
 			}
-			br.close();
 		}
 		catch (IOException e)
 		{
@@ -502,28 +504,27 @@ public class TestHelper
 	 * @param configFileName The name of the new config file.
 	 * @param configFolder The folder in which other settings files will be saved.
 	 * @param pccLoc The location of the data folder.
-	 * @return The file that was created.
 	 * @throws IOException If the file cannot be written.
 	 */
-	public static File createDummySettingsFile(String configFileName,
-		String configFolder, String pccLoc) throws IOException
+	public static void createDummySettingsFile(String configFileName,
+	                                           String configFolder, String pccLoc) throws IOException
 	{
 		File configFile = new File(configFileName);
-		BufferedWriter bw =
-				new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
-					configFile), "UTF-8"));
-		bw.write("settingsPath=" + configFolder + "\r\n");
-		if (pccLoc != null)
+		configFile.deleteOnExit();
+		try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
+				configFile), StandardCharsets.UTF_8)))
 		{
-			System.out.println("Using PCC Location of '" + pccLoc + "'.");
-			bw.write("pccFilesPath=" + pccLoc + "\r\n");
+			bw.write("settingsPath=" + configFolder + "\r\n");
+			if (pccLoc != null)
+			{
+				System.out.println("Using PCC Location of '" + pccLoc + "'.");
+				bw.write("pccFilesPath=" + pccLoc + "\r\n");
+			}
+			bw.write("customPath=testsuite\\\\customdata\r\n");
 		}
-		bw.write("customPath=testsuite\\\\customdata\r\n");
-		bw.close();
 
-		return configFile;
 	}
-	
+
 	public static void loadGameModes(String testConfigFile)
 	{
 		String configFolder = "testsuite";
@@ -545,11 +546,11 @@ public class TestHelper
 			.getInstance(testConfigFile));
 		Main.loadProperties(false);
 		PCGenTask loadPluginTask = Main.createLoadPluginTask();
-		loadPluginTask.execute();
+		loadPluginTask.run();
 		GameModeFileLoader gameModeFileLoader = new GameModeFileLoader();
-		gameModeFileLoader.execute();
+		gameModeFileLoader.run();
 		CampaignFileLoader campaignFileLoader = new CampaignFileLoader();
-		campaignFileLoader.execute();
+		campaignFileLoader.run();
 	}
 
 	public static ChronicleEntry buildChronicleEntry(boolean visible, String campaign, String date,
@@ -585,5 +586,26 @@ public class TestHelper
 			}
 		}
 		return reconstClass;
+	}
+
+	/**
+	 * Evaluate a token, used in several "export" tests. By default, the token encoding is ignored.
+	 * If encoded value is required, use @see pcgen.io.FileAccess#setCurrentOutputFilter(java.lang.String) before
+	 * calling this static method.
+	 *
+	 * @param token the token to evaluate (e.g., any token from @see plugin.exporttokens such as "PORTRAIT")
+	 * @param pc    the pc or a PlayerCharacter object
+	 * @return      the string containing the evaluated token
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	public static String evaluateToken(String token, PlayerCharacter pc)
+			throws IOException {
+		StringWriter retWriter = new StringWriter();
+		try (BufferedWriter bufWriter = new BufferedWriter(retWriter)) {
+			ExportHandler export = ExportHandler.createExportHandler(new File(""));
+			export.replaceTokenSkipMath(pc, token, bufWriter);
+		}
+
+		return retWriter.toString();
 	}
 }

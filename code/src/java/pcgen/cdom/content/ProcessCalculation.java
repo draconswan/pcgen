@@ -23,6 +23,7 @@ import pcgen.base.calculation.AbstractNEPCalculation;
 import pcgen.base.calculation.BasicCalculation;
 import pcgen.base.formula.base.DependencyManager;
 import pcgen.base.formula.base.EvaluationManager;
+import pcgen.base.formula.base.FormulaSemantics;
 import pcgen.base.util.FormatManager;
 
 /**
@@ -89,9 +90,8 @@ public final class ProcessCalculation<T> extends AbstractNEPCalculation<T>
 	@Override
 	public boolean equals(Object o)
 	{
-		if (o instanceof ProcessCalculation)
+		if (o instanceof ProcessCalculation<?> other)
 		{
-			ProcessCalculation<?> other = (ProcessCalculation<?>) o;
 			return other.getBasicCalculation().equals(getBasicCalculation()) && other.obj.equals(obj);
 		}
 		return false;
@@ -101,5 +101,14 @@ public final class ProcessCalculation<T> extends AbstractNEPCalculation<T>
 	public void getDependencies(DependencyManager fdm)
 	{
 		//Since this is direct (already has the object), it has no dependencies
+	}
+
+	@Override
+	public void isValid(FormulaSemantics semantics)
+	{
+		/*
+		 * Since this is direct (already has the object), it has no semantic issues
+		 * (barring someone violating Generics)
+		 */
 	}
 }

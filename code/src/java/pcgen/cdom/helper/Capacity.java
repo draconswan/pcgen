@@ -106,46 +106,26 @@ public class Capacity
 		return new Capacity(null, capacity);
 	}
 
-	/**
-	 * Returns a String representation of this Capacity.
-	 * 
-	 * @return A String representation of this Capacity.
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString()
 	{
-		StringBuilder sb = new StringBuilder(50);
-		sb.append("Capacity: ");
-		sb.append(type == null ? "Total" : type);
-		sb.append('=');
-		sb.append(UNLIMITED.equals(limit) ? "UNLIMITED" : limit);
-		return sb.toString();
+        return "Capacity: "
+                + (type == null ? "Total" : type)
+                + '='
+                + (UNLIMITED.equals(limit) ? "UNLIMITED" : limit);
 	}
 
-	/**
-	 * Returns a consistent-with-equals hashCode for this Capacity
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode()
 	{
 		return type == null ? 0 : type.hashCode() ^ limit.hashCode();
 	}
 
-	/**
-	 * Returns true if the given object is a Capacity with identical underlying
-	 * type and capacity limit.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj)
 	{
-		if (obj instanceof Capacity)
+		if (obj instanceof Capacity other)
 		{
-			Capacity other = (Capacity) obj;
 			if (type == null)
 			{
 				if (other.type != null)

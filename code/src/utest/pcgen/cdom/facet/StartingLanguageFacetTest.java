@@ -28,6 +28,8 @@ import pcgen.core.Language;
 import pcgen.core.PCTemplate;
 import pcgen.core.Race;
 
+import org.junit.jupiter.api.BeforeEach;
+
 public class StartingLanguageFacetTest extends
 		AbstractExtractingFacetTest<CDOMObject, Language>
 {
@@ -36,8 +38,9 @@ public class StartingLanguageFacetTest extends
 	private Language[] target;
 	private CDOMObject[] source;
 
+	@BeforeEach
 	@Override
-	public void setUp() throws Exception
+	public void setUp()
 	{
 		super.setUp();
 		CDOMObject cdo1 = new PCTemplate();

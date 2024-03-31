@@ -19,8 +19,6 @@ package plugin.lsttokens.editcontext.subclass;
 
 import java.net.URISyntaxException;
 
-import org.junit.Test;
-
 import pcgen.cdom.enumeration.SubClassCategory;
 import pcgen.core.SubClass;
 import pcgen.persistence.PersistenceLayerException;
@@ -32,6 +30,9 @@ import plugin.lsttokens.editcontext.testsupport.TestContext;
 import plugin.lsttokens.subclass.ChoiceToken;
 import plugin.lsttokens.testsupport.CDOMTokenLoader;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public class ChoiceIntegrationTest extends
 		AbstractIntegrationTestCase<SubClass>
 {
@@ -40,6 +41,7 @@ public class ChoiceIntegrationTest extends
 	private static CDOMTokenLoader<SubClass> loader = new CDOMTokenLoader<>();
 
 	@Override
+	@BeforeEach
 	public void setUp() throws PersistenceLayerException, URISyntaxException
 	{
 		super.setUp();

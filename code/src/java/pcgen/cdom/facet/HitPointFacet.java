@@ -74,13 +74,8 @@ public class HitPointFacet extends AbstractAssociationFacet<CharID, PCClassLevel
 
 		switch (SettingsHandler.getHPRollMethod())
 		{
-			case Constants.HP_USER_ROLLED:
-				roll = -1;
-
-				break;
-
-			case Constants.HP_AVERAGE:
-
+			case Constants.HP_USER_ROLLED -> roll = 1;
+			case Constants.HP_AVERAGE -> {
 				roll = max - min;
 
 				// (n+1)/2
@@ -91,64 +86,14 @@ public class HitPointFacet extends AbstractAssociationFacet<CharID, PCClassLevel
 				{
 					++roll;
 				}
-
 				roll = min + (roll / 2);
-
-				break;
-
-			case Constants.HP_AUTO_MAX:
-				roll = max;
-
-				break;
-
-			case Constants.HP_PERCENTAGE:
-				roll = (min - 1) + (int) ((SettingsHandler.getHPPercent() * ((max - min) + 1)) / 100.0);
-
-				break;
-
-			case Constants.HP_AVERAGE_ROUNDED_UP:
-				roll = (int) Math.ceil((min + max) / 2.0);
-
-				break;
-
-			case Constants.HP_STANDARD:
-			default:
-				roll = Math.abs(RandomUtil.getRandomInt((max - min) + 1)) + min;
-
-				break;
+			}
+			case Constants.HP_AUTO_MAX -> roll = max;
+			case Constants.HP_PERCENTAGE -> roll = (min - 1) + (int) ((SettingsHandler.getHPPercent() * ((max - min) + 1)) / 100.0);
+			case Constants.HP_AVERAGE_ROUNDED_UP -> roll = (int) Math.ceil((min + max) / 2.0);
+			case Constants.HP_STANDARD -> roll = Math.abs(RandomUtil.getRandomInt((max - min) + 1)) + min;
+			default -> roll = Math.abs(RandomUtil.getRandomInt((max - min) + 1)) + min;
 		}
-
-		//		if (SettingsHandler.getShowHPDialogAtLevelUp())
-		//		{
-		//			final Object[] rollChoices = new Object[max - min + 2];
-		//			rollChoices[0] = Constants.NONESELECTED;
-		//
-		//			for (int i = min; i <= max; ++i)
-		//			{
-		//				rollChoices[i - min + 1] = i;
-		//			}
-		//
-		//			while (min <= max)
-		//			{
-		//				//TODO: This must be refactored away. Core shouldn't know about gui.
-		//				final InputInterface ii = InputFactory.getInputInstance();
-		//				final Object selectedValue = ii.showInputDialog(Globals.getRootFrame(),
-		//					"Randomly generate a number between " + min + " and " + max
-		//						+ "." + Constants.LINE_SEPARATOR
-		//						+ "Select it from the box below.",
-		//					SettingsHandler.getGame().getHPText() + " for "
-		//						+ CoreUtility.ordinal(level) + " level of " + name,
-		//					MessageType.INFORMATION,
-		//					rollChoices, roll);
-		//
-		//				if ((selectedValue != null) && (selectedValue instanceof Integer))
-		//				{
-		//					roll = (Integer) selectedValue;
-		//
-		//					break;
-		//				}
-		//			}
-		//		}
 
 		return roll;
 	}
@@ -165,8 +110,6 @@ public class HitPointFacet extends AbstractAssociationFacet<CharID, PCClassLevel
 	 * @param dfce
 	 *            The DataFacetChangeEvent containing the information about the
 	 *            change
-	 * 
-	 * @see pcgen.cdom.facet.event.DataFacetChangeListener#dataAdded(pcgen.cdom.facet.event.DataFacetChangeEvent)
 	 */
 	@Override
 	public void dataAdded(DataFacetChangeEvent<CharID, CDOMObject> dfce)

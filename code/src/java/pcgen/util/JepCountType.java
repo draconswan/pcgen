@@ -33,8 +33,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import org.nfunk.jep.ParseException;
-
 import pcgen.base.lang.UnreachableError;
 import pcgen.base.util.CaseInsensitiveMap;
 import pcgen.cdom.base.CDOMObject;
@@ -62,6 +60,8 @@ import pcgen.util.AbstractCountCommand.JepAbilityCountEnum;
 import pcgen.util.AbstractCountCommand.JepEquipmentCountEnum;
 import pcgen.util.enumeration.View;
 import pcgen.util.enumeration.Visibility;
+
+import org.nfunk.jep.ParseException;
 
 public abstract class JepCountType
 {
@@ -197,7 +197,7 @@ public abstract class JepCountType
 		}
 
 		@Override
-		protected Set<? extends Equipment> filterSetP(final String c, Collection<Equipment> coll) throws ParseException
+		protected Set<? extends Equipment> filterSetP(final String c, Collection<Equipment> coll)
 		{
 			final String[] keyValue = c.split("=");
 
@@ -244,6 +244,7 @@ public abstract class JepCountType
 						//							it.remove();
 						//						}
 						//					}
+						Logging.debugPrint("TODO Need to handle carried and equipped items.");
 					}
 					break;
 				case LOC:
@@ -282,7 +283,7 @@ public abstract class JepCountType
 	public static final JepCountType RACESUBTYPE = new JepCountType()
 	{
 		@Override
-		public Number count(PlayerCharacter pc, Object[] params) throws ParseException
+		public Number count(PlayerCharacter pc, Object[] params)
 		{
 			return pc.getDisplay().getRacialSubTypeCount();
 		}
@@ -535,7 +536,7 @@ public abstract class JepCountType
 
 	public abstract static class JepCountFilterable<T> extends JepCountType
 	{
-		protected abstract Collection<T> getData(final PlayerCharacter pc);
+		protected abstract Collection<T> getData(PlayerCharacter pc);
 
 		protected static ParameterTree convertParams(final Object[] params)
 		{
@@ -721,6 +722,7 @@ public abstract class JepCountType
 		}
 	}
 
+	@FunctionalInterface
 	public interface ObjectFilter<T>
 	{
 		public boolean accept(T o);
@@ -730,25 +732,24 @@ public abstract class JepCountType
 	{
 		typeMap = new CaseInsensitiveMap<>();
 		Field[] fields = JepCountType.class.getDeclaredFields();
-		for (int i = 0; i < fields.length; i++)
-		{
-			int mod = fields[i].getModifiers();
-			if (Modifier.isStatic(mod) && Modifier.isFinal(mod) && Modifier.isPublic(mod))
-			{
-				try
-				{
-					Object obj = fields[i].get(null);
-					if (obj instanceof JepCountType)
-					{
-						typeMap.put(fields[i].getName(), (JepCountType) obj);
-					}
-				}
-				catch (IllegalArgumentException | IllegalAccessException e)
-				{
-					throw new UnreachableError(e);
-				}
-			}
-		}
+        for (Field field : fields)
+        {
+            int mod = field.getModifiers();
+            if (Modifier.isStatic(mod) && Modifier.isFinal(mod) && Modifier.isPublic(mod))
+            {
+                try
+                {
+                    Object obj = field.get(null);
+                    if (obj instanceof JepCountType)
+                    {
+                        typeMap.put(field.getName(), (JepCountType) obj);
+                    }
+                } catch (IllegalArgumentException | IllegalAccessException e)
+                {
+                    throw new UnreachableError(e);
+                }
+            }
+        }
 	}
 
 	/**
@@ -790,7 +791,7 @@ public abstract class JepCountType
 	{
 
 		@Override
-		public Number count(PlayerCharacter pc, Object[] params) throws ParseException
+		public Number count(PlayerCharacter pc, Object[] params)
 		{
 			SkillFilter sf = null;
 			View v = View.ALL;

@@ -18,9 +18,12 @@
  */
 package pcgen.core;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.List;
 
-import junit.framework.TestCase;
+import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.enumeration.ListKey;
 import pcgen.core.bonus.Bonus;
 import pcgen.core.bonus.BonusObj;
@@ -28,79 +31,44 @@ import pcgen.core.prereq.Prerequisite;
 import pcgen.rules.context.LoadContext;
 import pcgen.util.TestHelper;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import plugin.lsttokens.testsupport.TokenRegistration;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Equipment Modifer Test 
  */
-@SuppressWarnings("nls")
-public class EquipmentModifierTest extends TestCase
+class EquipmentModifierTest
 {
-
-	/**
-	 * Main
-	 * @param args
-	 */
-	public static void main(final String[] args)
-	{
-		TestRunner.run(EquipmentModifierTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(EquipmentModifierTest.class);
-	}
-
-	/**
-	 * Constructs a new <code>EquipmentModifierTest</code>.
-	 *
-	 * @see pcgen.PCGenTestCase#PCGenTestCase()
-	 */
-	public EquipmentModifierTest()
-	{
-		// Do Nothing
-	}
-
 	/**
 	 * Starts the system plugins.
-	 * 
-	 * @see junit.framework.TestCase#setUp()
 	 */
-	@Override
-	public void setUp() throws Exception
+	@BeforeEach
+	void setUp()
 	{
-		super.setUp();
 		TestHelper.loadPlugins();
 	}
 
-	/**
-	 * Constructs a new <code>EquipmentModifierTest</code> with the given
-	 * <var>name</var>.
-	 *
-	 * @param name the test case name
-	 *
-	 * @see pcgen.PCGenTestCase#PCGenTestCase(String)
-	 */
-	public EquipmentModifierTest(final String name)
+	@AfterAll
+	static void tearDown()
 	{
-		super(name);
+		TokenRegistration.clearTokens();
 	}
 
 	/**
 	 * Test +13
 	 */
-	public void test885958A()
+	@Test
+	void test885958A()
 	{
 		LoadContext context = Globals.getContext();
 
-		final EquipmentModifier eqMod = new EquipmentModifier();
+		final CDOMObject eqMod = new EquipmentModifier();
 		final BonusObj aBonus =
 				Bonus.newBonus(context, "WEAPON|DAMAGE|((%CHOICE)MIN(STR))");
+		assertNotNull(aBonus);
 		eqMod.addToListFor(ListKey.BONUS, aBonus);
 
 		final Equipment e = new Equipment();
@@ -116,13 +84,15 @@ public class EquipmentModifierTest extends TestCase
 	/**
 	 * Test -2 and +13
 	 */
-	public void test885958B()
+	@Test
+	void test885958B()
 	{
 		LoadContext context = Globals.getContext();
 
-		final EquipmentModifier eqMod = new EquipmentModifier();
+		final CDOMObject eqMod = new EquipmentModifier();
 		final BonusObj aBonus =
 				Bonus.newBonus(context, "WEAPON|TOHIT|-2|PREVARGT:%CHOICE,STR");
+		assertNotNull(aBonus);
 
 		final Equipment e = new Equipment();
 		
@@ -147,13 +117,15 @@ public class EquipmentModifierTest extends TestCase
 	 * options for the choice are processed in reverse order, we have to check the
 	 * values in reverse order.
 	 */
-	public void testChoice()
+	@Test
+	void testChoice()
 	{
 		LoadContext context = Globals.getContext();
 
-		final EquipmentModifier eqMod = new EquipmentModifier();
+		final CDOMObject eqMod = new EquipmentModifier();
 		final BonusObj aBonus =
 				Bonus.newBonus(context, "WEAPON|TOHIT|-2|PREVARGT:%CHOICE,STR");
+		assertNotNull(aBonus);
 
 		final Equipment e = new Equipment();
 
@@ -168,7 +140,7 @@ public class EquipmentModifierTest extends TestCase
 			assertEquals("-2", bonusObj.getValue());
 
 			final Prerequisite prereq = bonusObj.getPrerequisiteList().get(0);
-			assertEquals("+" + (j+1), prereq.getKey());
+			assertEquals("+" + (j + 1), prereq.getKey());
 			assertEquals("STR", prereq.getOperand());
 		}
 		assertEquals("-2", aBonus.getValue());

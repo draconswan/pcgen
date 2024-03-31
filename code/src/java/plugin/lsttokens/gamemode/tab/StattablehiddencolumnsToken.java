@@ -55,7 +55,7 @@ public class StattablehiddencolumnsToken extends AbstractTokenWithSeparator<TabI
 			String token = st.nextToken();
 			try
 			{
-				ti.hideColumn(Integer.valueOf(token));
+				ti.hideColumn(Integer.parseInt(token));
 			}
 			catch (NumberFormatException nfe)
 			{
@@ -73,8 +73,7 @@ public class StattablehiddencolumnsToken extends AbstractTokenWithSeparator<TabI
 			return null;
 		}
 		Collection<Integer> columns = ti.getHiddenColumns();
-		TreeSet<Integer> set = new TreeSet<>();
-		set.addAll(columns);
+		TreeSet<Integer> set = new TreeSet<>(columns);
 		return new String[]{StringUtil.join(set, Constants.COMMA)};
 	}
 

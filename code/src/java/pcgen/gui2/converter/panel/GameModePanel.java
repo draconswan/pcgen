@@ -17,11 +17,10 @@
  */
 package pcgen.gui2.converter.panel;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
 
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
@@ -33,7 +32,6 @@ import pcgen.core.Globals;
 import pcgen.core.SettingsHandler;
 import pcgen.core.SystemCollections;
 import pcgen.gui2.converter.event.ProgressEvent;
-import pcgen.gui2.util.JComboBoxEx;
 import pcgen.persistence.CampaignFileLoader;
 import pcgen.system.ConfigurationSettings;
 import pcgen.system.PCGenSettings;
@@ -42,7 +40,7 @@ import pcgen.util.Logging;
 public class GameModePanel extends ConvertSubPanel
 {
 
-	JComboBoxEx gameModeCombo;
+	private JComboBox gameModeCombo;
 
 	private final SpringLayout layout = new SpringLayout();
 
@@ -63,9 +61,6 @@ public class GameModePanel extends ConvertSubPanel
 		return false;
 	}
 
-	/**
-	 * @see pcgen.gui2.converter.panel.ConvertSubPanel#returnAllowed()
-	 */
 	@Override
 	public boolean returnAllowed()
 	{
@@ -84,7 +79,7 @@ public class GameModePanel extends ConvertSubPanel
 			Logging.log(Logging.INFO, "Loading campaigns from " + sourceDir);
 			Globals.clearCampaignsForRefresh();
 			campaignFileLoader.setAlternateSourceFolder(sourceDir);
-			campaignFileLoader.execute();
+			campaignFileLoader.run();
 		}
 
 		GameMode gameMode = pc.get(ObjectKey.GAME_MODE);
@@ -131,20 +126,15 @@ public class GameModePanel extends ConvertSubPanel
 		layout.putConstraint(SpringLayout.WEST, introLabel, 25, SpringLayout.WEST, panel);
 
 		List<GameMode> games = SystemCollections.getUnmodifiableGameModeList();
-		gameModeCombo = new JComboBoxEx<>(games.toArray());
-		gameModeCombo.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				getSelection(pc);
-				saveGameMode(pc);
-			}
+		gameModeCombo = new JComboBox<>(games.toArray());
+		gameModeCombo.addActionListener(arg0 -> {
+			getSelection(pc);
+			saveGameMode(pc);
 		});
 		PCGenSettings context = PCGenSettings.getInstance();
 		SettingsHandler
-			.setGame(context.initProperty(PCGenSettings.CONVERT_GAMEMODE, SettingsHandler.getGame().getName()));
-		GameMode currGame = SettingsHandler.getGame();
+			.setGame(context.initProperty(PCGenSettings.CONVERT_GAMEMODE, SettingsHandler.getGameAsProperty().get().getName()));
+		GameMode currGame = SettingsHandler.getGameAsProperty().get();
 		if (pc.get(ObjectKey.GAME_MODE) != null)
 		{
 			currGame = pc.get(ObjectKey.GAME_MODE);

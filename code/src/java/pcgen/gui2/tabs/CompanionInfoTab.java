@@ -27,6 +27,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,7 +40,6 @@ import javax.swing.AbstractCellEditor;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -58,8 +58,6 @@ import javax.swing.table.TableColumn;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-
-import org.apache.commons.io.FileUtils;
 
 import pcgen.facade.core.CharacterFacade;
 import pcgen.facade.core.CompanionFacade;
@@ -93,6 +91,8 @@ import pcgen.gui2.util.treeview.DataViewColumn;
 import pcgen.gui2.util.treeview.TreeView;
 import pcgen.gui2.util.treeview.TreeViewModel;
 import pcgen.gui2.util.treeview.TreeViewPath;
+import pcgen.gui3.JFXPanelFromResource;
+import pcgen.gui3.SimpleHtmlPanelController;
 import pcgen.system.CharacterManager;
 import pcgen.system.ConfigurationSettings;
 import pcgen.system.LanguageBundle;
@@ -104,19 +104,18 @@ import pcgen.util.enumeration.Tab;
  * This component allows a user to manage a character's companions (animal,
  * familiar, cohort, mount, etc).
  */
-@SuppressWarnings("serial")
+@SuppressWarnings("PMD.UseArrayListInsteadOfVector")
 public class CompanionInfoTab extends FlippingSplitPane implements CharacterInfoTab, TodoHandler, DisplayAwareTab
 {
 
 	private final JTreeTable companionsTable;
-	private final JEditorPane infoPane;
+	private final JFXPanelFromResource<SimpleHtmlPanelController> infoPane;
 	private final JButton loadButton;
 	private CompanionDialog companionDialog = null;
 	private Object selectedElement;
 
-	public CompanionInfoTab()
+	CompanionInfoTab()
 	{
-		super("Companion");
 		this.companionsTable = new JTreeTable()
 		{
 			@Override
@@ -126,7 +125,10 @@ public class CompanionInfoTab extends FlippingSplitPane implements CharacterInfo
 			}
 
 		};
-		this.infoPane = new JEditorPane();
+		this.infoPane = new JFXPanelFromResource<>(
+				SimpleHtmlPanelController.class,
+				"SimpleHtmlPanel.fxml"
+		);
 		this.loadButton = new JButton();
 		initComponents();
 	}
@@ -163,10 +165,6 @@ public class CompanionInfoTab extends FlippingSplitPane implements CharacterInfo
 		companionsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		setLeftComponent(new JScrollPane(companionsTable));
 		JPanel rightPane = new JPanel(new BorderLayout());
-		infoPane.setOpaque(false);
-		infoPane.setEditable(false);
-		infoPane.setFocusable(true);
-		infoPane.setContentType("text/html"); //$NON-NLS-1$
 		rightPane.add(new JScrollPane(infoPane), BorderLayout.CENTER);
 		JPanel buttonPane = new JPanel(new FlowLayout());
 		buttonPane.add(loadButton);
@@ -312,10 +310,9 @@ public class CompanionInfoTab extends FlippingSplitPane implements CharacterInfo
 
 		public LoadButtonAndSheetHandler()
 		{
-			File sheet =
-					FileUtils.getFile(
+			File sheet = Path.of(
 						ConfigurationSettings.getPreviewDir(),
-						"companions", "compact_companion.htm"); //$NON-NLS-1$ //$NON-NLS-2$
+						"companions", "compact_companion.htm").toFile(); //$NON-NLS-1$ //$NON-NLS-2$
 			this.sheetSupport = new HtmlSheetSupport(infoPane, sheet.getAbsolutePath());
 			this.selectedRow = -1;
 			this.selectionModel = companionsTable.getSelectionModel();
@@ -362,14 +359,14 @@ public class CompanionInfoTab extends FlippingSplitPane implements CharacterInfo
 			}
 		}
 
-		void showCompanion(boolean switchTabs)
+		private void showCompanion(boolean switchTabs)
 		{
 			CompanionFacade companion = getSelectedCompanion();
 			if (companion == null)
 			{
 				if (!switchTabs)
 				{
-					infoPane.setText(""); //$NON-NLS-1$
+					infoPane.getController().setHtml(""); //$NON-NLS-1$
 				}
 				return;
 			}
@@ -380,7 +377,7 @@ public class CompanionInfoTab extends FlippingSplitPane implements CharacterInfo
 				{
 					if (switchTabs)
 					{
-						frame.setSelectedCharacter(character);
+						frame.setCharacter(character);
 						return;
 					}
 					else
@@ -399,7 +396,7 @@ public class CompanionInfoTab extends FlippingSplitPane implements CharacterInfo
 			else
 			{
 				// Display a message telling the user to open the companion.
-				infoPane.setText(LanguageBundle.getString("in_companionLoadCompanionMessage")); //$NON-NLS-1$
+				infoPane.getController().setHtml(LanguageBundle.getString("in_companionLoadCompanionMessage"));
 			}
 		}
 
@@ -595,7 +592,7 @@ public class CompanionInfoTab extends FlippingSplitPane implements CharacterInfo
 				String type = (String) selectedElement;
 				companionDialog.setCharacter(character);
 				companionDialog.setCompanionType(type);
-				Utility.setComponentRelativeLocation(CompanionInfoTab.this, companionDialog);
+				companionDialog.setLocationRelativeTo(CompanionInfoTab.this);
 				companionDialog.setVisible(true);
 				CharacterFacade comp = companionDialog.getNewCompanion();
 				if (comp != null)
@@ -665,18 +662,12 @@ public class CompanionInfoTab extends FlippingSplitPane implements CharacterInfo
 			{
 				final ListSelectionModel selectionModel = raceTable.getSelectionModel();
 				selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-				selectionModel.addListSelectionListener(new ListSelectionListener()
-				{
-					@Override
-					public void valueChanged(ListSelectionEvent e)
-					{
-						if (!e.getValueIsAdjusting())
-						{
-							selectButton.setEnabled(!selectionModel.isSelectionEmpty());
-						}
-					}
-
-				});
+				selectionModel.addListSelectionListener(e -> {
+                    if (!e.getValueIsAdjusting())
+                    {
+                        selectButton.setEnabled(!selectionModel.isSelectionEmpty());
+                    }
+                });
 			}
 			SearchFilterPanel searchBar = new SearchFilterPanel();
 			container.add(searchBar, BorderLayout.NORTH);
@@ -812,14 +803,12 @@ public class CompanionInfoTab extends FlippingSplitPane implements CharacterInfo
 		@Override
 		public List<TreeViewPath<CompanionStubFacade>> getPaths(CompanionStubFacade pobj)
 		{
-			switch (this)
-			{
-				case NAME:
-					return Collections.singletonList(new TreeViewPath<>(pobj));
-				default:
-					throw new InternalError();
-			}
-		}
+            if (this == CompanionTreeView.NAME)
+            {
+                return Collections.singletonList(new TreeViewPath<>(pobj));
+            }
+            throw new InternalError();
+        }
 
 	}
 
@@ -860,7 +849,7 @@ public class CompanionInfoTab extends FlippingSplitPane implements CharacterInfo
 			return 2;
 		}
 
-		private class CompanionNode extends DefaultTreeTableNode
+		private static class CompanionNode extends DefaultTreeTableNode
 		{
 
 			private final CompanionFacade companion;
@@ -981,10 +970,7 @@ public class CompanionInfoTab extends FlippingSplitPane implements CharacterInfo
 			{
 				children.sort(Comparators.toStringIgnoreCaseCollator());
 				int[] indexes = new int[getChildCount()];
-				for (int i = 0; i < indexes.length; i++)
-				{
-					indexes[i] = i;
-				}
+				Arrays.setAll(indexes, i -> i);
 				nodesChanged(this, indexes);
 			}
 

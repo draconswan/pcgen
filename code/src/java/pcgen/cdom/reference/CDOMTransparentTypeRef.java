@@ -82,8 +82,7 @@ public class CDOMTransparentTypeRef<T extends Loadable> extends CDOMGroupRef<T> 
 	{
 		super(objClass.getSimpleName() + " " + Arrays.deepToString(typeArray));
 		this.formatRepresentation = Objects.requireNonNull(formatRepresentation);
-		types = new String[typeArray.length];
-		System.arraycopy(typeArray, 0, types, 0, typeArray.length);
+		types = Arrays.copyOf(typeArray, typeArray.length);
 		refClass = objClass;
 	}
 
@@ -122,7 +121,6 @@ public class CDOMTransparentTypeRef<T extends Loadable> extends CDOMGroupRef<T> 
 	 * 
 	 * @return A representation of this CDOMTransparentTypeRef, suitable for
 	 *         storing in an LST file.
-	 * @see pcgen.cdom.base.CDOMReference#getLSTformat(boolean)
 	 */
 	@Override
 	public String getLSTformat(boolean useAny)
@@ -130,33 +128,16 @@ public class CDOMTransparentTypeRef<T extends Loadable> extends CDOMGroupRef<T> 
 		return getName();
 	}
 
-	/**
-	 * Returns true if this CDOMTransparentTypeRef is equal to the given Object.
-	 * Equality is defined as being another CDOMTransparentTypeRef object with
-	 * equal Class represented by the reference and equal types of the
-	 * underlying reference. This is NOT a deep .equals, in that neither the
-	 * actual contents of this CDOMTransparentTypeRef nor the underlying
-	 * CDOMGroupRef are tested.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj)
 	{
-		if (obj instanceof CDOMTransparentTypeRef)
+		if (obj instanceof CDOMTransparentTypeRef<?> ref)
 		{
-			CDOMTransparentTypeRef<?> ref = (CDOMTransparentTypeRef<?>) obj;
 			return getReferenceClass().equals(ref.getReferenceClass()) && getName().equals(ref.getName());
 		}
 		return false;
 	}
 
-	/**
-	 * Returns the consistent-with-equals hashCode for this
-	 * CDOMTransparentTypeRef
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode()
 	{

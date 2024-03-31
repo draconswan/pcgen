@@ -17,18 +17,18 @@
  */
 package actor.choose;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import pcgen.cdom.base.CategorizedChooser;
 import pcgen.core.Ability;
 import pcgen.core.Globals;
-import pcgen.core.SettingsHandler;
 import pcgen.rules.context.LoadContext;
 import plugin.lsttokens.choose.AbilityToken;
 import plugin.lsttokens.testsupport.BuildUtilities;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * The Class {@code AbilityTokenTest} verifies the AbilityToken
@@ -42,26 +42,25 @@ public class AbilityTokenTest
 
 	private LoadContext context;
 
-	@Before
+	@BeforeEach
 	public void setUp()
 	{
-		SettingsHandler.getGame().clearLoadContext();
+		Globals.emptyLists();
 		context = Globals.getContext();
 		context.getReferenceContext().importObject(BuildUtilities.getFeatCat());
 	}
 
-	private Ability getObject()
+	@AfterEach
+	public void tearDown()
 	{
-		Ability a = BuildUtilities.getFeatCat().newInstance();
-		a.setName(ITEM_NAME);
-		context.getReferenceContext().importObject(a);
-		return a;
+		Globals.emptyLists();
+		context = null;
 	}
 
 	@Test
 	public void testEncodeChoice()
 	{
-		assertEquals(getExpected(), PCA.encodeChoice(getObject()));
+		assertEquals(getExpected(), PCA.encodeChoice(BuildUtilities.buildFeat(context, ITEM_NAME)));
 	}
 
 	protected String getExpected()
@@ -72,15 +71,16 @@ public class AbilityTokenTest
 	@Test
 	public void testDecodeChoice()
 	{
-		assertEquals(getObject(),
+		assertEquals(BuildUtilities.buildFeat(context, ITEM_NAME),
 			PCA.decodeChoice(context, getExpected(), BuildUtilities.getFeatCat()));
 	}
 
 	@Test
 	public void testLegacyDecodeChoice()
 	{
-		assertEquals(getObject(), PCA.decodeChoice(context, "CATEGORY=FEAT|" + ITEM_NAME,
-			BuildUtilities.getFeatCat()));
+		assertEquals(BuildUtilities.buildFeat(context, ITEM_NAME),
+			PCA.decodeChoice(context, "CATEGORY=FEAT|" + ITEM_NAME,
+				BuildUtilities.getFeatCat()));
 	}
 
 }

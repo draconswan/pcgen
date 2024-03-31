@@ -1,6 +1,5 @@
 package plugin.exporttokens;
 
-import java.util.Iterator;
 import java.util.List;
 
 import pcgen.cdom.enumeration.ObjectKey;
@@ -38,15 +37,7 @@ public class SkillListModsToken extends Token
 		boolean needcomma = false;
 
 		final List<Skill> pcSkills = SkillDisplay.getSkillListInOutputOrder(pc);
-		Iterator<Skill> iter = pcSkills.iterator();
-		while (iter.hasNext())
-		{
-			Skill sk = iter.next();
-			if (!pc.includeSkill(sk, SkillFilter.Usable) || !sk.qualifies(pc, null))
-			{
-				iter.remove();
-			}
-		}
+		pcSkills.removeIf(sk -> !pc.includeSkill(sk, SkillFilter.Usable) || !sk.qualifies(pc, null));
 
 		for (Skill aSkill : pcSkills)
 		{
@@ -55,13 +46,13 @@ public class SkillListModsToken extends Token
 			CDOMSingleRef<PCStat> statref = aSkill.get(ObjectKey.KEY_STAT);
 			if (statref != null)
 			{
-				modSkill = SkillModifier.modifier(aSkill, pc).intValue() - pc.getStatModFor(statref.get());
+				modSkill = SkillModifier.modifier(aSkill, pc) - pc.getStatModFor(statref.get());
 			}
 
 			if ((SkillRankControl.getTotalRank(pc, aSkill).intValue() > 0) || (modSkill > 0))
 			{
 				//final
-				int temp = SkillModifier.modifier(aSkill, pc).intValue()
+				int temp = SkillModifier.modifier(aSkill, pc)
 					+ SkillRankControl.getTotalRank(pc, aSkill).intValue();
 
 				if (needcomma)

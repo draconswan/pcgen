@@ -20,18 +20,19 @@ package actor.choose;
 import pcgen.cdom.base.Chooser;
 import pcgen.core.PCCheck;
 import plugin.lsttokens.choose.CheckToken;
+
 import actor.testsupport.AbstractPersistentCDOMChoiceActorTestCase;
 
 public class CheckTokenTest extends
 		AbstractPersistentCDOMChoiceActorTestCase<PCCheck>
 {
 
-	static CheckToken pca = new CheckToken();
+	private static final CheckToken PCA = new CheckToken();
 
 	@Override
 	public Chooser<PCCheck> getActor()
 	{
-		return pca;
+		return PCA;
 	}
 
 	@Override

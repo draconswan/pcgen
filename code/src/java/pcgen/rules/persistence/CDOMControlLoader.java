@@ -18,6 +18,7 @@ package pcgen.rules.persistence;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import pcgen.cdom.base.Loadable;
 import pcgen.cdom.content.DefaultVarValue;
@@ -25,7 +26,6 @@ import pcgen.cdom.content.UserFunction;
 import pcgen.cdom.content.fact.FactDefinition;
 import pcgen.cdom.content.factset.FactSetDefinition;
 import pcgen.cdom.inst.DynamicCategory;
-import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.SystemLoader;
 import pcgen.persistence.lst.LstLineFileLoader;
 import pcgen.rules.context.AbstractReferenceContext;
@@ -42,7 +42,7 @@ public class CDOMControlLoader extends LstLineFileLoader
 
 	public CDOMControlLoader()
 	{
-		//CONSIDER better way to load these?
+		//CONSIDER a better way to load these?
 		addLineLoader(new CDOMSubLineLoader<>("FACTDEF", FactDefinition.class));
 		addLineLoader(new CDOMSubLineLoader<>("FACTSETDEF", FactSetDefinition.class));
 		addLineLoader(new CDOMSubLineLoader<>("DEFAULTVARIABLEVALUE", DefaultVarValue.class));
@@ -52,10 +52,7 @@ public class CDOMControlLoader extends LstLineFileLoader
 
 	private void addLineLoader(CDOMSubLineLoader<?> loader)
 	{
-		if (loader == null)
-		{
-			throw new IllegalArgumentException("Cannot add null loader to Control Loader");
-		}
+		Objects.requireNonNull(loader, "Cannot add null loader to Control Loader");
 		String prefix = loader.getPrefix();
 		if (loadMap.containsKey(prefix))
 		{
@@ -84,23 +81,14 @@ public class CDOMControlLoader extends LstLineFileLoader
 				"Unsure what to do with line with prefix: " + prefix + ".  Line was: " + val + " in file: " + source);
 			return false;
 		}
-		try
+		if (!subParse(context, loader, val))
 		{
-			if (!subParse(context, loader, val))
-			{
-				return false;
-			}
-		}
-		catch (PersistenceLayerException ple)
-		{
-			Logging.errorPrint("Exception in Load: ", ple);
 			return false;
 		}
 		return true;
 	}
 
 	private <CC extends Loadable> boolean subParse(LoadContext context, CDOMSubLineLoader<CC> loader, String line)
-		throws PersistenceLayerException
 	{
 		int tabLoc = line.indexOf(SystemLoader.TAB_DELIM);
 		String lineIdentifier;
@@ -120,7 +108,7 @@ public class CDOMControlLoader extends LstLineFileLoader
 			return false;
 		}
 		String name = lineIdentifier.substring(colonLoc + 1);
-		if ((name == null) || name.isEmpty())
+		if (name.isEmpty())
 		{
 			Logging.errorPrint("First token on line had no content: " + line, context);
 			return false;
@@ -132,7 +120,7 @@ public class CDOMControlLoader extends LstLineFileLoader
 	}
 
 	@Override
-	public void parseLine(LoadContext context, String inputLine, URI sourceURI) throws PersistenceLayerException
+	public void parseLine(LoadContext context, String inputLine, URI sourceURI)
 	{
 		context.rollback();
 		if (parseSubLine(context, inputLine, sourceURI))

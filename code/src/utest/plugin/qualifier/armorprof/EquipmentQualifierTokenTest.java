@@ -16,11 +16,14 @@
  */
 package plugin.qualifier.armorprof;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.net.URISyntaxException;
 import java.util.Collection;
 
-import org.junit.Test;
-
+import pcgen.TestConstants;
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.base.ChooseInformation;
 import pcgen.cdom.enumeration.ObjectKey;
@@ -34,20 +37,20 @@ import pcgen.rules.persistence.CDOMLoader;
 import pcgen.rules.persistence.token.CDOMPrimaryToken;
 import pcgen.rules.persistence.token.CDOMSecondaryToken;
 import pcgen.rules.persistence.token.QualifierToken;
-import plugin.lsttokens.ChooseLst;
+
 import plugin.lsttokens.choose.ArmorProficiencyToken;
 import plugin.lsttokens.testsupport.AbstractQualifierTokenTestCase;
-import plugin.lsttokens.testsupport.CDOMTokenLoader;
 import plugin.lsttokens.testsupport.TokenRegistration;
 import plugin.lsttokens.testsupport.TransparentPlayerCharacter;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class EquipmentQualifierTokenTest extends
 		AbstractQualifierTokenTestCase<CDOMObject, Equipment>
 {
 
-	static ChooseLst token = new ChooseLst();
-	static ArmorProficiencyToken subtoken = new ArmorProficiencyToken();
-	static CDOMTokenLoader<CDOMObject> loader = new CDOMTokenLoader<>();
+	private static final ArmorProficiencyToken SUBTOKEN = new ArmorProficiencyToken();
 	private static final plugin.qualifier.armorprof.EquipmentToken EQUIPMENT_TOKEN =
 			new plugin.qualifier.armorprof.EquipmentToken();
 
@@ -58,6 +61,7 @@ public class EquipmentQualifierTokenTest extends
 		super("EQUIPMENT", null);
 	}
 
+	@BeforeEach
 	@Override
 	public void setUp() throws PersistenceLayerException, URISyntaxException
 	{
@@ -68,7 +72,7 @@ public class EquipmentQualifierTokenTest extends
 	@Override
 	public CDOMSecondaryToken<?> getSubToken()
 	{
-		return subtoken;
+		return SUBTOKEN;
 	}
 
 	@Override
@@ -86,13 +90,13 @@ public class EquipmentQualifierTokenTest extends
 	@Override
 	public CDOMLoader<CDOMObject> getLoader()
 	{
-		return loader;
+		return TestConstants.TOKEN_LOADER;
 	}
 
 	@Override
 	public CDOMPrimaryToken<CDOMObject> getToken()
 	{
-		return token;
+		return TestConstants.CHOOSE_TOKEN;
 	}
 
 	@Override

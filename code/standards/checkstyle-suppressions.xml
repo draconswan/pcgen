@@ -6,14 +6,4 @@
 
     
 <suppressions>
-
-    <!-- Suppress "Missing a Javadoc comment" everywhere for now -->
-    <suppress message="Missing a Javadoc comment" files="."/>
-
-    <!-- Suppress "must match pattern" everywhere for now -->
-    <suppress message="must match pattern" files="."/>
-
-    <!-- Suppress "Comment matches to-do format" everywhere for now -->
-    <suppress message="Comment matches to-do format" files="."/>
-
 </suppressions>

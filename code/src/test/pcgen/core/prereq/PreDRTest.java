@@ -17,9 +17,9 @@
  */
 package pcgen.core.prereq;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.base.FormulaFactory;
 import pcgen.cdom.content.DamageReduction;
@@ -29,8 +29,11 @@ import pcgen.core.Race;
 import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.lst.prereq.PreParserFactory;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>PreDRTest</code> tests that the PREDR tag is
+ * {@code PreDRTest} tests that the PREDR tag is
  * working correctly.
  */
 public class PreDRTest extends AbstractCharacterTestCase
@@ -38,24 +41,12 @@ public class PreDRTest extends AbstractCharacterTestCase
 	private Race race = new Race();
 	private DamageReduction drPlus1;
 
-	public static void main(final String[] args)
-	{
-		TestRunner.run(PreDRTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PreDRTest.class);
-	}
-
 	/**
 	 * Test basic functionality.
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testDR() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();
@@ -92,6 +83,7 @@ public class PreDRTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testMultiOr() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();
@@ -123,6 +115,7 @@ public class PreDRTest extends AbstractCharacterTestCase
 			character, null));
 	}
 
+	@Test
 	public void testMultiAnd() throws Exception
 	{
 		final PlayerCharacter character = getCharacter();
@@ -161,6 +154,7 @@ public class PreDRTest extends AbstractCharacterTestCase
 			prereq, character, null));
 	}
 
+	@BeforeEach
     @Override
 	protected void setUp() throws Exception
 	{

@@ -110,18 +110,11 @@ public class EqModRef
 		return (choices == null ? Collections.emptyList() : new ArrayList<>(choices));
 	}
 
-	/**
-	 * Returns true if the given object is a EqModRef with identical underlying
-	 * EquipmentModifier reference and choices.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj)
 	{
-		if (obj instanceof EqModRef)
+		if (obj instanceof EqModRef other)
 		{
-			EqModRef other = (EqModRef) obj;
 			if (other.eqMod.equals(eqMod))
 			{
 				if (choices == null)
@@ -137,11 +130,6 @@ public class EqModRef
 		return false;
 	}
 
-	/**
-	 * Returns a consistent-with-equals hashCode for this EqModRef
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode()
 	{

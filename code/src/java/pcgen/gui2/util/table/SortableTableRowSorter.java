@@ -29,9 +29,6 @@ import javax.swing.SortOrder;
 
 import pcgen.util.Comparators;
 
-/**
- *
- */
 public class SortableTableRowSorter extends RowSorter<SortableTableModel>
 {
 
@@ -39,7 +36,7 @@ public class SortableTableRowSorter extends RowSorter<SortableTableModel>
 
 	private SortableTableModel model;
 
-	public SortableTableRowSorter()
+	protected SortableTableRowSorter()
 	{
 		this(null);
 	}
@@ -150,8 +147,7 @@ public class SortableTableRowSorter extends RowSorter<SortableTableModel>
 		{
 			comparators[i] = Comparators.getComparatorFor(m.getColumnClass(i));
 		}
-		int keyCount = sortKeys.size();
-		RowSorter.SortKey[] keys = sortKeys.toArray(new RowSorter.SortKey[keyCount]);
+		RowSorter.SortKey[] keys = sortKeys.toArray(new RowSorter.SortKey[0]);
 
 		m.sortModel(new RowComparator(keys, comparators));
 	}
@@ -220,7 +216,7 @@ class RowComparator implements Comparator<Row>
 	private final RowSorter.SortKey[] keys;
 	private final Comparator<?>[] comparators;
 
-	public RowComparator(RowSorter.SortKey[] keys, Comparator<?>[] comparators)
+	RowComparator(RowSorter.SortKey[] keys, Comparator<?>[] comparators)
 	{
 		this.keys = keys;
 		this.comparators = comparators;
@@ -297,11 +293,7 @@ class RowComparator implements Comparator<Row>
 		{
 			return false;
 		}
-		if (!Arrays.deepEquals(this.comparators, other.comparators))
-		{
-			return false;
-		}
-		return true;
+		return Arrays.deepEquals(this.comparators, other.comparators);
 	}
 
 }

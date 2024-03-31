@@ -25,8 +25,6 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,17 +45,17 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-
 import pcgen.cdom.base.Constants;
+import pcgen.core.ChronicleEntry;
 import pcgen.facade.core.CharacterFacade;
-import pcgen.facade.core.ChronicleEntryFacade;
 import pcgen.facade.core.DescriptionFacade;
 import pcgen.gui2.tabs.CharacterInfoTab;
 import pcgen.gui2.tabs.TabTitle;
 import pcgen.gui2.tabs.models.TextFieldListener;
 import pcgen.gui2.tools.Icons;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 /**
  * The CampaignHistoryInfoPane displays a set of chronicles that the user can fill in for his
@@ -175,7 +173,7 @@ public class CampaignHistoryInfoPane extends JPanel implements CharacterInfoTab
 		{
 			descFacade = character.getDescriptionFacade();
 			chronicles = new ArrayList<>();
-			for (ChronicleEntryFacade entry : descFacade.getChronicleEntries())
+			for (ChronicleEntry entry : descFacade.getChronicleEntries())
 			{
 				chronicles.add(new ChroniclePane(this, entry));
 			}
@@ -186,9 +184,8 @@ public class CampaignHistoryInfoPane extends JPanel implements CharacterInfoTab
 		 */
 		private ChroniclePane createNewChronicleEntry()
 		{
-			ChronicleEntryFacade entry = descFacade.createChronicleEntry();
-			ChroniclePane pane = new ChroniclePane(this, entry);
-			return pane;
+			ChronicleEntry entry = descFacade.createChronicleEntry();
+            return new ChroniclePane(this, entry);
 		}
 
 		/**
@@ -259,7 +256,7 @@ public class CampaignHistoryInfoPane extends JPanel implements CharacterInfoTab
 		/**
 		 * Deletes a chronicle from this character and updates the display
 		 */
-		public void deleteChroniclePane(ChroniclePane pane, ChronicleEntryFacade entry)
+		public void deleteChroniclePane(ChroniclePane pane, ChronicleEntry entry)
 		{
 			descFacade.removeChronicleEntry(entry);
 			chroniclesPane.remove(pane);
@@ -296,7 +293,7 @@ public class CampaignHistoryInfoPane extends JPanel implements CharacterInfoTab
 
 		};
 		private ChronicleHandler handler;
-		private ChronicleEntryFacade entry;
+		private ChronicleEntry entry;
 
 		/**
 		 * Creates a bare ChroniclePane that initializes the layout of its components. This is meant
@@ -310,7 +307,7 @@ public class CampaignHistoryInfoPane extends JPanel implements CharacterInfoTab
 			initComponents();
 		}
 
-		public ChroniclePane(ChronicleHandler handler, final ChronicleEntryFacade entry)
+		public ChroniclePane(ChronicleHandler handler, final ChronicleEntry entry)
 		{
 			this();
 			this.handler = handler;
@@ -432,16 +429,7 @@ public class CampaignHistoryInfoPane extends JPanel implements CharacterInfoTab
 			textArea.setText(entry.getChronicle());
 
 			// Listeners to write any entered values back to the character
-			ActionListener actionListener = new ActionListener()
-			{
-
-				@Override
-				public void actionPerformed(ActionEvent actionEvent)
-				{
-					entry.setOutputEntry(checkBox.getModel().isSelected());
-				}
-
-			};
+			ActionListener actionListener = actionEvent -> entry.setOutputEntry(checkBox.getModel().isSelected());
 			checkBox.addActionListener(actionListener);
 			campaignField.getDocument().addDocumentListener(new TextFieldListener(campaignField)
 			{
@@ -483,16 +471,7 @@ public class CampaignHistoryInfoPane extends JPanel implements CharacterInfoTab
 				}
 
 			});
-			xpField.addPropertyChangeListener("value", new PropertyChangeListener()
-			{
-
-				@Override
-				public void propertyChange(PropertyChangeEvent evt)
-				{
-					entry.setXpField(((Number) xpField.getValue()).intValue());
-				}
-
-			});
+			xpField.addPropertyChangeListener("value", evt -> entry.setXpField(((Number) xpField.getValue()).intValue()));
 			gmField.getDocument().addDocumentListener(new TextFieldListener(gmField)
 			{
 

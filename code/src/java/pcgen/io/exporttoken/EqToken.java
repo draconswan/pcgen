@@ -31,7 +31,6 @@ import pcgen.base.lang.StringUtil;
 import pcgen.cdom.base.Constants;
 import pcgen.cdom.enumeration.IntegerKey;
 import pcgen.cdom.enumeration.MapKey;
-import pcgen.cdom.enumeration.ObjectKey;
 import pcgen.cdom.enumeration.SourceFormat;
 import pcgen.cdom.enumeration.StringKey;
 import pcgen.cdom.inst.EquipmentHead;
@@ -42,7 +41,6 @@ import pcgen.core.EquipmentModifier;
 import pcgen.core.EquipmentUtilities;
 import pcgen.core.Globals;
 import pcgen.core.PlayerCharacter;
-import pcgen.core.SettingsHandler;
 import pcgen.core.analysis.OutputNameFormatting;
 import pcgen.io.ExportHandler;
 import pcgen.io.FileAccess;
@@ -60,23 +58,17 @@ public class EqToken extends Token
 	private static int cachedSerial = 0;
 	private static PlayerCharacter cachedPC = null;
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getTokenName()
-	 */
 	@Override
 	public String getTokenName()
 	{
 		return TOKENNAME;
 	}
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getToken(java.lang.String, pcgen.core.PlayerCharacter, pcgen.io.ExportHandler)
-	 */
 	@Override
 	public String getToken(String tokenSource, PlayerCharacter pc, ExportHandler eh)
 	{
 		// Starting EQ.%.NAME.MAGIC,befTrue,aftTrue,befFalse,aftFalse reading
-		String bFilter = "";
+		StringBuilder bFilter = new StringBuilder();
 		String befTrue = "";
 		String aftTrue = "";
 		String befFalse = "";
@@ -90,7 +82,7 @@ public class EqToken extends Token
 		 */
 		if (bTok.countTokens() >= 3)
 		{
-			bFilter = bTok.nextToken();
+			bFilter = new StringBuilder(bTok.nextToken());
 			befTrue = bTok.nextToken();
 			aftTrue = bTok.nextToken();
 
@@ -100,10 +92,10 @@ public class EqToken extends Token
 				aftFalse = bTok.nextToken();
 			}
 
-			tokenSource = tokenSource.substring(0, bFilter.lastIndexOf('.'));
+			tokenSource = tokenSource.substring(0, bFilter.toString().lastIndexOf('.'));
 		}
 
-		bTok = new StringTokenizer(bFilter, ".");
+		bTok = new StringTokenizer(bFilter.toString(), ".");
 
 		boolean if_detected = false;
 
@@ -119,11 +111,11 @@ public class EqToken extends Token
 			{
 				if (if_detected)
 				{
-					bFilter = bFilter + "." + bString;
+					bFilter.append(".").append(bString);
 				}
 				else
 				{
-					bFilter = bString;
+					bFilter = new StringBuilder(bString);
 				}
 			}
 		}
@@ -132,8 +124,8 @@ public class EqToken extends Token
 		// check to see if this was the same as the last list we were asked to export.
 		//
 		String comparatorString = tokenSource.split("[0-9]+")[0];
-		List<Equipment> eqList = null;
-		StringTokenizer aTok = null;
+		List<Equipment> eqList;
+		StringTokenizer aTok;
 		int temp = -1;
 		if (comparatorString.equals(cachedString) && pc == cachedPC && pc.getSerial() == cachedSerial)
 		{
@@ -181,8 +173,7 @@ public class EqToken extends Token
 			}
 
 			// Get the list of equipment
-			eqList = new ArrayList<>();
-			eqList.addAll(pc.getEquipmentListInOutputOrder(merge));
+			eqList = new ArrayList<>(pc.getEquipmentListInOutputOrder(merge));
 
 			//Begin Not code...
 			while (aTok.hasMoreTokens())
@@ -240,9 +231,9 @@ public class EqToken extends Token
 				retString = FileAccess.filterString(getEqToken(pc, eq, tempString, aTok));
 
 				// Starting EQ.%.NAME.MAGIC,befTrue,aftTrue,befFalse,aftFalse treatment
-				if (bFilter != null && !bFilter.isEmpty())
+				if (bFilter != null && (bFilter.length() > 0))
 				{
-					aTok = new StringTokenizer(bFilter, ".");
+					aTok = new StringTokenizer(bFilter.toString(), ".");
 
 					boolean result = false;
 					boolean and_operation = false;
@@ -290,8 +281,6 @@ public class EqToken extends Token
 	 * EqToken manages its own encoding to allow the data to be encoded but 
 	 * export sheet markup to passed through as is. Tell ExportHandler that it
 	 * should not re-encode the output from this token.  
-	 * 
-	 * @see pcgen.io.exporttoken.Token#isEncoded()
 	 */
 	@Override
 	public boolean isEncoded()
@@ -320,7 +309,7 @@ public class EqToken extends Token
 
 			if (!aRange.isEmpty())
 			{
-				range = Integer.valueOf(aRange);
+				range = Integer.parseInt(aRange);
 			}
 		}
 
@@ -335,20 +324,17 @@ public class EqToken extends Token
 
 		int postAdd = 0;
 
-		if (pc != null)
+		if (eq.isThrown())
 		{
-			if (eq.isThrown())
-			{
-				r += (int) pc.getTotalBonusTo("RANGEADD", "THROWN");
-				postAdd = (int) pc.getTotalBonusTo("POSTRANGEADD", "THROWN");
-				rangeMult += ((int) pc.getTotalBonusTo("RANGEMULT", "THROWN") / 100.0);
-			}
-			else if (eq.isProjectile())
-			{
-				r += (int) pc.getTotalBonusTo("RANGEADD", "PROJECTILE");
-				postAdd = (int) pc.getTotalBonusTo("POSTRANGEADD", "PROJECTILE");
-				rangeMult += ((int) pc.getTotalBonusTo("RANGEMULT", "PROJECTILE") / 100.0);
-			}
+			r += (int) pc.getTotalBonusTo("RANGEADD", "THROWN");
+			postAdd = (int) pc.getTotalBonusTo("POSTRANGEADD", "THROWN");
+			rangeMult += ((int) pc.getTotalBonusTo("RANGEMULT", "THROWN") / 100.0);
+		}
+		else if (eq.isProjectile())
+		{
+			r += (int) pc.getTotalBonusTo("RANGEADD", "PROJECTILE");
+			postAdd = (int) pc.getTotalBonusTo("POSTRANGEADD", "PROJECTILE");
+			rangeMult += ((int) pc.getTotalBonusTo("RANGEMULT", "PROJECTILE") / 100.0);
 		}
 
 		r *= rangeMult;
@@ -934,11 +920,6 @@ public class EqToken extends Token
 	 */
 	public static double getCheckboxesDoubleToken(Equipment eq)
 	{
-		if (SettingsHandler.getShowSingleBoxPerBundle())
-		{
-			return getQtyDoubleToken(eq);
-		}
-
 		return getQtyDoubleToken(eq) * eq.getSafe(IntegerKey.BASE_QUANTITY);
 	}
 
@@ -981,7 +962,7 @@ public class EqToken extends Token
 	 */
 	public static String getSizeLongToken(Equipment eq)
 	{
-		return eq.getSafe(ObjectKey.SIZE).get().getDisplayName();
+		return eq.getSizeAdjustment().getDisplayName();
 	}
 
 	/**
@@ -1256,7 +1237,7 @@ public class EqToken extends Token
 				for (Map.Entry<String, String> me : qualityMap.entrySet())
 				{
 					qualities
-						.add(new StringBuilder().append(me.getKey()).append(": ").append(me.getValue()).toString());
+						.add(me.getKey() + ": " + me.getValue());
 				}
 				return StringUtil.join(qualities, ", ");
 			}

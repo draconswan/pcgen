@@ -20,18 +20,19 @@ package actor.choose;
 import pcgen.cdom.base.Chooser;
 import pcgen.core.WeaponProf;
 import plugin.lsttokens.choose.WeaponProficiencyToken;
+
 import actor.testsupport.AbstractPersistentCDOMChoiceActorTestCase;
 
 public class WeaponProficiencyTokenTest extends
 		AbstractPersistentCDOMChoiceActorTestCase<WeaponProf>
 {
 
-	static WeaponProficiencyToken pca = new WeaponProficiencyToken();
+	private static final WeaponProficiencyToken PCA = new WeaponProficiencyToken();
 
 	@Override
 	public Chooser<WeaponProf> getActor()
 	{
-		return pca;
+		return PCA;
 	}
 
 	@Override

@@ -31,10 +31,6 @@ import pcgen.core.GameMode;
 import pcgen.core.SettingsHandler;
 import pcgen.persistence.SystemLoader;
 
-/**
- * ???
- * @deprecated
- */
 @Deprecated
 public final class LstSystemLoader implements SystemLoader
 {
@@ -42,19 +38,12 @@ public final class LstSystemLoader implements SystemLoader
 	private final Map<String, List<URI>> chosenCampaignSourcefiles = new HashMap<>();
 
 	/**
-	 * @see pcgen.persistence.SystemLoader#setChosenCampaignSourcefiles(java.util.List, pcgen.core.GameMode)
-	 * 
 	 * CODE-1889 to remove use of this method
 	 */
 	@Override
 	public void setChosenCampaignSourcefiles(List<URI> l, GameMode game)
 	{
-		List<URI> files = chosenCampaignSourcefiles.get(game.getName());
-		if (files == null)
-		{
-			files = new ArrayList<>();
-			chosenCampaignSourcefiles.put(game.getName(), files);
-		}
+		List<URI> files = chosenCampaignSourcefiles.computeIfAbsent(game.getName(), k -> new ArrayList<>());
 		files.clear();
 		files.addAll(l);
 		SettingsHandler.getOptions().setProperty("pcgen.files.chosenCampaignSourcefiles." + game.getName(),
@@ -62,19 +51,11 @@ public final class LstSystemLoader implements SystemLoader
 	}
 
 	/**
-	 * @see pcgen.persistence.SystemLoader#getChosenCampaignSourcefiles(pcgen.core.GameMode)
-	 * 
 	 * CODE-1889 to remove use of this method
 	 */
 	@Override
 	public List<URI> getChosenCampaignSourcefiles(GameMode game)
 	{
-		List<URI> files = chosenCampaignSourcefiles.get(game.getName());
-		if (files == null)
-		{
-			files = new ArrayList<>();
-			chosenCampaignSourcefiles.put(game.getName(), files);
-		}
-		return files;
+		return chosenCampaignSourcefiles.computeIfAbsent(game.getName(), k -> new ArrayList<>());
 	}
 }

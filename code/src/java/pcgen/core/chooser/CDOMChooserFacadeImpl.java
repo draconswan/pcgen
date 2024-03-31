@@ -20,8 +20,6 @@ package pcgen.core.chooser;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import pcgen.base.lang.StringUtil;
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.enumeration.ListKey;
@@ -38,6 +36,8 @@ import pcgen.facade.util.DefaultReferenceFacade;
 import pcgen.facade.util.ListFacade;
 import pcgen.facade.util.ReferenceFacade;
 import pcgen.system.LanguageBundle;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * The Class {@code GeneraChooserFacadeBase} is a base from which a
@@ -320,9 +320,8 @@ public class CDOMChooserFacadeImpl<T> implements ChooserFacade
 	{
 		List<String> branches = new ArrayList<>();
 
-		if (item instanceof PObject)
+		if (item instanceof PObject pObject)
 		{
-			PObject pObject = (PObject) item;
 			for (Type type : pObject.getTrueTypeList(true))
 			{
 				branches.add(type.toString());
@@ -424,7 +423,7 @@ public class CDOMChooserFacadeImpl<T> implements ChooserFacade
 		this.infoFactory = infoFactory;
 	}
 
-	private class CDOMInfoWrapper implements InfoFacade
+	private static class CDOMInfoWrapper implements InfoFacade
 	{
 		private final CDOMObject cdomObj;
 
@@ -480,7 +479,7 @@ public class CDOMChooserFacadeImpl<T> implements ChooserFacade
 		}
 	}
 
-	private class DelimitedStringInfoWrapper implements InfoFacade
+	private static class DelimitedStringInfoWrapper implements InfoFacade
 	{
 		private final String string;
 		private final String delimiter;

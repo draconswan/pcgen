@@ -19,18 +19,19 @@ package actor.choose;
 
 import pcgen.cdom.base.Chooser;
 import plugin.lsttokens.choose.StringToken;
+
 import actor.testsupport.AbstractPersistentChoiceActorTestCase;
 
 public class StringTokenTest extends
 		AbstractPersistentChoiceActorTestCase<String>
 {
 
-	static StringToken pca = new StringToken();
+	private static final StringToken PCA = new StringToken();
 
 	@Override
 	public Chooser<String> getActor()
 	{
-		return pca;
+		return PCA;
 	}
 
 	@Override

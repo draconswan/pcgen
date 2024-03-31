@@ -17,9 +17,9 @@
  */
 package pcgen.core.prereq;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import pcgen.AbstractCharacterTestCase;
 import pcgen.core.GameMode;
 import pcgen.core.Globals;
@@ -28,25 +28,17 @@ import pcgen.core.SettingsHandler;
 import pcgen.persistence.PersistenceLayerException;
 import plugin.pretokens.parser.PreRuleParser;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>PreRuleTest</code> checks the function of the rule 
+ * {@code PreRuleTest} checks the function of the rule
  * prereq tester.
  */
 @SuppressWarnings("nls")
 public class PreRuleTest extends AbstractCharacterTestCase
 {
-	/**
-	 * Runs the test.
-	 * @param args
-	 */
-	public static void main(final String[] args)
-	{
-		TestRunner.run(PreRuleTest.class);
-	}
-
-	/**
-	 * @see junit.framework.TestCase#setUp()
-	 */
+	@BeforeEach
 	@Override
 	protected void setUp() throws Exception
 	{
@@ -55,30 +47,11 @@ public class PreRuleTest extends AbstractCharacterTestCase
 		RuleCheck preRule = new RuleCheck();
 		preRule.setName("PRERULE");
 		preRule.setDefault(false);
-		GameMode gameMode = SettingsHandler.getGame();
+		GameMode gameMode = SettingsHandler.getGameAsProperty().get();
 		gameMode.getModeContext().getReferenceContext().importObject(preRule);
 	}
 
-	/**
-	 * @see junit.framework.TestCase#tearDown()
-	 */
-	@Override
-	protected void tearDown() throws Exception
-	{
-		// TODO Auto-generated method stub
-		super.tearDown();
-	}
-
-	/**
-	 * Returns a TestSuite consisting of all the tests in this class.
-	 * 
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PreRuleTest.class);
-	}
-	
+	@Test
 	public void testRule() throws Exception
 	{
 		// if ruleEnabled is launch before disabled, the disabled assert are wrong.
@@ -91,7 +64,7 @@ public class PreRuleTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
-	public void ruleDisabled() throws PersistenceLayerException
+	private void ruleDisabled() throws PersistenceLayerException
 	{
 		assertFalse("Our rule should start as false", Globals
 			.checkRule("PRERULE"));
@@ -112,9 +85,9 @@ public class PreRuleTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
-	public void ruleEnabled() throws PersistenceLayerException
+	private void ruleEnabled() throws PersistenceLayerException
 	{
-		RuleCheck preRule = SettingsHandler.getGame().getModeContext().getReferenceContext()
+		RuleCheck preRule = SettingsHandler.getGameAsProperty().get().getModeContext().getReferenceContext()
 				.silentlyGetConstructedCDOMObject(RuleCheck.class, "PRERULE");
 		preRule.setDefault(true);
 		

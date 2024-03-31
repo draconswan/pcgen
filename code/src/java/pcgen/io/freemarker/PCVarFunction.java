@@ -20,9 +20,10 @@ package pcgen.io.freemarker;
 
 import java.util.List;
 
+import pcgen.core.PlayerCharacter;
+
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
-import pcgen.core.PlayerCharacter;
 
 /**
  * PCVarFunction allows character variable values to be exported to a 
@@ -54,8 +55,7 @@ public class PCVarFunction implements TemplateMethodModelEx
 
 		String formula = arg0.get(0).toString();
 
-		Float result = pc.getVariableValue(formula, "");
-		return result;
+        return pc.getVariableValue(formula, "");
 	}
 
 }

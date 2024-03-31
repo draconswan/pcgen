@@ -27,6 +27,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,12 +38,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
 import pcgen.cdom.enumeration.ListKey;
 import pcgen.core.Campaign;
 import pcgen.core.GameMode;
@@ -51,6 +46,11 @@ import pcgen.core.SystemCollections;
 import pcgen.io.PCGFile;
 import pcgen.persistence.lst.CampaignSourceEntry;
 import pcgen.system.ConfigurationSettings;
+
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * The Class {@code VariableReport} produces a report on variable
@@ -92,14 +92,9 @@ public class VariableReport
 
 		for (Entry<ReportFormat, String> reportRequest : reportNameMap.entrySet())
 		{
-			Writer file = new FileWriter(new File(reportRequest.getValue()));
-			try
+			try (Writer file = new FileWriter(new File(reportRequest.getValue()), StandardCharsets.UTF_8))
 			{
 				outputReport(gameModeVarMap, gameModeVarCountMap, reportRequest.getKey(), file);
-			}
-			finally
-			{
-				IOUtils.closeQuietly(file);
 			}
 		}
 	}
@@ -118,48 +113,31 @@ public class VariableReport
 		ReportFormat reportFormat, Writer outputWriter) throws IOException, TemplateException
 	{
 		// Configuration
-		Writer file = null;
 		Configuration cfg = new Configuration();
 		int dataPathLen = ConfigurationSettings.getPccFilesDir().length();
 
-		try
-		{
-			// Set Directory for templates
-			File codeDir = new File("code");
-			File templateDir = new File(codeDir, "templates");
-			cfg.setDirectoryForTemplateLoading(templateDir);
-			// load template
-			Template template = cfg.getTemplate(reportFormat.getTemplate());
+		// Set Directory for templates
+		File codeDir = new File("code");
+		File templateDir = new File(codeDir, "templates");
+		cfg.setDirectoryForTemplateLoading(templateDir);
+		// load template
+		Template template = cfg.getTemplate(reportFormat.getTemplate());
 
-			// data-model
-			Map<String, Object> input = new HashMap<>();
-			input.put("gameModeVarMap", gameModeVarMap);
-			input.put("gameModeVarCountMap", gameModeVarCountMap);
-			input.put("pathIgnoreLen", dataPathLen + 1);
+		// data-model
+		Map<String, Object> input = new HashMap<>();
+		input.put("gameModeVarMap", gameModeVarMap);
+		input.put("gameModeVarCountMap", gameModeVarCountMap);
+		input.put("pathIgnoreLen", dataPathLen + 1);
 
-			// Process the template
-			template.process(input, outputWriter);
-			outputWriter.flush();
-		}
-		finally
-		{
-			if (file != null)
-			{
-				try
-				{
-					file.close();
-				}
-				catch (Exception e2)
-				{
-				}
-			}
-		}
+		// Process the template
+		template.process(input, outputWriter);
+		outputWriter.flush();
+
 	}
 
 	private List<Campaign> getCampaignsForGameMode(GameMode game)
 	{
-		List<String> gameModeList = new ArrayList<>();
-		gameModeList.addAll(game.getAllowedModes());
+		List<String> gameModeList = new ArrayList<>(game.getAllowedModes());
 
 		// Only add those campaigns in the user's chosen folder and game mode
 		List<Campaign> allCampaigns = Globals.getCampaignList();
@@ -240,7 +218,7 @@ public class VariableReport
 	private void processLstFile(List<VarDefine> varList, Map<String, Integer> varCountMap, File file)
 		throws FileNotFoundException, IOException
 	{
-		try (BufferedReader br = new BufferedReader(new FileReader(file)))
+		try (BufferedReader br = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8)))
 		{
 			Map<String, String> varUseMap = new HashMap<>();
 			String line = br.readLine();
@@ -266,7 +244,7 @@ public class VariableReport
 						{
 							String[] define = tok.split("[:|]");
 							String varName = define[1];
-							if (define.length > 1 && !varName.startsWith("LOCK.") && !varName.startsWith("UNLOCK."))
+							if (!varName.startsWith("LOCK.") && !varName.startsWith("UNLOCK."))
 							{
 								varList.add(new VarDefine(varName, object, file, varUseMap.get(varName)));
 								Integer count = varCountMap.get(varName);
@@ -361,11 +339,10 @@ public class VariableReport
 			{
 				return false;
 			}
-			if (!(obj instanceof VarDefine))
+			if (!(obj instanceof VarDefine other))
 			{
 				return false;
 			}
-			VarDefine other = (VarDefine) obj;
 			if (varName == null)
 			{
 				if (other.varName != null)
@@ -379,17 +356,13 @@ public class VariableReport
 			}
 			if (definingObject == null)
 			{
-				if (other.definingObject != null)
-				{
-					return false;
-				}
+                return other.definingObject == null;
 			}
-			else if (!definingObject.equals(other.definingObject))
+			else
 			{
-				return false;
+				return definingObject.equals(other.definingObject);
 			}
-			return true;
-		}
+        }
 
 		@Override
 		public int compareTo(VarDefine other)
@@ -413,17 +386,15 @@ public class VariableReport
 		@Override
 		public String toString()
 		{
-			StringBuilder builder = new StringBuilder(100);
-			builder.append("VarDefine [varName=");
-			builder.append(varName);
-			builder.append(", definingObject=");
-			builder.append(definingObject);
-			builder.append(", definingFile=");
-			builder.append(definingFile);
-			builder.append(", use=");
-			builder.append(use);
-			builder.append(']');
-			return builder.toString();
+			return "VarDefine [varName="
+					+ varName
+					+ ", definingObject="
+					+ definingObject
+					+ ", definingFile="
+					+ definingFile
+					+ ", use="
+					+ use
+					+ ']';
 		}
 
 		/**

@@ -23,7 +23,6 @@ import java.net.URI;
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.base.Loadable;
 import pcgen.core.bonus.BonusObj;
-import pcgen.persistence.PersistenceLayerException;
 import pcgen.rules.context.LoadContext;
 import pcgen.system.LanguageBundle;
 import pcgen.util.Logging;
@@ -117,7 +116,6 @@ public final class LstUtils
 	}
 
 	public static boolean processToken(LoadContext context, Loadable po, Object source, String tok)
-		throws PersistenceLayerException
 	{
 		final String token = tok.trim();
 		final int colonLoc = token.indexOf(':');
@@ -134,8 +132,8 @@ public final class LstUtils
 			return false;
 		}
 
-		String key = token.substring(0, colonLoc).intern();
-		String value = (colonLoc == token.length() - 1) ? null : token.substring(colonLoc + 1).intern();
+		String key = token.substring(0, colonLoc);
+		String value = (colonLoc == (token.length() - 1)) ? null : token.substring(colonLoc + 1);
 		boolean successful = context.processToken(po, key, value);
 		if (successful)
 		{

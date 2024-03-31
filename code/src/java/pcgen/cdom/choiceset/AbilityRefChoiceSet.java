@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -39,11 +40,13 @@ import pcgen.cdom.enumeration.ObjectKey;
 import pcgen.cdom.helper.CNAbilitySelection;
 import pcgen.cdom.reference.CDOMSingleRef;
 import pcgen.cdom.reference.ReferenceUtilities;
+import pcgen.cdom.util.CControl;
 import pcgen.core.Ability;
 import pcgen.core.AbilityCategory;
 import pcgen.core.Deity;
 import pcgen.core.PlayerCharacter;
 import pcgen.core.WeaponProf;
+import pcgen.output.channel.ChannelUtilities;
 
 /**
  * A AbilityRefChoiceSet contains references to AbilityRef Objects.
@@ -99,24 +102,15 @@ public class AbilityRefChoiceSet implements PrimitiveChoiceSet<CNAbilitySelectio
 	public AbilityRefChoiceSet(CDOMSingleRef<AbilityCategory> cat,
 		Collection<? extends CDOMReference<Ability>> arCollection, Nature nat)
 	{
-		if (arCollection == null)
-		{
-			throw new IllegalArgumentException("Choice Collection cannot be null");
-		}
+		Objects.requireNonNull(arCollection, "Choice Collection cannot be null");
 		if (arCollection.isEmpty())
 		{
 			throw new IllegalArgumentException("Choice Collection cannot be empty");
 		}
 		abilityRefSet = new HashSet<>(arCollection);
-		if (nat == null)
-		{
-			throw new IllegalArgumentException("Choice Nature cannot be null");
-		}
+		Objects.requireNonNull(nat, "Choice Nature cannot be null");
 		nature = nat;
-		if (cat == null)
-		{
-			throw new IllegalArgumentException("Choice Category cannot be null");
-		}
+		Objects.requireNonNull(cat, "Choice Category cannot be null");
 		category = cat;
 	}
 
@@ -134,10 +128,7 @@ public class AbilityRefChoiceSet implements PrimitiveChoiceSet<CNAbilitySelectio
 	public String getLSTformat(boolean useAny)
 	{
 		Set<CDOMReference<?>> sortedSet = new TreeSet<>(ReferenceUtilities.REFERENCE_SORTER);
-		for (CDOMReference<Ability> ar : abilityRefSet)
-		{
-			sortedSet.add(ar);
-		}
+		sortedSet.addAll(abilityRefSet);
 		return ReferenceUtilities.joinLstFormat(sortedSet, Constants.COMMA, useAny);
 	}
 
@@ -184,7 +175,7 @@ public class AbilityRefChoiceSet implements PrimitiveChoiceSet<CNAbilitySelectio
 		{
 			for (Ability a : ref.getContainedObjects())
 			{
-				if (a.getSafe(ObjectKey.MULTIPLE_ALLOWED).booleanValue())
+				if (a.getSafe(ObjectKey.MULTIPLE_ALLOWED))
 				{
 					returnSet.addAll(addMultiplySelectableAbility(pc, a, ref.getChoice()));
 				}
@@ -225,10 +216,10 @@ public class AbilityRefChoiceSet implements PrimitiveChoiceSet<CNAbilitySelectio
 		/*
 		 * TODO Need a general solution for this special assignment in parens
 		 */
-		if ("DEITYWEAPON".equals(nameRoot) && (chooseInfo != null)
-			&& chooseInfo.getReferenceClass().equals(WeaponProf.class))
+		if ("DEITYWEAPON".equals(nameRoot) && chooseInfo.getReferenceClass().equals(WeaponProf.class))
 		{
-			Deity deity = aPC.getDeity();
+			Deity deity = (Deity) ChannelUtilities
+				.readControlledChannel(aPC.getCharID(), CControl.DEITYINPUT);
 			if (deity == null)
 			{
 				availableList.clear();
@@ -293,24 +284,12 @@ public class AbilityRefChoiceSet implements PrimitiveChoiceSet<CNAbilitySelectio
 		return availableList;
 	}
 
-	/**
-	 * Returns the consistent-with-equals hashCode for this AbilityRefChoiceSet
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode()
 	{
 		return abilityRefSet.size();
 	}
 
-	/**
-	 * Returns true if this AbilityRefChoiceSet is equal to the given Object.
-	 * Equality is defined as being another AbilityRefChoiceSet object with
-	 * equal underlying contents.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -318,9 +297,8 @@ public class AbilityRefChoiceSet implements PrimitiveChoiceSet<CNAbilitySelectio
 		{
 			return true;
 		}
-		if (obj instanceof AbilityRefChoiceSet)
+		if (obj instanceof AbilityRefChoiceSet other)
 		{
-			AbilityRefChoiceSet other = (AbilityRefChoiceSet) obj;
 			return abilityRefSet.equals(other.abilityRefSet);
 		}
 		return false;

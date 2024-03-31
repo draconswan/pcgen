@@ -17,40 +17,22 @@
  */
 package pcgen.core.prereq;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.Locale;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 import pcgen.AbstractCharacterTestCase;
-import pcgen.EnUsLocaleDependentTestCase;
 import pcgen.LocaleDependentTestCase;
 import plugin.pretokens.test.PreWieldTester;
 
+import org.junit.jupiter.api.Test;
 
-public class AbstractPrerequisiteTestTest extends AbstractCharacterTestCase
+
+class AbstractPrerequisiteTestTest extends AbstractCharacterTestCase
 {
-
-	/**
-	 * main
-	 * @param args
-	 */
-	public static void main(final String[] args)
-	{
-		TestRunner.run(AbstractPrerequisiteTestTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(AbstractPrerequisiteTestTest.class);
-	}
-
-	
-	@SuppressWarnings("nls")
-	public void testVisionNotHandledFail()
+	@Test
+	void testVisionNotHandledFail()
 	{
 		final Prerequisite prereq = new Prerequisite();
 		prereq.setKind("wield");
@@ -68,7 +50,7 @@ public class AbstractPrerequisiteTestTest extends AbstractCharacterTestCase
 				+ " does not support prerequisites for Characters.", pe
 				.getMessage());
 		}
-		EnUsLocaleDependentTestCase.after();
+		LocaleDependentTestCase.after();
 	}
 
 }

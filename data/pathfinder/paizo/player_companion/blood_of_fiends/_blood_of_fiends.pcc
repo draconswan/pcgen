@@ -2,12 +2,12 @@
 CAMPAIGN:Blood of Fiends
 GAMEMODE:Pathfinder|Pathfinder_PFS
 TYPE:Paizo Publishing.Pathfinder Player Companion
-RANK:3
 STATUS:BETA
 GENRE:Fantasy
 BOOKTYPE:Supplement
 SETTING:Pathfinder|Golarion
-PRECAMPAIGN:3,INCLUDESBOOKTYPE=Core Rules,INCLUDES=Bestiary,INCLUDES=Advanced Player's Guide
+PRECAMPAIGN:1,INCLUDESBOOKTYPE=Core Rules
+PRECAMPAIGN:1,INCLUDES=Advanced Player's Guide
 PUBNAMELONG:Paizo Inc.
 PUBNAMESHORT:Paizo
 PUBNAMEWEB:http://www.paizo.com
@@ -15,6 +15,7 @@ SOURCELONG:Pathfinder Player Companion: Blood of Fiends
 SOURCESHORT:BOF
 SOURCEWEB:http://paizo.com/products/btpy8qzz
 SOURCEDATE:2012-04
+RANK:201204
 ISOGL:YES
 
 COVER:blood_of_fiends.jpg
@@ -39,15 +40,19 @@ COPYRIGHT:PCGen dataset conversion for "Player Companion: Blood of Fiends" Copyr
 # Data files
 ABILITY:bof_abilities_class.lst
 ABILITY:bof_abilities_race.lst
-ABILITY:bof_abilities_variant.lst
+ABILITY:bof_abilities.lst
 ABILITYCATEGORY:bof_abilitycategories.lst
 CLASS:bof_classes.lst
 DOMAIN:bof_domains.lst
 ABILITY:bof_feats.lst
-#RACE:bof_races.lst
+RACE:bof_races.lst
 SPELL:bof_spells.lst
 TEMPLATE:bof_templates.lst
+
+PCC:@\pathfinder\paizo\roleplaying_game\core_essentials\races\tiefling\_race.pcc
+PCC:@\pathfinder\paizo\roleplaying_game\core_essentials\races\tiefling\_subrace.pcc
 
 # support
 ABILITY:support/bof_abilities_class_um.lst|PRECAMPAIGN:1,INCLUDES=Ultimate Magic
 ABILITY:support/bof_abilities_class_acg.lst|PRECAMPAIGN:1,INCLUDES=Advanced Class Guide
+CLASS:support/bof_classes_acg.lst|PRECAMPAIGN:1,INCLUDES=Advanced Class Guide

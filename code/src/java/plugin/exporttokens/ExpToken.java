@@ -20,9 +20,10 @@ package plugin.exporttokens;
 
 import java.util.StringTokenizer;
 
+import pcgen.core.PlayerCharacter;
 import pcgen.core.display.CharacterDisplay;
 import pcgen.io.ExportHandler;
-import pcgen.io.exporttoken.AbstractExportToken;
+import pcgen.io.exporttoken.Token;
 
 /** 
  * Deal with Tokens:
@@ -32,7 +33,7 @@ import pcgen.io.exporttoken.AbstractExportToken;
  * EXP.FACTOR
  * EXP.PENALTY
  */
-public class ExpToken extends AbstractExportToken
+public class ExpToken extends Token
 {
 	@Override
 	public String getTokenName()
@@ -41,19 +42,20 @@ public class ExpToken extends AbstractExportToken
 	}
 
 	@Override
-	public String getToken(String tokenSource, CharacterDisplay display, ExportHandler eh)
+	public String getToken(String tokenSource, PlayerCharacter pc, ExportHandler eh)
 	{
 		String retString = "";
 		StringTokenizer aTok = new StringTokenizer(tokenSource, ".");
 		aTok.nextToken();
 
+		CharacterDisplay display = pc.getDisplay();
 		if (aTok.hasMoreTokens())
 		{
 			String token = aTok.nextToken();
 
 			if ("CURRENT".equals(token))
 			{
-				retString = Integer.toString(display.getXP());
+				retString = Integer.toString(pc.getXP());
 			}
 			else if ("NEXT".equals(token))
 			{
@@ -79,11 +81,9 @@ public class ExpToken extends AbstractExportToken
 	 */
 	public static String getFactorToken(CharacterDisplay display)
 	{
-		StringBuilder xpFactor = new StringBuilder(5);
-		xpFactor.append((int) (display.multiclassXPMultiplier() * 100.0));
-		xpFactor.append('%');
 
-		return xpFactor.toString();
+        return String.valueOf((int) (display.multiclassXPMultiplier() * 100.0))
+                + '%';
 	}
 
 	/**
@@ -93,10 +93,8 @@ public class ExpToken extends AbstractExportToken
 	 */
 	public static String getPenaltyToken(CharacterDisplay display)
 	{
-		StringBuilder xpFactor = new StringBuilder(5);
-		xpFactor.append(100 - (int) (display.multiclassXPMultiplier() * 100.0));
-		xpFactor.append('%');
 
-		return xpFactor.toString();
+        return String.valueOf(100 - (int) (display.multiclassXPMultiplier() * 100.0))
+                + '%';
 	}
 }

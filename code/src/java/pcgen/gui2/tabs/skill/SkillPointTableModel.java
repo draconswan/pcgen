@@ -95,17 +95,12 @@ public class SkillPointTableModel extends AbstractTableModel
 	@Override
 	public Class<?> getColumnClass(int columnIndex)
 	{
-		switch (columnIndex)
-		{
-			case 1:
-				return Object.class;
-			case 0:
-			case 2:
-			case 3:
-				return Integer.class;
-			default:
-				return Object.class;
-		}
+		return switch (columnIndex)
+				{
+					case 1 -> Object.class;
+					case 0, 2, 3 -> Integer.class;
+					default -> Object.class;
+				};
 	}
 
 	@Override
@@ -116,28 +111,20 @@ public class SkillPointTableModel extends AbstractTableModel
 			return rowIndex + 1;
 		}
 		CharacterLevelFacade level = levels.getElementAt(rowIndex);
-		switch (columnIndex)
-		{
-			case 1:
-				return levels.getClassTaken(level);
-			case 2:
-				return levels.getRemainingSkillPoints(level);
-			case 3:
-				return levels.getGainedSkillPoints(level);
-			default:
-				throw new IndexOutOfBoundsException();
-		}
+		return switch (columnIndex)
+				{
+					case 1 -> levels.getClassTaken(level);
+					case 2 -> levels.getRemainingSkillPoints(level);
+					case 3 -> levels.getGainedSkillPoints(level);
+					default -> throw new IndexOutOfBoundsException();
+				};
 	}
 
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex)
 	{
-		if (columnIndex == 3)
-		{
-			return true;
-		}
-		return false;
-	}
+        return columnIndex == 3;
+    }
 
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex)
@@ -204,9 +191,6 @@ public class SkillPointTableModel extends AbstractTableModel
 			setHorizontalAlignment(SwingConstants.CENTER);
 		}
 
-		/**
-		 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object, boolean, boolean, int, int)
-		 */
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 			int row, int column)

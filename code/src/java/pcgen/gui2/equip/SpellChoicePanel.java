@@ -91,7 +91,7 @@ public class SpellChoicePanel extends JPanel
 	 */
 	private void initModels()
 	{
-		classModel = new CharacterComboBoxModel<InfoFacade>()
+		classModel = new CharacterComboBoxModel<>()
 		{
 			@Override
 			public void setSelectedItem(Object anItem)
@@ -103,7 +103,7 @@ public class SpellChoicePanel extends JPanel
 		classModel.setReference(spellBuilderFacade.getClassRef());
 		classComboBox.setModel(classModel);
 
-		spellLevelModel = new CharacterComboBoxModel<Integer>()
+		spellLevelModel = new CharacterComboBoxModel<>()
 		{
 			@Override
 			public void setSelectedItem(Object anItem)
@@ -115,7 +115,7 @@ public class SpellChoicePanel extends JPanel
 		spellLevelModel.setReference(spellBuilderFacade.getSpellLevelRef());
 		spellLevelComboBox.setModel(spellLevelModel);
 
-		spellModel = new CharacterComboBoxModel<InfoFacade>()
+		spellModel = new CharacterComboBoxModel<>()
 		{
 			@Override
 			public void setSelectedItem(Object anItem)
@@ -140,7 +140,7 @@ public class SpellChoicePanel extends JPanel
 		variantModel.setReference(spellBuilderFacade.getVariantRef());
 		variantComboBox.setModel(variantModel);
 
-		casterLevelModel = new CharacterComboBoxModel<Integer>()
+		casterLevelModel = new CharacterComboBoxModel<>()
 		{
 			@Override
 			public void setSelectedItem(Object anItem)
@@ -152,7 +152,7 @@ public class SpellChoicePanel extends JPanel
 		casterLevelModel.setReference(spellBuilderFacade.getCasterLevelRef());
 		casterLevelComboBox.setModel(casterLevelModel);
 
-		spellTypeModel = new CharacterComboBoxModel<String>()
+		spellTypeModel = new CharacterComboBoxModel<>()
 		{
 			@Override
 			public void setSelectedItem(Object anItem)
@@ -215,7 +215,7 @@ public class SpellChoicePanel extends JPanel
 	 * DisablingCharacterComboBoxModel is a model that disables its combo box
 	 * when there are no possible selections.
 	 */
-	private abstract class DisablingCharacterComboBoxModel extends CharacterComboBoxModel<String>
+	private abstract static class DisablingCharacterComboBoxModel extends CharacterComboBoxModel<String>
 	{
 
 		private final JComboBox<String> box;

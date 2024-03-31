@@ -77,17 +77,6 @@ public class HtmlInfoBuilder
 	}
 
 	/**
-	 * Adds a localised string to the LabelText.
-	 * @param key Key to the localised string to add
-	 * @return HtmlInfoBuilder
-	 */
-	public HtmlInfoBuilder appendIl8n(final String key)
-	{
-		buffer.append(LanguageBundle.getString(key));
-		return this;
-	}
-
-	/**
 	 * Adds a character to the LabelText.
 	 * @param ch Char to add
 	 * @return HtmlInfoBuilder
@@ -185,9 +174,6 @@ public class HtmlInfoBuilder
 		buffer.append("<img src=\"").append(iconPath).append("\" >&nbsp;");
 	}
 
-	/**
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString()
 	{

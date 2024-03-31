@@ -16,14 +16,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 package pcgen.core;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Iterator;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import pcgen.AbstractCharacterTestCase;
 import pcgen.base.format.OrderedPairManager;
 import pcgen.base.format.StringManager;
@@ -52,57 +53,18 @@ import pcgen.persistence.lst.PCClassLoader;
 import pcgen.rules.context.LoadContext;
 import plugin.lsttokens.testsupport.BuildUtilities;
 
+import org.junit.jupiter.api.Test;
+
 /**
  * Test the PObject class.
  */
 @SuppressWarnings("nls")
 public class PObjectTest extends AbstractCharacterTestCase
 {
-
-	/**
-	 * Constructs a new <code>PObjectTest</code>.
-	 *
-	 * @see pcgen.PCGenTestCase#PCGenTestCase()
-	 */
-	public PObjectTest()
-	{
-		// Do Nothing
-	}
-
-	/**
-	 * Constructs a new <code>PObjectTest</code> with the given <var>name</var>.
-	 *
-	 * @param name the test case name
-	 *
-	 * @see pcgen.PCGenTestCase#PCGenTestCase(String)
-	 */
-	public PObjectTest(final String name)
-	{
-		super(name);
-	}
-
-	/**
-	 * Run the tests
-	 * @param args
-	 */
-	public static void main(final String[] args)
-	{
-		junit.textui.TestRunner.run(PObjectTest.class);
-	}
-
-	/**
-	 * Returns all the test methods in this class.
-	 * @return A <tt>TestSuite</tt>
-	 */
-	public static Test suite()
-	{
-		// quick method, adds all methods beginning with "test"
-		return new TestSuite(PObjectTest.class);
-	}
-
 	/**
 	 * Test DR.
 	 */
+	@Test
 	public void testDR()
 	{
 		Race race = new Race();
@@ -144,6 +106,7 @@ public class PObjectTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testGetPCCText() throws PersistenceLayerException
 	{
 		OrderedPairManager opManager = new OrderedPairManager();
@@ -198,6 +161,7 @@ public class PObjectTest extends AbstractCharacterTestCase
 	/**
 	 * Test the function of adding a bonus each time an associated value is chosen.
 	 */
+	@Test
 	public void testAssociatedBonus()
 	{
 		Ability pObj = new Ability();
@@ -237,6 +201,7 @@ public class PObjectTest extends AbstractCharacterTestCase
 	 * no choices and adds a static bonus.
 	 * @throws Exception 
 	 */
+	@Test
 	public void testNoChoiceBonus() throws Exception
 	{
 		CampaignSourceEntry source;
@@ -278,6 +243,7 @@ public class PObjectTest extends AbstractCharacterTestCase
 	 * a single choice and adds a static bonus.
 	 * @throws Exception 
 	 */
+	@Test
 	public void testNoSubsChoiceBonus() throws Exception
 	{
 		CampaignSourceEntry source;
@@ -315,6 +281,7 @@ public class PObjectTest extends AbstractCharacterTestCase
 	/**
 	 * Tests description handling
 	 */
+	@Test
 	public void testDescription()
 	{
 		final Description desc1 = new Description("Description 1.");
@@ -348,6 +315,7 @@ public class PObjectTest extends AbstractCharacterTestCase
 	 * Test the definition and application of abilities. 
 	 * @throws PersistenceLayerException 
 	 */
+	@Test
 	public void testAddAbility() throws PersistenceLayerException
 	{
 		// Create some abilities to be added
@@ -357,10 +325,10 @@ public class PObjectTest extends AbstractCharacterTestCase
 		new AbilityCategoryLoader().parseLine(context, "TestCat\tCATEGORY:TestCat", null);
 		Ability ab1 = new Ability();
 		ab1.setName("Ability1");
-		ab1.setCDOMCategory(SettingsHandler.getGame().getAbilityCategory("TestCat"));
+		ab1.setCDOMCategory(SettingsHandler.getGameAsProperty().get().getAbilityCategory("TestCat"));
 		Ability ab2 = new Ability();
 		ab2.setName("Ability2");
-		ab2.setCDOMCategory(SettingsHandler.getGame().getAbilityCategory("TestCat"));
+		ab2.setCDOMCategory(SettingsHandler.getGameAsProperty().get().getAbilityCategory("TestCat"));
 		context.getReferenceContext().importObject(ab1);
 		context.getReferenceContext().importObject(ab2);
 
@@ -410,21 +378,4 @@ public class PObjectTest extends AbstractCharacterTestCase
 			Nature.AUTOMATIC, ab2));
 	}
 
-	/**
-	 * @see pcgen.AbstractCharacterTestCase#setUp()
-	 */
-	@Override
-	protected void setUp() throws Exception
-	{
-		super.setUp();
-	}
-
-	/**
-	 * @see pcgen.AbstractCharacterTestCase#tearDown()
-	 */
-	@Override
-	protected void tearDown() throws Exception
-	{
-		super.tearDown();
-	}
 }

@@ -28,8 +28,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 
@@ -38,7 +36,6 @@ import javax.swing.AbstractAction;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -55,9 +52,12 @@ import pcgen.gui2.tabs.CharacterInfoTab;
 import pcgen.gui2.tabs.TabTitle;
 import pcgen.gui2.tools.Icons;
 import pcgen.gui2.tools.Utility;
+import pcgen.gui3.GuiUtility;
 import pcgen.system.LanguageBundle;
 import pcgen.system.PCGenSettings;
 import pcgen.util.Logging;
+
+import javafx.stage.FileChooser;
 
 @SuppressWarnings("serial")
 public class PortraitInfoPane extends JScrollPane implements CharacterInfoTab
@@ -70,7 +70,6 @@ public class PortraitInfoPane extends JScrollPane implements CharacterInfoTab
 	private final JButton loadButton;
 	private final JButton clearButton;
 	private final JSlider zoomSlider;
-	private JFileChooser chooser = null;
 
 	public PortraitInfoPane()
 	{
@@ -126,7 +125,6 @@ public class PortraitInfoPane extends JScrollPane implements CharacterInfoTab
 		models.put(PortraitHandler.class, new PortraitHandler(character));
 		models.put(LoadAction.class, new LoadAction(character));
 		models.put(ClearAction.class, new ClearAction(character));
-		//models.put(PurchaseAction.class, new PurchaseAction(character));
 		return models;
 	}
 
@@ -135,7 +133,6 @@ public class PortraitInfoPane extends JScrollPane implements CharacterInfoTab
 	{
 		loadButton.setAction(models.get(LoadAction.class));
 		clearButton.setAction(models.get(ClearAction.class));
-		//purchaseButton.setAction((Action) models.get(PurchaseAction.class));
 		models.get(PortraitHandler.class).install();
 	}
 
@@ -151,13 +148,12 @@ public class PortraitInfoPane extends JScrollPane implements CharacterInfoTab
 		return TAB_TITLE;
 	}
 
-	private class LoadAction extends AbstractAction implements PropertyChangeListener
+	private static final class LoadAction extends AbstractAction
 	{
 
 		private final CharacterFacade character;
-		private final ImagePreviewer previewer = new ImagePreviewer();
 
-		public LoadAction(CharacterFacade character)
+		private LoadAction(CharacterFacade character)
 		{
 			super(LanguageBundle.getString("in_loadPortrait"));
 			this.character = character;
@@ -166,35 +162,27 @@ public class PortraitInfoPane extends JScrollPane implements CharacterInfoTab
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			if (chooser == null)
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setInitialDirectory(new File(PCGenSettings.getPortraitsDir()));
+			fileChooser.setTitle(LanguageBundle.getString("in_loadPortrait"));
+
+			// TODO: set extension filter - list of supported images
+
+			File file = GuiUtility.runOnJavaFXThreadNow(() ->
+					fileChooser.showOpenDialog(null));
+			if (file != null)
 			{
-				chooser = new JFileChooser(PCGenSettings.getPortraitsDir());
-			}
-			chooser.setAccessory(previewer);
-			chooser.addPropertyChangeListener(this);
-			int ret = chooser.showOpenDialog(PortraitInfoPane.this);
-			chooser.removePropertyChangeListener(this);
-			BufferedImage image = previewer.getImage();
-			if (ret == JFileChooser.APPROVE_OPTION && image != null)
-			{
-				character.setPortrait(chooser.getSelectedFile());
+				character.setPortrait(file);
 			}
 		}
-
-		@Override
-		public void propertyChange(PropertyChangeEvent evt)
-		{
-			previewer.setImage(chooser.getSelectedFile());
-		}
-
 	}
 
-	private class ClearAction extends AbstractAction
+	private static final class ClearAction extends AbstractAction
 	{
 
 		private final CharacterFacade character;
 
-		public ClearAction(CharacterFacade character)
+		private ClearAction(CharacterFacade character)
 		{
 			super(LanguageBundle.getString("in_clearPortrait")); //$NON-NLS-1$
 			this.character = character;
@@ -301,9 +289,8 @@ public class PortraitInfoPane extends JScrollPane implements CharacterInfoTab
 				Utility.adjustRectToFitImage(portrait, cropRect);
 				character.setThumbnailCrop(cropRect);
 			}
-			else if (obj instanceof Rectangle)
+			else if (obj instanceof Rectangle rect)
 			{
-				Rectangle rect = (Rectangle) obj;
 				Rectangle cropRect = new Rectangle(rect);
 				Utility.adjustRectToFitImage(portrait, cropRect);
 				if (!rect.equals(cropRect))

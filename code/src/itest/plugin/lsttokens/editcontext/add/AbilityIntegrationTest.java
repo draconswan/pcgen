@@ -19,8 +19,6 @@ package plugin.lsttokens.editcontext.add;
 
 import java.net.URISyntaxException;
 
-import org.junit.Test;
-
 import pcgen.cdom.base.CDOMObject;
 import pcgen.core.Ability;
 import pcgen.core.PCTemplate;
@@ -35,6 +33,9 @@ import plugin.lsttokens.testsupport.BuildUtilities;
 import plugin.lsttokens.testsupport.CDOMTokenLoader;
 import plugin.lsttokens.testsupport.TokenRegistration;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public class AbilityIntegrationTest extends
 		AbstractListIntegrationTestCase<CDOMObject, Ability>
 {
@@ -44,6 +45,7 @@ public class AbilityIntegrationTest extends
 	private static CDOMTokenLoader<CDOMObject> loader = new CDOMTokenLoader<>();
 
 	@Override
+	@BeforeEach
 	public void setUp() throws PersistenceLayerException, URISyntaxException
 	{
 		super.setUp();

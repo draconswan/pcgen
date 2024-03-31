@@ -20,18 +20,19 @@ package actor.choose;
 import pcgen.cdom.base.Chooser;
 import pcgen.core.ShieldProf;
 import plugin.lsttokens.choose.ShieldProficiencyToken;
+
 import actor.testsupport.AbstractPersistentCDOMChoiceActorTestCase;
 
 public class ShieldProficiencyTokenTest extends
 		AbstractPersistentCDOMChoiceActorTestCase<ShieldProf>
 {
 
-	static ShieldProficiencyToken pca = new ShieldProficiencyToken();
+	private static final ShieldProficiencyToken PCA = new ShieldProficiencyToken();
 
 	@Override
 	public Chooser<ShieldProf> getActor()
 	{
-		return pca;
+		return PCA;
 	}
 
 	@Override

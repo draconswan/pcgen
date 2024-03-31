@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2010 Tom Parker <thpr@users.sourceforge.net>
+ * Copyright (c) 2010-9 Tom Parker <thpr@users.sourceforge.net>
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
  * any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
@@ -17,31 +17,36 @@
 package pcgen.cdom.facet.analysis;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import pcgen.base.util.NamedValue;
 import pcgen.cdom.base.CDOMObject;
-import pcgen.cdom.base.Constants;
 import pcgen.cdom.base.FormulaFactory;
 import pcgen.cdom.enumeration.CharID;
+import pcgen.cdom.enumeration.MovementType;
 import pcgen.cdom.facet.BonusCheckingFacet;
 import pcgen.cdom.facet.EquipmentFacet;
 import pcgen.cdom.facet.FormulaResolvingFacet;
 import pcgen.cdom.facet.base.AbstractStorageFacet;
 import pcgen.cdom.facet.event.DataFacetChangeEvent;
 import pcgen.cdom.facet.event.DataFacetChangeListener;
-import pcgen.cdom.facet.model.DeityFacet;
 import pcgen.cdom.facet.model.RaceFacet;
 import pcgen.cdom.facet.model.TemplateFacet;
 import pcgen.core.Equipment;
 import pcgen.core.Globals;
-import pcgen.core.Movement;
+import pcgen.core.MoveClone;
 import pcgen.core.Race;
+import pcgen.core.RuleConstants;
 import pcgen.core.SettingsHandler;
+import pcgen.core.SimpleMovement;
 import pcgen.core.utils.CoreUtility;
 import pcgen.util.enumeration.Load;
 
@@ -50,16 +55,16 @@ import pcgen.util.enumeration.Load;
  * that this does not store the Movement objects granted by CDOMObjects; rather
  * this is storing the resulting values post aggregation of those Movement
  * objects.
- * 
+ *
  */
 public class MovementResultFacet extends AbstractStorageFacet<CharID>
 		implements DataFacetChangeListener<CharID, CDOMObject>
 {
 	private MovementFacet movementFacet;
+	private MoveCloneFacet moveCloneFacet;
 	private BaseMovementFacet baseMovementFacet;
 	private RaceFacet raceFacet;
 	private TemplateFacet templateFacet;
-	private DeityFacet deityFacet;
 	private EquipmentFacet equipmentFacet;
 	private BonusCheckingFacet bonusCheckingFacet;
 	private UnencumberedArmorFacet unencumberedArmorFacet;
@@ -67,22 +72,20 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	private FormulaResolvingFacet formulaResolvingFacet;
 	private LoadFacet loadFacet;
 
-	private static final double[] EMPTY_DOUBLE_ARRAY = new double[0];
-
 	/**
 	 * Returns the movement value of the given type for the Player Character
 	 * identified by the given CharID. All appropriate BONUSes are added to the
 	 * movement before the result is returned.
-	 * 
+	 *
 	 * @param id
 	 *            The CharID identifying the Player Character for which the
 	 *            movement value of the given type to be returned
 	 * @param moveType
-	 *            The movement type to be returned
+	 *            The MovementType to be returned
 	 * @return The movement value of the given type for the Player Character
 	 *         identified by the given CharID
 	 */
-	public double movementOfType(CharID id, String moveType)
+	public double movementOfType(CharID id, MovementType moveType)
 	{
 		MovementCacheInfo mci = getInfo(id);
 		if (mci == null)
@@ -96,11 +99,11 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	 * Returns the type-safe MovementCacheInfo for this MoneyFacet and the given
 	 * CharID. Will return a new, empty MovementCacheInfo if no Money
 	 * information has been set for the given CharID. Will not return null.
-	 * 
+	 *
 	 * Note that this method SHOULD NOT be public. The MovementCacheInfo object
 	 * is owned by MoneyFacet, and since it can be modified, a reference to that
 	 * object should not be exposed to any object other than MoneyFacet.
-	 * 
+	 *
 	 * @param id
 	 *            The CharID for which the MovementCacheInfo should be returned
 	 * @return The MovementCacheInfo for the Player Character represented by the
@@ -121,11 +124,11 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	 * Returns the type-safe MovementCacheInfo for this MoneyFacet and the given
 	 * CharID. May return null if no Movement information has been set for the
 	 * given CharID.
-	 * 
+	 *
 	 * Note that this method SHOULD NOT be public. The MovementCacheInfo object
 	 * is owned by MoneyFacet, and since it can be modified, a reference to that
 	 * object should not be exposed to any object other than MoneyFacet.
-	 * 
+	 *
 	 * @param id
 	 *            The CharID for which the MovementCacheInfo should be returned
 	 * @return The MovementCacheInfo for the Player Character represented by the
@@ -143,80 +146,47 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	 */
 	public class MovementCacheInfo
 	{
-		private double[] movementMult = EMPTY_DOUBLE_ARRAY;
-		private String[] movementMultOp = Globals.EMPTY_STRING_ARRAY;
-		private String[] movementTypes = Globals.EMPTY_STRING_ARRAY;
+		private final Map<MovementType, Double> moveRates = new LinkedHashMap<>();
 
-		// Movement lists
-		private double[] movements = EMPTY_DOUBLE_ARRAY;
-
-		/**
-		 * Returns the movement value of the given type for the Player
-		 * Character. All appropriate BONUSes are added to the movement before
-		 * the result is returned.
-		 * 
-		 * @param moveType
-		 *            The movement type to be returned
-		 * @return The movement value of the given type for the Player Character
-		 */
-		public double movementOfType(CharID id, String moveType)
+		private int countMovementTypes()
 		{
-			if (movementTypes == null)
-			{
-				return 0.0;
-			}
-			for (int moveIdx = 0; moveIdx < movementTypes.length; moveIdx++)
-			{
-				if (movementTypes[moveIdx].equalsIgnoreCase(moveType))
-				{
-					return movement(id, moveIdx);
-				}
-			}
-			return 0.0;
-		}
-
-		public int countMovementTypes()
-		{
-			return (movements != null) ? movements.length : 0;
+			return moveRates.size();
 		}
 
 		/**
 		 * recalculate all the move rates and modifiers
 		 */
-		public void adjustMoveRates(CharID id)
+		private void adjustMoveRates(CharID id)
 		{
-			movementMult = EMPTY_DOUBLE_ARRAY;
-			movementMultOp = Globals.EMPTY_STRING_ARRAY;
-			movementTypes = Globals.EMPTY_STRING_ARRAY;
-			movements = EMPTY_DOUBLE_ARRAY;
-
 			Race race = raceFacet.get(id);
 			if (race == null)
 			{
 				return;
 			}
 
-			Set<Movement> mms = baseMovementFacet.getSet(id);
+			Set<SimpleMovement> mms = baseMovementFacet.getSet(id);
 			if (mms == null || mms.isEmpty())
 			{
 				return;
 			}
 
-			Movement movement = mms.iterator().next();
-			movements = movement.getMovements();
-			movementTypes = movement.getMovementTypes();
-			movementMult = movement.getMovementMult();
-			movementMultOp = movement.getMovementMultOp();
-
-			for (Movement mv : movementFacet.getSet(id))
+			for (SimpleMovement movement : movementFacet.getSet(id))
 			{
-				for (int i1 = 0; i1 < mv.getNumberOfMovements(); i1++)
+				Double current = moveRates.get(movement.getMovementType());
+				double thisValue = movement.getMovement();
+				if ((current == null) || (thisValue > current))
 				{
-					if (mv.getMovementType(i1) != null)
-					{
-						setMyMoveRates(mv.getMovementType(i1), mv.getMovement(i1), mv.getMovementMult(i1),
-							mv.getMovementMultOp(i1), mv.getMoveRatesFlag());
-					}
+					moveRates.put(movement.getMovementType(), thisValue);
+				}
+			}
+			Set<MoveClone> clones = moveCloneFacet.getSet(id);
+			if (clones != null)
+			{
+				for (MoveClone moveClone : clones)
+				{
+					Double baseMove = moveRates.get(moveClone.getBaseType());
+					moveRates.put(moveClone.getCloneType(),
+						moveClone.apply(baseMove));
 				}
 			}
 
@@ -231,174 +201,40 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 
 				if (!moveType.equalsIgnoreCase("ALL"))
 				{
-					moveType = CoreUtility.capitalizeFirstLetter(moveType);
-
-					boolean found = false;
-
-					for (int i = 0; i < movements.length; i++)
-					{
-						if (moveType.equals(movementTypes[i]))
-						{
-							found = true;
-						}
-					}
-
-					if (!found)
-					{
-						setMyMoveRates(moveType, 0.0, 0.0, "", 0);
-					}
+					String clean = CoreUtility.capitalizeFirstLetter(moveType);
+					moveRates.putIfAbsent(MovementType.getConstant(clean), 0.0);
 				}
 			}
-		}
-
-		/**
-		 * sets up the movement arrays creates them if they do not exist
-		 * 
-		 * @param moveType
-		 * @param anDouble
-		 * @param moveMult
-		 * @param multOp
-		 * @param moveFlag
-		 */
-		private void setMyMoveRates(String moveType, double anDouble, double moveMult, String multOp, int moveFlag)
-		{
-			//
-			// NOTE: can not use getMovements() accessor as it calls
-			// this function, so use the variable: movements
-			//
-			double moveRate;
-
-			// The ALL type can only be applied to existing movement
-			// so just loop and add or set as appropriate
-			if ("ALL".equals(moveType))
-			{
-				if (moveFlag == 0)
-				{ // set all types of movement to moveRate
-
-					for (int i = 0; i < movements.length; i++)
-					{
-						moveRate = anDouble;
-						movements[i] = moveRate;
-					}
-				}
-				else
-				{ // add moveRate to all types of movement.
-
-					for (int i = 0; i < movements.length; i++)
-					{
-						moveRate = anDouble + movements[i];
-						movements[i] = moveRate;
-					}
-				}
-			}
-			else
-			{
-				if (moveFlag == 0)
-				{ // set movement to moveRate
-					moveRate = anDouble;
-
-					for (int i = 0; i < movements.length; i++)
-					{
-						if (moveType.equals(movementTypes[i]))
-						{
-							if (moveRate > movements[i])
-							{
-								movements[i] = moveRate;
-							}
-							if (multOp != null && (movementMultOp[i] == null || !multOp.isEmpty()))
-							{
-								movementMult[i] = moveMult;
-								movementMultOp[i] = multOp;
-							}
-
-							return;
-						}
-					}
-
-					increaseMoveArray(moveRate, moveType, moveMult, multOp);
-				}
-				else
-				{ // get base movement, then add moveRate
-					moveRate = anDouble + movements[0];
-
-					// for existing types of movement:
-					for (int i = 0; i < movements.length; i++)
-					{
-						if (moveType.equals(movementTypes[i]))
-						{
-							movements[i] = moveRate;
-							movementMult[i] = moveMult;
-							movementMultOp[i] = multOp;
-
-							return;
-						}
-					}
-
-					increaseMoveArray(moveRate, moveType, moveMult, multOp);
-				}
-			}
-		}
-
-		private void increaseMoveArray(double moveRate, String moveType, Double moveMult, String multOp)
-		{
-			// could not find an existing one so
-			// need to add new item to array
-			//
-			double[] tempMove = movements;
-			String[] tempType = movementTypes;
-			double[] tempMult = movementMult;
-			String[] tempMultOp = movementMultOp;
-
-			// now increase the size of the array by one
-			movements = new double[tempMove.length + 1];
-			movementTypes = new String[tempMove.length + 1];
-			movementMult = new double[tempMove.length + 1];
-			movementMultOp = new String[tempMove.length + 1];
-
-			System.arraycopy(tempMove, 0, movements, 0, tempMove.length);
-			System.arraycopy(tempType, 0, movementTypes, 0, tempMove.length);
-			System.arraycopy(tempMult, 0, movementMult, 0, tempMove.length);
-			System.arraycopy(tempMultOp, 0, movementMultOp, 0, tempMove.length);
-
-			// the size is larger, but arrays start at 0
-			// so an array length=3 would have 0, 1, 2 as the targets
-			movements[tempMove.length] = moveRate;
-			movementTypes[tempMove.length] = moveType;
-			movementMult[tempMove.length] = moveMult;
-			movementMultOp[tempMove.length] = multOp;
 		}
 
 		/**
 		 * get the base MOVE: plus any bonuses from BONUS:MOVE additions takes
 		 * into account Armor restrictions to movement and load carried
-		 * 
-		 * @param moveIdx
+		 *
+		 * @param id
 		 * @return movement
 		 */
-		public double movement(CharID id, int moveIdx)
+		public double movementOfType(CharID id, MovementType moveType)
 		{
 			// get base movement
-			double moveInFeet = getMovement(moveIdx);
+			Double moveInFeet = moveRates.get(moveType);
+			if (moveInFeet == null)
+			{
+				return 0.0;
+			}
 
 			// First get the MOVEADD bonus
-			moveInFeet += bonusCheckingFacet.getBonus(id, "MOVEADD", "TYPE." + getMovementType(moveIdx).toUpperCase());
+			String movementAsType = "TYPE." + moveType.toString().toUpperCase();
+			moveInFeet += bonusCheckingFacet.getBonus(id, "MOVEADD", movementAsType);
 
 			// also check for special case of TYPE=ALL
 			moveInFeet += bonusCheckingFacet.getBonus(id, "MOVEADD", "TYPE.ALL");
 
 			double calcMove = moveInFeet;
 
-			// now we apply any multipliers to the BASE move + MOVEADD move
-			// First we get possible multipliers/divisors from the MOVE:
-			// MOVEA: and MOVECLONE: tags
-			if (getMovementMult(moveIdx) > 0)
-			{
-				calcMove = calcMoveMult(moveInFeet, moveIdx);
-			}
-
 			// Now we get the BONUS:MOVEMULT multipliers
 			double moveMult =
-					bonusCheckingFacet.getBonus(id, "MOVEMULT", "TYPE." + getMovementType(moveIdx).toUpperCase());
+					bonusCheckingFacet.getBonus(id, "MOVEMULT", movementAsType);
 
 			// also check for special case of TYPE=ALL
 			moveMult += bonusCheckingFacet.getBonus(id, "MOVEMULT", "TYPE.ALL");
@@ -412,7 +248,7 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 
 			// now add on any POSTMOVE bonuses
 			postMove +=
-					bonusCheckingFacet.getBonus(id, "POSTMOVEADD", "TYPE." + getMovementType(moveIdx).toUpperCase());
+					bonusCheckingFacet.getBonus(id, "POSTMOVEADD", movementAsType);
 
 			// also check for special case of TYPE=ALL
 			postMove += bonusCheckingFacet.getBonus(id, "POSTMOVEADD", "TYPE.ALL");
@@ -426,25 +262,33 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 			// get a list of all equipped Armor
 			Load armorLoad = Load.LIGHT;
 
-			for (Equipment eq : equipmentFacet.getSet(id))
+			// Ignore armor weight if the house rule has disabled it
+			if (Globals.checkRule(RuleConstants.SYS_LDPACSK))
 			{
-				if (!eq.typeStringContains("Armor") || !eq.isEquipped() || eq.isShield())
+				for (Equipment eq : equipmentFacet.getSet(id))
 				{
-					continue;
-				}
-				if (eq.isHeavy() && !unencumberedArmorFacet.ignoreLoad(id, Load.HEAVY))
-				{
-					armorLoad = armorLoad.max(Load.HEAVY);
-				}
-				else if (eq.isMedium() && !unencumberedArmorFacet.ignoreLoad(id, Load.MEDIUM))
-				{
-					armorLoad = armorLoad.max(Load.MEDIUM);
+					if (!eq.typeStringContains("Armor") || !eq.isEquipped() || eq.isShield())
+					{
+						continue;
+					}
+					if (eq.isHeavy() && !unencumberedArmorFacet.ignoreLoad(id, Load.HEAVY))
+					{
+						armorLoad = armorLoad.max(Load.HEAVY);
+					}
+					else if (eq.isMedium() && !unencumberedArmorFacet.ignoreLoad(id, Load.MEDIUM))
+					{
+						armorLoad = armorLoad.max(Load.MEDIUM);
+					}
 				}
 			}
 
-			double armorMove = Globals.calcEncumberedMove(armorLoad, moveInFeet);
+			double armorMove = armorLoad.calcEncumberedMove(moveInFeet);
 
-			Load pcLoad = loadFacet.getLoadType(id);
+			Load pcLoad = Load.LIGHT;
+			if (Globals.checkRule(RuleConstants.SYS_LDPACSK))
+			{
+				pcLoad = loadFacet.getLoadType(id);
+			}
 			double loadMove = calcEncumberedMove(id, pcLoad, moveInFeet);
 
 			// It is possible to have a PC that is not encumbered by Armor
@@ -455,99 +299,36 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 			return moveInFeet;
 		}
 
-		/**
-		 * @param moveIdx
-		 * @return the integer movement speed for Index
-		 */
-		private double getMovement(int moveIdx)
-		{
-			if ((movements != null) && (moveIdx < movements.length))
-			{
-				return movements[moveIdx];
-			}
-			return 0.0d;
-		}
-
-		public String getMovementType(int moveIdx)
-		{
-			if ((movementTypes != null) && (moveIdx < movementTypes.length))
-			{
-				return movementTypes[moveIdx];
-			}
-			return Constants.EMPTY_STRING;
-		}
-
-		/**
-		 * @param moveIdx
-		 * @return the integer movement speed multiplier for Index
-		 */
-		private double getMovementMult(int moveIdx)
-		{
-			if ((movements != null) && (moveIdx < movementMult.length))
-			{
-				return movementMult[moveIdx];
-			}
-			return 0.0d;
-		}
-
-		private double calcMoveMult(double move, int index)
-		{
-			double iMove = 0;
-
-			if (movementMultOp[index].charAt(0) == '*')
-			{
-				iMove = move * movementMult[index];
-			}
-			else if (movementMultOp[index].charAt(0) == '/')
-			{
-				iMove = move / movementMult[index];
-			}
-
-			if (iMove > 0)
-			{
-				return iMove;
-			}
-
-			return move;
-		}
-
 		public List<NamedValue> getMovementValues(CharID id)
 		{
-			List<NamedValue> list = new ArrayList<>();
-			for (int i = 0; i < countMovementTypes(); i++)
+			Set<NamedValue> set = new TreeSet<>(new MoveSorter());
+			for (MovementType moveType : moveRates.keySet())
 			{
-				list.add(new NamedValue(getMovementType(i), movement(id, i)));
+				String moveName = moveType.toString();
+				set.add(new NamedValue(moveName, movementOfType(id, moveType)));
 			}
-			return list;
+			return new ArrayList<>(set);
 		}
 
 		/**
 		 * Returns the base movement value of the given type for the Player
 		 * Character. No BONUSes are added to the movement before it is
 		 * returned.
-		 * 
+		 *
 		 * @param moveType
 		 *            The movement type to be returned
 		 * @return The movement value of the given type for the Player Character
 		 */
-		public double getMovementOfType(String moveType)
+		public double getMovementOfType(MovementType moveType)
 		{
-			for (int x = 0; x < countMovementTypes(); ++x)
-			{
-				String type = getMovementType(x);
-				if (moveType.equalsIgnoreCase(type))
-				{
-					return getMovement(x);
-				}
-			}
-			return 0.0d;
+			return moveRates.getOrDefault(moveType, 0.0);
 		}
 
 		/**
 		 * Returns the base movement value of the given type for the Player
 		 * Character, when the Player Character is under the given Load. No
 		 * BONUSes are added to the movement before it is returned.
-		 * 
+		 *
 		 * @param moveType
 		 *            The movement type to be returned
 		 * @param load
@@ -555,45 +336,32 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 		 *            Player Character
 		 * @return The movement value of the given type for the Player Character
 		 */
-		public int getBaseMovement(String moveType, Load load)
+		public int getBaseMovement(MovementType moveType, Load load)
 		{
-			for (int i = 0; i < countMovementTypes(); i++)
-			{
-				if (getMovementType(i).equalsIgnoreCase(moveType))
-				{
-					return (int) getMovement(i);
-				}
-			}
-			return 0;
+			//TODO Deal with Load?!?
+			return moveRates.get(moveType).intValue();
 		}
 
 		/**
 		 * Returns true if the Player Character has a movement value of the
 		 * given type.
-		 * 
+		 *
 		 * @param moveType
 		 *            The movement type to be tested to see if the Player
 		 *            Character has a movement value of this type
 		 * @return true if the Player Character has a movement value of the
 		 *         given type; false otherwise
 		 */
-		public boolean hasMovement(String moveType)
+		public boolean hasMovement(MovementType moveType)
 		{
-			for (int i = 0; i < countMovementTypes(); i++)
-			{
-				if (getMovementType(i).equalsIgnoreCase(moveType))
-				{
-					return true;
-				}
-			}
-			return false;
+			return moveRates.containsKey(moveType);
 		}
 
 		/**
 		 * Works for dnd according to the method noted in the faq. (NOTE: The
 		 * table in the dnd faq is wrong for speeds 80 and 90) Not as sure it
 		 * works for all other d20 games.
-		 * 
+		 *
 		 * @param load
 		 * @param unencumberedMove
 		 *            the unencumbered move value
@@ -615,7 +383,7 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 			}
 			else
 			{
-				String formula = SettingsHandler.getGame().getLoadInfo().getLoadMoveFormula(load.toString());
+				String formula = SettingsHandler.getGameAsProperty().get().getLoadInfo().getLoadMoveFormula(load.toString());
 				if (!formula.isEmpty())
 				{
 					formula = formula.replaceAll(Pattern.quote("$$MOVE$$"),
@@ -623,7 +391,7 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 					return formulaResolvingFacet.resolve(id, FormulaFactory.getFormulaFor(formula), "").doubleValue();
 				}
 
-				return Globals.calcEncumberedMove(load, unencumberedMove);
+				return load.calcEncumberedMove(unencumberedMove);
 			}
 
 			return encumberedMove;
@@ -632,7 +400,7 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 		@Override
 		public int hashCode()
 		{
-			return (movementTypes.length == 0) ? -1 : movementTypes[0].hashCode();
+			return moveRates.hashCode();
 		}
 
 		@Override
@@ -642,12 +410,9 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 			{
 				return true;
 			}
-			if (o instanceof MovementCacheInfo)
+			if (o instanceof MovementCacheInfo ci)
 			{
-				MovementCacheInfo ci = (MovementCacheInfo) o;
-				return Arrays.equals(movementMult, ci.movementMult)
-					&& Arrays.deepEquals(movementMultOp, ci.movementMultOp)
-					&& Arrays.deepEquals(movementTypes, ci.movementTypes) && Arrays.equals(movements, ci.movements);
+				return Objects.equals(moveRates, ci.moveRates);
 			}
 			return false;
 		}
@@ -656,7 +421,7 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	/**
 	 * Returns the number of movement types for the Player Character identified
 	 * by the given CharID.
-	 * 
+	 *
 	 * @param id
 	 *            The CharID identifying the Player Character for which the
 	 *            number of movement types is to be returned
@@ -676,7 +441,7 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	/**
 	 * Recalculates all movement values for the Player Character identified by
 	 * the given CharID.
-	 * 
+	 *
 	 * @param id
 	 *            The CharID for which all of the movement values is to be
 	 *            recalculated
@@ -689,7 +454,7 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	/**
 	 * Returns a non-null List of the movement values for the Player Character
 	 * represented by the given CharID.
-	 * 
+	 *
 	 * This method is value-semantic in that ownership of the returned List is
 	 * transferred to the class calling this method. Modification of the
 	 * returned List will not modify this MovementResultFacet and modification
@@ -699,7 +464,7 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	 * MovementResultFacet. If you wish to modify the information stored in this
 	 * MovementResultFacet, you must add Movement objects to the Player
 	 * Character and call reset(CharID).
-	 * 
+	 *
 	 * @param id
 	 *            The CharID identifying the Player Character for which the
 	 *            movement values should be returned
@@ -720,7 +485,7 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	 * Returns the base movement value of the given type for the Player
 	 * Character identified by the given CharID. No BONUSes are added to the
 	 * movement before it is returned.
-	 * 
+	 *
 	 * @param id
 	 *            The CharID identifying the Player Character for which the
 	 *            movement value of the given type to be returned
@@ -729,7 +494,7 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	 * @return The movement value of the given type for the Player Character
 	 *         identified by the given CharID
 	 */
-	public double getMovementOfType(CharID id, String moveType)
+	public double getMovementOfType(CharID id, MovementType moveType)
 	{
 		MovementCacheInfo mci = getInfo(id);
 		if (mci == null)
@@ -744,7 +509,7 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	 * Character identified by the given CharID, when the Player Character is
 	 * under the given Load. No BONUSes are added to the movement before it is
 	 * returned.
-	 * 
+	 *
 	 * @param id
 	 *            The CharID identifying the Player Character for which the
 	 *            movement value of the given type to be returned
@@ -756,7 +521,7 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	 * @return The movement value of the given type for the Player Character
 	 *         identified by the given CharID
 	 */
-	public int getBaseMovement(CharID id, String moveType, Load load)
+	public int getBaseMovement(CharID id, MovementType moveType, Load load)
 	{
 		MovementCacheInfo mci = getInfo(id);
 		if (mci == null)
@@ -769,7 +534,7 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	/**
 	 * Returns true if the Player Character identified by the given CharID has a
 	 * movement value of the given type.
-	 * 
+	 *
 	 * @param id
 	 *            The CharID identifying the Player Character which will be
 	 *            tested to see if it contains a movement of the given type
@@ -779,7 +544,7 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	 * @return true if the Player Character identified by the given CharID has a
 	 *         movement value of the given type; false otherwise
 	 */
-	public boolean hasMovement(CharID id, String moveType)
+	public boolean hasMovement(CharID id, MovementType moveType)
 	{
 		MovementCacheInfo mci = getInfo(id);
 		if (mci == null)
@@ -792,11 +557,11 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	/**
 	 * Triggers a full recalculation of Player Character movement when a
 	 * CDOMObject is added to a Player Character.
-	 * 
+	 *
 	 * Triggered when one of the Facets to which MovementResultFacet listens
 	 * fires a DataFacetChangeEvent to indicate a CDOMObject was added to a
 	 * Player Character.
-	 * 
+	 *
 	 * @param dfce
 	 *            The DataFacetChangeEvent containing the information about the
 	 *            change
@@ -810,11 +575,11 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	/**
 	 * Triggers a full recalculation of Player Character movement when a
 	 * CDOMObject is added to a Player Character.
-	 * 
+	 *
 	 * Triggered when one of the Facets to which MovementResultFacet listens
 	 * fires a DataFacetChangeEvent to indicate a CDOMObject was removed from a
 	 * Player Character.
-	 * 
+	 *
 	 * @param dfce
 	 *            The DataFacetChangeEvent containing the information about the
 	 *            change
@@ -830,6 +595,11 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 		this.movementFacet = movementFacet;
 	}
 
+	public void setMoveCloneFacet(MoveCloneFacet moveCloneFacet)
+	{
+		this.moveCloneFacet = moveCloneFacet;
+	}
+
 	public void setBaseMovementFacet(BaseMovementFacet baseMovementFacet)
 	{
 		this.baseMovementFacet = baseMovementFacet;
@@ -843,11 +613,6 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	public void setTemplateFacet(TemplateFacet templateFacet)
 	{
 		this.templateFacet = templateFacet;
-	}
-
-	public void setDeityFacet(DeityFacet deityFacet)
-	{
-		this.deityFacet = deityFacet;
 	}
 
 	public void setEquipmentFacet(EquipmentFacet equipmentFacet)
@@ -882,14 +647,13 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 
 	/**
 	 * Initializes the connections for MovementResultFacet to other facets.
-	 * 
+	 *
 	 * This method is automatically called by the Spring framework during
 	 * initialization of the MovementResultFacet.
 	 */
 	public void init()
 	{
 		raceFacet.addDataFacetChangeListener(2000, this);
-		deityFacet.addDataFacetChangeListener(2000, this);
 		templateFacet.addDataFacetChangeListener(2000, this);
 	}
 
@@ -897,18 +661,18 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 	 * Copies the contents of the MovementResultFacet from one Player Character
 	 * to another Player Character, based on the given CharIDs representing
 	 * those Player Characters.
-	 * 
+	 *
 	 * This is a method in MovementResultFacet in order to avoid exposing the
 	 * mutable Map object to other classes. This should not be inlined, as the
 	 * Map is internal information to MovementResultFacet and should not be
 	 * exposed to other classes.
-	 * 
+	 *
 	 * Note also the copy is a one-time event and no references are maintained
 	 * between the Player Characters represented by the given CharIDs (meaning
 	 * once this copy takes place, any change to the MovementResultFacet of one
 	 * Player Character will only impact the Player Character where the
 	 * MovementResultFacet was changed).
-	 * 
+	 *
 	 * @param source
 	 *            The CharID representing the Player Character from which the
 	 *            information should be copied
@@ -923,22 +687,27 @@ public class MovementResultFacet extends AbstractStorageFacet<CharID>
 		if (mci != null)
 		{
 			MovementCacheInfo copymci = getConstructingInfo(copy);
-			if (mci.movementMult != null)
-			{
-				copymci.movementMult = mci.movementMult.clone();
-			}
-			if (mci.movementMultOp != null)
-			{
-				copymci.movementMultOp = mci.movementMultOp.clone();
-			}
-			if (mci.movements != null)
-			{
-				copymci.movements = mci.movements.clone();
-			}
-			if (mci.movementTypes != null)
-			{
-				copymci.movementTypes = mci.movementTypes.clone();
-			}
+			copymci.moveRates.putAll(mci.moveRates);
 		}
 	}
+
+	private class MoveSorter implements Comparator<NamedValue>
+	{
+
+		@Override
+		public int compare(NamedValue o1, NamedValue o2)
+		{
+			if (o1.getName().equals("Walk"))
+			{
+				return -1;
+			}
+			if (o2.getName().equals("Walk"))
+			{
+				return 1;
+			}
+			return o1.getName().compareTo(o2.getName());
+		}
+
+	}
+
 }

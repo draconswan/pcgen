@@ -18,6 +18,8 @@
 
 package pcgen.core.analysis;
 
+import static org.junit.Assert.assertEquals;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -40,8 +42,10 @@ import pcgen.rules.context.LoadContext;
 import pcgen.util.TestHelper;
 import plugin.lsttokens.testsupport.BuildUtilities;
 
+import org.junit.jupiter.api.Test;
+
 /**
- * The Class <code>SpellLevelTest</code> checks the SpellLevel class.
+ * The Class {@code SpellLevelTest} checks the SpellLevel class.
  * 
  * 
  */
@@ -55,6 +59,7 @@ public class SpellLevelTest extends AbstractCharacterTestCase
 	 *
 	 * @throws Exception 
 	 */
+	@Test
 	public void testGetPCBasedBonusKnownSpells() throws Exception
 	{
 		LoadContext context = Globals.getContext();
@@ -85,11 +90,7 @@ public class SpellLevelTest extends AbstractCharacterTestCase
 			.getManufacturerId(BuildUtilities.getFeatCat()).getActiveObject("Spell bonanza");
 
 		// Do the post parsing cleanup
-		context.resolveDeferredTokens();
-		context.getReferenceContext().buildDeferredObjects();
-		context.getReferenceContext().buildDerivedObjects();
-		context.getReferenceContext().validate(null);
-		assertTrue(context.getReferenceContext().resolveReferences(null));
+		finishLoad();
 
 		PlayerCharacter aPC = getCharacter();
 
@@ -108,4 +109,9 @@ public class SpellLevelTest extends AbstractCharacterTestCase
 		
 	}
 
+	@Override
+	protected void defaultSetupEnd()
+	{
+		//Nothing, we will trigger ourselves
+	}
 }

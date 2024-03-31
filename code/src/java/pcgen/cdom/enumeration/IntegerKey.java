@@ -19,6 +19,7 @@ package pcgen.cdom.enumeration;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 
 import pcgen.base.util.CaseInsensitiveMap;
 import pcgen.cdom.base.Constants;
@@ -33,13 +34,14 @@ import pcgen.core.Globals;
  * getSafe(IntegerKey) is called in CDOMObject). The default "default value" is
  * zero.
  */
+@SuppressWarnings({"PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal", "checkstyle:FinalClass"})
 public class IntegerKey
 {
 
 	/**
 	 * This Map contains the mappings from Strings to the Type Safe Constant
 	 */
-	private static CaseInsensitiveMap<IntegerKey> typeMap = new CaseInsensitiveMap<>();
+	private static final CaseInsensitiveMap<IntegerKey> typeMap = new CaseInsensitiveMap<>();
 
 	/**
 	 * @deprecated due to EQACCHECK CodeControl
@@ -216,10 +218,7 @@ public class IntegerKey
 
 	private IntegerKey(String name, int def)
 	{
-		if (name == null)
-		{
-			throw new IllegalArgumentException("Name for IntegerKey cannot be null");
-		}
+		Objects.requireNonNull(name, "Name for IntegerKey cannot be null");
 		ordinal = ordinalCount++;
 		fieldName = name;
 		defaultValue = def;

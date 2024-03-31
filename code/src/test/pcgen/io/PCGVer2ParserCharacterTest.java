@@ -17,6 +17,8 @@
  */
 package pcgen.io;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
 import pcgen.AbstractCharacterTestCase;
@@ -29,6 +31,9 @@ import pcgen.core.PlayerCharacter;
 import pcgen.core.Race;
 import pcgen.rules.context.LoadContext;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
  * PCGVer2ParserCharacterTest runs tests on PCGVer2Parser which require a 
  * character to be supplied. 
@@ -36,17 +41,18 @@ import pcgen.rules.context.LoadContext;
  */
 public class PCGVer2ParserCharacterTest extends AbstractCharacterTestCase
 {
-
+	@BeforeEach
 	@Override
-	protected void additionalSetUp() throws Exception
+	protected void setUp() throws Exception
 	{
-		super.additionalSetUp();
+		super.setUp();
 		LoadContext context = Globals.getContext();
 		Race rakshasha =
 				context.getReferenceContext().constructCDOMObject(Race.class, "Rakshasa");
 		context
 			.unconditionallyProcess(rakshasha, "ADD", "SPELLCASTER|Sorcerer");
 		context.getReferenceContext().constructCDOMObject(PCClass.class, "Sorcerer");
+		finishLoad();
 	}
 
 	/**
@@ -56,6 +62,7 @@ public class PCGVer2ParserCharacterTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PCGParseException the PCG parse exception
 	 */
+	@Test
 	public void testRaceAddSpellcaster() throws PCGParseException
 	{
 		LoadContext context = Globals.getContext();
@@ -72,5 +79,11 @@ public class PCGVer2ParserCharacterTest extends AbstractCharacterTestCase
 		PersistentTransitionChoice<?> tc = rakshasha.getListFor(ListKey.ADD).get(0);
 		List<Object> assocList = pc.getAssocList(tc, AssociationListKey.ADD);
 		assertEquals("Number of associations for ADD " + assocList, 1, assocList.size());
+	}
+
+	@Override
+	protected void defaultSetupEnd()
+	{
+		//Nothing, we will trigger ourselves
 	}
 }

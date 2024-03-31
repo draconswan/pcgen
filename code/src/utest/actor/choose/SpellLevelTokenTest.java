@@ -21,18 +21,19 @@ import pcgen.cdom.base.Chooser;
 import pcgen.cdom.helper.SpellLevel;
 import pcgen.core.PCClass;
 import plugin.lsttokens.choose.SpellLevelToken;
+
 import actor.testsupport.AbstractPersistentChoiceActorTestCase;
 
 public class SpellLevelTokenTest extends
 		AbstractPersistentChoiceActorTestCase<SpellLevel>
 {
 
-	static SpellLevelToken pca = new SpellLevelToken();
+	private static final SpellLevelToken PCA = new SpellLevelToken();
 
 	@Override
 	public Chooser<SpellLevel> getActor()
 	{
-		return pca;
+		return PCA;
 	}
 
 	@Override

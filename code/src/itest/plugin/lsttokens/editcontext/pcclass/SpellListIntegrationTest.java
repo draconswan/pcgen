@@ -19,8 +19,6 @@ package plugin.lsttokens.editcontext.pcclass;
 
 import java.net.URISyntaxException;
 
-import org.junit.Test;
-
 import pcgen.cdom.list.ClassSpellList;
 import pcgen.core.PCClass;
 import pcgen.persistence.PersistenceLayerException;
@@ -30,6 +28,9 @@ import plugin.lsttokens.editcontext.testsupport.AbstractListIntegrationTestCase;
 import plugin.lsttokens.pcclass.SpelllistToken;
 import plugin.lsttokens.testsupport.CDOMTokenLoader;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public class SpellListIntegrationTest extends
 		AbstractListIntegrationTestCase<PCClass, ClassSpellList>
 {
@@ -38,6 +39,7 @@ public class SpellListIntegrationTest extends
 	private static CDOMTokenLoader<PCClass> loader = new CDOMTokenLoader<>();
 
 	@Override
+	@BeforeEach
 	public void setUp() throws PersistenceLayerException, URISyntaxException
 	{
 		super.setUp();

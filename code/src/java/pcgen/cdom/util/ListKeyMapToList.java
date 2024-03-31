@@ -195,23 +195,6 @@ public class ListKeyMapToList
 	}
 
 	/**
-	 * Initializes a List for the given ListKey. The null value cannot be used
-	 * as a key in a ListKeyMapToList.
-	 * 
-	 * This method is reference-semantic and this ListKeyMapToList will maintain
-	 * a strong reference to the key object given as an argument to this method.
-	 * 
-	 * @param key
-	 *            The ListKey for which a List should be initialized in this
-	 *            ListKeyMapToList.
-	 */
-	@SuppressWarnings("unchecked")
-	public <T> void initializeListFor(ListKey<T> key)
-	{
-		map.initializeListFor(key);
-	}
-
-	/**
 	 * Removes the given value from the list for the given ListKey. Returns true
 	 * if the value was successfully removed from the list for the given
 	 * ListKey. Returns false if there is not a list for the given ListKey or if
@@ -343,25 +326,12 @@ public class ListKeyMapToList
 		return map.isEmpty();
 	}
 
-	/**
-	 * Returns the consistent-with-equals hashCode for this ListKeyMapToList
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode()
 	{
 		return map.hashCode();
 	}
 
-	/**
-	 * Returns true if this ListKeyMapToList is equal to the given Object.
-	 * 
-	 * Note that equality as defined by this method is both a class of
-	 * ListKeyMapToList and equality of contents of the ListKeyMapToList.
-	 * 
-	 * @see java.lang.Object#equals(Object)
-	 */
 	@Override
 	public boolean equals(Object obj)
 	{

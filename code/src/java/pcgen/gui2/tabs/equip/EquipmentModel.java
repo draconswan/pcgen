@@ -40,17 +40,17 @@ import javax.swing.table.TableColumn;
 import pcgen.facade.core.CharacterFacade;
 import pcgen.facade.core.EquipmentFacade;
 import pcgen.facade.core.EquipmentSetFacade;
-import pcgen.facade.core.EquipmentSetFacade.EquipNode;
-import pcgen.facade.core.EquipmentSetFacade.EquipNode.NodeType;
 import pcgen.facade.util.ListFacade;
 import pcgen.facade.util.event.ListEvent;
 import pcgen.facade.util.event.ListListener;
 import pcgen.facade.util.event.ReferenceEvent;
 import pcgen.facade.util.event.ReferenceListener;
 import pcgen.gui2.UIPropertyContext;
+import pcgen.gui2.facade.EquipNode;
 import pcgen.gui2.tabs.models.CharacterTreeCellRenderer;
 import pcgen.gui2.util.FontManipulation;
 import pcgen.gui2.util.JTreeTable;
+import pcgen.gui3.utilty.ColorUtilty;
 
 /**
  * The parent model for the selected panel. Maps the various equipment sets for
@@ -191,26 +191,19 @@ public class EquipmentModel
 
 	private void realignRowHeights()
 	{
-		SwingUtilities.invokeLater(new Runnable()
-		{
-
-			@Override
-			public void run()
+		SwingUtilities.invokeLater(() -> {
+			JTree tree = treeTable.getTree();
+			for (int row = 0; row < tree.getRowCount(); row++)
 			{
-				JTree tree = treeTable.getTree();
-				for (int row = 0; row < tree.getRowCount(); row++)
+				Rectangle bounds = tree.getRowBounds(row);
+				if (bounds != null)
 				{
-					Rectangle bounds = tree.getRowBounds(row);
-					if (bounds != null)
+					if (treeTable.getRowHeight(row) != bounds.height)
 					{
-						if (treeTable.getRowHeight(row) != bounds.height)
-						{
-							treeTable.setRowHeight(row, bounds.height);
-						}
+						treeTable.setRowHeight(row, bounds.height);
 					}
 				}
 			}
-
 		});
 	}
 
@@ -257,7 +250,7 @@ public class EquipmentModel
 		{
 			String text = String.valueOf(value);
 			boolean isEquipNode = value instanceof EquipNode;
-			boolean isPhantomSlot = isEquipNode && ((EquipNode) value).getNodeType() == NodeType.PHANTOM_SLOT;
+			boolean isPhantomSlot = isEquipNode && ((EquipNode) value).getNodeType() == EquipNode.NodeType.PHANTOM_SLOT;
 			if (isPhantomSlot)
 			{
 				text = "Empty slot";
@@ -278,12 +271,12 @@ public class EquipmentModel
 			else
 			{
 				setFont(normFont);
-				EquipmentFacade equip = null;
+				EquipmentFacade equip;
 				if (!selected)
 				{
-					setForeground(UIPropertyContext.getQualifiedColor());
+					setForeground(ColorUtilty.colorToAWTColor(UIPropertyContext.getQualifiedColor()));
 				}
-				if (isEquipNode && ((EquipNode) value).getNodeType() == NodeType.EQUIPMENT)
+				if (isEquipNode && ((EquipNode) value).getNodeType() == EquipNode.NodeType.EQUIPMENT)
 				{
 					equip = ((EquipNode) value).getEquipment();
 
@@ -298,7 +291,7 @@ public class EquipmentModel
 
 					if (!character.isQualifiedFor(equip))
 					{
-						setForeground(UIPropertyContext.getNotQualifiedColor());
+						setForeground(ColorUtilty.colorToAWTColor(UIPropertyContext.getNotQualifiedColor()));
 					}
 				}
 			}

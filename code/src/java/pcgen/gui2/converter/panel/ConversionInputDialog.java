@@ -39,8 +39,6 @@ import pcgen.util.Logging;
  * The Class {@code ConversionChoiceDialog} is responsible for
  * displaying choices the user needs to make as part of the conversion 
  * of some data items. 
- * 
- * 
  */
 @SuppressWarnings("serial")
 public class ConversionInputDialog extends JDialog implements ActionListener
@@ -58,7 +56,7 @@ public class ConversionInputDialog extends JDialog implements ActionListener
 	 * @param parent the parent frame
 	 * @param introText the intro text to explain the dialogs purpose to the user.
 	 */
-	public ConversionInputDialog(Frame parent, String introText)
+	ConversionInputDialog(Frame parent, String introText)
 	{
 		super(parent, "PCGenDataConvert", true);
 
@@ -123,9 +121,6 @@ public class ConversionInputDialog extends JDialog implements ActionListener
 
 	}
 
-	/**
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{

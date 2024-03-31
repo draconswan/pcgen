@@ -25,11 +25,6 @@ import pcgen.cdom.base.ConcretePrereqObject;
 import pcgen.core.spell.Spell;
 import pcgen.util.enumeration.ProhibitedSpellType;
 
-/**
- * 
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
- */
 public class SpellProhibitor extends ConcretePrereqObject
 {
 
@@ -104,11 +99,10 @@ public class SpellProhibitor extends ConcretePrereqObject
 		{
 			return true;
 		}
-		if (!(o instanceof SpellProhibitor))
+		if (!(o instanceof SpellProhibitor other))
 		{
 			return false;
 		}
-		SpellProhibitor other = (SpellProhibitor) o;
 		if ((type == null && other.type == null) || (type != null && type == other.type))
 		{
 			return (other.valueList == null && valueList == null)

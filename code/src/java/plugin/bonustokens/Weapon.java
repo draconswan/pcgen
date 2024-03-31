@@ -24,8 +24,7 @@ import pcgen.core.bonus.MultiTagBonusObj;
  */
 public final class Weapon extends MultiTagBonusObj
 {
-	private static final String[] BONUS_TAGS =
-			new String[]{"ATTACKS", "ATTACKSPROGRESS", "WEAPONBAB", "DAMAGE", "DAMAGESIZE", "TOHIT", "WIELDCATEGORY"};
+	private static final String[] BONUS_TAGS = {"ATTACKS", "ATTACKSPROGRESS", "WEAPONBAB", "DAMAGE", "DAMAGESIZE", "TOHIT", "WIELDCATEGORY"};
 
 	/**
 	 * Return the bonus tag handled by this class.
@@ -40,7 +39,6 @@ public final class Weapon extends MultiTagBonusObj
 	/**
 	 * Get by index, an individual weapon attribute that may be bonused.
 	 * @param tagNumber the index of the weapon attribute.
-	 * @see pcgen.core.bonus.MultiTagBonusObj#getBonusTag(int)
 	 * @return The weapon attribute.
 	 */
 	@Override
@@ -51,7 +49,6 @@ public final class Weapon extends MultiTagBonusObj
 
 	/**
 	 * Get the number of weapon attributes that may be bonused.
-	 * @see pcgen.core.bonus.MultiTagBonusObj#getBonusTag(int)
 	 * @return The number of weapon attributes.
 	 */
 	@Override

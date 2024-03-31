@@ -19,8 +19,8 @@
 package pcgen.core.doomsdaybook;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,24 +31,13 @@ import java.util.Map;
  */
 public class VariableHashMap extends HashMap<String, String>
 {
-	private final List<Operation> initialize = new ArrayList<>();
+	private final Collection<Operation> initialize = new ArrayList<>();
 	private final Map<String, DataElement> dataElements;
 
 	/** Creates a new instance of VariableHashMap */
 	public VariableHashMap()
 	{
 		this.dataElements = new HashMap<>();
-	}
-
-	/**
-	 * Create a new instance of VariableHashMap using a pre generated 
-	 * map of DataElement objects. NB: The passed in map will be 
-	 * retained by the new VariableHashMap. 
-	 * @param dataElements 
-	 */
-	public VariableHashMap(HashMap<String, DataElement> dataElements)
-	{
-		this.dataElements = dataElements;
 	}
 
 	/**
@@ -79,7 +68,7 @@ public class VariableHashMap extends HashMap<String, String>
 	 * @return The value fo the variable.
 	 * @throws variableException When no entry exists for the supplied key.
 	 */
-	public String getVal(String key) throws variableException
+	String getVal(String key) throws variableException
 	{
 		String value = get(key);
 
@@ -99,7 +88,7 @@ public class VariableHashMap extends HashMap<String, String>
 	 * @param value The new value for the variable
 	 * @throws variableException When no entry exists for the supplied key.
 	 */
-	public void setVar(String key, String value) throws variableException
+	private void setVar(String key, String value) throws variableException
 	{
 		if (get(key) == null)
 		{
@@ -118,18 +107,7 @@ public class VariableHashMap extends HashMap<String, String>
 	public void addDataElement(DataElement dataElement)
 	{
 		String key = dataElement.getId();
-		dataElement.trimToSize();
 		dataElements.put(key, dataElement);
-	}
-
-	/**
-	 * Add an Operation to the initialize list
-	 * 
-	 * @param op The Operation to be added.
-	 */
-	public void addInitialOperations(Operation op)
-	{
-		initialize.add(op);
 	}
 
 	/**
@@ -141,7 +119,7 @@ public class VariableHashMap extends HashMap<String, String>
 	 * @return The new value of the variable.
 	 * @throws variableException When no entry exists for the supplied key.
 	 */
-	public String addVar(String key, int add) throws variableException
+	private String addVar(String key, int add) throws variableException
 	{
 		String value = get(key);
 
@@ -152,7 +130,7 @@ public class VariableHashMap extends HashMap<String, String>
 
 		int val;
 
-		if ("".equals(value))
+		if (value.isEmpty())
 		{
 			val = 0;
 		}
@@ -174,7 +152,7 @@ public class VariableHashMap extends HashMap<String, String>
 	 * @return The new value of the variable.
 	 * @throws variableException When no entry exists for the supplied key.
 	 */
-	public String divideVar(String key, int divide) throws variableException
+	private String divideVar(String key, int divide) throws variableException
 	{
 		String value = get(key);
 
@@ -185,7 +163,7 @@ public class VariableHashMap extends HashMap<String, String>
 
 		int val;
 
-		if ("".equals(value))
+		if (value.isEmpty())
 		{
 			val = 0;
 		}
@@ -203,7 +181,7 @@ public class VariableHashMap extends HashMap<String, String>
 	 * @param ops The Operations to be performed.
 	 * @throws variableException When no entry exists for an Operation's key.
 	 */
-	public void doOperation(List<Operation> ops) throws variableException
+	private void doOperation(Collection<? extends Operation> ops) throws variableException
 	{
 		for (Operation op : ops)
 		{
@@ -220,36 +198,38 @@ public class VariableHashMap extends HashMap<String, String>
 	 * @param op The Operation to be performed.
 	 * @throws variableException When no entry exists for the Operation's key.
 	 */
-	public void doOperation(Operation op) throws variableException
+	private void doOperation(Operation op) throws variableException
 	{
 		String type = op.getType();
 		String key = op.getKey();
 		String value = op.getValue();
 
-		if (type.equals("Set"))
+		switch (type)
 		{
-			value = parse(value);
-			setVar(key, value);
-		}
-		else if (type.equals("Add"))
-		{
-			int val = Integer.parseInt(parse(value));
-			addVar(key, val);
-		}
-		else if (type.equals("Subtract"))
-		{
-			int val = Integer.parseInt(parse(value));
-			subtractVar(key, val);
-		}
-		else if (type.equals("Multiply"))
-		{
-			int val = Integer.parseInt(parse(value));
-			multiplyVar(key, val);
-		}
-		else if (type.equals("Divide"))
-		{
-			int val = Integer.parseInt(parse(value));
-			divideVar(key, val);
+			case "Set" -> {
+				value = parse(value);
+				setVar(key, value);
+			}
+			case "Add" -> {
+				int val = Integer.parseInt(parse(value));
+				addVar(key, val);
+				break;
+			}
+			case "Subtract" -> {
+				int val = Integer.parseInt(parse(value));
+				subtractVar(key, val);
+				break;
+			}
+			case "Multiply" -> {
+				int val = Integer.parseInt(parse(value));
+				multiplyVar(key, val);
+				break;
+			}
+			case "Divide" -> {
+				int val = Integer.parseInt(parse(value));
+				divideVar(key, val);
+				break;
+			}
 		}
 	}
 
@@ -273,7 +253,7 @@ public class VariableHashMap extends HashMap<String, String>
 	 * @return The new value of the variable.
 	 * @throws variableException When no entry exists for the supplied key.
 	 */
-	public String multiplyVar(String key, int multiply) throws variableException
+	private String multiplyVar(String key, int multiply) throws variableException
 	{
 		String value = get(key);
 
@@ -284,7 +264,7 @@ public class VariableHashMap extends HashMap<String, String>
 
 		int val;
 
-		if ("".equals(value))
+		if (value.isEmpty())
 		{
 			val = 0;
 		}
@@ -303,11 +283,11 @@ public class VariableHashMap extends HashMap<String, String>
 	 * @param val The value to be parsed
 	 * @return The parsed value.
 	 */
-	public String parse(String val)
+	private String parse(String val)
 	{
 		String retString = val;
 
-		if (val.matches("\\$\\{.*?\\}.*"))
+		if (val.matches("\\$\\{.*?}.*"))
 		{
 			String var = val.substring(val.indexOf("${") + 2, val.indexOf('}'));
 			String value = get(var);
@@ -317,7 +297,7 @@ public class VariableHashMap extends HashMap<String, String>
 				value = "";
 			}
 
-			retString = val.replaceFirst("\\$\\{.*?\\}", value);
+			retString = val.replaceFirst("\\$\\{.*?}", value);
 		}
 
 		return retString;
@@ -332,7 +312,7 @@ public class VariableHashMap extends HashMap<String, String>
 	 * @return The new value of the variable.
 	 * @throws variableException When no entry exists for the supplied key.
 	 */
-	public String subtractVar(String key, int subtract) throws variableException
+	private String subtractVar(String key, int subtract) throws variableException
 	{
 		String value = get(key);
 
@@ -343,7 +323,7 @@ public class VariableHashMap extends HashMap<String, String>
 
 		int val;
 
-		if ("".equals(value))
+		if (value.isEmpty())
 		{
 			val = 0;
 		}

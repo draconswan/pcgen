@@ -27,6 +27,7 @@ import pcgen.cdom.enumeration.FormulaKey;
 import pcgen.cdom.enumeration.IntegerKey;
 import pcgen.cdom.enumeration.ObjectKey;
 import pcgen.cdom.enumeration.StringKey;
+import pcgen.cdom.enumeration.Type;
 import pcgen.core.Equipment;
 import pcgen.core.EquipmentModifier;
 import pcgen.core.Globals;
@@ -62,7 +63,7 @@ public final class EqModCost
 				final String bType = aTok.nextToken();
 				aTok = new StringTokenizer(bType.substring(5), ".", false);
 
-				String typeString = "TYPE";
+				StringBuilder typeString = new StringBuilder("TYPE");
 
 				while (aTok.hasMoreTokens())
 				{
@@ -74,12 +75,12 @@ public final class EqModCost
 						break;
 					}
 
-					typeString += "." + sub_type;
+					typeString.append(".").append(sub_type);
 				}
 
 				if (meetsAll)
 				{
-					typesToGetBonusesFor.add(typeString);
+					typesToGetBonusesFor.add(typeString.toString());
 				}
 			}
 		}
@@ -105,7 +106,7 @@ public final class EqModCost
 				return false;
 			}
 
-			if (eqMod.isIType("MAGIC"))
+			if (eqMod.isIType(Type.MAGIC))
 			{
 				return true;
 			}

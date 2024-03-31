@@ -273,7 +273,7 @@ public class CompanionListLst extends AbstractTokenWithSeparator<CDOMObject> imp
 			}
 			if (followerAdjustment != null && followerAdjustment != 0)
 			{
-				option.setAdjustment(followerAdjustment.intValue());
+				option.setAdjustment(followerAdjustment);
 			}
 			context.getObjectContext().addToList(obj, ListKey.COMPANIONLIST, option);
 		}
@@ -337,7 +337,7 @@ public class CompanionListLst extends AbstractTokenWithSeparator<CDOMObject> imp
 				}
 			}
 		}
-		return set.toArray(new String[set.size()]);
+		return set.toArray(new String[0]);
 	}
 
 	@Override

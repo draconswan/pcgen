@@ -20,7 +20,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -28,7 +27,6 @@ import java.util.EventObject;
 
 import javax.swing.CellRendererPane;
 import javax.swing.JComponent;
-import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
@@ -63,8 +61,6 @@ import pcgen.util.Logging;
  * This example shows how to create a simple JTreeTable component,
  * by using a JTree as a renderer (and editor) for the cells in a
  * particular column in the JTable.
- *
- *
  **/
 public class JTreeTable extends JTableEx
 {
@@ -85,7 +81,6 @@ public class JTreeTable extends JTableEx
 	 */
 	public JTreeTable(TreeTableModel treeTableModel)
 	{
-		super();
 		tree = new TreeTableCellRenderer();
 		tree.setRootVisible(false);
 		tree.setShowsRootHandles(true);
@@ -363,11 +358,10 @@ public class JTreeTable extends JTableEx
 		@Override
 		public void sortModel(Comparator<Row> comparator)
 		{
-			if (treeTableModel == null || !(treeTableModel instanceof SortableTreeTableModel))
+			if (treeTableModel == null || !(treeTableModel instanceof SortableTreeTableModel model))
 			{
 				return;
 			}
-			SortableTreeTableModel model = (SortableTreeTableModel) treeTableModel;
 			Enumeration<TreePath> paths = tree.getExpandedDescendants(new TreePath(model.getRoot()));
 			TreePath[] selectionPaths = tree.getSelectionPaths();
 			model.sortModel(comparator);
@@ -593,9 +587,8 @@ public class JTreeTable extends JTableEx
 			// table's cell selection colors.
 			TreeCellRenderer tcr = getCellRenderer();
 
-			if (tcr instanceof DefaultTreeCellRenderer)
+			if (tcr instanceof DefaultTreeCellRenderer dtcr)
 			{
-				DefaultTreeCellRenderer dtcr = ((DefaultTreeCellRenderer) tcr);
 				dtcr.setTextSelectionColor(UIManager.getColor("Table.selectionForeground")); //$NON-NLS-1$
 				dtcr.setBackgroundSelectionColor(UIManager.getColor("Table.selectionBackground")); //$NON-NLS-1$
 			}
@@ -693,13 +686,13 @@ public class JTreeTable extends JTableEx
 
 					int count = 0;
 
-					for (int i = 0; i < sRows.length; i++)
-					{
-						if (tree.getPathForRow(sRows[i]) != null)
-						{
-							count++;
-						}
-					}
+                    for (int row : sRows)
+                    {
+                        if (tree.getPathForRow(row) != null)
+                        {
+                            count++;
+                        }
+                    }
 
 					if (count == 0)
 					{
@@ -709,15 +702,15 @@ public class JTreeTable extends JTableEx
 					TreePath[] tps = new TreePath[count];
 					count = 0;
 
-					for (int i = 0; i < sRows.length; i++)
-					{
-						TreePath tp = tree.getPathForRow(sRows[i]);
+                    for (int sRow : sRows)
+                    {
+                        TreePath tp = tree.getPathForRow(sRow);
 
-						if (tp != null)
-						{
-							tps[count++] = tp;
-						}
-					}
+                        if (tp != null)
+                        {
+                            tps[count++] = tp;
+                        }
+                    }
 
 					// don't ned a clear as we are
 					// using setSelectionPaths()
@@ -739,9 +732,6 @@ public class JTreeTable extends JTableEx
 		final class ListSelectionHandler implements ListSelectionListener
 		{
 
-			/**
-			 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
-			 */
 			@Override
 			public void valueChanged(@SuppressWarnings("unused") ListSelectionEvent e)
 			{
@@ -805,9 +795,6 @@ public class JTreeTable extends JTableEx
 			return false;
 		}
 
-		/**
-		 * @see TableCellEditor#getTableCellEditorComponent(JTable, Object, boolean, int, int)
-		 */
 		@Override
 		public Component getTableCellEditorComponent(@SuppressWarnings("unused") JTable table,
 			@SuppressWarnings("unused") Object value, @SuppressWarnings("unused") boolean isSelected,
@@ -848,85 +835,6 @@ public class JTreeTable extends JTableEx
 		public void removeCellEditorListener(CellEditorListener l)
 		{
 		}
-
-	}
-
-	/**
-	 * Associates a popup menu with the tree table.
-	 *
-	 * <p>This handles showing the popup based on a right click and also handles
-	 * any menu accelerators.
-	 *
-	 * @param aPopupMenu Menu to associate.
-	 */
-	public void addPopupMenu(final JPopupMenu aPopupMenu)
-	{
-		addMouseListener(new PopupListener(this, aPopupMenu));
-	}
-
-	private final class PopupListener extends MouseAdapter
-	{
-
-		private JPopupMenu theMenu;
-		private JTree theTree;
-
-		private PopupListener(final JTreeTable treeTable, final JPopupMenu aMenu)
-		{
-			theTree = treeTable.getTree();
-			theMenu = aMenu;
-		}
-
-		/**
-		 * Overridden to potential show the popup menu.
-		 *
-		 * @see java.awt.event.MouseAdapter#mousePressed(java.awt.event.MouseEvent)
-		 */
-		@Override
-		public void mousePressed(MouseEvent evt)
-		{
-			maybeShowPopup(evt);
-		}
-
-		/**
-		 * Overridden to potentially show the popup menu.
-		 *
-		 * @see java.awt.event.MouseAdapter#mouseReleased(java.awt.event.MouseEvent)
-		 */
-		@Override
-		public void mouseReleased(MouseEvent evt)
-		{
-			maybeShowPopup(evt);
-		}
-
-		private void maybeShowPopup(MouseEvent evt)
-		{
-			if (evt.isPopupTrigger())
-			{
-				final TreePath selPath = theTree.getClosestPathForLocation(evt.getX(), evt.getY());
-
-				if (selPath == null)
-				{
-					return;
-				}
-
-				if (theTree.isSelectionEmpty())
-				{
-					theTree.setSelectionPath(selPath);
-					theMenu.show(evt.getComponent(), evt.getX(), evt.getY());
-				}
-				else if (!theTree.isPathSelected(selPath))
-				{
-					theTree.setSelectionPath(selPath);
-					theMenu.show(evt.getComponent(), evt.getX(), evt.getY());
-				}
-				else
-				{
-					theTree.addSelectionPath(selPath);
-					theMenu.show(evt.getComponent(), evt.getX(), evt.getY());
-				}
-			}
-		}
-
 	}
 
 }

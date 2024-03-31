@@ -29,16 +29,16 @@ public class ParameterTree
 	ParameterTree right = null;
 	public static final String OR_STRING = "[or]";
 	public static final String AND_STRING = "[and]";
-	static String orPatString = "\\[or\\]";
-	static String andPatString = "\\[and\\]";
+	private static String orPatString = "\\[or\\]";
+	private static String andPatString = "\\[and\\]";
 
 	private static String leftBracket = "(";
 	private static String leftPatString = "\\(";
 	private static String rightPatString = "\\)";
 
-	static String patString = '(' + leftPatString + '|' + rightPatString + '|' + orPatString + '|' + andPatString + ')';
+	private static String patString = '(' + leftPatString + '|' + rightPatString + '|' + orPatString + '|' + andPatString + ')';
 
-	static Pattern pat = Pattern.compile(patString);
+	public static final Pattern pat = Pattern.compile(patString);
 
 	// the grouping pattern & matcher
 	private static final String PAREN_STRING = '(' + leftPatString + '|' + rightPatString + ')';
@@ -138,6 +138,7 @@ public class ParameterTree
 						final StringBuilder rNodeContents = new StringBuilder();
 						rNodeContents.append(t.getRightTree().getContents());
 						rNodeContents.append(source.substring(pM.start(), end));
+						//TODO rNodeContents is then thrown away?
 					}
 
 				}
@@ -146,9 +147,7 @@ public class ParameterTree
 					// root of the generated tree doesn't contain an operator, so
 					// the paren expression should be tacked onto it.
 					final String parenExp = source.substring(pM.end() - 1, end);
-					final StringBuilder rNodeContents = new StringBuilder();
-					rNodeContents.append(t.getContents()).append(parenExp);
-					t.setContents(rNodeContents.toString());
+					t.setContents(t.getContents() + parenExp);
 				}
 			}
 

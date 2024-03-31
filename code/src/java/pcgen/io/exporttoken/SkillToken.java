@@ -25,8 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.apache.commons.lang3.StringUtils;
-
 import pcgen.cdom.enumeration.ObjectKey;
 import pcgen.cdom.enumeration.SkillCost;
 import pcgen.cdom.enumeration.SkillFilter;
@@ -44,6 +42,8 @@ import pcgen.core.display.SkillDisplay;
 import pcgen.io.ExportHandler;
 import pcgen.util.Logging;
 import pcgen.util.enumeration.View;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * {@code SkillToken} is the base class for the SKILL
@@ -85,18 +85,12 @@ public class SkillToken extends Token
 	private PlayerCharacter lastPC = null;
 	private int lastPCSerial;
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getTokenName()
-	 */
 	@Override
 	public String getTokenName()
 	{
 		return TOKENNAME;
 	}
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getToken(java.lang.String, pcgen.core.PlayerCharacter, pcgen.io.ExportHandler)
-	 */
 	@Override
 	public String getToken(String tokenSource, PlayerCharacter pc, ExportHandler eh)
 	{
@@ -198,6 +192,7 @@ public class SkillToken extends Token
 			if (i == 0)
 			{
 				// Ignore
+				Logging.debugPrint("Ignore the 0 indexed token.");
 			}
 			else if (i == 1)
 			{
@@ -346,14 +341,6 @@ public class SkillToken extends Token
 	{
 		StringBuilder retValue = new StringBuilder();
 
-		if (((property == SKILL_ABMOD)
-				|| (property == SKILL_MISC))
-				&& false) //&& aSkill.get(ObjectKey.KEY_STAT) == null)
-		{
-			retValue.append("n/a");
-		}
-		else
-		{
 			switch (property)
 			{
 				case SKILL_NAME:
@@ -361,9 +348,9 @@ public class SkillToken extends Token
 					break;
 
 				case SKILL_TOTAL:
-					if (SettingsHandler.getGame().hasSkillRankDisplayText())
+					if (SettingsHandler.getGameAsProperty().get().hasSkillRankDisplayText())
 					{
-						retValue.append(SettingsHandler.getGame().getSkillRankDisplayText(
+						retValue.append(SettingsHandler.getGameAsProperty().get().getSkillRankDisplayText(
 							SkillRankControl.getTotalRank(pc, aSkill).intValue() + SkillModifier.modifier(aSkill, pc)));
 					}
 					else
@@ -374,9 +361,9 @@ public class SkillToken extends Token
 					break;
 
 				case SKILL_RANK:
-					if (SettingsHandler.getGame().hasSkillRankDisplayText())
+					if (SettingsHandler.getGameAsProperty().get().hasSkillRankDisplayText())
 					{
-						retValue.append(SettingsHandler.getGame()
+						retValue.append(SettingsHandler.getGameAsProperty().get()
 							.getSkillRankDisplayText(SkillRankControl.getTotalRank(pc, aSkill).intValue()));
 					}
 					else
@@ -492,7 +479,6 @@ public class SkillToken extends Token
 
 					break;
 			}
-		}
 		return retValue.toString();
 	}
 
@@ -567,7 +553,7 @@ public class SkillToken extends Token
 		{
 			acpText[i] = aTok.nextToken();
 		}
-		return ((acp < numArgs) && (acp >= 0)) ? acpText[acp] : "";
+		return acp < numArgs ? acpText[acp] : "";
 	}
 
 	// ================== Inner class =======================

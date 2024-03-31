@@ -19,7 +19,6 @@ package plugin.primitive.pobject;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -115,9 +114,8 @@ public class FeatToken<T> implements PrimitiveToken<T>
 		{
 			return true;
 		}
-		if (obj instanceof FeatToken)
+		if (obj instanceof FeatToken<?> other)
 		{
-			FeatToken<?> other = (FeatToken<?>) obj;
 			if (ref == null)
 			{
 				return (other.ref == null) && (refClass == null) && (other.refClass == null);
@@ -141,11 +139,7 @@ public class FeatToken<T> implements PrimitiveToken<T>
 		 * would exist within the ChooseInformation below
 		 */
 		List<R> currentItems = getList(pc, ref.get());
-		if (currentItems == null)
-		{
-			return Collections.emptySet();
-		}
-		return new HashSet<>(currentItems);
+        return new HashSet<>(currentItems);
 	}
 
 }

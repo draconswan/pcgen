@@ -49,7 +49,6 @@ import pcgen.cdom.reference.ManufacturableFactory;
 import pcgen.cdom.reference.ReferenceManufacturer;
 import pcgen.cdom.reference.UnconstructedValidator;
 import pcgen.core.utils.LastGroupSeparator.GroupingMismatchException;
-import pcgen.facade.core.AbilityCategoryFacade;
 import pcgen.system.LanguageBundle;
 import pcgen.util.Logging;
 import pcgen.util.enumeration.View;
@@ -68,7 +67,7 @@ import pcgen.util.enumeration.Visibility;
  * 
  */
 public class AbilityCategory
-		implements Category<Ability>, Loadable, ManufacturableFactory<Ability>, AbilityCategoryFacade
+		implements Category<Ability>, Loadable, ManufacturableFactory<Ability>
 {
 	private static final ClassIdentity<AbilityCategory> IDENTITY =
 			BasicClassIdentity.getIdentity(AbilityCategory.class);
@@ -359,7 +358,6 @@ public class AbilityCategory
 	 * Sets if abilities of this category should be displayed in the UI.
 	 * 
 	 * @param visible the visibility for abilities, i.e. hidden, visible, etc. 
-	 * @see pcgen.util.enumeration.Visibility
 	 */
 	public void setVisible(Visibility visible)
 	{
@@ -419,7 +417,6 @@ public class AbilityCategory
 	 * 
 	 * @return <tt>true</tt> if these abilities are editable.
 	 */
-	@Override
 	public boolean isEditable()
 	{
 		return isEditable;
@@ -440,7 +437,6 @@ public class AbilityCategory
 	 * 
 	 * @return <tt>true</tt> to allow user editing.
 	 */
-	@Override
 	public boolean allowPoolMod()
 	{
 		return isPoolModifiable;
@@ -536,16 +532,12 @@ public class AbilityCategory
 		final AbilityCategory other = (AbilityCategory) obj;
 		if (keyName == null)
 		{
-			if (other.keyName != null)
-			{
-				return false;
-			}
+			return other.keyName == null;
 		}
-		else if (!keyName.equals(other.keyName))
+		else
 		{
-			return false;
+			return keyName.equals(other.keyName);
 		}
-		return true;
 	}
 
 	@Override
@@ -813,7 +805,6 @@ public class AbilityCategory
 		return getDisplayName();
 	}
 
-	@Override
 	public String getType()
 	{
 		return String.valueOf(getDisplayLocation());

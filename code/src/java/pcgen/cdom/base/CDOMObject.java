@@ -18,17 +18,21 @@
 package pcgen.cdom.base;
 
 import java.net.URI;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import org.jetbrains.annotations.NotNull;
 import pcgen.base.formula.Formula;
 import pcgen.base.formula.base.VarScoped;
 import pcgen.base.lang.StringUtil;
@@ -49,6 +53,7 @@ import pcgen.cdom.enumeration.StringKey;
 import pcgen.cdom.enumeration.VariableKey;
 import pcgen.cdom.formula.PCGenScoped;
 import pcgen.cdom.helper.InfoBoolean;
+import pcgen.cdom.helper.VarHolderSupport;
 import pcgen.cdom.util.FactSetKeyMapToList;
 import pcgen.cdom.util.ListKeyMapToList;
 import pcgen.cdom.util.MapKeyMap;
@@ -59,17 +64,51 @@ import pcgen.core.analysis.BonusActivation;
 import pcgen.core.bonus.BonusObj;
 
 public abstract class CDOMObject extends ConcretePrereqObject
-		implements Cloneable, BonusContainer, Loadable, Reducible, PCGenScoped, VarHolder
+		implements Cloneable, BonusContainer, Loadable, Reducible, PCGenScoped, VarHolder,
+		VarContainer
 {
 
-	/**
-	 * An Empty String array to support VarHolder
-	 */
-	private static final String[] EMPTY_STRING_ARRAY = new String[0];
+	public static final Comparator<CDOMObject> P_OBJECT_COMP =
+			(o1, o2) -> o1.getKeyName().compareToIgnoreCase(o2.getKeyName());
+	public static final Comparator<CDOMObject> P_OBJECT_NAME_COMP = (o1, o2) -> {
+		final Collator collator = Collator.getInstance();
 
+		// Check sort keys first
+		String key1 = o1.get(StringKey.SORT_KEY);
+		if (key1 == null)
+		{
+			key1 = o1.getDisplayName();
+		}
+		String key2 = o2.get(StringKey.SORT_KEY);
+		if (key2 == null)
+		{
+			key2 = o2.getDisplayName();
+		}
+		if (!key1.equals(key2))
+		{
+			return collator.compare(key1, key2);
+		}
+		if (!o1.getDisplayName().equals(o2.getDisplayName()))
+		{
+			return collator.compare(o1.getDisplayName(), o2.getDisplayName());
+		}
+		// Fall back to keyname if the displayname is the same
+		return collator.compare(o1.getKeyName(), o2.getKeyName());
+	};
+	/**
+	 * The source URI for this CDOMObject.
+	 */
 	private URI sourceURI = null;
 
+	/**
+	 * The display name for this CDOMObject.
+	 */
 	private String displayName = Constants.EMPTY_STRING;
+	
+	/**
+	 * Support object to store the variable information on an object.
+	 */
+	private VarHolderSupport varHolder = new VarHolderSupport();
 
 	/*
 	 * CONSIDER This should be a NumberMap - not Integer, but allow Double as
@@ -689,6 +728,7 @@ public abstract class CDOMObject extends ConcretePrereqObject
 	 * @param mapKey The MapKey we are retrieving
 	 * @return The set of keys.
 	 */
+	@NotNull
 	public final <K, V> Set<K> getKeysFor(MapKey<K, V> mapKey)
 	{
 		return mapChar == null ? Collections.emptySet() : mapChar.getKeysFor(mapKey);
@@ -1182,9 +1222,6 @@ public abstract class CDOMObject extends ConcretePrereqObject
 		return getSafe(ObjectKey.INTERNAL);
 	}
 
-	/**
-	 * @see pcgen.cdom.base.Reducible#getCDOMObject()
-	 */
 	@Override
 	public CDOMObject getCDOMObject()
 	{
@@ -1192,19 +1229,17 @@ public abstract class CDOMObject extends ConcretePrereqObject
 	}
 
 	@Override
-	@SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract")
-	public String getLocalScopeName()
+	public Optional<String> getLocalScopeName()
 	{
 		//I don't have one
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
-	@SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract")
-	public VarScoped getVariableParent()
+	public Optional<VarScoped> getVariableParent()
 	{
 		//Fall back to Global
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
@@ -1255,40 +1290,37 @@ public abstract class CDOMObject extends ConcretePrereqObject
 	@Override
 	public void addModifier(VarModifier<?> vm)
 	{
-		addToListFor(ListKey.MODIFY, vm);
+		varHolder.addModifier(vm);
 	}
 
 	@Override
 	public VarModifier<?>[] getModifierArray()
 	{
-		List<VarModifier<?>> list = getListFor(ListKey.MODIFY);
-		return (list == null) ? VarModifier.EMPTY_VARMODIFIER : list.toArray(new VarModifier[list.size()]);
+		return varHolder.getModifierArray();
 	}
 
 	@Override
 	public void addRemoteModifier(RemoteModifier<?> vm)
 	{
-		addToListFor(ListKey.REMOTE_MODIFIER, vm);
+		varHolder.addRemoteModifier(vm);
 	}
 
 	@Override
 	public RemoteModifier<?>[] getRemoteModifierArray()
 	{
-		List<RemoteModifier<?>> list = getListFor(ListKey.REMOTE_MODIFIER);
-		return (list == null) ? RemoteModifier.EMPTY_REMOTEMODIFIER : list.toArray(new RemoteModifier[list.size()]);
+		return varHolder.getRemoteModifierArray();
 	}
 
 	@Override
 	public void addGrantedVariable(String variableName)
 	{
-		addToListFor(ListKey.GRANTEDVARS, variableName);
+		varHolder.addGrantedVariable(variableName);
 	}
 
 	@Override
 	public String[] getGrantedVariableArray()
 	{
-		List<String> list = getListFor(ListKey.GRANTEDVARS);
-		return (list == null) ? EMPTY_STRING_ARRAY : list.toArray(new String[list.size()]);
+		return varHolder.getGrantedVariableArray();
 	}
 	/*
 	 * End implementation of methods supporting VarHolder.
@@ -1341,5 +1373,16 @@ public abstract class CDOMObject extends ConcretePrereqObject
 	{
 		//none by default
 		return null;
+	}
+
+	/**
+	 * Indicates if this is the "UNSELECTED" item an object type for the loaded GameMode.
+	 * 
+	 * @return true if this is the "Unselected" item; false otherwise
+	 */
+	public final boolean isUnselected()
+	{
+		return getSafeListFor(ListKey.GROUP).stream()
+			.filter("Unselected"::equalsIgnoreCase).findFirst().isPresent();
 	}
 }

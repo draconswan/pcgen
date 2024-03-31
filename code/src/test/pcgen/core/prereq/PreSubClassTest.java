@@ -17,9 +17,8 @@
  */
 package pcgen.core.prereq;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import static org.junit.Assert.assertEquals;
+
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.enumeration.StringKey;
 import pcgen.core.PCClass;
@@ -28,33 +27,18 @@ import pcgen.core.analysis.SubClassApplication;
 import plugin.lsttokens.testsupport.BuildUtilities;
 import plugin.pretokens.test.PreSubClassTester;
 
+import org.junit.jupiter.api.Test;
 
 
-public class PreSubClassTest extends AbstractCharacterTestCase
+class PreSubClassTest extends AbstractCharacterTestCase
 {
-	/**
-	 * Main
-	 * @param args
-	 */
-	public static void main(final String[] args)
-	{
-		TestRunner.run(PreSubClassTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PreSubClassTest.class);
-	}
-
 	/**
 	 * Test to ensure that a character with a named class can be found.
 	 *
 	 * @throws PrerequisiteException the prerequisite exception
 	 */
-	public void testNamedSubClass() throws PrerequisiteException
+	@Test
+	void testNamedSubClass() throws PrerequisiteException
 	{
 		final PCClass pcClass = new PCClass();
 		pcClass.setName("MyClass");
@@ -82,6 +66,7 @@ public class PreSubClassTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PrerequisiteException the prerequisite exception
 	 */
+	@Test
 	public void testCharWithMultipleClasses() throws PrerequisiteException
 	{
 		final PCClass pcClass = new PCClass();
@@ -113,6 +98,7 @@ public class PreSubClassTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PrerequisiteException the prerequisite exception
 	 */
+	@Test
 	public void testCharWithMultipleSubClasses() throws PrerequisiteException
 	{
 		final PCClass pcClass = new PCClass();
@@ -146,6 +132,7 @@ public class PreSubClassTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PrerequisiteException the prerequisite exception
 	 */
+	@Test
 	public void testNamedSubClassFail() throws PrerequisiteException
 	{
 		final PCClass pcClass = new PCClass();
@@ -171,6 +158,7 @@ public class PreSubClassTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PrerequisiteException the prerequisite exception
 	 */
+	@Test
 	public void testNamedDifSubClassFail() throws PrerequisiteException
 	{
 		final PCClass pcClass = new PCClass();

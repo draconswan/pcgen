@@ -62,7 +62,7 @@ public class NoteToken extends Token
 			{
 				token = "NAME";
 				beforeHeader = afterHeader = beforeValue = afterValue = "";
-				if (tok.hasMoreTokens() && !"ALL".equals(token))
+				if (tok.hasMoreTokens())
 				{
 					beforeHeader = tok.nextToken();
 				}
@@ -108,25 +108,22 @@ public class NoteToken extends Token
 
 		for (NoteItem ni : noteList)
 		{
-			if ("ALL".equals(token))
+			switch (token)
 			{
-				// TODO - Why doesn't this handle value the same as the VALUE token
-				sb.append(ni.getExportString(beforeHeader, afterHeader, beforeValue, afterValue));
-			}
-			else if ("NAME".equals(token))
-			{
-				sb.append(ni.getName());
-			}
-			else if ("VALUE".equals(token))
-			{
-				String internal = beforeValue + afterValue;
-				if ("".equals(internal))
-				{
-					internal = "$1";
+				case "ALL" ->
+						// TODO - Why doesn't this handle value the same as the VALUE token
+						sb.append(ni.getExportString(beforeHeader, afterHeader, beforeValue, afterValue));
+				case "NAME" -> sb.append(ni.getName());
+				case "VALUE" -> {
+					String internal = beforeValue + afterValue;
+					if ("".equals(internal))
+					{
+						internal = "$1";
+					}
+					sb.append(beforeValue);
+					sb.append(ni.getValue().replaceAll("(\n)", internal));
+					sb.append(afterValue);
 				}
-				sb.append(beforeValue);
-				sb.append(ni.getValue().replaceAll("(\n)", internal));
-				sb.append(afterValue);
 			}
 		}
 
@@ -151,10 +148,7 @@ public class NoteToken extends Token
 			{
 				int i = Integer.parseInt(name);
 
-				if ((i >= 0) || (i < noteList.size()))
-				{
-					resultList.add(noteList.get(i));
-				}
+				resultList.add(noteList.get(i));
 			}
 			catch (NumberFormatException e)
 			{

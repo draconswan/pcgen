@@ -31,6 +31,8 @@ import pcgen.core.Race;
 import pcgen.core.Vision;
 import pcgen.util.enumeration.VisionType;
 
+import org.junit.jupiter.api.BeforeEach;
+
 public class VisionFacetTest extends
 		AbstractExtractingFacetTest<CDOMObject, QualifiedObject<Vision>>
 {
@@ -39,8 +41,9 @@ public class VisionFacetTest extends
 	private QualifiedObject<Vision>[] target;
 	private CDOMObject[] source;
 
+	@BeforeEach
 	@Override
-	public void setUp() throws Exception
+	public void setUp()
 	{
 		super.setUp();
 		CDOMObject cdo1 = new PCTemplate();

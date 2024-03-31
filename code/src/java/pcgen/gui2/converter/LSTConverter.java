@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -55,7 +56,7 @@ import pcgen.core.character.CompanionMod;
 import pcgen.core.spell.Spell;
 import pcgen.gui2.converter.loader.AbilityLoader;
 import pcgen.gui2.converter.loader.BasicLoader;
-import pcgen.gui2.converter.loader.ClassLoader;
+import pcgen.gui2.converter.loader.PCClassLoader;
 import pcgen.gui2.converter.loader.CopyLoader;
 import pcgen.gui2.converter.loader.EquipmentLoader;
 import pcgen.gui2.converter.loader.SelfCopyLoader;
@@ -139,8 +140,7 @@ public class LSTConverter extends Observable
 			}
 			catch (PersistenceLayerException e)
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Logging.errorPrint(e.getMessage(), e);
 			}
 			dataDefFileList.addAll(campaign.getSafeListFor(ListKey.FILE_DATACTRL));
 
@@ -155,7 +155,6 @@ public class LSTConverter extends Observable
 		}
 		catch (PersistenceLayerException e)
 		{
-			// TODO Auto-generated catch block
 			Logging.errorPrint("LSTConverter.initCampaigns failed", e);
 		}
 
@@ -223,19 +222,22 @@ public class LSTConverter extends Observable
 				ensureParents(outFile.getParentFile());
 				try
 				{
-					changeLogWriter.append("\nProcessing " + in + "\n");
+					changeLogWriter.append("\nProcessing ").append(String.valueOf(in)).append("\n");
 					String result = load(uri, loader);
 					if (result != null)
 					{
-						Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8"));
-						out.write(result);
-						out.close();
+						try (Writer out = new BufferedWriter(new OutputStreamWriter(
+								new FileOutputStream(outFile),
+								StandardCharsets.UTF_8
+						)))
+						{
+							out.write(result);
+						}
 					}
 				}
 				catch (PersistenceLayerException | IOException | InterruptedException e)
 				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Logging.errorPrint(e.getLocalizedMessage(), e);
 				}
 			}
 		}
@@ -259,7 +261,7 @@ public class LSTConverter extends Observable
 		loaderList.add(new EquipmentLoader(context, ListKey.FILE_EQUIP, changeLogWriter));
 		loaderList.add(new BasicLoader<>(context, EquipmentModifier.class, ListKey.FILE_EQUIP_MOD, changeLogWriter));
 		loaderList.add(new BasicLoader<>(context, CompanionMod.class, ListKey.FILE_COMPANION_MOD, changeLogWriter));
-		loaderList.add(new ClassLoader(context, changeLogWriter));
+		loaderList.add(new PCClassLoader(context, changeLogWriter));
 		loaderList.add(new CopyLoader(ListKey.FILE_ABILITY_CATEGORY));
 		loaderList.add(new CopyLoader(ListKey.LICENSE_FILE));
 		loaderList.add(new CopyLoader(ListKey.FILE_KIT));
@@ -299,7 +301,7 @@ public class LSTConverter extends Observable
 
 	private String load(URI uri, Loader loader) throws InterruptedException, PersistenceLayerException
 	{
-		StringBuilder dataBuffer;
+		String dataBuffer;
 		context.setSourceURI(uri);
 		context.setExtractURI(uri);
 		try
@@ -315,7 +317,7 @@ public class LSTConverter extends Observable
 		}
 
 		StringBuilder resultBuffer = new StringBuilder(dataBuffer.length());
-		final String aString = dataBuffer.toString();
+		final String aString = dataBuffer;
 
 		String[] fileLines = aString.split(LstFileLoader.LINE_SEPARATOR_REGEXP);
 		for (int line = 0; line < fileLines.length; line++)

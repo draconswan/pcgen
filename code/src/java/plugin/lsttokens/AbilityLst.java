@@ -234,9 +234,8 @@ public class AbilityLst extends AbstractTokenWithSeparator<CDOMObject>
 					AbilityUtilities.getUndecoratedName(token, choices);
 					if (choices.size() == 1)
 					{
-						if (Constants.LST_PERCENT_LIST.equals(choices.get(0)) && (ability instanceof CDOMSingleRef))
+						if (Constants.LST_PERCENT_LIST.equals(choices.get(0)) && (ability instanceof CDOMSingleRef<Ability> ref))
 						{
-							CDOMSingleRef<Ability> ref = (CDOMSingleRef<Ability>) ability;
 							AbilityTargetSelector ats = new AbilityTargetSelector(getTokenName(), acRef, ref, nature);
 							context.getObjectContext().addToList(obj, ListKey.GA_CAKEYS, lk);
 							context.getObjectContext().addToList(obj, lk, ats);
@@ -320,20 +319,11 @@ public class AbilityLst extends AbstractTokenWithSeparator<CDOMObject>
 			{
 				if (csa.getSource().equals(getTokenName()))
 				{
-					try
-					{
-						AbilitySelector as = (AbilitySelector) csa;
-						StringBuilder sb = new StringBuilder();
-						sb.append(as.getAbilityCategory().getLSTformat(false)).append(Constants.PIPE);
-						sb.append(as.getNature()).append(Constants.PIPE);
-						sb.append(as.getLstFormat());
-						returnSet.add(sb.toString());
-					}
-					catch (PersistenceLayerException e)
-					{
-						context.addWriteMessage(getTokenName() + " encountered error: " + e.getMessage());
-						return null;
-					}
+					AbilitySelector as = (AbilitySelector) csa;
+					String sb = as.getAbilityCategory().getLSTformat(false) + Constants.PIPE
+							+ as.getNature() + Constants.PIPE
+							+ as.getLstFormat();
+					returnSet.add(sb);
 				}
 			}
 		}
@@ -346,11 +336,10 @@ public class AbilityLst extends AbstractTokenWithSeparator<CDOMObject>
 			{
 				CDOMDirectSingleRef<AbilityList> dr = (CDOMDirectSingleRef<AbilityList>) ref;
 				AbilityList al = dr.get();
-				StringBuilder sb = new StringBuilder();
-				sb.append(al.getCategory().getLSTformat(false)).append(Constants.PIPE);
-				sb.append(al.getNature()).append(Constants.PIPE);
-				sb.append(Constants.LST_DOT_CLEAR);
-				returnSet.add(sb.toString());
+				String sb = al.getCategory().getLSTformat(false) + Constants.PIPE
+						+ al.getNature() + Constants.PIPE
+						+ Constants.LST_DOT_CLEAR;
+				returnSet.add(sb);
 			}
 			MapToList<CDOMReference<Ability>, AssociatedPrereqObject> mtl = changes.getAddedAssociations();
 			if (mtl != null)
@@ -466,7 +455,7 @@ public class AbilityLst extends AbstractTokenWithSeparator<CDOMObject>
 		{
 			return null;
 		}
-		return returnSet.toArray(new String[returnSet.size()]);
+		return returnSet.toArray(new String[0]);
 	}
 
 	@Override

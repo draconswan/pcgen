@@ -16,15 +16,14 @@
  */
 package pcgen.testsupport;
 
-import junit.framework.TestCase;
-import pcgen.base.calculation.FormulaModifier;
-import pcgen.base.util.FormatManager;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import pcgen.ControlTestSupport;
 import pcgen.cdom.base.FormulaFactory;
 import pcgen.cdom.enumeration.ObjectKey;
 import pcgen.cdom.enumeration.VariableKey;
-import pcgen.cdom.formula.local.ModifierDecoration;
-import pcgen.cdom.inst.CodeControl;
 import pcgen.cdom.util.CControl;
+import pcgen.core.Deity;
 import pcgen.core.GameMode;
 import pcgen.core.Globals;
 import pcgen.core.Language;
@@ -32,12 +31,10 @@ import pcgen.core.PCAlignment;
 import pcgen.core.PCStat;
 import pcgen.core.SettingsHandler;
 import pcgen.core.SizeAdjustment;
-import pcgen.output.channel.ChannelUtilities;
 import pcgen.persistence.SourceFileLoader;
 import pcgen.rules.context.AbstractReferenceContext;
 import pcgen.rules.context.LoadContext;
-import pcgen.rules.persistence.TokenLibrary;
-import pcgen.rules.persistence.token.ModifierFactory;
+
 import plugin.lsttokens.AutoLst;
 import plugin.lsttokens.ChooseLst;
 import plugin.lsttokens.TypeLst;
@@ -49,6 +46,10 @@ import plugin.lsttokens.testsupport.BuildUtilities;
 import plugin.lsttokens.testsupport.TokenRegistration;
 import plugin.primitive.language.LangBonusToken;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import util.FormatSupport;
+
 /*
  * Differs from code/src/test AbstractCharacterTestCase in that this does not
  * attempt to load all plugins (trying to be light weight)
@@ -58,7 +59,7 @@ import plugin.primitive.language.LangBonusToken;
  * tested in a utest environment should probably not be dependent on
  * PlayerCharacter in a fully isolated system
  */
-public abstract class AbstractCharacterUsingTestCase extends TestCase
+public abstract class AbstractCharacterUsingTestCase
 {
 
 	protected PCStat str;
@@ -127,8 +128,24 @@ public abstract class AbstractCharacterUsingTestCase extends TestCase
 
 		Globals.setUseGUI(false);
 		Globals.emptyLists();
-		GameMode gamemode = SettingsHandler.getGame();
+		GameMode gamemode = SettingsHandler.getGameAsProperty().get();
 		BuildUtilities.buildUnselectedRace(Globals.getContext());
+		LoadContext context = Globals.getContext();
+		
+		AbstractReferenceContext ref = context.getReferenceContext();
+		ref.importObject(BuildUtilities.createAlignment("None", "NONE"));
+		Deity none = new Deity();
+		none.setName("None");
+		ref.importObject(none);
+
+		ControlTestSupport.enableFeature(context, CControl.DOMAINFEATURE);
+
+		FormatSupport.addNoneAsDefault(context,
+			ref.getManufacturer(PCAlignment.class));
+		FormatSupport.addNoneAsDefault(context,
+			ref.getManufacturer(Deity.class));
+		FormatSupport.addBasicDefaults(context);
+		SourceFileLoader.defineBuiltinVariables(context);
 
 		str = BuildUtilities.createStat("Strength", "STR", "A");
 		str.put(VariableKey.getConstant("LOADSCORE"), FormulaFactory
@@ -141,8 +158,6 @@ public abstract class AbstractCharacterUsingTestCase extends TestCase
 		wis = BuildUtilities.createStat("Wisdom", "WIS", "E");
 		cha = BuildUtilities.createStat("Charisma", "CHA", "F");
 
-		LoadContext context = Globals.getContext();
-		AbstractReferenceContext ref = context.getReferenceContext();
 		lg = BuildUtilities.createAlignment("Lawful Good", "LG");
 		ref.importObject(lg);
 		ln = BuildUtilities.createAlignment("Lawful Neutral", "LN");
@@ -161,7 +176,6 @@ public abstract class AbstractCharacterUsingTestCase extends TestCase
 		ref.importObject(cn);
 		ce = BuildUtilities.createAlignment("Chaotic Evil", "CE");
 		ref.importObject(ce);
-		ref.importObject(BuildUtilities.createAlignment("None", "NONE"));
 		ref.importObject(BuildUtilities.createAlignment("Deity's", "Deity"));
 
 		gamemode.setBonusFeatLevels("3|3");
@@ -189,30 +203,18 @@ public abstract class AbstractCharacterUsingTestCase extends TestCase
 		universal = ref.constructCDOMObject(Language.class, "Universal");
 		other = ref.constructCDOMObject(Language.class, "Other");
 		SourceFileLoader.createLangBonusObject(context);
-
-		FormatManager<?> fmtManager = ref.getFormatManager("ALIGNMENT");
-		proc(context, fmtManager);
-		setAlignmentInputCodeControl(context, fmtManager, ref);
 	}
-
-	private void setAlignmentInputCodeControl(LoadContext context,
-		FormatManager<?> fmtManager, AbstractReferenceContext ref)
+	
+	@BeforeEach
+	public void setUp() throws Exception
 	{
-		CodeControl ai = ref.constructCDOMObject(CodeControl.class, "Controller");
-		String channelName = ChannelUtilities.createVarName("AlignmentInput");
-		context.getVariableContext().assertLegalVariableID(
-			channelName, context.getActiveScope(),
-			fmtManager);
-		String controlName = '*' + CControl.ALIGNMENTINPUT.getName();
-		ai.put(ObjectKey.getKeyFor(String.class, controlName), "AlignmentInput");
+		Globals.emptyLists();
 	}
 
-	private <T> void proc(LoadContext context, FormatManager<T> fmtManager)
+	@AfterEach
+	public void tearDown() throws Exception
 	{
-		Class<T> cl = fmtManager.getManagedClass();
-		ModifierFactory<T> m = TokenLibrary.getModifier(cl, "SET");
-		FormulaModifier<T> defaultModifier = m.getFixedModifier(fmtManager, "NONE");
-		context.getVariableContext().addDefault(cl,
-			new ModifierDecoration<>(defaultModifier));
+		Globals.emptyLists();
 	}
+
 }

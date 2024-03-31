@@ -17,9 +17,9 @@
  */
 package pcgen.core.prereq;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.base.FormulaFactory;
 import pcgen.cdom.content.LevelCommandFactory;
@@ -35,9 +35,10 @@ import pcgen.core.Race;
 import pcgen.core.SizeAdjustment;
 import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.lst.prereq.PreParserFactory;
+import org.junit.jupiter.api.Test;
 
 /**
- * <code>PreHDTest</code> tests that the PREHD tag is
+ * {@code PreHDTest} tests that the PREHD tag is
  * working correctly.
  */
 @SuppressWarnings("nls")
@@ -46,23 +47,6 @@ public class PreHDTest extends AbstractCharacterTestCase
 	Race race = new Race();
 	Race race1 = new Race();
 	PCClass monClass = new PCClass();
-
-	/**
-	 * Main method.  Runs the test.
-	 * @param args
-	 */
-	public static void main(final String[] args)
-	{
-		TestRunner.run(PreHDTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PreHDTest.class);
-	}
 
 	/**
 	 * Test the PREHD code.
@@ -128,6 +112,7 @@ public class PreHDTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testClassLevels() throws PersistenceLayerException
 	{
 		monClass.setName("Humanoid");

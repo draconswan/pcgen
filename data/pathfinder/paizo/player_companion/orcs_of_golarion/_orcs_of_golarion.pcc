@@ -2,7 +2,6 @@
 CAMPAIGN:Orcs of Golarion
 GAMEMODE:Pathfinder|Pathfinder_PFS
 TYPE:Paizo Publishing.Pathfinder Player Companion
-RANK:3
 STATUS:BETA
 GENRE:Fantasy
 BOOKTYPE:Supplement
@@ -15,6 +14,7 @@ SOURCELONG:Pathfinder Player Companion: Orcs of Golarion
 SOURCESHORT:OOG
 SOURCEWEB:http://paizo.com/products/btpy8fvz
 SOURCEDATE:2010-12
+RANK:201012
 ISOGL:YES
 
 COVER:orcs_of_golarion.jpeg
@@ -42,6 +42,9 @@ ABILITY:oog_feats.lst
 RACE:oog_races.lst
 TEMPLATE:oog_templates.lst
 SPELL:oog_spells.lst
+
+PCC:@\pathfinder\paizo\roleplaying_game\core_essentials\races\half_orc\_race.pcc
+PCC:@\pathfinder\paizo\roleplaying_game\core_essentials\races\orc\_race.pcc
 
 # support
 ABILITY:support/oog_abilities_class_um.lst|PRECAMPAIGN:1,INCLUDES=Ultimate Magic

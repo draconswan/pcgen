@@ -20,14 +20,18 @@ package pcgen.core.kit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import pcgen.base.lang.StringUtil;
+import pcgen.base.util.Indirect;
 import pcgen.cdom.enumeration.Gender;
-import pcgen.cdom.enumeration.NumericPCAttribute;
-import pcgen.cdom.enumeration.PCAttribute;
+import pcgen.cdom.enumeration.PCStringKey;
+import pcgen.cdom.util.CControl;
 import pcgen.core.Globals;
 import pcgen.core.Kit;
 import pcgen.core.PlayerCharacter;
+import pcgen.output.channel.ChannelUtilities;
 
 /**
  * Code to represent a bio setting choices for a Kit.
@@ -36,7 +40,8 @@ public class KitBio extends BaseKit
 {
 	private String theCharacterName = null;
 	private Integer theCharacterAge = null;
-	private List<Gender> theGenders = null;
+	private List<Indirect<Gender>> theGenders = null;
+	private List<String> theGenderNames = null;
 	private Gender selectedGender = null;
 
 	/**
@@ -78,11 +83,11 @@ public class KitBio extends BaseKit
 	{
 		if (theCharacterName != null)
 		{
-			aPC.setPCAttribute(PCAttribute.NAME, theCharacterName);
+			aPC.setPCAttribute(PCStringKey.NAME, theCharacterName);
 		}
 		if (theCharacterAge != null)
 		{
-			aPC.setPCAttribute(NumericPCAttribute.AGE, theCharacterAge);
+			ChannelUtilities.setControlledChannel(aPC.getCharID(), CControl.AGEINPUT, theCharacterAge);
 		}
 		if (selectedGender != null)
 		{
@@ -121,7 +126,10 @@ public class KitBio extends BaseKit
 			if (theGenders.size() > 1)
 			{
 				List<Gender> selList = new ArrayList<>(1);
-				selList = Globals.getChoiceFromList("Choose Gender", theGenders, selList, 1, aPC);
+				List<Gender> theGenderObjects = theGenders.stream().map(Supplier::get)
+						.collect(Collectors.toList());
+				selList = Globals.getChoiceFromList("Choose Gender", theGenderObjects,
+					selList, 1, aPC);
 				if (selList.size() == 1)
 				{
 					selectedGender = selList.get(0);
@@ -129,7 +137,7 @@ public class KitBio extends BaseKit
 			}
 			else
 			{
-				selectedGender = theGenders.get(0);
+				selectedGender = theGenders.get(0).get();
 			}
 		}
 		apply(aPC);
@@ -144,34 +152,36 @@ public class KitBio extends BaseKit
 
 		if (theCharacterName != null)
 		{
-			info.append(" Name: " + theCharacterName);
+			info.append(" Name: ").append(theCharacterName);
 		}
 		if (theGenders != null)
 		{
-			info.append(" Gender: " + StringUtil.join(theGenders, ", "));
+			info.append(" Gender: ").append(StringUtil.join(theGenders, ", "));
 		}
 		if (theCharacterAge != null)
 		{
-			info.append(" Age: " + theCharacterAge);
+			info.append(" Age: ").append(theCharacterAge);
 		}
 
 		return info.toString();
 	}
 
-	public void addGender(Gender gender)
+	public void addGender(Indirect<Gender> gender)
 	{
 		if (theGenders == null)
 		{
 			theGenders = new ArrayList<>();
+			theGenderNames = new ArrayList<>();
 		}
-		if (theGenders.contains(gender))
+		if (theGenderNames.contains(gender.getUnconverted()))
 		{
 			throw new IllegalArgumentException("Cannot add Gender: " + gender + " twice");
 		}
+		theGenderNames.add(gender.getUnconverted());
 		theGenders.add(gender);
 	}
 
-	public Collection<Gender> getGenders()
+	public Collection<Indirect<Gender>> getGenders()
 	{
 		return theGenders;
 	}

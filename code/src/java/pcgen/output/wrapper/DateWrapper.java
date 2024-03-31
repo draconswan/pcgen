@@ -17,26 +17,27 @@
  */
 package pcgen.output.wrapper;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
 import pcgen.output.base.SimpleObjectWrapper;
 import pcgen.output.model.DateModel;
 
+import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
+
 /**
  * A DateWrapper is an ObjectWrapper capable of producing a TemplateModel for
- * objects that are a java.util.Date.
+ * objects that are a java.time.LocalDateTime.
  */
 public class DateWrapper implements SimpleObjectWrapper
 {
 	@Override
 	public TemplateModel wrap(Object o) throws TemplateModelException
 	{
-		if (o instanceof Date)
+		if (o instanceof LocalDateTime)
 		{
-			return new DateModel((Date) o);
+			return new DateModel((LocalDateTime) o);
 		}
-		throw new TemplateModelException("Object was not a Date");
+		throw new TemplateModelException("Object was not a LocalDateTime");
 	}
 }

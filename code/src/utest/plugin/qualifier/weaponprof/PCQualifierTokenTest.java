@@ -27,14 +27,17 @@ import plugin.lsttokens.testsupport.AbstractPCQualifierTokenTestCase;
 import plugin.lsttokens.testsupport.TokenRegistration;
 import plugin.lsttokens.testsupport.TransparentPlayerCharacter;
 
+import org.junit.jupiter.api.BeforeEach;
+
 public class PCQualifierTokenTest extends
 		AbstractPCQualifierTokenTestCase<WeaponProf>
 {
 
-	static WeaponProficiencyToken subtoken = new WeaponProficiencyToken();
+	private static final WeaponProficiencyToken SUBTOKEN = new WeaponProficiencyToken();
 
 	private static final plugin.qualifier.weaponprof.PCToken PC_TOKEN = new plugin.qualifier.weaponprof.PCToken();
 
+	@BeforeEach
 	@Override
 	public void setUp() throws PersistenceLayerException, URISyntaxException
 	{
@@ -45,7 +48,7 @@ public class PCQualifierTokenTest extends
 	@Override
 	public CDOMSecondaryToken<?> getSubToken()
 	{
-		return subtoken;
+		return SUBTOKEN;
 	}
 
 	@Override

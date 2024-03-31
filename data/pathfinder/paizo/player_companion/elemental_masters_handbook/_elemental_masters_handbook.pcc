@@ -1,11 +1,10 @@
 CAMPAIGN:Elemental Master's Handbook
 GAMEMODE:Pathfinder
-RANK:3
 TYPE:Paizo Publishing.Pathfinder Player Companion
 GENRE:Fantasy
 BOOKTYPE:Supplement
 SETTING:Pathfinder|Golarion
-STATUS:Alpha
+STATUS:BETA
 PRECAMPAIGN:9,INCLUDESBOOKTYPE=Core Rules,INCLUDES=Bestiary,INCLUDES=Advanced Player's Guide,INCLUDES=Ultimate Magic,INCLUDES=Ultimate Combat,INCLUDES=Ultimate Intrigue,INCLUDES=Advanced Race Guide,INCLUDES=Advanced Class Guide,INCLUDES=Occult Adventures
 PUBNAMELONG:Paizo Inc.
 PUBNAMESHORT:Paizo
@@ -14,6 +13,7 @@ SOURCELONG:Pathfinder Player Companion: Elemental Master's Handbook
 SOURCESHORT:EMH
 SOURCEWEB:http://paizo.com/products/btpy9uf8?Pathfinder-Player-Companion-Elemental-Masters-Handbook
 SOURCEDATE:2017-08
+RANK:201708
 ISOGL:YES
 
 COVER:elemental_masters_handbook.jpg
@@ -46,9 +46,12 @@ TEMPLATE:emh_templates.lst
 # support
 ABILITY:support/emh_abilities_class_um.lst|PRECAMPAIGN:1,INCLUDES=Ultimate Magic
 ABILITY:support/emh_abilities_class_acg.lst|PRECAMPAIGN:1,INCLUDES=Advanced Class Guide
-ABILITY:support/emh_abilities_class_pu.lst|PRECAMPAIGN:1,INCLUDES=Pathfinder Unchained
-ABILITY:support/emh_abilities_race_pu.lst|PRECAMPAIGN:1,INCLUDES=Pathfinder Unchained
-CLASS:support/emh_classes_pu.lst|PRECAMPAIGN:1,INCLUDES=Pathfinder Unchained
+
+PCC:support/pathfinder_unchained.pcc|PRECAMPAIGN:1,INCLUDES=Pathfinder Unchained
+
+#ABILITY:support/emh_abilities_class_pu.lst|PRECAMPAIGN:1,INCLUDES=Pathfinder Unchained
+#ABILITY:support/emh_abilities_race_pu.lst|PRECAMPAIGN:1,INCLUDES=Pathfinder Unchained
+#CLASS:support/emh_classes_pu.lst|PRECAMPAIGN:1,INCLUDES=Pathfinder Unchained
 
 
 FORWARDREF:SPELL|Wall of Ectoplasm

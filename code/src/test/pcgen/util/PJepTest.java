@@ -18,12 +18,8 @@
  */
 package pcgen.util;
 
-import java.util.Iterator;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import org.nfunk.jep.SymbolTable;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.base.FormulaFactory;
@@ -31,44 +27,15 @@ import pcgen.cdom.enumeration.VariableKey;
 import pcgen.core.PlayerCharacter;
 import pcgen.core.Race;
 
+import org.junit.jupiter.api.Test;
+import org.nfunk.jep.SymbolTable;
+
 /**
  * Tests {@link PJEP}.
  */
 public class PJepTest extends AbstractCharacterTestCase
 {
-	/**
-	 * Constructs a new <code>PJepTest</code>.
-	 *
-	 * @see pcgen.PCGenTestCase#PCGenTestCase()
-	 */
-	public PJepTest()
-	{
-		super();
-	}
-
-	/**
-	 * Constructs a new <code>PJepTest</code> with the given <var>name</var>.
-	 *
-	 * @param name the test case name
-	 *
-	 * @see pcgen.PCGenTestCase#PCGenTestCase(String)
-	 */
-	public PJepTest(final String name)
-	{
-		super(name);
-	}
-
-	public static void main(final String[] args)
-	{
-		junit.textui.TestRunner.run(PJepTest.class);
-	}
-
-	public static Test suite()
-	{
-		// quick method, adds all methods beginning with "test"
-		return new TestSuite(PJepTest.class);
-	}
-
+	@Test
 	public void testMin()
 	{
 		final PJEP jep = new PJEP();
@@ -76,9 +43,10 @@ public class PJepTest extends AbstractCharacterTestCase
 		jep.parseExpression("min(5,8,1)");
 		final double value = jep.getValue();
 
-		assertEquals("min", 1.0, value, 0.001);
+		assertEquals(1.0, value, 0.001, "min");
 	}
 
+	@Test
 	public void testMax1()
 	{
 		final PJEP jep = new PJEP();
@@ -86,9 +54,10 @@ public class PJepTest extends AbstractCharacterTestCase
 		jep.parseExpression("max(5,8,1)");
 		final double value = jep.getValue();
 
-		assertEquals("max", 8.0, value, 0.001);
+		assertEquals(8.0, value, 0.001, "max");
 	}
 
+	@Test
 	public void testMax2()
 	{
 		final PJEP jep = new PJEP();
@@ -99,6 +68,7 @@ public class PJepTest extends AbstractCharacterTestCase
 		assertFalse(jep.hasError());
 	}
 
+	@Test
 	public void testFloor1()
 	{
 		final PJEP jep = new PJEP();
@@ -106,9 +76,10 @@ public class PJepTest extends AbstractCharacterTestCase
 		jep.parseExpression("floor(5.7)");
 		final double value = jep.getValue();
 
-		assertEquals("floor", 5.0, value, 0.001);
+		assertEquals(5.0, value, 0.001, "floor");
 	}
 
+	@Test
 	public void testFloor2()
 	{
 		final PJEP jep = new PJEP();
@@ -116,9 +87,10 @@ public class PJepTest extends AbstractCharacterTestCase
 		jep.parseExpression("floor(-5.7)");
 		final double value = jep.getValue();
 
-		assertEquals("floor", -6.0, value, 0.001);
+		assertEquals(-6.0, value, 0.001, "floor");
 	}
 
+	@Test
 	public void testCeil1()
 	{
 		final PJEP jep = new PJEP();
@@ -126,9 +98,10 @@ public class PJepTest extends AbstractCharacterTestCase
 		jep.parseExpression("ceil(5.7)");
 		final double value = jep.getValue();
 
-		assertEquals("ceil", 6.0, value, 0.001);
+		assertEquals(6.0, value, 0.001, "ceil");
 	}
 
+	@Test
 	public void testCeil2()
 	{
 		final PJEP jep = new PJEP();
@@ -136,9 +109,10 @@ public class PJepTest extends AbstractCharacterTestCase
 		jep.parseExpression("ceil(-5.7)");
 		final double value = jep.getValue();
 
-		assertEquals("ceil", -5.0, value, 0.001);
+		assertEquals(-5.0, value, 0.001, "ceil");
 	}
 
+	@Test
 	public void testIf()
 	{
 		final PJEP jep = new PJEP();
@@ -146,9 +120,10 @@ public class PJepTest extends AbstractCharacterTestCase
 		jep.parseExpression("if (5>8, 7, 9)");
 		final double value = jep.getValue();
 
-		assertEquals("if", 9.0, value, 0.001);
+		assertEquals(9.0, value, 0.001, "if");
 	}
 
+	@Test
 	public void testIf2()
 	{
 		final PJEP jep = new PJEP();
@@ -156,9 +131,10 @@ public class PJepTest extends AbstractCharacterTestCase
 		jep.parseExpression("if (5<8, 7, 9)");
 		final double value = jep.getValue();
 
-		assertEquals("if", 7.0, value, 0.001);
+		assertEquals(7.0, value, 0.001, "if");
 	}
 
+	@Test
 	public void testIf3()
 	{
 		final PJEP jep = new PJEP();
@@ -166,9 +142,10 @@ public class PJepTest extends AbstractCharacterTestCase
 		jep.parseExpression("if (5>8, min(5,8,1), max(17,18,29) )");
 		final double value = jep.getValue();
 
-		assertEquals("if", 29.0, value, 0.001);
+		assertEquals(29.0, value, 0.001, "if");
 	}
 
+	@Test
 	public void testIf4()
 	{
 		final PJEP jep = new PJEP();
@@ -176,9 +153,10 @@ public class PJepTest extends AbstractCharacterTestCase
 		jep.parseExpression("if (2 && 2, min(5,8,1), max(17,18,29) )");
 		final double value = jep.getValue();
 
-		assertEquals("if", 1.0, value, 0.001);
+		assertEquals(1.0, value, 0.001, "if");
 	}
 
+	@Test
 	public void testIf5()
 	{
 		final PJEP jep = new PJEP();
@@ -186,9 +164,10 @@ public class PJepTest extends AbstractCharacterTestCase
 		jep.parseExpression("if (1, 5, -5)");
 		final double value = jep.getValue();
 
-		assertEquals("if", 5, value, 0.001);
+		assertEquals(5, value, 0.001, "if");
 	}
 
+	@Test
 	public void testIf6()
 	{
 		final PJEP jep = new PJEP();
@@ -196,9 +175,10 @@ public class PJepTest extends AbstractCharacterTestCase
 		jep.parseExpression("if (-1, 5, -5)");
 		final double value = jep.getValue();
 
-		assertEquals("if", 5, value, 0.001);
+		assertEquals(5, value, 0.001, "if");
 	}
 
+	@Test
 	public void testIf7()
 	{
 		final PJEP jep = new PJEP();
@@ -206,9 +186,10 @@ public class PJepTest extends AbstractCharacterTestCase
 		jep.parseExpression("if (0, 5, -5)");
 		final double value = jep.getValue();
 
-		assertEquals("if", -5, value, 0.001);
+		assertEquals(-5, value, 0.001, "if");
 	}
 
+	@Test
 	public void testIf8()
 	{
 		final PJEP jep = new PJEP();
@@ -221,6 +202,7 @@ public class PJepTest extends AbstractCharacterTestCase
 
 	}
 
+	@Test
 	public void testIf9()
 	{
 		final PJEP jep = new PJEP();
@@ -229,9 +211,9 @@ public class PJepTest extends AbstractCharacterTestCase
 		assertFalse(jep.hasError());
 
 		SymbolTable symTab = jep.getSymbolTable();
-		for (Iterator iter = symTab.keySet().iterator(); iter.hasNext();)
+		for (Object o : symTab.keySet())
 		{
-			String key = (String) iter.next();
+			String key = (String) o;
 			Double value = (Double) symTab.getValue(key);
 			System.out.println(key + " => " + value);
 		}
@@ -239,6 +221,7 @@ public class PJepTest extends AbstractCharacterTestCase
 		assertEquals(-1, jep.getValue(), 0.1);
 	}
 
+	@Test
 	public void testIf10()
 	{
 		final PJEP jep = new PJEP();
@@ -250,6 +233,7 @@ public class PJepTest extends AbstractCharacterTestCase
 		assertEquals(-1, jep.getValue(), 0.1);
 	}
 
+	@Test
 	public void testIf11()
 	{
 		final PJEP jep = new PJEP();
@@ -261,6 +245,7 @@ public class PJepTest extends AbstractCharacterTestCase
 		assertEquals(0, jep.getValue(), 0.1);
 	}
 
+	@Test
 	public void testIf12()
 	{
 		final PJEP jep = new PJEP();
@@ -274,15 +259,17 @@ public class PJepTest extends AbstractCharacterTestCase
 		assertFalse(jep.hasError());
 
 		assertEquals(-2, jep.getValue(), 0.1);
+
 	}
 
+	@Test
 	public void testJepIf()
 	{
 		final PlayerCharacter character = new PlayerCharacter();
 		Float val;
 		val = character.getVariableValue("var(\"UseAlternateDamage\")", "");
-		assertEquals("Undefined variable should return 0", 0.0, val
-			.doubleValue(), 0.1);
+		assertEquals(0.0, val
+			.doubleValue(), 0.1, "Undefined variable should return 0");
 
 		Race giantRace = TestHelper.makeRace("Ogre");
 		giantRace.put(VariableKey.getConstant("UseAlternateDamage"),
@@ -290,44 +277,44 @@ public class PJepTest extends AbstractCharacterTestCase
 		character.setRace(giantRace);
 
 		val = character.getVariableValue("var(\"UseAlternateDamage\")", "");
-		assertEquals("Variable defined to be 2.", 2.0, val.doubleValue(), 0.1);
+		assertEquals(2.0, val.doubleValue(), 0.1, "Variable defined to be 2.");
 
 		val = character.getVariableValue("2==2", "");
-		assertEquals("Equality test of 2==2 should be true.", 1.0, val
-			.doubleValue(), 0.1);
+		assertEquals(1.0, val
+			.doubleValue(), 0.1, "Equality test of 2==2 should be true.");
 
 		val = character.getVariableValue("3-1==2", "");
-		assertEquals("Equality test of 3-1==2 should be true.", 1.0, val
-			.doubleValue(), 0.1);
+		assertEquals(1.0, val
+			.doubleValue(), 0.1, "Equality test of 3-1==2 should be true.");
 
 		val = character.getVariableValue("var(\"UseAlternateDamage\")>1", "");
-		assertEquals("Variable defined to be 2 should be more than 1", 1.0, val
-			.doubleValue(), 0.1);
+		assertEquals(1.0, val
+			.doubleValue(), 0.1, "Variable defined to be 2 should be more than 1");
 
 		val = character.getVariableValue("var(\"UseAlternateDamage\")<3", "");
 		assertEquals(
-			"Variable defined to be 2 should be more than 1 be less than 3",
-			1.0, val.doubleValue(), 0.1);
+				1.0, val.doubleValue(), 0.1, "Variable defined to be 2 should be more than 1 be less than 3");
 
 		val = character.getVariableValue("var(\"UseAlternateDamage\")==1", "");
-		assertEquals("Variable defined to be 2 should not be equal to 1", 0.0,
-			val.doubleValue(), 0.1);
+		assertEquals(0.0,
+			val.doubleValue(), 0.1, "Variable defined to be 2 should not be equal to 1"
+		);
 
 		val = character.getVariableValue("var(\"UseAlternateDamage\")>=2", "");
-		assertEquals("Variable defined to be 2 should be >= 2", 1.0, val
-			.doubleValue(), 0.1);
+		assertEquals(1.0, val
+			.doubleValue(), 0.1, "Variable defined to be 2 should be >= 2");
 
 		val = character.getVariableValue("var(\"UseAlternateDamage\")<=2", "");
-		assertEquals("Variable defined to be 2 should be <= 2", 1.0, val
-			.doubleValue(), 0.1);
+		assertEquals(1.0, val
+			.doubleValue(), 0.1, "Variable defined to be 2 should be <= 2");
 
 		val = character.getVariableValue("var(\"UseAlternateDamage\")==2", "");
-		assertEquals("Variable defined to be 2 should be == 2", 1.0, val
-			.doubleValue(), 0.1);
+		assertEquals(1.0, val
+			.doubleValue(), 0.1, "Variable defined to be 2 should be == 2");
 
 		val =
 				character.getVariableValue(
 					"IF(var(\"UseAlternateDamage\")==2,-2,5)", "");
-		assertEquals("Test should have returned -2", -2, val.doubleValue(), 0.1);
+		assertEquals(-2, val.doubleValue(), 0.1, "Test should have returned -2");
 	}
 }

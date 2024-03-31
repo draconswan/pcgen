@@ -105,10 +105,6 @@ public class AbilityToken extends Token
 		return TOKENNAME;
 	}
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getToken(java.lang.String,
-	 *      pcgen.core.PlayerCharacter, pcgen.io.ExportHandler)
-	 */
 	@Override
 	public String getToken(String tokenSource, PlayerCharacter pc, ExportHandler eh)
 	{
@@ -119,7 +115,7 @@ public class AbilityToken extends Token
 		// Get the Ability Category from the Gamemode given the key
 		final String categoryString = aTok.nextToken();
 		final AbilityCategory aCategory = "ANY".equals(categoryString) ? AbilityCategory.ANY
-			: SettingsHandler.getGame().getAbilityCategory(categoryString);
+			: SettingsHandler.getGameAsProperty().get().getAbilityCategory(categoryString);
 
 		// Get the ABILITY token for the category
 		return getTokenForCategory(tokenSource, pc, eh, aTok, tokenString, aCategory);
@@ -197,18 +193,19 @@ public class AbilityToken extends Token
 			{
 				switch (bString)
 				{
-					case "VISIBLE":
+					case "VISIBLE" -> {
 						view = View.VISIBLE_EXPORT;
 						continue;
-					case "HIDDEN":
+					}
+					case "HIDDEN" -> {
 						view = View.HIDDEN_EXPORT;
 						continue;
-					case "ALL":
+					}
+					case "ALL" -> {
 						view = View.ALL;
 						continue;
-					default:
-						abilityType = bString;
-						break;
+					}
+					default -> abilityType = bString;
 				}
 			}
 		}
@@ -272,7 +269,7 @@ public class AbilityToken extends Token
 		}
 
 		// Ability List
-		MapToList<Ability, CNAbility> aList = null;
+		MapToList<Ability, CNAbility> aList;
 		// Build the list of abilities that we should display
 		if (key == null)
 		{
@@ -284,9 +281,8 @@ public class AbilityToken extends Token
 		}
 
 		// Build the return string to give to the OutputSheet
-		String retString = getRetString(tokenSource, pc, eh, abilityIndex, aList);
 
-		return retString;
+		return getRetString(tokenSource, pc, eh, abilityIndex, aList);
 	}
 
 	/**
@@ -310,9 +306,9 @@ public class AbilityToken extends Token
 		// Sort the ability list passed in
 		Globals.sortPObjectListByName(aList);
 
-		boolean matchTypeDef = false;
-		boolean matchVisibilityDef = false;
-		boolean matchAspectDef = false;
+		boolean matchTypeDef;
+		boolean matchVisibilityDef;
+		boolean matchAspectDef;
 
 		// List to build up
 		List<Ability> bList = new ArrayList<>();
@@ -359,8 +355,8 @@ public class AbilityToken extends Token
 		// Sort the ability list passed in
 		Globals.sortPObjectListByName(aList);
 
-		boolean matchKeyDef = false;
-		boolean matchVisibilityDef = false;
+		boolean matchKeyDef;
+		boolean matchVisibilityDef;
 
 		// List to build up
 		List<Ability> bList = new ArrayList<>();
@@ -592,14 +588,6 @@ public class AbilityToken extends Token
 		return retString;
 	}
 
-	/**
-	 * @return The nature of the abilities being listed.
-	 */
-	protected Nature getTargetNature()
-	{
-		return Nature.NORMAL;
-	}
-
 	private String getAssociationString(PlayerCharacter pc, List<CNAbility> abilities, String key)
 	{
 		int index = Integer.parseInt(key);
@@ -736,7 +724,7 @@ public class AbilityToken extends Token
 	protected MapToList<Ability, CNAbility> getAbilityList(PlayerCharacter pc, final AbilityCategory aCategory)
 	{
 		final MapToList<Ability, CNAbility> listOfAbilities = new HashMapToList<>();
-		Collection<AbilityCategory> allCats = SettingsHandler.getGame().getAllAbilityCategories();
+		Collection<AbilityCategory> allCats = SettingsHandler.getGameAsProperty().get().getAllAbilityCategories();
 		for (AbilityCategory aCat : allCats)
 		{
 			if (AbilityCategory.ANY.equals(aCategory) || aCat.getParentCategory().equals(aCategory))
@@ -748,14 +736,6 @@ public class AbilityToken extends Token
 			}
 		}
 		return listOfAbilities;
-	}
-
-	/**
-	 * @return the visibility
-	 */
-	protected View getView()
-	{
-		return view;
 	}
 
 	/**

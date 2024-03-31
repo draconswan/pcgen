@@ -15,7 +15,14 @@
  */
 package pcgen.cdom.util;
 
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
+
+import pcgen.base.lang.UnreachableError;
+import pcgen.base.util.CaseInsensitiveMap;
 
 /**
  * Code Controls
@@ -46,7 +53,7 @@ public final class CControl
 
 	public static final String EDR = "EDR";
 
-	public static final CControl FACE = new CControl("FACE", "Face");
+	public static final CControl FACE = new CControl("FACE", "Face", Optional.empty(), "ORDEREDPAIR");
 
 	public static final String EQRANGE = "EQRANGE";
 
@@ -75,8 +82,103 @@ public final class CControl
 	public static final String STATMODSAVE = "STATMODSAVE";
 	public static final String RACESAVE = "RACESAVE";
 
-	public static final CControl ALIGNMENTINPUT = new CControl("ALIGNMENTINPUT", "Alignment");
+	/**
+	 * Code Control for the Base Size (original size for the race) of a PC.
+	 */
+	public static final String BASESIZE = "BASESIZE";
 
+	/**
+	 * Code Control for the Current Size of a PC.
+	 */
+	public static final String PCSIZE = "PCSIZE";
+
+	/**
+	 * Code control to take # of weapon hands off of WieldCategory
+	 */
+	public static final String WEAPONHANDS = "WEAPONHANDS";
+	
+	/**
+	 * Code control to indicate the weight multiplier due to size difference from base
+	 * size on Equipment.
+	 */
+	public static final String WEIGHTMULTIPLIER = "WEIGHTMULTIPLIER";
+
+	/**
+	 * Code control to take WieldCategory (Steps, etc) away from the old calculation system
+	 */
+	public static final String WIELDCAT = "WIELDCAT";
+
+	/**
+	 * Code Control to indicate the cost modifier due to the size difference from base
+	 * size on Equipment
+	 */
+	public static final String COSTMULTIPLIER = "COSTMULTIPLIER";
+
+	/**
+	 * Code Control for the Age Input Channel.
+	 */
+	public static final CControl AGEINPUT = new CControl("AGEINPUT", "Age", Optional.empty(), "NUMBER", true, false);
+
+	/**
+	 * Code Control for the Alignment Input Channel.
+	 */
+	public static final CControl ALIGNMENTINPUT = new CControl("ALIGNMENTINPUT", "Alignment", Optional.of("ALIGNMENTFEATURE"), "ALIGNMENT", true, true);
+
+	/**
+	 * Enable/Disable the AlignmentFeature
+	 */
+	public static final String ALIGNMENTFEATURE = "ALIGNMENTFEATURE";
+
+	/**
+	 * Code Control for the Hair Style Input Channel.
+	 */
+	public static final CControl CHARACTERTYPE = new CControl("CHARACERTYPE", "CharacterType", Optional.empty(), "STRING", true, false);
+	
+	/**
+	 * Enable/Disable the DomainFeature
+	 */
+	public static final String DOMAINFEATURE = "DOMAINFEATURE";
+
+	/**
+	 * Code control for the Deity of a PC.
+	 */
+	public static final CControl DEITYINPUT = new CControl("DEITYINPUT", "Deity", Optional.of("DOMAINFEATURE"), "DEITY", true, true);
+
+	/**
+	 * Code Control for the Gold Input Channel.
+	 */
+	public static final CControl GOLDINPUT = new CControl("GOLDINPUT", "Gold", Optional.empty(), "NUMBER", true, false);
+	
+	/**
+	 * Code Control for the Hair Color Input Channel.
+	 */
+	public static final CControl HAIRCOLORINPUT = new CControl("HAIRCOLORINPUT", "HairColor", Optional.empty(), "STRING", true, false);
+
+	/**
+	 * Code Control for the Hair Style Input Channel.
+	 */
+	public static final CControl HAIRSTYLEINPUT = new CControl("HAIRSTYLEINPUT", "HairStyle", Optional.empty(), "STRING", true, false);
+	
+	/**
+	 * Code control for the Handedness of a PC.
+	 */
+	public static final CControl HANDEDINPUT = new CControl("HANDEDINPUT", "Handed", Optional.empty(), "HANDED", true, false);
+
+	/**
+	 * Code control for the Available Handedness on a PC.
+	 */
+	public static final CControl AVAILHANDEDNESS = new CControl("AVAILHANDEDNESS", "AvailableHandedness", Optional.empty(), "ARRAY[HANDED]", true, false);
+
+	/**
+	 * Code Control for the Height Input Channel.
+	 */
+	public static final CControl HEIGHTINPUT = new CControl("HEIGHTINPUT", "Height", Optional.empty(), "NUMBER", true, false);
+	
+	/**
+	 * Code Control for the Skin Color Input Channel.
+	 */
+	public static final CControl SKINCOLORINPUT = new CControl("SKINCOLORINPUT", "SkinColor", Optional.empty(), "STRING", true, false);
+	
 	/**
 	 * The name of a code control that contains a default value. This is used when a Code
 	 * Control is already used internally and is overridden by data (rather than just
@@ -90,12 +192,47 @@ public final class CControl
 	private final String defaultValue;
 
 	/**
-	 * Constructs a new CControl with the given name and default variable name
+	 * The controlling Feature for the CodeControl
 	 */
-	private CControl(String name, String defaultValue)
+	private final Optional<String> controllingFeature;
+
+	/**
+	 * The Format identifier for the internal variable.
+	 */
+	private final String format;
+
+	/**
+	 * Indicates if the item is a channel.
+	 */
+	private final boolean isChannel;
+
+	/**
+	 * Indicates if a Channel should be auto granted.
+	 */
+	private final boolean isAutoGranted;
+
+	/**
+	 * Constructs a new CControl with the given characteristics.
+	 */
+	private CControl(String name, String defaultValue,
+		Optional<String> controllingFeature, String format, boolean isChannel,
+		boolean isAutoGranted)
 	{
 		this.name = Objects.requireNonNull(name);
 		this.defaultValue = Objects.requireNonNull(defaultValue);
+		this.controllingFeature = Objects.requireNonNull(controllingFeature);
+		this.format = Objects.requireNonNull(format);
+		this.isChannel = isChannel;
+		this.isAutoGranted = isAutoGranted;
+	}
+
+	/**
+	 * Constructs a new CControl with the given name, default variable name, controlling
+	 * feature, and format.
+	 */
+	public CControl(String name, String defaultValue, Optional<String> controllingFeature, String format)
+	{
+		this(name, defaultValue, controllingFeature, format, false, false);
 	}
 
 	public String getName()
@@ -106,5 +243,66 @@ public final class CControl
 	public String getDefaultValue()
 	{
 		return defaultValue;
+	}
+
+	/**
+	 * Returns the Controlling Feature (if any) for this Code Control
+	 */
+	public Optional<String> getControllingFeature()
+	{
+		return controllingFeature;
+	}
+
+	public String getFormat()
+	{
+		return format;
+	}
+
+	public boolean isChannel()
+	{
+		return isChannel;
+	}
+
+	public boolean isAutoGranted()
+	{
+		return isAutoGranted;
+	}
+
+	private static CaseInsensitiveMap<CControl> map = null;
+
+	static
+	{
+		buildMap();
+	}
+
+	private static void buildMap()
+	{
+		map = new CaseInsensitiveMap<>();
+		Field[] fields = CControl.class.getDeclaredFields();
+        for (Field field : fields)
+        {
+            int mod = field.getModifiers();
+
+            if (java.lang.reflect.Modifier.isStatic(mod) && java.lang.reflect.Modifier.isFinal(mod)
+                    && java.lang.reflect.Modifier.isPublic(mod))
+            {
+                try
+                {
+                    Object obj = field.get(null);
+                    if (obj instanceof CControl)
+                    {
+                        map.put(field.getName(), (CControl) obj);
+                    }
+                } catch (IllegalArgumentException | IllegalAccessException e)
+                {
+                    throw new UnreachableError(e);
+                }
+            }
+        }
+	}
+
+	public static Collection<CControl> getChannelConstants()
+	{
+		return new HashSet<>(map.values());
 	}
 }

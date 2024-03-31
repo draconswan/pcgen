@@ -32,7 +32,6 @@ import pcgen.cdom.enumeration.RaceType;
 import pcgen.cdom.enumeration.Region;
 import pcgen.cdom.enumeration.SubClassCategory;
 import pcgen.cdom.enumeration.SubRace;
-import pcgen.cdom.enumeration.SubRegion;
 import pcgen.cdom.enumeration.Type;
 import pcgen.cdom.enumeration.VariableKey;
 import pcgen.core.Ability;
@@ -42,7 +41,7 @@ import pcgen.gui2.converter.event.TokenProcessorPlugin;
 import pcgen.system.PluginLoader;
 import pcgen.util.Logging;
 
-public class TokenConverter
+public final class TokenConverter
 {
 
 	private static final DoubleKeyMap<Class<?>, String, TokenProcessorPlugin> MAP = new DoubleKeyMap<>();
@@ -53,6 +52,10 @@ public class TokenConverter
 			new DoubleKeyMapToList<>();
 
 	private static final DefaultTokenProcessor DEFAULT_PROC = new DefaultTokenProcessor();
+
+	private TokenConverter()
+	{
+	}
 
 	public static void addToTokenMap(TokenProcessorPlugin tpp)
 	{
@@ -91,14 +94,14 @@ public class TokenConverter
 		ensureCategoryExists(tpe);
 
 		List<TokenProcessorPlugin> tokens = getTokens(cl, key);
-		String error = "";
+		StringBuilder error = new StringBuilder();
 		try
 		{
 			if (tokens != null)
 			{
 				for (TokenProcessorPlugin converter : tokens)
 				{
-					error += converter.process(tpe);
+					error.append(converter.process(tpe));
 					if (tpe.isConsumed())
 					{
 						break;
@@ -107,15 +110,14 @@ public class TokenConverter
 			}
 			if (!tpe.isConsumed())
 			{
-				error += DEFAULT_PROC.process(tpe);
+				error.append(DEFAULT_PROC.process(tpe));
 			}
 		}
 		catch (Exception ex)
 		{
-			Logging.errorPrint("Parse of " + tpe.getKey() + ':' + tpe.getValue() + " failed");
-			ex.printStackTrace();
+			Logging.errorPrint("Parse of " + tpe.getKey() + ':' + tpe.getValue() + " failed", ex);
 		}
-		return tpe.isConsumed() ? null : error;
+		return tpe.isConsumed() ? null : error.toString();
 	}
 
 	/**
@@ -225,9 +227,15 @@ public class TokenConverter
 		Region.clearConstants();
 		SubClassCategory.clearConstants();
 		SubRace.clearConstants();
-		SubRegion.clearConstants();
-		Type.clearConstants();
+		Type.buildMap();
 		VariableKey.clearConstants();
+	}
+
+	public static void clear()
+	{
+		MAP.clear();
+		TOKEN_CACHE.clear();
+		CACHED.clear();
 	}
 
 }

@@ -64,7 +64,7 @@ public class Description extends ConcretePrereqObject
 	public Description(final String aString)
 	{
 		int currentInd = 0;
-		int percentInd = -1;
+		int percentInd;
 		while ((percentInd = aString.indexOf('%', currentInd)) != -1)
 		{
 			final String preText = aString.substring(currentInd, percentInd);
@@ -206,9 +206,8 @@ public class Description extends ConcretePrereqObject
 					}
 					else if (var.equals(VAR_CHOICE))
 					{
-						if (b instanceof ChooseDriver)
+						if (b instanceof ChooseDriver object)
 						{
-							ChooseDriver object = (ChooseDriver) b;
 							if (aPC.hasAssociations(object))
 							{
 								//TODO This is ill defined
@@ -228,9 +227,8 @@ public class Description extends ConcretePrereqObject
 						List<String> assocList = new ArrayList<>();
 						for (Object obj : objList)
 						{
-							if (obj instanceof ChooseDriver)
+							if (obj instanceof ChooseDriver object)
 							{
-								ChooseDriver object = (ChooseDriver) obj;
 								if (aPC.hasAssociations(object))
 								{
 									assocList.addAll(aPC.getAssociationExportList(object));
@@ -254,7 +252,7 @@ public class Description extends ConcretePrereqObject
 							joinString = ", ";
 						}
 						Collections.sort(assocList);
-						buf.append(StringUtil.joinToStringBuilder(assocList, joinString));
+						buf.append(StringUtil.join(assocList, joinString));
 					}
 					else if (var.startsWith(VAR_FEATS))
 					{
@@ -321,7 +319,7 @@ public class Description extends ConcretePrereqObject
 			if (str.startsWith(VAR_MARKER))
 			{
 				final int ind = Integer.parseInt(str.substring(VAR_MARKER.length()));
-				buf.append('%' + String.valueOf(ind));
+				buf.append('%').append(String.valueOf(ind));
 			}
 			else if (str.equals("%"))
 			{
@@ -370,11 +368,10 @@ public class Description extends ConcretePrereqObject
 		{
 			return true;
 		}
-		if (!(o instanceof Description))
+		if (!(o instanceof Description other))
 		{
 			return false;
 		}
-		Description other = (Description) o;
 		if (theVariables == null)
 		{
 			if (other.theVariables != null)

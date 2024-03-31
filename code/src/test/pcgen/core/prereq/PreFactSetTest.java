@@ -1,5 +1,5 @@
 /*
- * Copyright James Dempsey, 2015
+* Copyright James Dempsey, 2015
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,28 +17,39 @@
  */
 package pcgen.core.prereq;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import pcgen.AbstractCharacterTestCase;
+import pcgen.cdom.util.CControl;
 import pcgen.core.Deity;
 import pcgen.core.Globals;
 import pcgen.core.PlayerCharacter;
+import pcgen.output.channel.ChannelUtilities;
 import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.lst.prereq.PreParserFactory;
 import pcgen.rules.context.LoadContext;
+
 import plugin.lsttokens.testsupport.BuildUtilities;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>PreFactSetTest</code> tests that the PREFACTSET tag is
+ * {@code PreFactSetTest} tests that the PREFACTSET tag is
  * working correctly.
  */
 public class PreFactSetTest extends AbstractCharacterTestCase
 {
 
+	@BeforeEach
 	@Override
-	protected void additionalSetUp() throws Exception
+	public void setUp() throws Exception
 	{
+		super.setUp();
 		LoadContext context = Globals.getContext();
 		BuildUtilities.createFactSet(context, "PANTHEON", Deity.class);
-		super.additionalSetUp();
+		finishLoad();
 	}
 
 	/**
@@ -46,6 +57,7 @@ public class PreFactSetTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testFact() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();
@@ -54,24 +66,31 @@ public class PreFactSetTest extends AbstractCharacterTestCase
 		BuildUtilities.addToFactSet(deity, "PANTHEON", "War");
 		deity.setName("Ares");
 
-		character.setDeity(deity);
+		ChannelUtilities.setControlledChannel(character.getCharID(),
+			CControl.DEITYINPUT, deity);
 
 		Prerequisite prereq;
 
 		final PreParserFactory factory = PreParserFactory.getInstance();
 		prereq = factory.parse("PREFACTSET:1,DEITY,PANTHEON=Roman");
 
-		assertFalse("Character's deity should not match requirement", PrereqHandler.passes(
-			prereq, character, null));
+		assertFalse(PrereqHandler.passes(
+			prereq, character, null), "Character's deity should not match requirement");
 
 		prereq = factory.parse("PREFACTSET:1,DEITY,PANTHEON=War");
 
-		assertTrue("Character's deity should match pantheon", PrereqHandler.passes(prereq,
-			character, null));
+		assertTrue(PrereqHandler.passes(prereq,
+			character, null), "Character's deity should match pantheon");
 
 		prereq = factory.parse("PREFACTSET:1,DEITY,PANTHEON=Greek");
 
-		assertTrue("Character's deity should match pantheon", PrereqHandler.passes(prereq,
-			character, null));
+		assertTrue(PrereqHandler.passes(prereq,
+			character, null), "Character's deity should match pantheon");
+	}
+
+	@Override
+	protected void defaultSetupEnd()
+	{
+		//Nothing, we will trigger ourselves
 	}
 }

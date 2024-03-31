@@ -20,7 +20,8 @@ package pcgen.gui2.tabs;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 import pcgen.system.LanguageBundle;
 import pcgen.util.enumeration.Tab;
@@ -33,15 +34,12 @@ import pcgen.util.enumeration.Tab;
 public class TabTitle
 {
 
-	public static final String FOREGROUND = "foreground"; //$NON-NLS-1$
-	public static final String BACKGROUND = "background"; //$NON-NLS-1$
-	public static final String ENABLED = "enabled"; //$NON-NLS-1$
 	public static final String TITLE = "title"; //$NON-NLS-1$
-	public static final String ICON = "icon"; //$NON-NLS-1$
-	public static final String TOOLTIP = "tooltip"; //$NON-NLS-1$
+	static final String ICON = "icon"; //$NON-NLS-1$
+	static final String TOOLTIP = "tooltip"; //$NON-NLS-1$
 	public static final String TAB = "tab"; //$NON-NLS-1$
 	private final PropertyChangeSupport support;
-	private final Hashtable<String, Object> table;
+	private final Map<String, Object> propertyTable;
 
 	/**
 	 * Create a new TabTitle instance for a specific tab.
@@ -80,7 +78,7 @@ public class TabTitle
 	public TabTitle()
 	{
 		support = new PropertyChangeSupport(this);
-		table = new Hashtable<>();
+		propertyTable = new HashMap<>();
 	}
 
 	public void addPropertyChangeListener(PropertyChangeListener l)
@@ -88,29 +86,14 @@ public class TabTitle
 		support.addPropertyChangeListener(l);
 	}
 
-	public void removePropertyChangeListener(PropertyChangeListener l)
-	{
-		support.removePropertyChangeListener(l);
-	}
-
 	public Object getValue(String prop)
 	{
-		return table.get(prop);
+		return propertyTable.get(prop);
 	}
 
 	public void putValue(String prop, Object value)
 	{
-		support.firePropertyChange(prop, table.put(prop, value), value);
-	}
-
-	public void setEnabled(boolean enable)
-	{
-		putValue(ENABLED, enable);
-	}
-
-	public boolean isEnabled()
-	{
-		return (Boolean) getValue(ENABLED);
+		support.firePropertyChange(prop, propertyTable.put(prop, value), value);
 	}
 
 	public Tab getTab()

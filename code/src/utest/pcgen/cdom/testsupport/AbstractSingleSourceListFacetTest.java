@@ -17,6 +17,14 @@
  */
 package pcgen.cdom.testsupport;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,55 +34,32 @@ import java.util.Set;
 import pcgen.cdom.enumeration.CharID;
 import pcgen.cdom.enumeration.DataSetID;
 import pcgen.cdom.facet.base.AbstractSingleSourceListFacet;
-import pcgen.cdom.facet.event.DataFacetChangeEvent;
-import pcgen.cdom.facet.event.DataFacetChangeListener;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import junit.framework.TestCase;
-import org.junit.Test;
-
-public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
-		TestCase
+public abstract class AbstractSingleSourceListFacetTest<CT, ST>
 {
 	private CharID id;
 	private CharID altid;
+	private TestFacetListener<CT> listener;
 
-	private Listener listener = new Listener();
-	ST oneSource = developSource();
-
-	private class Listener implements DataFacetChangeListener<CharID, CT>
+	@BeforeEach
+	void setUp()
 	{
-
-		public int addEventCount;
-		public int removeEventCount;
-
-        @Override
-		public void dataAdded(DataFacetChangeEvent<CharID, CT> dfce)
-		{
-			addEventCount++;
-		}
-
-        @Override
-		public void dataRemoved(DataFacetChangeEvent<CharID, CT> dfce)
-		{
-			removeEventCount++;
-		}
-
-	}
-
-	@Override
-	public void setUp() throws Exception
-	{
-		super.setUp();
 		DataSetID cid = DataSetID.getID();
 		id = CharID.getID(cid);
 		altid = CharID.getID(cid);
+		listener = new TestFacetListener<CT>();
 		getFacet().addDataFacetChangeListener(listener);
 	}
 
-	private void assertEventCount(int a, int r)
+	@AfterEach
+	public void tearDown()
 	{
-		assertEquals(a, listener.addEventCount);
-		assertEquals(r, listener.removeEventCount);
+		id = null;
+		altid = null;
+		listener = null;
 	}
 
 	@Test
@@ -92,8 +77,8 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 	@Test
 	public void testRemoveAllUnsetEmpty()
 	{
-		// Not particularly a test, just make sure it doesn't throw an exception
-		getFacet().removeAll(id, oneSource);
+		ST oneSource = developSource();
+		assertDoesNotThrow(() -> getFacet().removeAll(id, oneSource));
 	}
 
 	@Test
@@ -109,54 +94,31 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		ST source1 = developSource();
 		//Remove to try to avoid any event being formed
 		getFacet().removeDataFacetChangeListener(listener);
-		try
-		{
-			getFacet().add(null, getTypeObj(), source1);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// Yep!
-		}
+		assertThrows(NullPointerException.class,
+				() -> getFacet().add(null, getTypeObj(), source1));
 		testObjUnsetZeroCount();
 		testObjUnsetEmpty();
 		testObjUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
 	public void testObjAddNull()
 	{
 		ST source1 = developSource();
-		try
-		{
-			getFacet().add(id, null, source1);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// Yep!
-		}
+		assertThrows(NullPointerException.class, () -> getFacet().add(id, null, source1));
 		testObjUnsetZeroCount();
 		testObjUnsetEmpty();
 		testObjUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
 	public void testObjAddNullSource()
 	{
 		CT t1 = getTypeObj();
-		try
-		{
-			getFacet().add(id, t1, null);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// OK
-		}
-		assertEventCount(0, 0);
+		assertThrows(NullPointerException.class, () -> getFacet().add(id, t1, null));
+		listener.assertEventCount(0, 0);
 		assertEquals(0, getFacet().getCount(id));
 		assertTrue(getFacet().isEmpty(id));
 		assertNotNull(getFacet().getSet(id));
@@ -174,7 +136,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// No cross-pollution
 		assertEquals(0, getFacet().getCount(altid));
 		assertTrue(getFacet().isEmpty(altid));
@@ -193,7 +155,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, still only once in set (and only one event)
 		getFacet().add(id, t1, source1);
 		assertEquals(1, getFacet().getCount(id));
@@ -201,7 +163,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -216,7 +178,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, still only once in set (and only one event)
 		getFacet().add(id, t1, source2);
 		assertEquals(1, getFacet().getCount(id));
@@ -224,7 +186,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -239,7 +201,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(setofone);
 		assertEquals(1, setofone.size());
 		assertEquals(t1, setofone.iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		CT t2 = getTypeObj();
 		getFacet().add(id, t2, source1);
 		assertEquals(2, getFacet().getCount(id));
@@ -249,7 +211,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertEquals(2, setoftwo.size());
 		assertTrue(setoftwo.contains(t1));
 		assertTrue(setoftwo.contains(t2));
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 	}
 
 	@Test
@@ -268,16 +230,8 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 	public void testObjAddAllNull()
 	{
 		ST source1 = developSource();
-		try
-		{
-			getFacet().addAll(id, null, source1);
-			fail();
-		}
-		catch (NullPointerException e)
-		{
-			// Expected
-		}
-		assertEventCount(0, 0);
+		assertThrows(NullPointerException.class, () -> getFacet().addAll(id, null, source1));
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -288,7 +242,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		testObjUnsetZeroCount();
 		testObjUnsetEmpty();
 		testObjUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -308,7 +262,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertEquals(2, setoftwo.size());
 		assertTrue(setoftwo.contains(t1));
 		assertTrue(setoftwo.contains(t2));
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 		// Prove independence
 		pct.remove(t2);
 		assertEquals(2, getFacet().getCount(id));
@@ -337,7 +291,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertEquals(2, setoftwo.size());
 		assertTrue(setoftwo.contains(t1));
 		assertTrue(setoftwo.contains(t2));
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 		CT t3 = getTypeObj();
 		ST source2 = developSource();
 		List<CT> pct2 = new ArrayList<>();
@@ -352,7 +306,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertTrue(setofthree.contains(t1));
 		assertTrue(setofthree.contains(t2));
 		assertTrue(setofthree.contains(t3));
-		assertEventCount(3, 0);
+		listener.assertEventCount(3, 0);
 	}
 
 	@Test
@@ -370,7 +324,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(setofone);
 		assertEquals(1, setofone.size());
 		assertTrue(setofone.contains(t1));
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -383,15 +337,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		pct.add(t1);
 		pct.add(null);
 		pct.add(t2);
-		try
-		{
-			getFacet().addAll(id, pct, source1);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// Yep!
-		}
+		assertThrows(NullPointerException.class, () -> getFacet().addAll(id, pct, source1));
 		/*
 		 * TODO This should be zero, one or two???
 		 */
@@ -401,7 +347,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(setoftwo);
 		assertEquals(1, setoftwo.size());
 		assertTrue(setoftwo.contains(t1));
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -412,7 +358,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		testObjUnsetZeroCount();
 		testObjUnsetEmpty();
 		testObjUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -426,7 +372,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		ST source2 = developSource();
 		getFacet().remove(id, t1, source2);
 		// No change (wrong source)
@@ -435,7 +381,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -449,14 +395,14 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Remove
 		getFacet().remove(id, t1, source1);
 		assertEquals(0, getFacet().getCount(id));
 		assertTrue(getFacet().isEmpty(id));
 		assertNotNull(getFacet().getSet(id));
 		assertTrue(getFacet().getSet(id).isEmpty());
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 	}
 
 	@Test
@@ -470,7 +416,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Useless Remove
 		getFacet().remove(id, getTypeObj(), source1);
 		assertEquals(1, getFacet().getCount(id));
@@ -478,7 +424,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -492,7 +438,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, still only once in set (but twice on that source)
 		getFacet().add(id, t1, source1);
 		assertEquals(1, getFacet().getCount(id));
@@ -500,19 +446,19 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Only one Remove required to clear (source Set not source List)
 		getFacet().remove(id, t1, source1);
 		testObjUnsetZeroCount();
 		testObjUnsetEmpty();
 		testObjUnsetEmptySet();
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 		// Second remove useless
 		getFacet().remove(id, t1, source1);
 		testObjUnsetZeroCount();
 		testObjUnsetEmpty();
 		testObjUnsetEmptySet();
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 	}
 
 	@Test
@@ -530,7 +476,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(setofone);
 		assertEquals(1, setofone.size());
 		assertTrue(setofone.contains(t2));
-		assertEventCount(2, 1);
+		listener.assertEventCount(2, 1);
 	}
 
 	@Test
@@ -539,15 +485,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		CT t1 = getTypeObj();
 		ST source1 = developSource();
 		getFacet().add(id, t1, source1);
-		try
-		{
-			getFacet().removeAll(id, null, source1);
-			fail();
-		}
-		catch (NullPointerException e)
-		{
-			// Expected
-		}
+		assertThrows(NullPointerException.class, () -> getFacet().removeAll(id, null, source1));
 	}
 
 	@Test
@@ -558,7 +496,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		testObjUnsetZeroCount();
 		testObjUnsetEmpty();
 		testObjUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -576,9 +514,9 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		getFacet().add(id, t3, source2);
 		pct.add(t1);
 		pct.add(t3);
-		assertEventCount(3, 0);
+		listener.assertEventCount(3, 0);
 		getFacet().removeAll(id, pct, source1);
-		assertEventCount(3, 1);
+		listener.assertEventCount(3, 1);
 		assertEquals(2, getFacet().getCount(id));
 		assertFalse(getFacet().isEmpty(id));
 		Set<CT> setoftwo = getFacet().getSet(id);
@@ -588,11 +526,11 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertTrue(setoftwo.contains(t3));
 		// Prove independence
 		pct.remove(t1);
-		setoftwo = getFacet().getSet(id);
-		assertNotNull(setoftwo);
-		assertEquals(2, setoftwo.size());
-		assertTrue(setoftwo.contains(t2));
-		assertTrue(setoftwo.contains(t3));
+		Set<CT> set = getFacet().getSet(id);
+		assertNotNull(set);
+		assertEquals(2, set.size());
+		assertTrue(set.contains(t2));
+		assertTrue(set.contains(t3));
 	}
 
 	@Test
@@ -607,11 +545,11 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		getFacet().add(id, t2, source1);
 		getFacet().add(id, t3, source1);
 		getFacet().add(id, t3, source2);
-		assertEventCount(3, 0);
+		listener.assertEventCount(3, 0);
 		getFacet().removeAll(id, developSource());
-		assertEventCount(3, 0);
+		listener.assertEventCount(3, 0);
 		getFacet().removeAll(id, source1);
-		assertEventCount(3, 2);
+		listener.assertEventCount(3, 2);
 		Set<CT> setofone = getFacet().getSet(id);
 		assertNotNull(setofone);
 		assertEquals(1, setofone.size());
@@ -631,9 +569,9 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		getFacet().add(id, t2, source1);
 		pct.add(t1);
 		pct.add(t1);
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 		getFacet().removeAll(id, pct, source1);
-		assertEventCount(2, 1);
+		listener.assertEventCount(2, 1);
 		assertEquals(1, getFacet().getCount(id));
 		assertFalse(getFacet().isEmpty(id));
 		Set<CT> setofone = getFacet().getSet(id);
@@ -653,9 +591,9 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		getFacet().add(id, t2, source1);
 		pct.add(t1);
 		pct.add(null);
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 		getFacet().removeAll(id, pct, source1);
-		assertEventCount(2, 1);
+		listener.assertEventCount(2, 1);
 		assertEquals(1, getFacet().getCount(id));
 		assertFalse(getFacet().isEmpty(id));
 		Set<CT> setofone = getFacet().getSet(id);
@@ -677,9 +615,9 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		getFacet().add(id, t1, source1);
 		getFacet().add(id, t1, source2);
 		getFacet().add(id, t2, source3);
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 		Map<CT, ST> map = getFacet().removeAll(id);
-		assertEventCount(2, 2);
+		listener.assertEventCount(2, 2);
 		assertNotNull(map);
 		assertEquals(2, map.size());
 		assertTrue(map.containsKey(t1));
@@ -878,7 +816,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertEquals(2, setoftwo.size());
 		assertTrue(setoftwo.contains(t1));
 		assertTrue(setoftwo.contains(t2));
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 		CT t3 = getTypeObj();
 		ST source2 = developSource();
 		List<CT> pct2 = new ArrayList<>();
@@ -896,7 +834,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertEquals(2, setoftwo.size());
 		assertTrue(setoftwo.contains(t1));
 		assertTrue(setoftwo.contains(t3));
-		assertEventCount(3, 0);
+		listener.assertEventCount(3, 0);
 		getFacet().remove(id, t3, source2);
 		List<? extends CT> setofone = getFacet().getSet(id, source2);
 		assertNotNull(setofone);
@@ -919,7 +857,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, still only once in set (but twice on that source)
 		getFacet().add(id, t1, source1);
 		assertEquals(1, getFacet().getCount(id));
@@ -927,19 +865,19 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Only one Remove required to clear (source Set not source List)
 		getFacet().remove(id, t1);
 		testObjUnsetZeroCount();
 		testObjUnsetEmpty();
 		testObjUnsetEmptySet();
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 		// Second remove useless
 		getFacet().remove(id, t1);
 		testObjUnsetZeroCount();
 		testObjUnsetEmpty();
 		testObjUnsetEmptySet();
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 	}
 
 	@Test
@@ -954,7 +892,7 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, still only once in set (but twice on that source)
 		getFacet().add(id, t1, source2);
 		assertEquals(1, getFacet().getCount(id));
@@ -962,19 +900,19 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Only one Remove required to clear (source Set not source List)
 		getFacet().remove(id, t1);
 		testObjUnsetZeroCount();
 		testObjUnsetEmpty();
 		testObjUnsetEmptySet();
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 		// Second remove useless
 		getFacet().remove(id, t1);
 		testObjUnsetZeroCount();
 		testObjUnsetEmpty();
 		testObjUnsetEmptySet();
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 	}
 
 	@Test
@@ -986,24 +924,24 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 		ST source2 = developSource();
 		getFacet().add(id, t1, source1);
 		assertEquals(source1, getFacet().getSource(id, t1));
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, still only once in set (but twice on that source)
 		getFacet().add(id, t1, source2);
 		assertEquals(source2, getFacet().getSource(id, t1));
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Only one Remove required to clear (source Set not source List)
 		getFacet().remove(id, t1);
 		testObjUnsetZeroCount();
 		testObjUnsetEmpty();
 		testObjUnsetEmptySet();
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 		assertNull(getFacet().getSource(id, t1));
 		// Second remove useless
 		getFacet().remove(id, t1);
 		testObjUnsetZeroCount();
 		testObjUnsetEmpty();
 		testObjUnsetEmptySet();
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 		assertNull(getFacet().getSource(id, t1));
 	}
 
@@ -1012,5 +950,4 @@ public abstract class AbstractSingleSourceListFacetTest<CT, ST> extends
 	protected abstract AbstractSingleSourceListFacet<CT, ST> getFacet();
 
 	protected abstract ST developSource();
-
 }

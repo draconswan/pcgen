@@ -17,8 +17,10 @@
  */
 package actor.add;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import pcgen.cdom.base.UserSelection;
 import pcgen.cdom.content.CNAbilityFactory;
@@ -31,7 +33,6 @@ import pcgen.core.Globals;
 import pcgen.core.Language;
 import pcgen.core.PlayerCharacter;
 import pcgen.core.SettingsHandler;
-import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.lst.LstToken;
 import pcgen.rules.context.LoadContext;
 import pcgen.testsupport.AbstractCharacterUsingTestCase;
@@ -39,6 +40,10 @@ import plugin.lsttokens.AddLst;
 import plugin.lsttokens.add.AbilityToken;
 import plugin.lsttokens.testsupport.BuildUtilities;
 import plugin.lsttokens.testsupport.TokenRegistration;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AbilityTokenTest extends AbstractCharacterUsingTestCase
 {
@@ -51,19 +56,27 @@ public class AbilityTokenTest extends AbstractCharacterUsingTestCase
 	protected LoadContext context;
 
 	@Override
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception
 	{
 		super.setUp();
-		SettingsHandler.getGame().clearLoadContext();
+		SettingsHandler.getGameAsProperty().get().clearLoadContext();
 		context = Globals.getContext();
 		context.getReferenceContext().importObject(BuildUtilities.getFeatCat());
+	}
+
+	@AfterEach
+	@Override
+	public void tearDown() throws Exception
+	{
+		context = null;
+		super.tearDown();
 	}
 
 	@Test
 	public void testEncodeChoice()
 	{
-		Ability item = construct("ItemName");
+		Ability item = BuildUtilities.buildFeat(context, "ItemName");
 		CNAbilitySelection as = new CNAbilitySelection(CNAbilityFactory
 			.getCNAbility(BuildUtilities.getFeatCat(), Nature.NORMAL, item));
 		assertEquals("CATEGORY=FEAT|NATURE=NORMAL|ItemName", PCA
@@ -73,16 +86,9 @@ public class AbilityTokenTest extends AbstractCharacterUsingTestCase
 	@Test
 	public void testDecodeChoice()
 	{
-		try
-		{
-			PCA.decodeChoice(context, "CATEGORY=FEAT|NATURE=NORMAL|ItemName");
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// OK
-		}
-		Ability item = construct("ItemName");
+		assertThrows(IllegalArgumentException.class, () -> PCA
+			.decodeChoice(context, "CATEGORY=FEAT|NATURE=NORMAL|ItemName"));
+		Ability item = BuildUtilities.buildFeat(context, "ItemName");
 		CNAbilitySelection as = new CNAbilitySelection(CNAbilityFactory
 			.getCNAbility(BuildUtilities.getFeatCat(), Nature.NORMAL, item));
 		assertEquals(as, PCA
@@ -99,8 +105,8 @@ public class AbilityTokenTest extends AbstractCharacterUsingTestCase
 		context.getReferenceContext().importObject(BuildUtilities.getFeatCat());
 		TokenRegistration.register(ADD_TOKEN);
 		TokenRegistration.register(ADD_ABILITY_TOKEN);
-		Ability item = construct("ChooseAbility");
-		Ability parent = construct("Parent");
+		Ability item = BuildUtilities.buildFeat(context, "ChooseAbility");
+		Ability parent = BuildUtilities.buildFeat(context, "Parent");
 		context.getReferenceContext().constructCDOMObject(Language.class, "Foo");
 		context.getReferenceContext().constructCDOMObject(Language.class, "Bar");
 		context.getReferenceContext().constructCDOMObject(Language.class, "Goo");
@@ -114,19 +120,11 @@ public class AbilityTokenTest extends AbstractCharacterUsingTestCase
 		Ability badCA = oc.newInstance();
 		badCA.setName("ChooseAbility");
 		context.getReferenceContext().importObject(badCA);
-		try
-		{
-			assertTrue(context.processToken(item, "CHOOSE", "LANG|Foo|Bar|Goo|Wow|Rev"));
-			assertTrue(context.processToken(item, "MULT", "Yes"));
-			assertTrue(context.processToken(badCA, "CHOOSE", "LANG|Foo|Bar|Goo|Wow|Rev"));
-			assertTrue(context.processToken(badCA, "MULT", "Yes"));
-			assertTrue(context.processToken(parent, "ADD", "ABILITY|FEAT|NORMAL|ChooseAbility"));
-		}
-		catch (PersistenceLayerException e)
-		{
-			e.printStackTrace();
-			fail();
-		}
+		assertTrue(context.processToken(item, "CHOOSE", "LANG|Foo|Bar|Goo|Wow|Rev"));
+		assertTrue(context.processToken(item, "MULT", "Yes"));
+		assertTrue(context.processToken(badCA, "CHOOSE", "LANG|Foo|Bar|Goo|Wow|Rev"));
+		assertTrue(context.processToken(badCA, "MULT", "Yes"));
+		assertTrue(context.processToken(parent, "ADD", "ABILITY|FEAT|NORMAL|ChooseAbility"));
 		finishLoad(context);
 		PlayerCharacter pc = new PlayerCharacter();
 		Object source = UserSelection.getInstance();
@@ -190,13 +188,5 @@ public class AbilityTokenTest extends AbstractCharacterUsingTestCase
 		assertFalse(PCA.allow(gooCAS, pc, false));
 		assertFalse(PCA.allow(wowCAS, pc, false));
 		assertFalse(PCA.allow(revFFCAS, pc, false));
-	}
-
-	protected Ability construct(String one)
-	{
-		Ability a = BuildUtilities.getFeatCat().newInstance();
-		a.setName(one);
-		context.getReferenceContext().importObject(a);
-		return a;
 	}
 }

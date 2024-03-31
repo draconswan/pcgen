@@ -20,18 +20,19 @@ package actor.choose;
 import pcgen.cdom.base.Chooser;
 import pcgen.core.Race;
 import plugin.lsttokens.choose.RaceToken;
+
 import actor.testsupport.AbstractPersistentCDOMChoiceActorTestCase;
 
 public class RaceTokenTest extends
 		AbstractPersistentCDOMChoiceActorTestCase<Race>
 {
 
-	static RaceToken pca = new RaceToken();
+	private static final RaceToken PCA = new RaceToken();
 
 	@Override
 	public Chooser<Race> getActor()
 	{
-		return pca;
+		return PCA;
 	}
 
 	@Override

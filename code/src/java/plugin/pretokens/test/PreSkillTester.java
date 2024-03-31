@@ -23,6 +23,7 @@
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import pcgen.cdom.base.CDOMObject;
@@ -42,6 +43,7 @@ import pcgen.system.LanguageBundle;
 public class PreSkillTester extends AbstractPrerequisiteTest implements PrerequisiteTest
 {
 
+	@SuppressWarnings("unused")
 	@Override
 	public int passes(final Prerequisite prereq, final PlayerCharacter character, CDOMObject source)
 	{
@@ -77,14 +79,14 @@ public class PreSkillTester extends AbstractPrerequisiteTest implements Prerequi
 				if (percentageSignPosition >= 0)
 				{
 					foundMatch = matchesTypeWildCard(skillKey, percentageSignPosition, foundSkill, aSkill);
-					foundSkill = (foundMatch) ? true : false;
+					foundSkill = foundMatch;
 					runningTotal = getRunningTotal(aSkill, character, prereq, foundMatch, runningTotal, requiredRanks);
 				}
 				else if (aSkill.isType(skillKey))
 				{
 					foundMatch = true;
 					foundSkill = true;
-					runningTotal = getRunningTotal(aSkill, character, prereq, foundMatch, runningTotal, requiredRanks);
+					runningTotal = getRunningTotal(aSkill, character, prereq, true, runningTotal, requiredRanks);
 				}
 				// If there wasn't a match, then check other skills of the type
 				if (runningTotal == 0)
@@ -97,7 +99,7 @@ public class PreSkillTester extends AbstractPrerequisiteTest implements Prerequi
 			{
 				foundMatch = true;
 				foundSkill = true;
-				runningTotal = getRunningTotal(aSkill, character, prereq, foundMatch, runningTotal, requiredRanks);
+				runningTotal = getRunningTotal(aSkill, character, prereq, true, runningTotal, requiredRanks);
 			}
 
 			if (prereq.isCountMultiples() || prereq.isTotalValues())
@@ -112,9 +114,10 @@ public class PreSkillTester extends AbstractPrerequisiteTest implements Prerequi
 		}
 		if (!isType && !foundSkill)
 		{
-			for (Skill mock : serveAsSkills.keySet())
+			for (final Map.Entry<Skill, Set<Skill>> entry : serveAsSkills.entrySet())
 			{
-				Set<Skill> targets = serveAsSkills.get(mock);
+				Skill mock = entry.getKey();
+				Set<Skill> targets = entry.getValue();
 				for (Skill target : targets)
 				{
 					if (foundSkill)
@@ -125,18 +128,16 @@ public class PreSkillTester extends AbstractPrerequisiteTest implements Prerequi
 					if (target.getDisplayName().equalsIgnoreCase(skillKey))
 					{
 						foundSkill = true;
-						foundMatch = true;
 						int theTotal =
-								getRunningTotal(mock, character, prereq, foundMatch, runningTotal, requiredRanks);
+								getRunningTotal(mock, character, prereq, true, runningTotal, requiredRanks);
 						runningTotal += theTotal;
 					}
 					else if (aSkillKey.equals(skillKey) || ((percentageSignPosition >= 0)
 						&& aSkillKey.startsWith(skillKey.substring(0, percentageSignPosition))))
 					{
 						foundSkill = true;
-						foundMatch = true;
 						int theTotal =
-								getRunningTotal(mock, character, prereq, foundMatch, runningTotal, requiredRanks);
+								getRunningTotal(mock, character, prereq, true, runningTotal, requiredRanks);
 						runningTotal += theTotal;
 					}
 				}
@@ -144,9 +145,10 @@ public class PreSkillTester extends AbstractPrerequisiteTest implements Prerequi
 		}
 		else if (isType && !foundSkill)
 		{
-			for (Skill mock : serveAsSkills.keySet())
+			for (final Map.Entry<Skill, Set<Skill>> entry : serveAsSkills.entrySet())
 			{
-				Set<Skill> targets = serveAsSkills.get(mock);
+				Skill mock = entry.getKey();
+				Set<Skill> targets = entry.getValue();
 				for (Skill target : targets)
 				{
 					if (foundSkill)
@@ -156,9 +158,8 @@ public class PreSkillTester extends AbstractPrerequisiteTest implements Prerequi
 					if (target.isType(skillKey))
 					{
 						foundSkill = true;
-						foundMatch = true;
 						int theTotal =
-								getRunningTotal(mock, character, prereq, foundMatch, runningTotal, requiredRanks);
+								getRunningTotal(mock, character, prereq, true, runningTotal, requiredRanks);
 						runningTotal += theTotal;
 					}
 					else if ((percentageSignPosition >= 0))
@@ -166,8 +167,8 @@ public class PreSkillTester extends AbstractPrerequisiteTest implements Prerequi
 						List<Type> mockTypes = target.getTrueTypeList(true);
 						for (Type mockType : mockTypes)
 						{
-							foundMatch = matchesTypeWildCard(skillKey, percentageSignPosition, foundSkill, target);
-							foundSkill = (foundMatch) ? true : false;
+							foundMatch = matchesTypeWildCard(skillKey, percentageSignPosition, false, target);
+							foundSkill = foundMatch;
 							runningTotal =
 									getRunningTotal(mock, character, prereq, foundMatch, runningTotal, requiredRanks);
 							if (foundSkill)
@@ -231,9 +232,8 @@ public class PreSkillTester extends AbstractPrerequisiteTest implements Prerequi
 
 		}
 
-		final String foo = LanguageBundle.getFormattedString("PreSkill.toHtml", //$NON-NLS-1$
+		return LanguageBundle.getFormattedString("PreSkill.toHtml", //$NON-NLS-1$
 			prereq.getOperator().toDisplayString(), prereq.getOperand(), skillName);
-		return foo;
 	}
 
 	/**

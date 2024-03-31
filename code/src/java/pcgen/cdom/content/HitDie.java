@@ -83,7 +83,7 @@ public class HitDie extends ConcretePrereqObject implements Comparable<HitDie>
 	 */
 	public HitDie getNext()
 	{
-		int[] dieSizes = SettingsHandler.getGame().getDieSizes();
+		int[] dieSizes = SettingsHandler.getGameAsProperty().get().getDieSizes();
 		int length = dieSizes.length;
 		for (int i = 0; i < length; ++i)
 		{
@@ -121,7 +121,7 @@ public class HitDie extends ConcretePrereqObject implements Comparable<HitDie>
 	 */
 	public HitDie getPrevious()
 	{
-		int[] dieSizes = SettingsHandler.getGame().getDieSizes();
+		int[] dieSizes = SettingsHandler.getGameAsProperty().get().getDieSizes();
 		int length = dieSizes.length;
 		for (int i = 0; i < length; ++i)
 		{
@@ -144,23 +144,12 @@ public class HitDie extends ConcretePrereqObject implements Comparable<HitDie>
 		return this;
 	}
 
-	/**
-	 * Returns the consistent-with-equals hashCode for this HitDie
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode()
 	{
 		return die;
 	}
 
-	/**
-	 * Returns true if this HitDie is equal to the given Object. Equality is
-	 * defined as being another HitDie object with equal die size.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj)
 	{

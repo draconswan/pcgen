@@ -18,18 +18,20 @@
  */
 package pcgen.gui2.tabs.summary;
 
-import javax.swing.JEditorPane;
-
+import pcgen.cdom.util.CControl;
+import pcgen.core.GameMode;
+import pcgen.core.PCStat;
 import pcgen.facade.core.CharacterFacade;
 import pcgen.facade.core.CharacterLevelFacade;
-import pcgen.facade.core.GameModeFacade;
-import pcgen.facade.core.StatFacade;
 import pcgen.facade.util.event.ListEvent;
 import pcgen.facade.util.event.ListListener;
 import pcgen.facade.util.event.ReferenceEvent;
 import pcgen.facade.util.event.ReferenceListener;
 import pcgen.gui2.tabs.models.HtmlSheetSupport;
+import pcgen.gui3.JFXPanelFromResource;
+import pcgen.gui3.SimpleHtmlPanelController;
 import pcgen.system.LanguageBundle;
+import pcgen.util.Logging;
 
 /**
  * Manages the information pane of the summary tab. This is an output sheet 
@@ -41,38 +43,22 @@ import pcgen.system.LanguageBundle;
 public class InfoPaneHandler implements ReferenceListener<Object>, ListListener<CharacterLevelFacade>
 {
 
-	private HtmlSheetSupport support;
-	private CharacterFacade character;
+	private final HtmlSheetSupport support;
+	private final CharacterFacade character;
 
 	/**
 	 * Create a new info pane handler instance for a character.
 	 * @param character The character the pane is to display information for.
 	 * @param htmlPane the pane that displays the information
 	 */
-	public InfoPaneHandler(CharacterFacade character, JEditorPane htmlPane)
+	public InfoPaneHandler(CharacterFacade character, JFXPanelFromResource<SimpleHtmlPanelController> htmlPane)
 	{
 		this.character = character;
-		GameModeFacade game = character.getDataSet().getGameMode();
+		GameMode game = character.getDataSet().getGameMode();
 		support = new HtmlSheetSupport(character, htmlPane, game.getInfoSheet());
 		support.setMissingSheetMsg(LanguageBundle.getFormattedString("in_sumNoInfoSheet", //$NON-NLS-1$
 			character.getDataSet().getGameMode().getName()));
 		registerListeners();
-	}
-
-	/**
-	 * Initialise our display component. Any expected UI behaviour/
-	 * configuration is enforced here. Note that this is a utility function for
-	 * use by SummaryInfoTab. While there is a handler for each character 
-	 * displayed, there is only a single instance of each display component. 
-	 * 
-	 * @param htmlPane The editor panel that will display the sheet.
-	 */
-	public static void initializeEditorPane(JEditorPane htmlPane)
-	{
-		htmlPane.setOpaque(false);
-		htmlPane.setEditable(false);
-		htmlPane.setFocusable(false);
-		htmlPane.setContentType("text/html"); //$NON-NLS-1$
 	}
 
 	/**
@@ -90,21 +76,69 @@ public class InfoPaneHandler implements ReferenceListener<Object>, ListListener<
 	 */
 	private void registerListeners()
 	{
+		if (character.getRaceRef()==null) 
+		{
+			Logging.debugPrint("ERROR:getRaceRef is null");
+		} 
+		else
+		{
 		character.getRaceRef().addReferenceListener(this);
-		character.getGenderRef().addReferenceListener(this);
-		if (!character.getDataSet().getAlignments().isEmpty())
-		{
-			character.getAlignmentRef().addReferenceListener(this);
 		}
-		for (StatFacade stat : character.getDataSet().getStats())
+		if (character.getGenderRef()==null) 
 		{
-			character.getScoreBaseRef(stat).addReferenceListener(this);
+			Logging.debugPrint("ERROR:getGenderRef is null");
+		} 
+		else
+		{
+			character.getGenderRef().addReferenceListener(this);
 		}
-		character.getCharacterLevelsFacade().addListListener(this);
-		character.getHandedRef().addReferenceListener(this);
-		character.getAgeRef().addReferenceListener(this);
+		if (character.getDataSet()==null || character.getDataSet().getAlignments()==null) 
+		{
+			Logging.debugPrint("ERROR:getDataSet or getDataSet.getAlignments is null");
+		} 
+		else
+		{
+			if (character.isFeatureEnabled(CControl.ALIGNMENTFEATURE))
+			{
+				character.getAlignmentRef().addReferenceListener(this);
+			}
+		}
+		for (PCStat stat : character.getDataSet().getStats())
+		{
+			if (character.getScoreBaseRef(stat)==null) 
+			{
+				Logging.debugPrint("getScoreBaseRef is null");
+			} 
+			else
+			{
+				character.getScoreBaseRef(stat).addReferenceListener(this);
+			}
+		}
+		if (character.getCharacterLevelsFacade()==null)
+		{
+			Logging.debugPrint("getCharacterLevelsFacade is null");
+		} 
+		else
+		{
+			character.getCharacterLevelsFacade().addListListener(this);
+		}
+		if (character.getHandedRef()==null)
+		{
+			Logging.debugPrint("getHandedRef is null");
+		} 
+		else
+		{
+			character.getHandedRef().addReferenceListener(this);
+		}
+		if (character.getAgeRef()==null)
+		{
+			Logging.debugPrint("getAgeRef is null");
+		} 
+		else
+		{
+			character.getAgeRef().addReferenceListener(this);
+		}
 	}
-
 	/**
 	 * Start an update of the contents of the info pane for this character. The
 	 * update will happen in a new thread and will not be started if one is 
@@ -123,45 +157,30 @@ public class InfoPaneHandler implements ReferenceListener<Object>, ListListener<
 		support.uninstall();
 	}
 
-	/**
-	 * @see pcgen.facade.util.event.ReferenceListener#referenceChanged(ReferenceEvent)
-	 */
 	@Override
 	public void referenceChanged(ReferenceEvent<Object> e)
 	{
 		scheduleRefresh();
 	}
 
-	/**
-	 * @see pcgen.facade.util.event.ListListener#elementAdded(ListEvent)
-	 */
 	@Override
 	public void elementAdded(ListEvent<CharacterLevelFacade> e)
 	{
 		scheduleRefresh();
 	}
 
-	/**
-	 * @see pcgen.facade.util.event.ListListener#elementRemoved(ListEvent)
-	 */
 	@Override
 	public void elementRemoved(ListEvent<CharacterLevelFacade> e)
 	{
 		scheduleRefresh();
 	}
 
-	/**
-	 * @see pcgen.facade.util.event.ListListener#elementModified(ListEvent)
-	 */
 	@Override
 	public void elementModified(ListEvent<CharacterLevelFacade> e)
 	{
 		scheduleRefresh();
 	}
 
-	/**
-	 * @see pcgen.facade.util.event.ListListener#elementsChanged(ListEvent)
-	 */
 	@Override
 	public void elementsChanged(ListEvent<CharacterLevelFacade> e)
 	{

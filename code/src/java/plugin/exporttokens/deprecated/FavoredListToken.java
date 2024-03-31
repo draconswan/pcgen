@@ -29,18 +29,12 @@ import pcgen.io.exporttoken.AbstractExportToken;
  */
 public class FavoredListToken extends AbstractExportToken
 {
-	/**
-	 * @see pcgen.io.exporttoken.Token#getTokenName()
-	 */
 	@Override
 	public String getTokenName()
 	{
 		return "FAVOREDLIST";
 	}
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getToken(java.lang.String, pcgen.core.PlayerCharacter, pcgen.io.ExportHandler)
-	 */
 	@Override
 	public String getToken(String tokenSource, CharacterDisplay display, ExportHandler eh)
 	{
@@ -59,14 +53,9 @@ public class FavoredListToken extends AbstractExportToken
 			return "Any";
 		}
 		StringBuilder sb = new StringBuilder();
-		boolean first = true;
 		for (PCClass pcc : display.getFavoredClasses())
 		{
-			if (!first)
-			{
-				sb.append(", ");
-			}
-			sb.append(pcc.getFullKey());
+            sb.append(pcc.getFullKey());
 		}
 		return sb.toString();
 	}

@@ -24,13 +24,14 @@ import java.awt.Component;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import pcgen.facade.core.ClassFacade;
+import pcgen.core.PCClass;
 import pcgen.facade.core.InfoFacade;
 import pcgen.facade.core.SpellFacade;
 import pcgen.facade.core.SpellSupportFacade.SpellNode;
 import pcgen.gui2.UIPropertyContext;
 import pcgen.gui2.tabs.models.CharacterTreeCellRenderer;
 import pcgen.gui2.util.FontManipulation;
+import pcgen.gui3.utilty.ColorUtilty;
 import pcgen.system.LanguageBundle;
 
 /**
@@ -56,14 +57,13 @@ public class QualifiedSpellTreeCellRenderer extends CharacterTreeCellRenderer
 			obj = LanguageBundle.getString("in_none"); //$NON-NLS-1$
 		}
 		super.getTreeCellRendererComponent(tree, obj, sel, expanded, leaf, row, focus);
-		if (obj instanceof SpellNode)
+		if (obj instanceof SpellNode spellNode)
 		{
-			SpellNode spellNode = (SpellNode) obj;
 			SpellFacade spell = spellNode.getSpell();
-			ClassFacade pcClass = spellNode.getSpellcastingClass();
+			PCClass pcClass = spellNode.getSpellcastingClass();
 			if (!character.isQualifiedFor(spell, pcClass))
 			{
-				setForeground(UIPropertyContext.getNotQualifiedColor());
+				setForeground(ColorUtilty.colorToAWTColor(UIPropertyContext.getNotQualifiedColor()));
 			}
 		}
 		if (obj instanceof InfoFacade && ((InfoFacade) obj).isNamePI())

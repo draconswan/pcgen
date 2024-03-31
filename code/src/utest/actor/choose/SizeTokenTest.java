@@ -19,15 +19,15 @@ package actor.choose;
 
 import pcgen.cdom.base.Chooser;
 import pcgen.core.SizeAdjustment;
+import plugin.lsttokens.choose.SizeToken;
 
 import actor.testsupport.AbstractPersistentCDOMChoiceActorTestCase;
-import plugin.lsttokens.choose.SizeToken;
 
 public class SizeTokenTest extends
 		AbstractPersistentCDOMChoiceActorTestCase<SizeAdjustment>
 {
 
-	static final SizeToken PCA = new SizeToken();
+	private static final SizeToken PCA = new SizeToken();
 
 	@Override
 	public Chooser<SizeAdjustment> getActor()

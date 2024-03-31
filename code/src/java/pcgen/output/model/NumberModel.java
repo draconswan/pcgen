@@ -17,9 +17,9 @@
  */
 package pcgen.output.model;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
-import freemarker.template.TemplateModelException;
 import freemarker.template.TemplateNumberModel;
 
 /**
@@ -40,15 +40,12 @@ public class NumberModel implements TemplateNumberModel, Supplier<Number>
 	 */
 	public NumberModel(Number n)
 	{
-		if (n == null)
-		{
-			throw new IllegalArgumentException("Number cannot be null");
-		}
+		Objects.requireNonNull(n, "Number cannot be null");
 		this.number = n;
 	}
 
 	@Override
-	public Number getAsNumber() throws TemplateModelException
+	public Number getAsNumber()
 	{
 		return number;
 	}

@@ -113,7 +113,7 @@ BIO
 		</reach>
 		<region>Ustalav</region>
 		<reputation>0</reputation>
-		<residence>Sturnidae</residence>
+		<residence></residence>
 		<size>
 			<long>Medium</long>
 			<short>M</short>
@@ -331,7 +331,7 @@ BIO
 		</skillpoints>
 		<list_mods>Diplomacy +14, Handle Animal +6, Knowledge (Nobility) +3, Knowledge (Religion) +3, Linguistics +0, Perception +3, Perform (Dance) +3, Profession (Merchant) +5, Ride +0, Sense Motive +5</list_mods>
 		<max_class_skill_level>6</max_class_skill_level>
-		<max_cross_class_skill_level>6</max_cross_class_skill_level>
+		<max_cross_class_skill_level>6.0</max_cross_class_skill_level>
 		<skill>
 			<name>Acrobatics</name>
 			<ranks>0.0</ranks>
@@ -849,7 +849,7 @@ BIO
 			<critical>20/x2</critical>
 			<!-- Should be changed to a variable due to improved crit -->
 		</unarmed>
-		
+
 		<weapon>
 			<common>
 				<name>
@@ -866,13 +866,19 @@ BIO
 					<magic_hit>+1</magic_hit>
 					<total_hit>+12/+7</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Both</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>M</size>
 				<special_properties>disarm, trip</special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>B</type>
 				<weight>10</weight>
 				<sequence>0</sequence>
@@ -880,13 +886,13 @@ BIO
 			<melee>
 				<w1_h1_p>
 					<!-- One weapon, 1 hand, primary hand -->
-					<to_hit></to_hit>
-					<damage></damage>
+					<to_hit>N/A</to_hit>
+					<damage>N/A</damage>
 				</w1_h1_p>
 				<w1_h1_o>
 					<!-- One weapon, 1 handed, offhand -->
-					<to_hit></to_hit>
-					<damage></damage>
+					<to_hit>N/A</to_hit>
+					<damage>N/A</damage>
 				</w1_h1_o>
 				<w1_h2>
 					<!-- One weapon, 2 handed -->
@@ -895,18 +901,18 @@ BIO
 				</w1_h2>
 				<w2_p_oh>
 					<!-- Two weapons, this weapon in primary hand, other hand with heavy weapon -->
-					<to_hit></to_hit>
-					<damage></damage>
+					<to_hit>N/A</to_hit>
+					<damage>N/A</damage>
 				</w2_p_oh>
 				<w2_p_ol>
 					<!-- Two weapons, this weapon in primary hand, other hand with light weapon -->
-					<to_hit></to_hit>
-					<damage></damage>
+					<to_hit>N/A</to_hit>
+					<damage>N/A</damage>
 				</w2_p_ol>
 				<w2_o>
 					<!-- Two weapons, this weapon in off-hand -->
-					<to_hit></to_hit>
-					<damage></damage>
+					<to_hit>N/A</to_hit>
+					<damage>N/A</damage>
 				</w2_o>
 			</melee>
 		</weapon>
@@ -926,13 +932,19 @@ BIO
 					<magic_hit>-1</magic_hit>
 					<total_hit>+10/+5</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Both</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>M</size>
 				<special_properties>disarm, trip</special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>B</type>
 				<weight>0</weight>
 				<sequence>1</sequence>
@@ -940,13 +952,13 @@ BIO
 			<melee>
 				<w1_h1_p>
 					<!-- One weapon, 1 hand, primary hand -->
-					<to_hit></to_hit>
-					<damage></damage>
+					<to_hit>N/A</to_hit>
+					<damage>N/A</damage>
 				</w1_h1_p>
 				<w1_h1_o>
 					<!-- One weapon, 1 handed, offhand -->
-					<to_hit></to_hit>
-					<damage></damage>
+					<to_hit>N/A</to_hit>
+					<damage>N/A</damage>
 				</w1_h1_o>
 				<w1_h2>
 					<!-- One weapon, 2 handed -->
@@ -955,18 +967,18 @@ BIO
 				</w1_h2>
 				<w2_p_oh>
 					<!-- Two weapons, this weapon in primary hand, other hand with heavy weapon -->
-					<to_hit></to_hit>
-					<damage></damage>
+					<to_hit>N/A</to_hit>
+					<damage>N/A</damage>
 				</w2_p_oh>
 				<w2_p_ol>
 					<!-- Two weapons, this weapon in primary hand, other hand with light weapon -->
-					<to_hit></to_hit>
-					<damage></damage>
+					<to_hit>N/A</to_hit>
+					<damage>N/A</damage>
 				</w2_p_ol>
 				<w2_o>
 					<!-- Two weapons, this weapon in off-hand -->
-					<to_hit></to_hit>
-					<damage></damage>
+					<to_hit>N/A</to_hit>
+					<damage>N/A</damage>
 				</w2_o>
 			</melee>
 		</weapon>
@@ -986,13 +998,19 @@ BIO
 					<magic_hit>+0</magic_hit>
 					<total_hit>+10/+5</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Equipped</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>M</size>
 				<special_properties></special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>P</type>
 				<weight>0</weight>
 				<sequence>2</sequence>
@@ -1046,13 +1064,19 @@ BIO
 					<magic_hit>+0</magic_hit>
 					<total_hit>+7/+2</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Equipped</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>M</size>
 				<special_properties>splash weapon</special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type></type>
 				<weight>1</weight>
 				<sequence>3</sequence>
@@ -1101,13 +1125,19 @@ BIO
 					<magic_hit>+0</magic_hit>
 					<total_hit>+7/+2</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Equipped</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>M</size>
 				<special_properties>splash weapon, full-round action to prepare, 50% chance to ignite</special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>F</type>
 				<weight>1</weight>
 				<sequence>4</sequence>
@@ -1156,13 +1186,19 @@ BIO
 					<magic_hit>+0</magic_hit>
 					<total_hit>+10/+5</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Carried</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>M</size>
 				<special_properties></special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>PS</type>
 				<weight>0</weight>
 				<sequence>5</sequence>
@@ -1243,13 +1279,19 @@ BIO
 					<magic_hit>+0</magic_hit>
 					<total_hit>+7/+2</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Not Carried</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>M</size>
 				<special_properties></special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>P</type>
 				<weight>2</weight>
 				<sequence>7</sequence>
@@ -1298,13 +1340,19 @@ BIO
 					<magic_hit>+0</magic_hit>
 					<total_hit>+10/+5</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Carried</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>M</size>
-				<special_properties>10 hp/inch, hardness 8</special_properties>
-				<template></template>
+				<special_properties>silver</special_properties>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>S</type>
 				<weight>4</weight>
 				<sequence>8</sequence>
@@ -1358,13 +1406,19 @@ BIO
 					<magic_hit>+0</magic_hit>
 					<total_hit>+10/+5</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Not Carried</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>M</size>
 				<special_properties></special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>P</type>
 				<weight>0</weight>
 				<sequence>9</sequence>
@@ -1445,13 +1499,19 @@ BIO
 					<magic_hit>+0</magic_hit>
 					<total_hit>+10/+5</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Carried</hand>
 				<num_attacks>2</num_attacks>
 				<reach>5</reach>
 				<size>M</size>
 				<special_properties></special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>P</type>
 				<weight>0</weight>
 				<sequence>11</sequence>
@@ -1612,7 +1672,7 @@ BIO
 				<short>M</short>
 			</size>
 			<special_properties>disarm, trip</special_properties>
-			<type>MAGIC.WEAPON.RESIZABLE.MELEE.MARTIAL.TWOHANDED.BLUDGEONING.FLAIL.WEAPON GROUP FLAILS.CUSTOM.DISARM.METAL.TRIP.MASTERWORK.ENHANCEMENT.PLUS1</type>
+			<type>MAGIC.WEAPON.RESIZABLE.MELEE.MARTIAL.TWOHANDED.BLUDGEONING.FLAIL.WEAPON GROUP FLAILS.CUSTOM.DISARM.METAL.TRIP.MASTERWORK.WEAPONENHANCEMENT.PLUS1</type>
 			<weight>10</weight>
 			<bonuslist></bonuslist>
 		</item>
@@ -1638,7 +1698,7 @@ BIO
 				<short>M</short>
 			</size>
 			<special_properties>disarm, trip</special_properties>
-			<type>MAGIC.WEAPON.RESIZABLE.MELEE.MARTIAL.TWOHANDED.BLUDGEONING.FLAIL.WEAPON GROUP FLAILS.CUSTOM.TEMPORARY.DISARM.METAL.TRIP.MASTERWORK.ENHANCEMENT.PLUS1</type>
+			<type>MAGIC.WEAPON.RESIZABLE.MELEE.MARTIAL.TWOHANDED.BLUDGEONING.FLAIL.WEAPON GROUP FLAILS.CUSTOM.TEMPORARY.DISARM.METAL.TRIP.MASTERWORK.WEAPONENHANCEMENT.PLUS1</type>
 			<weight>0</weight>
 			<bonuslist></bonuslist>
 		</item>
@@ -1716,7 +1776,7 @@ BIO
 				<short>M</short>
 			</size>
 			<special_properties></special_properties>
-			<type>MAGIC.ARMOR.HEAVY.ARMORPROFHEAVY.SUIT.CUSTOM.METAL.MASTERWORK.ENHANCEMENT.PLUS1</type>
+			<type>MAGIC.ARMOR.HEAVY.ARMORPROFHEAVY.SUIT.CUSTOM.METAL.MASTERWORK.ARMORENHANCEMENT.PLUS1</type>
 			<weight>50</weight>
 			<bonuslist></bonuslist>
 		</item>
@@ -1846,7 +1906,7 @@ BIO
 				<short>M</short>
 			</size>
 			<special_properties>splash weapon</special_properties>
-			<type>GOODS.FLASK.CONSUMABLE.WEAPON.RANGED.THROWN.SPLASH</type>
+			<type>GOODS.FLASK.CONSUMABLE.WEAPON.RANGED.THROWN.SPLASH.NOATTACKPENALTY</type>
 			<weight>1</weight>
 			<bonuslist></bonuslist>
 		</item>
@@ -2053,7 +2113,7 @@ BIO
 				<long>Medium</long>
 				<short>M</short>
 			</size>
-			<special_properties>10 hp/inch, hardness 8</special_properties>
+			<special_properties>silver</special_properties>
 			<type>WEAPON.RESIZABLE.MELEE.MARTIAL.ONEHANDED.SLASHING.SWORD.BLADEHEAVY.WEAPON GROUP BLADES HEAVY.CUSTOM.METAL.SILVER</type>
 			<weight>4</weight>
 			<bonuslist></bonuslist>
@@ -2085,7 +2145,7 @@ BIO
 			<bonuslist></bonuslist>
 		</item>
 		<item>
-			<longname>Horse, Heavy (Combat Trained)</longname>
+			<longname>Heavy Horse (Combat Trained)</longname>
 			<id></id>
 			<name>Heavy Horse (Combat Trained)</name>
 			<carried>0.0</carried>
@@ -2267,32 +2327,6 @@ BIO
 			<bonuslist></bonuslist>
 		</item>
 		<item>
-			<longname>Outfit, Traveler&#39;s</longname>
-			<id></id>
-			<name>Traveler&#39;s Outfit</name>
-			<carried>1.0</carried>
-			<charges></charges>
-			<charges_used></charges_used>
-			<contents></contents>
-			<contents_num>0</contents_num>
-			<content_weight>0</content_weight>
-			<cost>1</cost>
-			<equipped>Y</equipped>
-			<location>Equipped</location>
-			<maxcharges>0</maxcharges>
-			<note></note>
-			<quantity>1</quantity>
-			<checkbox>1</checkbox>
-			<size>
-				<long>Medium</long>
-				<short>M</short>
-			</size>
-			<special_properties></special_properties>
-			<type>GOODS.CLOTHING.RESIZABLE.STARTING</type>
-			<weight>5</weight>
-			<bonuslist></bonuslist>
-		</item>
-		<item>
 			<longname>Rope, Silk (50 ft.)</longname>
 			<id></id>
 			<name>Silk Rope (50 ft.)</name>
@@ -2344,6 +2378,32 @@ BIO
 			<weight>1</weight>
 			<bonuslist></bonuslist>
 		</item>
+		<item>
+			<longname>Traveler&#39;s Outfit</longname>
+			<id></id>
+			<name>Traveler&#39;s Outfit</name>
+			<carried>1.0</carried>
+			<charges></charges>
+			<charges_used></charges_used>
+			<contents></contents>
+			<contents_num>0</contents_num>
+			<content_weight>0</content_weight>
+			<cost>1</cost>
+			<equipped>Y</equipped>
+			<location>Equipped</location>
+			<maxcharges>0</maxcharges>
+			<note></note>
+			<quantity>1</quantity>
+			<checkbox>1</checkbox>
+			<size>
+				<long>Medium</long>
+				<short>M</short>
+			</size>
+			<special_properties></special_properties>
+			<type>GOODS.CLOTHING.RESIZABLE.STARTING</type>
+			<weight>5</weight>
+			<bonuslist></bonuslist>
+		</item>
 		<total>
 			<weight>98 lbs.</weight>
 			<value>7563.45 gp</value>
@@ -2369,7 +2429,7 @@ BIO
 					<short>M</short>
 				</size>
 				<special_properties>disarm, trip</special_properties>
-				<type>MAGIC.WEAPON.RESIZABLE.MELEE.MARTIAL.TWOHANDED.BLUDGEONING.FLAIL.WEAPON GROUP FLAILS.CUSTOM.DISARM.METAL.TRIP.MASTERWORK.ENHANCEMENT.PLUS1</type>
+				<type>MAGIC.WEAPON.RESIZABLE.MELEE.MARTIAL.TWOHANDED.BLUDGEONING.FLAIL.WEAPON GROUP FLAILS.CUSTOM.DISARM.METAL.TRIP.MASTERWORK.WEAPONENHANCEMENT.PLUS1</type>
 				<weight>10</weight>
 				<bonuslist></bonuslist>
 			</item>
@@ -2390,7 +2450,7 @@ BIO
 					<short>M</short>
 				</size>
 				<special_properties>disarm, trip</special_properties>
-				<type>MAGIC.WEAPON.RESIZABLE.MELEE.MARTIAL.TWOHANDED.BLUDGEONING.FLAIL.WEAPON GROUP FLAILS.CUSTOM.TEMPORARY.DISARM.METAL.TRIP.MASTERWORK.ENHANCEMENT.PLUS1</type>
+				<type>MAGIC.WEAPON.RESIZABLE.MELEE.MARTIAL.TWOHANDED.BLUDGEONING.FLAIL.WEAPON GROUP FLAILS.CUSTOM.TEMPORARY.DISARM.METAL.TRIP.MASTERWORK.WEAPONENHANCEMENT.PLUS1</type>
 				<weight>0</weight>
 				<bonuslist></bonuslist>
 			</item>
@@ -2453,7 +2513,7 @@ BIO
 					<short>M</short>
 				</size>
 				<special_properties></special_properties>
-				<type>MAGIC.ARMOR.HEAVY.ARMORPROFHEAVY.SUIT.CUSTOM.METAL.MASTERWORK.ENHANCEMENT.PLUS1</type>
+				<type>MAGIC.ARMOR.HEAVY.ARMORPROFHEAVY.SUIT.CUSTOM.METAL.MASTERWORK.ARMORENHANCEMENT.PLUS1</type>
 				<weight>50</weight>
 				<bonuslist></bonuslist>
 			</item>
@@ -2558,7 +2618,7 @@ BIO
 					<short>M</short>
 				</size>
 				<special_properties>splash weapon</special_properties>
-				<type>GOODS.FLASK.CONSUMABLE.WEAPON.RANGED.THROWN.SPLASH</type>
+				<type>GOODS.FLASK.CONSUMABLE.WEAPON.RANGED.THROWN.SPLASH.NOATTACKPENALTY</type>
 				<weight>1</weight>
 				<bonuslist></bonuslist>
 			</item>
@@ -2725,7 +2785,7 @@ BIO
 					<long>Medium</long>
 					<short>M</short>
 				</size>
-				<special_properties>10 hp/inch, hardness 8</special_properties>
+				<special_properties>silver</special_properties>
 				<type>WEAPON.RESIZABLE.MELEE.MARTIAL.ONEHANDED.SLASHING.SWORD.BLADEHEAVY.WEAPON GROUP BLADES HEAVY.CUSTOM.METAL.SILVER</type>
 				<weight>4</weight>
 				<bonuslist></bonuslist>
@@ -2899,27 +2959,6 @@ BIO
 				<bonuslist></bonuslist>
 			</item>
 			<item>
-				<name>Traveler&#39;s Outfit</name>
-				<carried>1.0</carried>
-				<charges></charges>
-				<charges_used></charges_used>
-				<contents></contents>
-				<cost>1</cost>
-				<equipped>Y</equipped>
-				<location>Equipped</location>
-				<maxcharges>0</maxcharges>
-				<note></note>
-				<quantity>1</quantity>
-				<size>
-					<long>Medium</long>
-					<short>M</short>
-				</size>
-				<special_properties></special_properties>
-				<type>GOODS.CLOTHING.RESIZABLE.STARTING</type>
-				<weight>5</weight>
-				<bonuslist></bonuslist>
-			</item>
-			<item>
 				<name>Silk Rope (50 ft.)</name>
 				<carried>1.0</carried>
 				<charges></charges>
@@ -2961,6 +3000,27 @@ BIO
 				<weight>1</weight>
 				<bonuslist></bonuslist>
 			</item>
+			<item>
+				<name>Traveler&#39;s Outfit</name>
+				<carried>1.0</carried>
+				<charges></charges>
+				<charges_used></charges_used>
+				<contents></contents>
+				<cost>1</cost>
+				<equipped>Y</equipped>
+				<location>Equipped</location>
+				<maxcharges>0</maxcharges>
+				<note></note>
+				<quantity>1</quantity>
+				<size>
+					<long>Medium</long>
+					<short>M</short>
+				</size>
+				<special_properties></special_properties>
+				<type>GOODS.CLOTHING.RESIZABLE.STARTING</type>
+				<weight>5</weight>
+				<bonuslist></bonuslist>
+			</item>
 			</equipmentset>
       </equipmentsets>
 	</equipment>
@@ -2997,7 +3057,7 @@ BIO
 		<feat>
 			<name>Power Attack</name>
 			<description>You can make exceptionally deadly melee attacks by sacrificing accuracy for strength.</description>
-			<type>COMBAT.ATTACKOPTION.ABYSSALBLOODLINE.DRACONICBLOODLINE.ELEMENTALBLOODLINE.BOREALBLOODLINE.SAURIANSHAMANBONUS.DJINNIBLOODLINE.EFREETIBLOODLINE.MARIDBLOODLINE.SHAITANBLOODLINE</type>
+			<type>COMBAT.ATTACKOPTION.SAURIANSHAMANBONUS</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>F</auto>
@@ -3027,7 +3087,7 @@ BIO
 		<feat>
 			<name>Weapon Focus (Heavy Flail)</name>
 			<description>You are especially good at using your chosen weapon.</description>
-			<type>COMBAT.WEAPONFOCUS.DESTINEDBLOODLINE.ORACLEWEAPONMASTERY</type>
+			<type>COMBAT.WEAPONFOCUS.ORACLEWEAPONMASTERY</type>
 			<associated>Heavy Flail</associated>
 			<count>1</count>
 			<auto>F</auto>
@@ -3205,7 +3265,7 @@ BIO
 		<ability_object>
 			<name>Bonus Feat</name>
 			<description>Humans select one extra feat at 1st level.</description>
-			<type>RACIALTRAITS.SPECIALQUALITY.HUMANRACIALTRAIT.HUMANRACIALDEFAULT.BONUS FEAT</type>
+			<type>RACIALTRAITS.HUMAN RACIAL TRAIT.HUMAN RACIAL DEFAULT.SPECIALQUALITY</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>T</auto>
@@ -3270,8 +3330,8 @@ BIO
 		</ability_object>
 		<ability_object>
 			<name>Skilled</name>
-			<description>Humans gain an additional skill rank at first level and one additional rank whenever they gain a level.</description>
-			<type>RACIALTRAITS.SPECIALQUALITY.HUMANRACIALTRAIT.HUMANRACIALDEFAULT.SKILLED</type>
+			<description>Humans gain an additional skill rank at 1st level and one additional rank whenever they gain a level.</description>
+			<type>RACIALTRAITS.HUMAN RACIAL TRAIT.HUMAN RACIAL DEFAULT.SPECIALQUALITY</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>T</auto>
@@ -3326,6 +3386,17 @@ BIO
 		</ability_object>
 		<!-- Hidden Automatic "Special Ability" Ability Objects -->
 		<ability_object>
+			<name>+2 to One Ability Score</name>
+			<description>Human characters get a +2 bonus to one ability score of their choice at creation to represent their varied nature.</description>
+			<type>RACIALTRAITS.HUMAN RACIAL TRAIT.HUMAN RACIAL DEFAULT.SPECIALQUALITY.RACIAL ABILITY SCORES</type>
+			<associated></associated>
+			<count>0</count>
+			<auto>T</auto>
+			<hidden>T</hidden>
+			<virtual>F</virtual>
+			<category>Special Ability</category>
+		</ability_object>
+		<ability_object>
 			<name>Divine Bond</name>
 			<description></description>
 			<type>PALADINCLASSFEATURES.INTERNAL.CLASSFEATURES.DIVINE BOND</type>
@@ -3348,9 +3419,9 @@ BIO
 			<category>Special Ability</category>
 		</ability_object>
 		<ability_object>
-			<name>Humanoid Traits</name>
-			<description></description>
-			<type></type>
+			<name>Languages</name>
+			<description>Humans begin play speaking Common. Humans with high Intelligence scores can choose any languages they want (except secret languages, such as Druidic).</description>
+			<type>RACIALTRAITS.HUMAN RACIAL TRAIT.HUMAN RACIAL DEFAULT.SPECIALQUALITY.RACIAL LANGUAGE</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>T</auto>
@@ -3359,9 +3430,9 @@ BIO
 			<category>Special Ability</category>
 		</ability_object>
 		<ability_object>
-			<name>Human Traits</name>
-			<description></description>
-			<type></type>
+			<name>Medium</name>
+			<description>Humans are Medium creatures and have no bonuses or penalties due to their size.</description>
+			<type>RACIALTRAITS.HUMAN RACIAL TRAIT.HUMAN RACIAL DEFAULT.SPECIALQUALITY.RACIAL SIZE</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>T</auto>
@@ -3373,6 +3444,17 @@ BIO
 			<name>Mercy</name>
 			<description></description>
 			<type>PALADINCLASSFEATURES.INTERNAL.CLASSFEATURES.MERCY</type>
+			<associated></associated>
+			<count>0</count>
+			<auto>T</auto>
+			<hidden>T</hidden>
+			<virtual>F</virtual>
+			<category>Special Ability</category>
+		</ability_object>
+		<ability_object>
+			<name>Normal Speed</name>
+			<description>Humans have a base speed of 30 feet.</description>
+			<type>RACIALTRAITS.HUMAN RACIAL TRAIT.HUMAN RACIAL DEFAULT.SPECIALQUALITY.RACIAL SPEED</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>T</auto>
@@ -3503,9 +3585,9 @@ BIO
 			<category>Internal</category>
 		</ability_object>
 		<ability_object>
-			<name>Human ~ Default</name>
+			<name>Movement</name>
 			<description></description>
-			<type>HUMANSUBRACE</type>
+			<type></type>
 			<associated></associated>
 			<count>0</count>
 			<auto>T</auto>
@@ -3536,7 +3618,18 @@ BIO
 			<category>Internal</category>
 		</ability_object>
 		<ability_object>
-			<name>Race Traits ~ Human</name>
+			<name>Racial Traits ~ Human</name>
+			<description></description>
+			<type></type>
+			<associated></associated>
+			<count>0</count>
+			<auto>T</auto>
+			<hidden>F</hidden>
+			<virtual>F</virtual>
+			<category>Internal</category>
+		</ability_object>
+		<ability_object>
+			<name>Save Bonus Tracker</name>
 			<description></description>
 			<type></type>
 			<associated></associated>

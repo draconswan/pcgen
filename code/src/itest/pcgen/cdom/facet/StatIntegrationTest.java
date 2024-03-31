@@ -18,12 +18,9 @@
 package pcgen.cdom.facet;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.base.FormulaFactory;
@@ -43,6 +40,9 @@ import pcgen.core.PCStat;
 import pcgen.core.PCTemplate;
 import pcgen.core.Race;
 import plugin.lsttokens.testsupport.BuildUtilities;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class StatIntegrationTest
 {
@@ -64,7 +64,7 @@ public class StatIntegrationTest
 	private PCStat stat2;
 	private final Object tsource = new Object();
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception
 	{
 		DataSetID cid = DataSetID.getID();

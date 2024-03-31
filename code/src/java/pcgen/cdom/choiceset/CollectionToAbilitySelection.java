@@ -121,7 +121,7 @@ public class CollectionToAbilitySelection implements PrimitiveChoiceSet<AbilityS
 		try
 		{
 			infiniteLoopDetectionStack.push(a);
-			if (a.getSafe(ObjectKey.MULTIPLE_ALLOWED).booleanValue())
+			if (a.getSafe(ObjectKey.MULTIPLE_ALLOWED))
 			{
 				returnSet.addAll(addMultiplySelectableAbility(character, a, awc.getChoice()));
 			}
@@ -236,25 +236,12 @@ public class CollectionToAbilitySelection implements PrimitiveChoiceSet<AbilityS
 		return category;
 	}
 
-	/**
-	 * Returns the consistent-with-equals hashCode for this
-	 * CollectionToAbilitySelection
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode()
 	{
 		return collection.hashCode();
 	}
 
-	/**
-	 * Returns true if this CollectionToAbilitySelection is equal to the given
-	 * Object. Equality is defined as being another CollectionToAbilitySelection
-	 * object with equal underlying contents.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -350,9 +337,8 @@ public class CollectionToAbilitySelection implements PrimitiveChoiceSet<AbilityS
 			{
 				return true;
 			}
-			if (o instanceof AbilityWithChoice)
+			if (o instanceof AbilityWithChoice other)
 			{
-				AbilityWithChoice other = (AbilityWithChoice) o;
 				if (choice == null)
 				{
 					if (other.choice != null)

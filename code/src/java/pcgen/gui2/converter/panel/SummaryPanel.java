@@ -47,18 +47,12 @@ import pcgen.gui2.util.FontManipulation;
 public class SummaryPanel extends ConvertSubPanel
 {
 
-	/**
-	 * @see pcgen.gui2.converter.panel.ConvertSubPanel#autoAdvance(pcgen.cdom.base.CDOMObject)
-	 */
 	@Override
 	public boolean autoAdvance(CDOMObject pc)
 	{
 		return false;
 	}
 
-	/**
-	 * @see pcgen.gui2.converter.panel.ConvertSubPanel#performAnalysis(pcgen.cdom.base.CDOMObject)
-	 */
 	@Override
 	public boolean performAnalysis(CDOMObject pc)
 	{
@@ -66,9 +60,6 @@ public class SummaryPanel extends ConvertSubPanel
 		return true;
 	}
 
-	/**
-	 * @see pcgen.gui2.converter.panel.ConvertSubPanel#setupDisplay(javax.swing.JPanel, pcgen.cdom.base.CDOMObject)
-	 */
 	@Override
 	public void setupDisplay(JPanel panel, CDOMObject pc)
 	{
@@ -99,11 +90,11 @@ public class SummaryPanel extends ConvertSubPanel
 		values[2] = new JLabel(pc.get(ObjectKey.GAME_MODE).getDisplayName());
 		List<Campaign> campaigns = pc.getSafeListFor(ListKey.CAMPAIGN);
 		StringBuilder campDisplay = new StringBuilder();
-		for (int i = 0; i < campaigns.size(); i++)
-		{
-			campDisplay.append(campaigns.get(i).getDisplayName());
-			campDisplay.append("\n");
-		}
+        for (Campaign campaign : campaigns)
+        {
+            campDisplay.append(campaign.getDisplayName());
+            campDisplay.append("\n");
+        }
 		JTextArea campText = new JTextArea(campDisplay.toString());
 		campText.setEditable(false);
 		JScrollPane scrollPane = new JScrollPane(campText);

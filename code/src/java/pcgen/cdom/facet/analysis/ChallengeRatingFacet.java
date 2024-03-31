@@ -37,8 +37,9 @@ import pcgen.cdom.facet.model.RaceFacet;
 import pcgen.cdom.facet.model.TemplateFacet;
 import pcgen.core.ClassType;
 import pcgen.core.PCClass;
-import pcgen.core.PCTemplate;
 import pcgen.core.SettingsHandler;
+
+import org.jetbrains.annotations.Nullable;
 
 /**
  * ChallengeRatingFacet is a Facet that calculates the Challenge Rating of a
@@ -64,6 +65,7 @@ public class ChallengeRatingFacet
 	 * @return The Challenge Rating of the Player Character represented by the
 	 *         given CharID
 	 */
+	@Nullable
 	public Integer getCR(CharID id)
 	{
 		int cr = 0;
@@ -148,14 +150,14 @@ public class ChallengeRatingFacet
 	 */
 	private int getTemplateCR(CharID id)
 	{
-		int cr = 0;
-
 		// Calculate and add the CR from the templates
-		for (PCTemplate template : templateFacet.getSet(id))
-		{
-			cr += template.getCR(levelFacet.getTotalLevels(id), levelFacet.getMonsterLevelCount(id));
-		}
-		return cr;
+		return templateFacet.getSet(id)
+		                    .stream()
+		                    .mapToInt(template -> template.getCR(
+				                      levelFacet.getTotalLevels(id),
+				                      levelFacet.getMonsterLevelCount(id)
+		                      ))
+		                    .sum();
 	}
 
 	/**
@@ -205,9 +207,9 @@ public class ChallengeRatingFacet
 		int threshold = 0;
 
 		List<String> raceRoleList = raceFacet.get(id).getListFor(ListKey.MONSTER_ROLES);
-		if (raceRoleList == null || raceRoleList.isEmpty())
+		if ((raceRoleList == null) || raceRoleList.isEmpty())
 		{
-			raceRoleList = SettingsHandler.getGame().getMonsterRoleDefaultList();
+			raceRoleList = SettingsHandler.getGameAsProperty().get().getMonsterRoleDefaultList();
 		}
 
 		// Calculate and add the CR from the PC Classes
@@ -223,29 +225,22 @@ public class ChallengeRatingFacet
 			if (classRoleList != null)
 			{
 				classRoleList.retainAll(raceRoleList);
-				if (!classRoleList.isEmpty())
+				if (classRoleList.isEmpty())
 				{
-					levelsKey += levels;
+					levelsNonKey += levels;
 				}
 				else
 				{
-					levelsNonKey += levels;
+					levelsKey += levels;
 				}
 			}
 			else
 			{
-				if (raceRoleList != null)
-				{
-					levelsNonKey += levels;
-				}
-				else
-				{
-					levelsKey += levels;
-				}
+				levelsNonKey += levels;
 			}
 
 		}
-		String sThreshold = SettingsHandler.getGame().getCRThreshold();
+		String sThreshold = SettingsHandler.getGameAsProperty().get().getCRThreshold();
 		if (sThreshold != null)
 		{
 			threshold = formulaResolvingFacet.resolve(id, FormulaFactory.getFormulaFor(sThreshold), "").intValue();
@@ -278,13 +273,10 @@ public class ChallengeRatingFacet
 
 		if (classType != null)
 		{
-			if (SettingsHandler.getGame().getClassTypeByName(classType) != null)
+			if (SettingsHandler.getGameAsProperty().get().getClassTypeByName(classType) != null)
 			{
 				Integer crMod = raceFacet.get(id).get(MapKey.CRMOD, classType);
-				if (crMod != null)
-				{
-					return crMod;
-				}
+                return crMod;
 			}
 		}
 		else
@@ -294,7 +286,7 @@ public class ChallengeRatingFacet
 			for (Type type : cl.getTrueTypeList(false))
 			{
 				classType = type.toString();
-				if (SettingsHandler.getGame().getClassTypeByName(classType) != null)
+				if (SettingsHandler.getGameAsProperty().get().getClassTypeByName(classType) != null)
 				{
 					Integer crMod = raceFacet.get(id).get(MapKey.CRMOD, classType);
 					if (crMod != null)
@@ -324,7 +316,7 @@ public class ChallengeRatingFacet
 		Formula cr = cl.get(FormulaKey.CR);
 		if (cr == null)
 		{
-			ClassType aClassType = SettingsHandler.getGame().getClassTypeByName(cl.getClassType());
+			ClassType aClassType = SettingsHandler.getGameAsProperty().get().getClassTypeByName(cl.getClassType());
 			if (aClassType != null)
 			{
 				String crf = aClassType.getCRFormula();
@@ -343,7 +335,7 @@ public class ChallengeRatingFacet
 				// use old method to determine the class type from TYPE. 
 				for (Type type : cl.getTrueTypeList(false))
 				{
-					aClassType = SettingsHandler.getGame().getClassTypeByName(type.toString());
+					aClassType = SettingsHandler.getGameAsProperty().get().getClassTypeByName(type.toString());
 					if (aClassType != null)
 					{
 						String crf = aClassType.getCRFormula();
@@ -367,7 +359,7 @@ public class ChallengeRatingFacet
 	{
 		int crMod = 0;
 
-		ClassType aClassType = SettingsHandler.getGame().getClassTypeByName(cl.getClassType());
+		ClassType aClassType = SettingsHandler.getGameAsProperty().get().getClassTypeByName(cl.getClassType());
 		if (aClassType != null)
 		{
 			String crmf = aClassType.getCRMod();
@@ -380,7 +372,7 @@ public class ChallengeRatingFacet
 			// use old method to determine the class type from TYPE. 
 			for (Type type : cl.getTrueTypeList(false))
 			{
-				aClassType = SettingsHandler.getGame().getClassTypeByName(type.toString());
+				aClassType = SettingsHandler.getGameAsProperty().get().getClassTypeByName(type.toString());
 				if (aClassType != null)
 				{
 					String crmf = aClassType.getCRMod();
@@ -393,11 +385,11 @@ public class ChallengeRatingFacet
 		return crMod;
 	}
 
-	private int getClassCRModPriority(PCClass cl)
+	private static int getClassCRModPriority(PCClass cl)
 	{
 		int crModPriority = 0;
 
-		ClassType aClassType = SettingsHandler.getGame().getClassTypeByName(cl.getClassType());
+		ClassType aClassType = SettingsHandler.getGameAsProperty().get().getClassTypeByName(cl.getClassType());
 		if (aClassType != null)
 		{
 			int crmp = aClassType.getCRModPriority();
@@ -412,7 +404,7 @@ public class ChallengeRatingFacet
 			// use old method to determine the class type from TYPE. 
 			for (Type type : cl.getTrueTypeList(false))
 			{
-				aClassType = SettingsHandler.getGame().getClassTypeByName(type.toString());
+				aClassType = SettingsHandler.getGameAsProperty().get().getClassTypeByName(type.toString());
 				if (aClassType != null)
 				{
 					int crmp = aClassType.getCRModPriority();
@@ -429,7 +421,7 @@ public class ChallengeRatingFacet
 
 	public int getXPAward(CharID id)
 	{
-		Map<Integer, Integer> xpAwardsMap = SettingsHandler.getGame().getXPAwards();
+		Map<Integer, Integer> xpAwardsMap = SettingsHandler.getGameAsProperty().get().getXPAwards();
 
 		if (!xpAwardsMap.isEmpty())
 		{

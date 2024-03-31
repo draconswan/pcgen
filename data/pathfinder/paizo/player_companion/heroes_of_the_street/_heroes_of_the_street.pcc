@@ -1,6 +1,5 @@
 CAMPAIGN:Heroes of the Streets
 GAMEMODE:Pathfinder|Pathfinder_PFS
-RANK:3
 TYPE:Paizo Publishing.Pathfinder Player Companion
 GENRE:Fantasy
 BOOKTYPE:Supplement
@@ -14,6 +13,7 @@ SOURCELONG:Pathfinder Player Companion: Heroes of the Streets
 SOURCESHORT:HOTS
 SOURCEWEB:http://paizo.com/products/btpy9ghc
 SOURCEDATE:2015-10
+RANK:201510
 ISOGL:YES
 
 COVER:heroes_of_the_street.jpg
@@ -54,7 +54,7 @@ DEITY:support/hots_deities_isg.lst|PRECAMPAIGN:1,INCLUDES=Inner Sea Gods
 # LICENSE MONKEY: Paul Grosse
 # RELEASE REVIEW #
 # BETA: Andrew Maitland
-# RELEASE: 
+# RELEASE:
 # Built for PCGen Version: 6.07.03
 # Updated to work with version: -
 # MINVER:6.7

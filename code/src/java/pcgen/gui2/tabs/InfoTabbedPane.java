@@ -33,7 +33,6 @@ import java.util.Queue;
 import java.util.WeakHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -46,8 +45,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import pcgen.base.util.DoubleKeyMap;
+import pcgen.cdom.util.CControl;
+import pcgen.core.GameMode;
 import pcgen.facade.core.CharacterFacade;
-import pcgen.facade.core.GameModeFacade;
 import pcgen.facade.core.TodoFacade;
 import pcgen.gui2.UIPropertyContext;
 import pcgen.gui2.tabs.CharacterInfoTab.ModelMap;
@@ -99,10 +99,7 @@ public final class InfoTabbedPane extends JTabbedPane implements CharacterSelect
 		if (currentCharacter != null)
 		{
 			Map<CharacterInfoTab, ModelMap> states = stateMap.getMapFor(currentCharacter);
-			for (CharacterInfoTab tab : states.keySet())
-			{
-				tab.storeModels(states.get(tab));
-			}
+			states.forEach(CharacterInfoTab::storeModels);
 		}
 		stateMap.clear();
 		tabSelectionMap.clear();
@@ -185,7 +182,7 @@ public final class InfoTabbedPane extends JTabbedPane implements CharacterSelect
 	 */
 	private void updateTabsForCharacter(CharacterFacade character)
 	{
-		GameModeFacade gameMode = character.getDataSet().getGameMode();
+		GameMode gameMode = character.getDataSet().getGameMode();
 		int tabIndex = 0;
 		for (CharacterInfoTab charInfoTab : fullTabList)
 		{
@@ -216,20 +213,17 @@ public final class InfoTabbedPane extends JTabbedPane implements CharacterSelect
 
 			}
 		}
-		if (character != null)
+		if (character.isFeatureEnabled(CControl.DOMAINFEATURE))
 		{
-			if (character.getDataSet().hasDeityDomain())
-			{
-				TabTitle tabTitle = domainInfoTab.getTabTitle();
-				String title = (String) tabTitle.getValue(TabTitle.TITLE);
-				String tooltip = (String) tabTitle.getValue(TabTitle.TOOLTIP);
-				Icon icon = (Icon) tabTitle.getValue(TabTitle.ICON);
-				insertTab(title, icon, domainInfoTab, tooltip, domainTabLocation);
-			}
-			else
-			{
-				remove(domainInfoTab);
-			}
+			TabTitle tabTitle = domainInfoTab.getTabTitle();
+			String title = (String) tabTitle.getValue(TabTitle.TITLE);
+			String tooltip = (String) tabTitle.getValue(TabTitle.TOOLTIP);
+			Icon icon = (Icon) tabTitle.getValue(TabTitle.ICON);
+			insertTab(title, icon, domainInfoTab, tooltip, domainTabLocation);
+		}
+		else
+		{
+			remove(domainInfoTab);
 		}
 	}
 
@@ -263,9 +257,8 @@ public final class InfoTabbedPane extends JTabbedPane implements CharacterSelect
 			return;
 		}
 
-		if (selTab instanceof JTabbedPane && dest.length > 2)
+		if (selTab instanceof JTabbedPane tabPane && dest.length > 2)
 		{
-			JTabbedPane tabPane = (JTabbedPane) selTab;
 			for (int i = 0; i < tabPane.getTabCount(); i++)
 			{
 				if (dest[2].equals(tabPane.getTitleAt(i)))
@@ -343,20 +336,12 @@ public final class InfoTabbedPane extends JTabbedPane implements CharacterSelect
 
 		public TabModelService()
 		{
-			super(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new ThreadFactory()
-			{
-
-				@Override
-				public Thread newThread(Runnable r)
-				{
-					Thread thread = new Thread(r);
-					thread.setDaemon(true);
-					thread.setPriority(Thread.NORM_PRIORITY);
-					thread.setName("tab-info-thread"); //$NON-NLS-1$
-					return thread;
-				}
-
-			});
+			super(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), r -> {
+                Thread thread = new Thread(r);
+                thread.setDaemon(true);
+                thread.setName("tab-info-thread"); //$NON-NLS-1$
+                return thread;
+            });
 			this.timingMap = new HashMap<>();
 			storeQueue = new LinkedList<>();
 			restoreQueue = new LinkedList<>();
@@ -367,15 +352,7 @@ public final class InfoTabbedPane extends JTabbedPane implements CharacterSelect
 		{
 			if (timingMap.containsKey(o1) && timingMap.containsKey(o2))
 			{
-				long dif = timingMap.get(o1) - timingMap.get(o2);
-				if (dif < 0)
-				{
-					return -1;
-				}
-				if (dif > 0)
-				{
-					return 1;
-				}
+				return Long.compare(timingMap.get(o1), timingMap.get(o2));
 			}
 			else if (timingMap.containsKey(o1))
 			{
@@ -456,26 +433,16 @@ public final class InfoTabbedPane extends JTabbedPane implements CharacterSelect
 			{
 				try
 				{
-					SwingUtilities.invokeAndWait(new Runnable()
-					{
-
-						@Override
-						public void run()
+					SwingUtilities.invokeAndWait(() -> {
+						if (!executed)
 						{
-							if (!executed)
-							{
-								restoreTab(infoTab, models);
-							}
+							restoreTab(infoTab, models);
 						}
-
 					});
 				}
-				catch (InterruptedException ex)
+				catch (InterruptedException | InvocationTargetException ex)
 				{
-				}
-				catch (InvocationTargetException ex)
-				{
-					Logging.errorPrint(null, ex.getCause());
+					Logging.errorPrint("exception in InfoTabbedPane", ex);
 				}
 				finally
 				{
@@ -517,10 +484,6 @@ public final class InfoTabbedPane extends JTabbedPane implements CharacterSelect
 			else if (TabTitle.TOOLTIP.equals(propName))
 			{
 				InfoTabbedPane.this.setToolTipTextAt(index, (String) evt.getNewValue());
-			}
-			else if (TabTitle.ENABLED.equals(propName))
-			{
-				InfoTabbedPane.this.setEnabledAt(index, (Boolean) evt.getNewValue());
 			}
 			else if (TodoFacade.SWITCH_TABS.equals(propName))
 			{

@@ -2,14 +2,14 @@ package plugin.jepcommands;
 
 import java.util.Stack;
 
-import org.nfunk.jep.ParseException;
-
 import pcgen.core.GameMode;
 import pcgen.core.PlayerCharacter;
 import pcgen.core.SettingsHandler;
 import pcgen.core.VariableProcessor;
 import pcgen.util.PCGenCommand;
 import pcgen.util.PJEP;
+
+import org.nfunk.jep.ParseException;
 
 /**
  * JEP command for class level (cl)
@@ -76,7 +76,7 @@ public class ClassLevelCommand extends PCGenCommand
 			return updated;
 		}
 
-		final Number result = new Double(pc.getClassLevelString(src, false));
+		final Number result = Double.valueOf(pc.getClassLevelString(src, false));
 		jep.addVariable("CL", result.doubleValue());
 
 		return true;
@@ -160,7 +160,7 @@ public class ClassLevelCommand extends PCGenCommand
 		{
 			if ("NONEPIC".equalsIgnoreCase(applied))
 			{
-				GameMode mode = SettingsHandler.getGame();
+				GameMode mode = SettingsHandler.getGameAsProperty().get();
 				//Add 1 since game mode is inclusive, but BEFORELEVEL is not!
 				int limit = mode.getMaxNonEpicLevel() + 1;
 				if (limit == Integer.MAX_VALUE)
@@ -175,7 +175,7 @@ public class ClassLevelCommand extends PCGenCommand
 			}
 		}
 
-		Double result = new Double(pc.getClassLevelString(cl, false));
+		Double result = Double.valueOf(pc.getClassLevelString(cl, false));
 		inStack.push(result);
 	}
 

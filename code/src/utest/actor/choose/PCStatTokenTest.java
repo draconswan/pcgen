@@ -20,18 +20,19 @@ package actor.choose;
 import pcgen.cdom.base.Chooser;
 import pcgen.core.PCStat;
 import plugin.lsttokens.choose.PCStatToken;
+
 import actor.testsupport.AbstractPersistentCDOMChoiceActorTestCase;
 
 public class PCStatTokenTest extends
 		AbstractPersistentCDOMChoiceActorTestCase<PCStat>
 {
 
-	static PCStatToken pca = new PCStatToken();
+	private static final PCStatToken PCA = new PCStatToken();
 
 	@Override
 	public Chooser<PCStat> getActor()
 	{
-		return pca;
+		return PCA;
 	}
 
 	@Override

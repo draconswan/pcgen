@@ -32,7 +32,6 @@ import pcgen.gui2.converter.ConversionDecider;
 import pcgen.gui2.converter.Loader;
 import pcgen.gui2.converter.TokenConverter;
 import pcgen.gui2.converter.event.TokenProcessEvent;
-import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.lst.CampaignSourceEntry;
 import pcgen.rules.context.EditorLoadContext;
 import pcgen.util.Logging;
@@ -40,7 +39,7 @@ import pcgen.util.Logging;
 public class EquipmentLoader implements Loader
 {
 
-	public static final String FIELD_SEPARATOR = "\t"; //$NON-NLS-1$
+	private static final String FIELD_SEPARATOR = "\t"; //$NON-NLS-1$
 	private static final Class<Equipment> EQUIPMENT_CLASS = Equipment.class;
 	private final ListKey<CampaignSourceEntry> listkey;
 	private final EditorLoadContext context;
@@ -55,7 +54,6 @@ public class EquipmentLoader implements Loader
 
 	@Override
 	public List<CDOMObject> process(StringBuilder sb, int line, String lineString, ConversionDecider decider)
-		throws PersistenceLayerException, InterruptedException
 	{
 		String[] tokens = lineString.split(FIELD_SEPARATOR);
 		if (tokens.length == 0)
@@ -123,8 +121,7 @@ public class EquipmentLoader implements Loader
 			{
 				try
 				{
-					changeLogWriter
-						.append("Line " + line + " converted '" + token + "' to '" + tpe.getResult() + "'.\n");
+					changeLogWriter.append("Line ").append(String.valueOf(line)).append(" converted '").append(token).append("' to '").append(tpe.getResult()).append("'.\n");
 				}
 				catch (IOException e)
 				{
@@ -145,10 +142,4 @@ public class EquipmentLoader implements Loader
 	{
 		return c.getSafeListFor(listkey);
 	}
-
-	public String getLoadName()
-	{
-		return EQUIPMENT_CLASS.getSimpleName();
-	}
-
 }

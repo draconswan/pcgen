@@ -26,14 +26,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.output.TeeOutputStream;
-import org.apache.commons.lang3.StringUtils;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 import pcgen.cdom.base.Constants;
 import pcgen.core.SettingsHandler;
@@ -51,6 +48,10 @@ import pcgen.io.PCGFile;
 import pcgen.persistence.SourceFileLoader;
 import pcgen.util.Logging;
 import pcgen.util.fop.FopTask;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.output.TeeOutputStream;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * The Class {@code BatchExporter} manages character sheet output to a
@@ -120,8 +121,8 @@ public class BatchExporter
 		SourceSelectionFacade sourcesForCharacter = CharacterManager.getRequiredSourcesForCharacter(file, uiDelegate);
 		Logging.log(Logging.INFO, "Loading sources " + sourcesForCharacter.getCampaigns() + " using game mode "
 			+ sourcesForCharacter.getGameMode());
-		SourceFileLoader loader = new SourceFileLoader(sourcesForCharacter, uiDelegate);
-		loader.execute();
+		SourceFileLoader loader = new SourceFileLoader(uiDelegate, sourcesForCharacter.getCampaigns(), sourcesForCharacter.getGameMode().get().getName());
+		loader.run();
 
 		// Load character
 		CharacterFacade character = CharacterManager.openCharacter(file, uiDelegate, loader.getDataSetFacade());
@@ -174,8 +175,8 @@ public class BatchExporter
 
 		// Load data
 		SourceSelectionFacade sourcesForCharacter = CharacterManager.getRequiredSourcesForParty(file, uiDelegate);
-		SourceFileLoader loader = new SourceFileLoader(sourcesForCharacter, uiDelegate);
-		loader.execute();
+		SourceFileLoader loader = new SourceFileLoader(uiDelegate, sourcesForCharacter.getCampaigns(), sourcesForCharacter.getGameMode().get().getName());
+		loader.run();
 
 		// Load party
 		PartyFacade party = CharacterManager.openParty(file, uiDelegate, loader.getDataSetFacade());
@@ -215,9 +216,9 @@ public class BatchExporter
 				PCGenSettings.OPTIONS_CONTEXT.initBoolean(PCGenSettings.OPTION_GENERATE_TEMP_FILE_WITH_PDF, false);
 		String outFileName = FilenameUtils.removeExtension(outFile.getAbsolutePath());
 		File tempFile = new File(outFileName + (isTransformTemplate ? ".xml" : ".fo"));
-		try (BufferedOutputStream fileStream = new BufferedOutputStream(new FileOutputStream(outFile));
-				ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-				OutputStream exportOutput = useTempFile
+		try (OutputStream fileStream = new BufferedOutputStream(new FileOutputStream(outFile));
+		     ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+		     OutputStream exportOutput = useTempFile
 					//Output to both the byte stream and to the temp file.
 					? new TeeOutputStream(byteOutputStream, new FileOutputStream(tempFile)) : byteOutputStream)
 		{
@@ -225,13 +226,13 @@ public class BatchExporter
 			if (isTransformTemplate)
 			{
 				exportCharacter(character, exportOutput);
-				ByteArrayInputStream inputStream = new ByteArrayInputStream(byteOutputStream.toByteArray());
+				InputStream inputStream = new ByteArrayInputStream(byteOutputStream.toByteArray());
 				task = FopTask.newFopTask(inputStream, templateFile, fileStream);
 			}
 			else
 			{
 				exportCharacter(character, templateFile, exportOutput);
-				ByteArrayInputStream inputStream = new ByteArrayInputStream(byteOutputStream.toByteArray());
+				InputStream inputStream = new ByteArrayInputStream(byteOutputStream.toByteArray());
 				task = FopTask.newFopTask(inputStream, null, fileStream);
 			}
 			character.setDefaultOutputSheet(true, templateFile);
@@ -243,12 +244,7 @@ public class BatchExporter
 				return false;
 			}
 		}
-		catch (final IOException e)
-		{
-			Logging.errorPrint("BatchExporter.exportCharacterToPDF failed", e); //$NON-NLS-1$
-			return false;
-		}
-		catch (final ExportException e)
+		catch (final IOException | ExportException e)
 		{
 			Logging.errorPrint("BatchExporter.exportCharacterToPDF failed", e); //$NON-NLS-1$
 			return false;
@@ -268,23 +264,20 @@ public class BatchExporter
 	 */
 	public static boolean exportCharacterToNonPDF(CharacterFacade character, File outFile, File templateFile)
 	{
-		try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8")))
+		try (BufferedWriter bw = new BufferedWriter(
+				new OutputStreamWriter(
+						new FileOutputStream(outFile),
+					StandardCharsets.UTF_8)
+		))
 		{
-			character.export(new ExportHandler(templateFile), bw);
+			character.export(ExportHandler.createExportHandler(templateFile), bw);
 			character.setDefaultOutputSheet(false, templateFile);
 			return true;
-		}
-		catch (final UnsupportedEncodingException e)
+		} catch (final IOException e)
 		{
 			Logging.errorPrint("Unable to create output file " + outFile.getAbsolutePath(), e);
 			return false;
-		}
-		catch (final IOException e)
-		{
-			Logging.errorPrint("Unable to create output file " + outFile.getAbsolutePath(), e);
-			return false;
-		}
-		catch (final ExportException e)
+		} catch (final ExportException e)
 		{
 			// Error will already be reported to the log
 			return false;
@@ -361,12 +354,7 @@ public class BatchExporter
 			}
 			task.run();
 		}
-		catch (final IOException e)
-		{
-			Logging.errorPrint("BatchExporter.exportPartyToPDF failed", e);
-			return false;
-		}
-		catch (final ExportException e)
+		catch (final IOException | ExportException e)
 		{
 			Logging.errorPrint("BatchExporter.exportPartyToPDF failed", e);
 			return false;
@@ -388,13 +376,8 @@ public class BatchExporter
 	{
 		try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8")))
 		{
-			party.export(new ExportHandler(templateFile), bw);
+			party.export(ExportHandler.createExportHandler(templateFile), bw);
 			return true;
-		}
-		catch (final UnsupportedEncodingException e)
-		{
-			Logging.errorPrint("Unable to create output file " + outFile.getAbsolutePath(), e);
-			return false;
 		}
 		catch (final IOException e)
 		{
@@ -419,7 +402,7 @@ public class BatchExporter
 			for (final CharacterFacade character : party)
 			{
 				File templateFile = getXMLTemplate(character);
-				character.export(new ExportHandler(templateFile), bw);
+				character.export(ExportHandler.createExportHandler(templateFile), bw);
 			}
 		}
 	}
@@ -441,7 +424,7 @@ public class BatchExporter
 		{
 			for (final CharacterFacade character : party)
 			{
-				character.export(new ExportHandler(templateFile), bw);
+				character.export(ExportHandler.createExportHandler(templateFile), bw);
 			}
 		}
 	}
@@ -511,14 +494,15 @@ public class BatchExporter
 	{
 		try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8")))
 		{
-			character.export(new ExportHandler(templateFile), bw);
+			character.export(ExportHandler.createExportHandler(templateFile), bw);
 		}
 	}
 
 	private static File getXMLTemplate(CharacterFacade character)
 	{
-		File template = FileUtils.getFile(ConfigurationSettings.getSystemsDir(), "gameModes",
-			character.getDataSet().getGameMode().getName(), "base.xml.ftl");
+		Path path = Path.of(ConfigurationSettings.getSystemsDir(), "gameModes",
+				character.getDataSet().getGameMode().getName(), "base.xml.ftl");
+		File template = new File(path.toUri());
 		if (!template.exists())
 		{
 			template = new File(ConfigurationSettings.getOutputSheetsDir(), "base.xml.ftl");

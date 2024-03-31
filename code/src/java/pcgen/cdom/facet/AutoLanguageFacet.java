@@ -58,8 +58,6 @@ public class AutoLanguageFacet extends AbstractQualifiedListFacet<QualifiedObjec
 	 * @param dfce
 	 *            The DataFacetChangeEvent containing the information about the
 	 *            change
-	 * 
-	 * @see pcgen.cdom.facet.event.DataFacetChangeListener#dataAdded(pcgen.cdom.facet.event.DataFacetChangeEvent)
 	 */
 	@Override
 	public void dataAdded(DataFacetChangeEvent<CharID, CDOMObject> dfce)
@@ -108,8 +106,6 @@ public class AutoLanguageFacet extends AbstractQualifiedListFacet<QualifiedObjec
 	 * @param dfce
 	 *            The DataFacetChangeEvent containing the information about the
 	 *            change
-	 * 
-	 * @see pcgen.cdom.facet.event.DataFacetChangeListener#dataRemoved(pcgen.cdom.facet.event.DataFacetChangeEvent)
 	 */
 	@Override
 	public void dataRemoved(DataFacetChangeEvent<CharID, CDOMObject> dfce)
@@ -146,10 +142,7 @@ public class AutoLanguageFacet extends AbstractQualifiedListFacet<QualifiedObjec
 		for (QualifiedObject<CDOMReference<Language>> qo : getQualifiedSet(id))
 		{
 			Collection<Language> langList = qo.getRawObject().getContainedObjects();
-			for (Language l : langList)
-			{
-				list.add(l);
-			}
+			list.addAll(langList);
 		}
 		return list;
 	}

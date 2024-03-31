@@ -19,6 +19,7 @@ package pcgen.cdom.enumeration;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 
 import pcgen.base.enumeration.TypeSafeConstant;
 import pcgen.base.formula.Formula;
@@ -37,6 +38,7 @@ import pcgen.core.analysis.SizeUtilities;
  * *Important*: This should NOT be used to store items from the DEFINE: token,
  * as those are Variables that should be stored using VariableKey
  */
+@SuppressWarnings({"PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal", "checkstyle:FinalClass"})
 public class FormulaKey implements TypeSafeConstant
 {
 
@@ -108,14 +110,8 @@ public class FormulaKey implements TypeSafeConstant
 
 	private FormulaKey(String name, Formula def)
 	{
-		if (name == null)
-		{
-			throw new IllegalArgumentException("Name for FormulaKey cannot be null");
-		}
-		if (def == null)
-		{
-			throw new IllegalArgumentException("Formula for FormulaKey cannot be null");
-		}
+		Objects.requireNonNull(name, "Name for FormulaKey cannot be null");
+		Objects.requireNonNull(def, "Formula for FormulaKey cannot be null");
 		ordinal = ordinalCount++;
 		fieldName = name;
 		defaultValue = def;

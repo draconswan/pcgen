@@ -17,20 +17,18 @@
  */
 package pcgen.base.formula;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.fail;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
 
 
-public class SubtractingFormulaTest
+class SubtractingFormulaTest
 {
-
 	@Test
-	public void testToString()
+	void testToString()
 	{
 		assertEquals("-1", new SubtractingFormula(1).toString());
 		assertEquals("-3", new SubtractingFormula(3).toString());
@@ -39,97 +37,86 @@ public class SubtractingFormulaTest
 	}
 	
 	@Test
-	public void testIdentity()
+	void testIdentity()
 	{
 		SubtractingFormula f = new SubtractingFormula(1);
-		assertEquals(-1, f.resolve(0).intValue());
-		assertEquals(1, f.resolve(2).intValue());
-		assertEquals(1, f.resolve(2.5).intValue());
-		brokenCalls(f);
+        assertEquals(-1, f.resolve(0));
+        assertEquals(1, f.resolve(2));
+        assertEquals(1, f.resolve(2.5));
 	}
 
 	@Test
-	public void testEquality()
+	void testEquality()
 	{
 		SubtractingFormula f1 = new SubtractingFormula(1);
 		SubtractingFormula f2 = new SubtractingFormula(1);
 		SubtractingFormula f3 = new SubtractingFormula(2);
 		SubtractingFormula f4 = new SubtractingFormula(-1);
-		assertNotSame(f1, f2);
 		assertEquals(f1.hashCode(), f2.hashCode());
 		assertEquals(f1, f2);
-		assertNotNull(f1);
-		assertFalse(f1.hashCode() == f3.hashCode());
-		assertFalse(f1.equals(f3));
-		assertFalse(f1.hashCode() == f4.hashCode());
-		assertFalse(f1.equals(f4));
+		assertNotEquals(f1.hashCode(), f3.hashCode());
+		assertNotEquals(f1, f3);
+		assertNotEquals(f1.hashCode(), f4.hashCode());
+		assertNotEquals(f1, f4);
 	}
 
 	@Test
-	public void testPositive()
+	void testPositive()
 	{
 		SubtractingFormula f = new SubtractingFormula(3);
-		assertEquals(2, f.resolve(5).intValue());
-		assertEquals(2, f.resolve(5.5).intValue());
-		brokenCalls(f);
+        assertEquals(2, f.resolve(5));
+        assertEquals(2, f.resolve(5.5));
 	}
 
 	@Test
-	public void testZero()
+	void testZero()
 	{
 		SubtractingFormula f = new SubtractingFormula(0);
-		assertEquals(5, f.resolve(5).intValue());
-		assertEquals(2, f.resolve(2.3).intValue());
-		brokenCalls(f);
+        assertEquals(5, f.resolve(5));
+        assertEquals(2, f.resolve(2.3));
 	}
 
 	@Test
-	public void testNegative()
+	void testNegative()
 	{
 		SubtractingFormula f = new SubtractingFormula(-2);
-		assertEquals(7, f.resolve(5).intValue());
-		assertEquals(-4, f.resolve(-6.7).intValue());
-		brokenCalls(f);
+        assertEquals(7, f.resolve(5));
+        assertEquals(-4, f.resolve(-6.7));
 	}
 
-	private static void brokenCalls(SubtractingFormula f)
+	@Test
+	void testStackedFormula()
 	{
-		try
-		{
-			f.resolve((Number[]) null);
-			fail("null should be illegal");
-		}
-		catch (IllegalArgumentException e)
-		{
-			// OK
-		}
-		try
-		{
-			f.resolve();
-			fail("empty array should be illegal");
-		}
-		catch (IllegalArgumentException e)
-		{
-			// OK
-		}
-		try
-		{
-			f.resolve(4, 2.5);
-			fail("two arguments in array should be illegal");
-		}
-		catch (IllegalArgumentException e)
-		{
-			// OK
-		}
-		try
-		{
-			f.resolve(4, 2.5);
-			fail("two arguments should be illegal");
-		}
-		catch (IllegalArgumentException e)
-		{
-			// OK
-		}
+		SubtractingFormula minusOne = new SubtractingFormula(1);
+        assertEquals(-1, minusOne.resolve(minusOne.resolve(1)));
+        assertEquals(-1, minusOne.resolve(minusOne.resolve(1.2435643516)));
 	}
 
+	@Test
+	void testIntegerUnderflow()
+	{
+		SubtractingFormula minusOne = new SubtractingFormula(1);
+        assertEquals(Integer.MAX_VALUE, minusOne.resolve(Integer.MIN_VALUE));
+	}
+
+	@Test
+	void testInputNotNull()
+	{
+		SubtractingFormula minusOne = new SubtractingFormula(1);
+        assertThrows(IllegalArgumentException.class, () -> minusOne.resolve((Number[]) null));
+	}
+
+	@Test
+	void testInputNotEmpty()
+	{
+		SubtractingFormula minusOne = new SubtractingFormula(1);
+        assertThrows(IllegalArgumentException.class, () -> minusOne.resolve());
+	}
+
+	@Test
+	void testInputNotLongerThan1()
+	{
+		SubtractingFormula minusOne = new SubtractingFormula(1);
+        assertThrows(IllegalArgumentException.class, () -> minusOne.resolve(4, 2.5));
+	}
 }

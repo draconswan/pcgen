@@ -19,6 +19,7 @@ package pcgen.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import pcgen.base.formula.Formula;
@@ -39,13 +40,12 @@ import pcgen.core.prereq.PrereqHandler;
 import pcgen.core.prereq.Prerequisite;
 import pcgen.core.utils.MessageType;
 import pcgen.core.utils.ShowMessageDelegate;
-import pcgen.facade.core.EquipModFacade;
 import pcgen.util.Delta;
 
 /**
  * Definition and games rules for an equipment modifier.
  */
-public final class EquipmentModifier extends PObject implements Comparable<Object>, EquipModFacade, Cloneable
+public final class EquipmentModifier extends PObject implements Comparable<Object>, Cloneable
 {
 	private static final String PERCENT_CHOICE_PATTERN = Pattern.quote(Constants.LST_PERCENT_CHOICE);
 	private static final Formula CHOICE_FORMULA = FormulaFactory.getFormulaFor("%CHOICE");
@@ -157,19 +157,12 @@ public final class EquipmentModifier extends PObject implements Comparable<Objec
 	 * to? If aType begins with an &#34; (Exclamation Mark) the &#34; will
 	 * be removed before checking the type.
 	 *
-	 * @param aType the type string to check for.
+	 * @param type the type string to check for.
 	 * @return Whether the item is of this type
 	 */
-	public boolean isIType(final String aType)
+	public boolean isIType(Type type)
 	{
-		for (String s : getSafeListFor(ListKey.ITEM_TYPES))
-		{
-			if (aType.equalsIgnoreCase(s))
-			{
-				return true;
-			}
-		}
-		return false;
+		return containsInList(ListKey.ITEM_TYPES, type);
 	}
 
 	/**
@@ -290,7 +283,6 @@ public final class EquipmentModifier extends PObject implements Comparable<Objec
 		return getKeyName().compareTo(o.toString());
 	}
 
-	@Override
 	public String getDisplayType()
 	{
 		List<Type> trueTypeList = getTrueTypeList(true);
@@ -298,9 +290,9 @@ public final class EquipmentModifier extends PObject implements Comparable<Objec
 	}
 
 	@Override
-	public String getLocalScopeName()
+	public Optional<String> getLocalScopeName()
 	{
-		return EquipmentPartScope.PC_EQUIPMENT_PART;
+		return Optional.of(EquipmentPartScope.PC_EQUIPMENT_PART);
 	}
 
 	private VarScoped variableParent;
@@ -311,8 +303,8 @@ public final class EquipmentModifier extends PObject implements Comparable<Objec
 	}
 
 	@Override
-	public VarScoped getVariableParent()
+	public Optional<VarScoped> getVariableParent()
 	{
-		return variableParent;
+		return Optional.ofNullable(variableParent);
 	}
 }

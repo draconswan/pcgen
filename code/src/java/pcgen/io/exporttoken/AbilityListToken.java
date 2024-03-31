@@ -71,9 +71,6 @@ public class AbilityListToken extends Token
 		return TOKENNAME;
 	}
 
-	/**
-	 * @see Token#getToken(String, PlayerCharacter, ExportHandler)
-	 */
 	@Override
 	public String getToken(String tokenSource, PlayerCharacter pc, ExportHandler eh)
 	{
@@ -81,7 +78,7 @@ public class AbilityListToken extends Token
 		// Skip the ABILITYLIST token itself
 		final String tokenString = aTok.nextToken();
 		final String catString = aTok.nextToken();
-		final AbilityCategory aCategory = SettingsHandler.getGame().getAbilityCategory(catString);
+		final AbilityCategory aCategory = SettingsHandler.getGameAsProperty().get().getAbilityCategory(catString);
 
 		return getTokenForCategory(pc, aTok, tokenString, aCategory);
 	}
@@ -176,7 +173,7 @@ public class AbilityListToken extends Token
 	protected MapToList<Ability, CNAbility> getAbilityList(PlayerCharacter pc, final AbilityCategory aCategory)
 	{
 		final MapToList<Ability, CNAbility> listOfAbilities = new HashMapToList<>();
-		Collection<AbilityCategory> allCats = SettingsHandler.getGame().getAllAbilityCategories();
+		Collection<AbilityCategory> allCats = SettingsHandler.getGameAsProperty().get().getAllAbilityCategories();
 		for (AbilityCategory aCat : allCats)
 		{
 			if (AbilityCategory.ANY.equals(aCategory) || aCat.getParentCategory().equals(aCategory))

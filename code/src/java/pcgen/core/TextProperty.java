@@ -47,14 +47,12 @@ public abstract class TextProperty extends PObject implements Serializable, Comp
 	@Override
 	public int compareTo(final Object obj)
 	{
-		if (obj instanceof TextProperty)
+		if (obj instanceof TextProperty tp)
 		{
-			TextProperty tp = (TextProperty) obj;
 			return getKeyName().compareTo(tp.getKeyName());
 		}
-		else if (obj instanceof CDOMObject)
+		else if (obj instanceof CDOMObject pObj)
 		{
-			CDOMObject pObj = (CDOMObject) obj;
 			return getKeyName().compareToIgnoreCase(pObj.getKeyName());
 		}
 
@@ -130,7 +128,7 @@ public abstract class TextProperty extends PObject implements Serializable, Comp
 
 						if ("%".equals(nextTok))
 						{
-							if ((varValue != null) && (varCount < varValue.length))
+							if (varCount < varValue.length)
 							{
 								newAbility.append(varValue[varCount++]);
 							}

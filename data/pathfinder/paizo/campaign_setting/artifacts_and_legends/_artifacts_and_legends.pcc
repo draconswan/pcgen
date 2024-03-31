@@ -1,10 +1,9 @@
 CAMPAIGN:Artifacts and Legends
 GAMEMODE:Pathfinder|Pathfinder_PFS
-TYPE:Paizo Publishing.Campaign Setting
-RANK:3
+TYPE:Paizo Publishing.Pathfinder Campaign Setting
 STATUS:BETA
 GENRE:Fantasy
-BOOKTYPE:Supplement
+BOOKTYPE:Campaign Setting
 SETTING:Pathfinder
 PRECAMPAIGN:1,INCLUDESBOOKTYPE=Core Rules
 PRECAMPAIGN:1,INCLUDES=Inner Sea World Guide
@@ -19,6 +18,7 @@ SOURCELONG:Artifacts and Legends
 SOURCESHORT:AandL
 SOURCEWEB:http://paizo.com/products/btpy8u7k
 SOURCEDATE:2012-10
+RANK:201210
 ISOGL:YES
 
 COVER:artifacts_and_legends.jpg
@@ -53,7 +53,7 @@ TEMPLATE:aandl_templates.lst
 # LICENSE MONKEY: Paul Grosse
 # RELEASE REVIEW #
 # BETA: Andrew Maitland (LegacyKing)
-# RELEASE: 
+# RELEASE:
 # Built for PCGen Version: 6.07.06
 # Updated to work with version: -
 # MINVER:6.6

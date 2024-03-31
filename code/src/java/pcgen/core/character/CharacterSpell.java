@@ -125,9 +125,8 @@ public final class CharacterSpell implements Comparable<CharacterSpell>
 		{
 			result = true;
 		}
-		else if (owner instanceof PCClass)
+		else if (owner instanceof final PCClass a)
 		{
-			final PCClass a = (PCClass) owner;
 			result = SpellCountCalc.isSpecialtySpell(pc, a, spell);
 		}
 		else
@@ -191,15 +190,9 @@ public final class CharacterSpell implements Comparable<CharacterSpell>
 		{
 			return false;
 		}
-		for (SpellInfo s : infoList)
-		{
-			if (s.getActualLevel() == level)
-			{
-				return true;
-			}
-		}
 
-		return false;
+		return infoList.stream()
+		               .anyMatch(spellInfo -> spellInfo.getActualLevel() == level);
 	}
 
 	public boolean hasSpellInfoFor(String bookName)
@@ -262,7 +255,6 @@ public final class CharacterSpell implements Comparable<CharacterSpell>
 	 * @param obj the CharacterSpell to compare with
 	 * @return a negative integer, zero, or a positive integer as this object
 	 *         is less than, equal to, or greater than the specified object.
-	 * @see Comparable#compareTo(Object)
 	 */
 	@Override
 	public int compareTo(final CharacterSpell obj)

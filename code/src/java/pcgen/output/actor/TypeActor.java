@@ -21,14 +21,14 @@ package pcgen.output.actor;
 import java.util.ArrayList;
 import java.util.List;
 
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.enumeration.CharID;
 import pcgen.cdom.enumeration.ListKey;
 import pcgen.cdom.enumeration.Type;
 import pcgen.output.base.OutputActor;
 import pcgen.output.model.CollectionModel;
+
+import freemarker.template.TemplateModel;
 
 /**
  * A TypeActor is designed to process an interpolation and convert the
@@ -40,7 +40,7 @@ import pcgen.output.model.CollectionModel;
 public class TypeActor implements OutputActor<CDOMObject>
 {
 	@Override
-	public TemplateModel process(CharID id, CDOMObject d) throws TemplateModelException
+	public TemplateModel process(CharID id, CDOMObject d)
 	{
 		final List<Type> types = d.getSafeListFor(ListKey.TYPE);
 		List<String> strings = new ArrayList<>(types.size());

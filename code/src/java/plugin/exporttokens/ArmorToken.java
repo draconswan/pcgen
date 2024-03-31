@@ -10,7 +10,6 @@ import pcgen.core.Equipment;
 import pcgen.core.PlayerCharacter;
 import pcgen.core.analysis.BonusCalc;
 import pcgen.core.analysis.OutputNameFormatting;
-import pcgen.core.display.CharacterDisplay;
 import pcgen.io.ExportHandler;
 import pcgen.io.exporttoken.EqToken;
 import pcgen.io.exporttoken.Token;
@@ -384,7 +383,7 @@ public class ArmorToken extends Token
 
 		for (Equipment eq : aPC.getEquipmentOfTypeInOutputOrder(type, subtype, equipped, merge))
 		{
-			if (eq.getACMod(aPC).intValue() > 0)
+			if (eq.getACMod(aPC) > 0)
 			{
 				aArrayList.add(eq);
 			}
@@ -405,7 +404,6 @@ public class ArmorToken extends Token
 
 	private static String writeArmorProperty(Equipment eq, String property, PlayerCharacter aPC)
 	{
-		CharacterDisplay display = aPC.getDisplay();
 		StringBuilder ret = new StringBuilder();
 
 		if (property.startsWith("NAME"))
@@ -499,11 +497,12 @@ public class ArmorToken extends Token
 			final StringTokenizer aTok = new StringTokenizer(eq.moveString(), ",", false);
 			String tempString = "";
 
-			if (("M".equals(display.getSize()) || "S".equals(display.getSize())) && (aTok.countTokens() > 0))
+			String sizeAbb = aPC.getSizeAdjustment().getKeyName();
+			if (("M".equals(sizeAbb) || "S".equals(sizeAbb)) && (aTok.countTokens() > 0))
 			{
 				tempString = aTok.nextToken();
 
-				if ("S".equals(display.getSize()) && (aTok.countTokens() > 1))
+				if ("S".equals(sizeAbb) && (aTok.countTokens() > 1))
 				{
 					tempString = aTok.nextToken();
 				}

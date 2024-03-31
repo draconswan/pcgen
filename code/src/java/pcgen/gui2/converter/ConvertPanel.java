@@ -73,36 +73,7 @@ public class ConvertPanel extends JPanel
 	{
 		super(new BorderLayout());
 		statusLabel = new JLabel();
-		TaskStrategyListener tsl = new TaskStrategyListener()
-		{
-			private String status;
-
-			private long time;
-
-			@Override
-			public void processMessage(Object owner, String string)
-			{
-				JOptionPane.showMessageDialog(null, string);
-			}
-
-			@Override
-			public void processStatus(Object source, String string)
-			{
-				status = string;
-				statusLabel.setText(string);
-			}
-
-			@Override
-			public void processActiveItem(Object source, String string)
-			{
-				long currentTime = System.currentTimeMillis();
-				if ((currentTime - time) > 100)
-				{
-					statusLabel.setText(status + " [" + string + "]");
-					time = currentTime;
-				}
-			}
-		};
+		TaskStrategyListener tsl = (source, string) -> statusLabel.setText(string);
 		TaskStrategyMessage.addTaskStrategyListener(tsl);
 
 		properties = new ObjectCache();
@@ -135,35 +106,16 @@ public class ConvertPanel extends JPanel
 				nextButton.setEnabled(false);
 			}
 		};
-		nextButton.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				proceedToNextPanel();
-			}
-		});
+		nextButton.addActionListener(arg0 -> proceedToNextPanel());
 		buttonBox.add(nextButton);
 		cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				checkExit();
-			}
-		});
+		cancelButton.addActionListener(arg0 -> checkExit());
 		buttonBox.add(cancelButton);
 		finishButton = new JButton("Finish");
-		finishButton.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				PCGenDataConvert.savePrefs();
-				System.exit(0);
-			}
-		});
+		finishButton.addActionListener(arg0 -> {
+            PCGenDataConvert.savePrefs();
+            System.exit(0);
+        });
 		finishButton.setVisible(false);
 		buttonBox.add(finishButton);
 		basePanel.setPreferredSize(new Dimension(800, 500));
@@ -186,15 +138,10 @@ public class ConvertPanel extends JPanel
 
 	private void proceedToNextPanel()
 	{
-		Thread t = new Thread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				CursorControlUtilities.startWaitCursor(basePanel);
-				runNextPanel();
-				CursorControlUtilities.stopWaitCursor(basePanel);
-			}
+		Thread t = new Thread(() -> {
+			CursorControlUtilities.startWaitCursor(basePanel);
+			runNextPanel();
+			CursorControlUtilities.stopWaitCursor(basePanel);
 		});
 		t.start();
 	}
@@ -233,7 +180,7 @@ public class ConvertPanel extends JPanel
 
 	private void runNextPanel()
 	{
-		ConvertSubPanel nextpanel = null;
+		ConvertSubPanel nextpanel;
 		do
 		{
 			boolean allowPrev = false;
@@ -267,14 +214,11 @@ public class ConvertPanel extends JPanel
 	public class PreviousButtonListener implements ActionListener
 	{
 
-		/**
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
 			CursorControlUtilities.startWaitCursor(basePanel);
-			ConvertSubPanel prevpanel = null;
+			ConvertSubPanel prevpanel;
 			do
 			{
 				currentPanel--;

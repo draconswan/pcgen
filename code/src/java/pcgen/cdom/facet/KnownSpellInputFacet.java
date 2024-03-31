@@ -51,8 +51,6 @@ public class KnownSpellInputFacet implements DataFacetChangeListener<CharID, CDO
 	 * @param dfce
 	 *            The DataFacetChangeEvent containing the information about the
 	 *            change
-	 * 
-	 * @see pcgen.cdom.facet.event.DataFacetChangeListener#dataAdded(pcgen.cdom.facet.event.DataFacetChangeEvent)
 	 */
 	@Override
 	public void dataAdded(DataFacetChangeEvent<CharID, CDOMObject> dfce)
@@ -87,7 +85,7 @@ public class KnownSpellInputFacet implements DataFacetChangeListener<CharID, CDO
 			for (AssociatedPrereqObject apo : cdo.getListAssociations(listref, objref))
 			{
 				Boolean known = apo.getAssociation(AssociationKey.KNOWN);
-				if ((known == null) || !known.booleanValue())
+				if ((known == null) || !known)
 				{
 					continue;
 				}
@@ -122,8 +120,6 @@ public class KnownSpellInputFacet implements DataFacetChangeListener<CharID, CDO
 	 * @param dfce
 	 *            The DataFacetChangeEvent containing the information about the
 	 *            change
-	 * 
-	 * @see pcgen.cdom.facet.event.DataFacetChangeListener#dataRemoved(pcgen.cdom.facet.event.DataFacetChangeEvent)
 	 */
 	@Override
 	public void dataRemoved(DataFacetChangeEvent<CharID, CDOMObject> dfce)

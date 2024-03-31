@@ -18,43 +18,32 @@
  */
 package pcgen.persistence.lst.prereq;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Locale;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 import pcgen.AbstractCharacterTestCase;
 import pcgen.LocaleDependentTestCase;
 import pcgen.core.prereq.Prerequisite;
 import pcgen.persistence.PersistenceLayerException;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 
 @SuppressWarnings("nls")
 public class PreParserFactoryTest extends AbstractCharacterTestCase
 {
-	public static void main(String[] args)
-	{
-		TestRunner.run(PreParserFactoryTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PreParserFactoryTest.class);
-	}
-
-	/**
-	 * @see pcgen.AbstractCharacterTestCase#setUp()
-	 */
+	@BeforeEach
 	@Override
 	protected void setUp() throws Exception
 	{
 		super.setUp();
 		LocaleDependentTestCase.before(Locale.US);
 	}
-	
+
+	@AfterEach
 	@Override
 	protected void tearDown() throws Exception
 	{
@@ -68,6 +57,7 @@ public class PreParserFactoryTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testNotEqual() throws PersistenceLayerException
 	{
 		PreParserFactory factory = PreParserFactory.getInstance();
@@ -85,6 +75,7 @@ public class PreParserFactoryTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testOverrideQualifies() throws PersistenceLayerException
 	{
 		PreParserFactory factory = PreParserFactory.getInstance();
@@ -96,6 +87,7 @@ public class PreParserFactoryTest extends AbstractCharacterTestCase
 		prereq.toString());
 	}
 
+	@Test
 	public void testSkillTypeKnowledge() throws Exception
 	{
 		PreParserFactory factory = PreParserFactory.getInstance();
@@ -109,6 +101,7 @@ public class PreParserFactoryTest extends AbstractCharacterTestCase
 
 	}
 
+	@Test
 	public void testInvertResult() throws Exception
 	{
 		PreParserFactory factory = PreParserFactory.getInstance();

@@ -23,13 +23,14 @@ import java.awt.Component;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import pcgen.core.EquipmentModifier;
 import pcgen.facade.core.CharacterFacade;
-import pcgen.facade.core.EquipModFacade;
 import pcgen.facade.core.EquipmentFacade;
 import pcgen.facade.core.InfoFacade;
 import pcgen.gui2.UIPropertyContext;
 import pcgen.gui2.util.FontManipulation;
 import pcgen.gui2.util.TreeColumnCellRenderer;
+import pcgen.gui3.utilty.ColorUtilty;
 import pcgen.system.LanguageBundle;
 
 /**
@@ -52,7 +53,7 @@ public class EquipQualifiedTreeCellRenderer extends TreeColumnCellRenderer
 	{
 		this.character = character;
 		this.equip = equip;
-		setTextNonSelectionColor(UIPropertyContext.getQualifiedColor());
+		setTextNonSelectionColor(ColorUtilty.colorToAWTColor(UIPropertyContext.getQualifiedColor()));
 	}
 
 	@Override
@@ -65,9 +66,9 @@ public class EquipQualifiedTreeCellRenderer extends TreeColumnCellRenderer
 			obj = LanguageBundle.getString("in_none"); //$NON-NLS-1$
 		}
 		super.getTreeCellRendererComponent(tree, obj, sel, expanded, leaf, row, focus);
-		if (obj instanceof EquipModFacade && !character.isQualifiedFor(equip, (EquipModFacade) obj))
+		if (obj instanceof EquipmentModifier && !character.isQualifiedFor(equip, (EquipmentModifier) obj))
 		{
-			setForeground(UIPropertyContext.getNotQualifiedColor());
+			setForeground(ColorUtilty.colorToAWTColor(UIPropertyContext.getNotQualifiedColor()));
 		}
 		if (obj instanceof InfoFacade && ((InfoFacade) obj).isNamePI())
 		{

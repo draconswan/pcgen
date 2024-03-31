@@ -1,16 +1,16 @@
 /*
  * Copyright 2010 Connor Petty <cpmeister@users.sourceforge.net>
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
@@ -20,26 +20,17 @@ package pcgen.persistence;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.net.URI;
-import java.util.Collection;
 
-import pcgen.base.lang.UnreachableError;
 import pcgen.cdom.base.Constants;
-import pcgen.cdom.content.Sponsor;
 import pcgen.cdom.content.TabInfo;
-import pcgen.cdom.reference.CDOMDirectSingleRef;
-import pcgen.cdom.reference.CDOMSingleRef;
 import pcgen.core.AbilityCategory;
 import pcgen.core.CustomData;
 import pcgen.core.GameMode;
-import pcgen.core.Globals;
 import pcgen.core.PaperInfo;
 import pcgen.core.PointBuyCost;
-import pcgen.core.QualifiedObject;
 import pcgen.core.RuleCheck;
 import pcgen.core.SystemCollections;
 import pcgen.core.UnitSet;
-import pcgen.core.character.WieldCategory;
-import pcgen.core.prereq.Prerequisite;
 import pcgen.persistence.lst.BioSetLoader;
 import pcgen.persistence.lst.EquipIconLoader;
 import pcgen.persistence.lst.EquipSlotLoader;
@@ -56,8 +47,6 @@ import pcgen.persistence.lst.SimplePrefixLoader;
 import pcgen.persistence.lst.SizeAdjustmentLoader;
 import pcgen.persistence.lst.StatsAndChecksLoader;
 import pcgen.persistence.lst.TraitLoader;
-import pcgen.persistence.lst.prereq.PreParserFactory;
-import pcgen.rules.context.AbstractReferenceContext;
 import pcgen.rules.context.LoadContext;
 import pcgen.rules.persistence.CodeControlLoader;
 import pcgen.system.ConfigurationSettings;
@@ -76,9 +65,7 @@ public class GameModeFileLoader extends PCGenTask
 
 			if (d.isDirectory())
 			{
-				// the directory must contain
-				// a "miscinfo.lst" file and a
-				// "statsandchecks.lst" file to be
+				// the directory must contain a "miscinfo.lst" file and a "statsandchecks.lst" file to be
 				// a complete gameMode
 				return new File(d, "statsandchecks.lst").exists() && new File(d, "miscinfo.lst").exists();
 			}
@@ -98,7 +85,7 @@ public class GameModeFileLoader extends PCGenTask
 	}
 
 	@Override
-	public void execute()
+	public void run()
 	{
 		String[] gameFiles = GameModeFileLoader.getGameFilesList();
 		if ((gameFiles != null) && (gameFiles.length > 0))
@@ -106,7 +93,6 @@ public class GameModeFileLoader extends PCGenTask
 			setMaximum(gameFiles.length + 1);
 			loadGameModes(gameFiles);
 		}
-		loadSponsorsLstFile();
 	}
 
 	/**
@@ -133,36 +119,15 @@ public class GameModeFileLoader extends PCGenTask
 	private final LstLineFileLoader statCheckLoader = new StatsAndChecksLoader();
 	private final LstLineFileLoader migrationLoader = new MigrationLoader();
 	private final LstLineFileLoader bioLoader = new BioSetLoader();
-	private final LstLineFileLoader sponsorLoader = new SimplePrefixLoader<>(Sponsor.class, "SPONSOR");
 	private final LstLineFileLoader equipIconLoader = new EquipIconLoader();
 	private final LstLineFileLoader codeControlLoader = new CodeControlLoader();
 
-	/**
-	 * Load a sponsors lst file.
-	 * First try the game mode directory. If that fails, try
-	 * reading the file from the default game mode directory.
-	 */
-	private void loadSponsorsLstFile()
-	{
-		File sponsorDir = new File(ConfigurationSettings.getSystemsDir(), "sponsors");
-
-		try
-		{
-			File sponsorFile = new File(sponsorDir, "sponsors.lst");
-			sponsorLoader.loadLstFile(Globals.getGlobalContext(), sponsorFile.toURI(), null);
-		}
-		catch (final PersistenceLayerException ple)
-		{
-			Logging.errorPrint("Warning: sponsors file is missing");
-		}
-	}
-
 	private void loadGameModes(String[] gameFiles)
 	{
-
 		SystemCollections.clearGameModeList();
 		File gameModeDir = new File(ConfigurationSettings.getSystemsDir(), "gameModes");
 		int progress = 0;
+
 		for (final String gameFile : gameFiles)
 		{
 			File specGameModeDir = new File(gameModeDir, gameFile);
@@ -217,16 +182,6 @@ public class GameModeFileLoader extends PCGenTask
 
 				GameModeFileLoader.loadGameModeLstFile(context, bioLoader, gmName, gameFile,
 					"bio" + File.separator + "biosettings.lst");
-			}
-			try
-			{
-				GameModeFileLoader.addDefaultWieldCategories(gm.getModeContext());
-			}
-			catch (final PersistenceLayerException ple)
-			{
-				Logging.errorPrint("Error Initializing PreParserFactory");
-				Logging.errorPrint("  " + ple.getMessage(), ple);
-				throw new UnreachableError();
 			}
 
 			progress++;
@@ -307,7 +262,7 @@ public class GameModeFileLoader extends PCGenTask
 		String data;
 		try
 		{
-			data = LstFileLoader.readFromURI(uri).toString();
+			data = LstFileLoader.readFromURI(uri);
 		}
 		catch (final PersistenceLayerException ple)
 		{
@@ -325,7 +280,7 @@ public class GameModeFileLoader extends PCGenTask
 			String aLine = fileLines[i];
 
 			// Ignore commented-out and empty lines
-			if (((!aLine.isEmpty()) && (aLine.charAt(0) == '#')) || (aLine.isEmpty()))
+			if (aLine.isEmpty() || (aLine.charAt(0) == '#'))
 			{
 				continue;
 			}
@@ -356,7 +311,7 @@ public class GameModeFileLoader extends PCGenTask
 		String data;
 		try
 		{
-			data = LstFileLoader.readFromURI(uri).toString();
+			data = LstFileLoader.readFromURI(uri);
 		}
 		catch (final PersistenceLayerException ple)
 		{
@@ -378,7 +333,7 @@ public class GameModeFileLoader extends PCGenTask
 			String aLine = fileLines[i];
 
 			// Ignore commented-out and empty lines
-			if (((!aLine.isEmpty()) && (aLine.charAt(0) == '#')) || aLine.isEmpty())
+			if (aLine.isEmpty() || (aLine.charAt(0) == '#'))
 			{
 				continue;
 			}
@@ -487,209 +442,4 @@ public class GameModeFileLoader extends PCGenTask
 			}
 		}
 	}
-
-	public static void addDefaultWieldCategories(LoadContext context) throws PersistenceLayerException
-	{
-		PreParserFactory prereqParser;
-
-		try
-		{
-			prereqParser = PreParserFactory.getInstance();
-		}
-		catch (final PersistenceLayerException ple)
-		{
-			Logging.errorPrint("Error Initializing PreParserFactory");
-			Logging.errorPrint("  " + ple.getMessage(), ple);
-			throw new UnreachableError(ple);
-		}
-
-		AbstractReferenceContext refContext = context.getReferenceContext();
-		Collection<WieldCategory> categories = refContext.getConstructedCDOMObjects(WieldCategory.class);
-
-		WieldCategory light = null;
-		WieldCategory twoHanded = null;
-		WieldCategory oneHanded = null;
-		WieldCategory tooLarge = null;
-		WieldCategory tooSmall = null;
-
-		for (final WieldCategory wc : categories)
-		{
-			String name = wc.getKeyName();
-			if ("Light".equalsIgnoreCase(name))
-			{
-				light = wc;
-			}
-			if ("TwoHanded".equalsIgnoreCase(name))
-			{
-				twoHanded = wc;
-			}
-			if ("OneHanded".equalsIgnoreCase(name))
-			{
-				oneHanded = wc;
-			}
-			if ("TooLarge".equalsIgnoreCase(name))
-			{
-				tooLarge = wc;
-			}
-			if ("TooSmall".equalsIgnoreCase(name))
-			{
-				tooSmall = wc;
-			}
-		}
-		boolean buildLight = false;
-		if (light == null)
-		{
-			light = new WieldCategory();
-			light.setName("Light");
-			refContext.importObject(light);
-			buildLight = true;
-		}
-		boolean buildTwoHanded = false;
-		if (twoHanded == null)
-		{
-			twoHanded = new WieldCategory();
-			twoHanded.setName("TwoHanded");
-			refContext.importObject(twoHanded);
-			buildTwoHanded = true;
-		}
-		boolean buildOneHanded = false;
-		if (oneHanded == null)
-		{
-			oneHanded = new WieldCategory();
-			oneHanded.setName("OneHanded");
-			refContext.importObject(oneHanded);
-			buildOneHanded = true;
-		}
-		boolean buildTooLarge = false;
-		if (tooLarge == null)
-		{
-			tooLarge = new WieldCategory();
-			tooLarge.setName("TooLarge");
-			refContext.importObject(tooLarge);
-			buildTooLarge = true;
-		}
-		boolean buildTooSmall = false;
-		if (tooSmall == null)
-		{
-			tooSmall = new WieldCategory();
-			tooSmall.setName("TooSmall");
-			refContext.importObject(tooSmall);
-			buildTooSmall = true;
-		}
-
-		CDOMDirectSingleRef<WieldCategory> tooSmallRef = CDOMDirectSingleRef.getRef(tooSmall);
-		CDOMDirectSingleRef<WieldCategory> lightRef = CDOMDirectSingleRef.getRef(light);
-		CDOMDirectSingleRef<WieldCategory> oneHandedRef = CDOMDirectSingleRef.getRef(oneHanded);
-		CDOMDirectSingleRef<WieldCategory> twoHandedRef = CDOMDirectSingleRef.getRef(twoHanded);
-		CDOMDirectSingleRef<WieldCategory> tooLargeRef = CDOMDirectSingleRef.getRef(tooLarge);
-		if (buildLight)
-		{
-			light.setHandsRequired(1);
-			light.setFinessable(true);
-			light.addDamageMult(1, 1.0f);
-			light.addDamageMult(2, 1.0f);
-			Prerequisite p = prereqParser.parse("PREVARLTEQ:EQUIP.SIZE.INT,PC.SIZE.INT-1");
-			QualifiedObject<CDOMSingleRef<WieldCategory>> qo = new QualifiedObject<>(tooSmallRef);
-			qo.addPrerequisite(p);
-			light.addCategorySwitch(qo);
-			p = prereqParser.parse("PREVAREQ:EQUIP.SIZE.INT,PC.SIZE.INT+1");
-			qo = new QualifiedObject<>(oneHandedRef);
-			qo.addPrerequisite(p);
-			light.addCategorySwitch(qo);
-			p = prereqParser.parse("PREVAREQ:EQUIP.SIZE.INT,PC.SIZE.INT+2");
-			qo = new QualifiedObject<>(twoHandedRef);
-			qo.addPrerequisite(p);
-			light.addCategorySwitch(qo);
-			p = prereqParser.parse("PREVARGTEQ:EQUIP.SIZE.INT,PC.SIZE.INT+3");
-			qo = new QualifiedObject<>(tooLargeRef);
-			qo.addPrerequisite(p);
-			light.addCategorySwitch(qo);
-			light.setWieldCategoryStep(1, oneHandedRef);
-			light.setWieldCategoryStep(2, twoHandedRef);
-		}
-		if (buildTwoHanded)
-		{
-			twoHanded.setFinessable(false);
-			twoHanded.setHandsRequired(2);
-			twoHanded.addDamageMult(2, 1.5f);
-			Prerequisite p = prereqParser.parse("PREVAREQ:EQUIP.SIZE.INT,PC.SIZE.INT-3");
-			QualifiedObject<CDOMSingleRef<WieldCategory>> qo = new QualifiedObject<>(tooSmallRef);
-			qo.addPrerequisite(p);
-			twoHanded.addCategorySwitch(qo);
-			p = prereqParser.parse("PREVAREQ:EQUIP.SIZE.INT,PC.SIZE.INT-2");
-			qo = new QualifiedObject<>(lightRef);
-			qo.addPrerequisite(p);
-			twoHanded.addCategorySwitch(qo);
-			p = prereqParser.parse("PREVAREQ:EQUIP.SIZE.INT,PC.SIZE.INT-1");
-			qo = new QualifiedObject<>(oneHandedRef);
-			qo.addPrerequisite(p);
-			twoHanded.addCategorySwitch(qo);
-			p = prereqParser.parse("PREVARGTEQ:EQUIP.SIZE.INT,PC.SIZE.INT+1");
-			qo = new QualifiedObject<>(tooLargeRef);
-			qo.addPrerequisite(p);
-			twoHanded.addCategorySwitch(qo);
-			twoHanded.setWieldCategoryStep(-2, lightRef);
-			twoHanded.setWieldCategoryStep(-1, oneHandedRef);
-		}
-		if (buildOneHanded)
-		{
-			oneHanded.setHandsRequired(1);
-			oneHanded.setFinessable(false);
-			oneHanded.addDamageMult(1, 1.0f);
-			oneHanded.addDamageMult(2, 1.5f);
-			Prerequisite p = prereqParser.parse("PREVAREQ:EQUIP.SIZE.INT,PC.SIZE.INT-2");
-			QualifiedObject<CDOMSingleRef<WieldCategory>> qo = new QualifiedObject<>(tooSmallRef);
-			qo.addPrerequisite(p);
-			oneHanded.addCategorySwitch(qo);
-			p = prereqParser.parse("PREVAREQ:EQUIP.SIZE.INT,PC.SIZE.INT-1");
-			qo = new QualifiedObject<>(lightRef);
-			qo.addPrerequisite(p);
-			oneHanded.addCategorySwitch(qo);
-			p = prereqParser.parse("PREVAREQ:EQUIP.SIZE.INT,PC.SIZE.INT+1");
-			qo = new QualifiedObject<>(twoHandedRef);
-			qo.addPrerequisite(p);
-			oneHanded.addCategorySwitch(qo);
-			p = prereqParser.parse("PREVARGTEQ:EQUIP.SIZE.INT,PC.SIZE.INT+2");
-			qo = new QualifiedObject<>(tooLargeRef);
-			qo.addPrerequisite(p);
-			oneHanded.addCategorySwitch(qo);
-			oneHanded.setWieldCategoryStep(-1, lightRef);
-			oneHanded.setWieldCategoryStep(1, twoHandedRef);
-		}
-		if (buildTooLarge)
-		{
-			tooLarge.setFinessable(false);
-			tooLarge.setHandsRequired(999);
-			tooLarge.setWieldCategoryStep(-3, lightRef);
-			tooLarge.setWieldCategoryStep(-2, oneHandedRef);
-			tooLarge.setWieldCategoryStep(-1, twoHandedRef);
-			tooLarge.setWieldCategoryStep(0, twoHandedRef);
-		}
-		if (buildTooSmall)
-		{
-			tooSmall.setFinessable(false);
-			tooSmall.setHandsRequired(2);
-			tooSmall.addDamageMult(2, 1.5f);
-			Prerequisite p = prereqParser.parse("PREVAREQ:EQUIP.SIZE.INT,PC.SIZE.INT-3");
-			QualifiedObject<CDOMSingleRef<WieldCategory>> qo = new QualifiedObject<>(tooSmallRef);
-			qo.addPrerequisite(p);
-			tooSmall.addCategorySwitch(qo);
-			p = prereqParser.parse("PREVAREQ:EQUIP.SIZE.INT,PC.SIZE.INT-2");
-			qo = new QualifiedObject<>(lightRef);
-			qo.addPrerequisite(p);
-			tooSmall.addCategorySwitch(qo);
-			p = prereqParser.parse("PREVAREQ:EQUIP.SIZE.INT,PC.SIZE.INT-1");
-			qo = new QualifiedObject<>(oneHandedRef);
-			qo.addPrerequisite(p);
-			tooSmall.addCategorySwitch(qo);
-			p = prereqParser.parse("PREVARGTEQ:EQUIP.SIZE.INT,PC.SIZE.INT+1");
-			qo = new QualifiedObject<>(tooLargeRef);
-			qo.addPrerequisite(p);
-			tooSmall.addCategorySwitch(qo);
-			tooSmall.setWieldCategoryStep(-2, lightRef);
-			tooSmall.setWieldCategoryStep(-1, oneHandedRef);
-		}
-
-	}
-
 }

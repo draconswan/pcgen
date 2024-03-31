@@ -105,16 +105,16 @@ BIO
 				<squares>12</squares>
 			</move>
 			<move>
-				<name>Swim</name>
-				<rate>60 ft.</rate>
-				<squares>12</squares>
-			</move>
-			<move>
 				<name>Fly</name>
 				<rate>250 ft.</rate>
 				<squares>50</squares>
 			</move>
-			<all>Walk 60 ft., Swim 60 ft., Fly 250 ft.</all>
+			<move>
+				<name>Swim</name>
+				<rate>60 ft.</rate>
+				<squares>12</squares>
+			</move>
+			<all>Walk 60 ft., Fly 250 ft., Swim 60 ft.</all>
 		</move>
 		<personality>
 			<trait></trait>
@@ -494,7 +494,7 @@ BIO
 		</skillpoints>
 		<list_mods>Acrobatics +0, Appraise +14, Bluff +13, Climb +22, Diplomacy +15, Fly +19, Heal +18, Intimidate +15, Knowledge (Arcana) +13, Sense Motive +13, Survival +28, Swim +24</list_mods>
 		<max_class_skill_level>30</max_class_skill_level>
-		<max_cross_class_skill_level>30</max_cross_class_skill_level>
+		<max_cross_class_skill_level>30.0</max_cross_class_skill_level>
 		<skill>
 			<name>Acrobatics</name>
 			<ranks>0.0</ranks>
@@ -927,7 +927,7 @@ BIO
 			<critical>20/x2</critical>
 			<!-- Should be changed to a variable due to improved crit -->
 		</unarmed>
-		
+
 		<weapon>
 			<common>
 				<name>
@@ -944,13 +944,19 @@ BIO
 					<magic_hit>+0</magic_hit>
 					<total_hit>+38</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Primary</hand>
 				<num_attacks>1</num_attacks>
 				<reach>30</reach>
 				<size>M</size>
 				<special_properties></special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>BPS</type>
 				<weight>0</weight>
 				<sequence>0</sequence>
@@ -977,13 +983,19 @@ BIO
 					<magic_hit>+0</magic_hit>
 					<total_hit>+38/+38</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Primary</hand>
 				<num_attacks>2</num_attacks>
 				<reach>20</reach>
 				<size>M</size>
 				<special_properties></special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>PS</type>
 				<weight>0</weight>
 				<sequence>1</sequence>
@@ -1010,13 +1022,19 @@ BIO
 					<magic_hit>+0</magic_hit>
 					<total_hit>+36</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Primary</hand>
 				<num_attacks>1</num_attacks>
 				<reach>20</reach>
 				<size>M</size>
 				<special_properties></special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>B</type>
 				<weight>0</weight>
 				<sequence>2</sequence>
@@ -1043,13 +1061,19 @@ BIO
 					<magic_hit>+0</magic_hit>
 					<total_hit>+36/+36</total_hit>
 				</to_hit>
-				<feat></feat>
+				<feat>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</feat>
 				<hand>Primary</hand>
 				<num_attacks>2</num_attacks>
 				<reach>20</reach>
 				<size>M</size>
 				<special_properties></special_properties>
-				<template></template>
+				<template>
+					<hit>+0</hit>
+					<damage>+0</damage>
+				</template>
 				<type>B</type>
 				<weight>0</weight>
 				<sequence>3</sequence>
@@ -1352,7 +1376,7 @@ BIO
 		<feat>
 			<name>Combat Casting</name>
 			<description>You are adept at spellcasting when threatened or distracted.</description>
-			<type>GENERAL.ABERRANTBLOODLINE.ARCANEBLOODLINE.UNDEADBLOODLINE</type>
+			<type>GENERAL</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>F</auto>
@@ -1422,7 +1446,7 @@ BIO
 		<feat>
 			<name>Extend Spell</name>
 			<description>You can make your spells last twice as long.</description>
-			<type>METAMAGIC.CELESTIALBLOODLINE.INFERNALBLOODLINE</type>
+			<type>METAMAGIC</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>F</auto>
@@ -1644,6 +1668,17 @@ BIO
 			<name>Dragon Senses</name>
 			<description>Dragons have darkvision 120 ft. and blindsense 60 ft. They see four times as well as a human in dim light and twice as well in normal light.</description>
 			<type>RACEABILITY.SPECIALQUALITY.EXTRAORDINARY</type>
+			<associated></associated>
+			<count>0</count>
+			<auto>T</auto>
+			<hidden>F</hidden>
+			<virtual>F</virtual>
+			<category>Special Ability</category>
+		</ability_object>
+		<ability_object>
+			<name>Dragon Senses</name>
+			<description>Dragons have darkvision 120 ft. and blindsense 60 ft. They see four times as well as a human in dim light and twice as well in normal light.</description>
+			<type>SPECIALQUALITY.EXTRAORDINARY</type>
 			<associated></associated>
 			<count>0</count>
 			<auto>T</auto>
@@ -2050,7 +2085,29 @@ BIO
 			<category>Internal</category>
 		</ability_object>
 		<ability_object>
-			<name>Race Traits ~ Gold Dragon</name>
+			<name>Movement</name>
+			<description></description>
+			<type></type>
+			<associated></associated>
+			<count>0</count>
+			<auto>T</auto>
+			<hidden>F</hidden>
+			<virtual>F</virtual>
+			<category>Internal</category>
+		</ability_object>
+		<ability_object>
+			<name>Racial Traits ~ Gold Dragon</name>
+			<description></description>
+			<type></type>
+			<associated></associated>
+			<count>0</count>
+			<auto>T</auto>
+			<hidden>F</hidden>
+			<virtual>F</virtual>
+			<category>Internal</category>
+		</ability_object>
+		<ability_object>
+			<name>Save Bonus Tracker</name>
 			<description></description>
 			<type></type>
 			<associated></associated>

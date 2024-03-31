@@ -18,7 +18,8 @@
  */
 package plugin.exporttokens;
 
-import pcgen.cdom.base.Constants;
+import java.util.Optional;
+
 import pcgen.core.display.CharacterDisplay;
 import pcgen.io.ExportHandler;
 import pcgen.io.exporttoken.AbstractExportToken;
@@ -35,13 +36,11 @@ public class RegionToken extends AbstractExportToken
 	@Override
 	public String getToken(String tokenSource, CharacterDisplay display, ExportHandler eh)
 	{
-		String retString = display.getRegionString();
-		String subRegion = display.getSubRegion();
-		if (!subRegion.equals(Constants.NONE))
-		{
-			retString += (" (" + subRegion + ')');
-		}
+		StringBuilder sb = new StringBuilder(40);
+		sb.append(display.getRegionString());
+		Optional<String> subRegion = display.getSubRegion();
+		subRegion.ifPresent(region -> sb.append(" (").append(region.toString()).append(')'));
 
-		return retString;
+		return sb.toString();
 	}
 }

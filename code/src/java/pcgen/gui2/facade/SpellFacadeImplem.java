@@ -53,54 +53,36 @@ public class SpellFacadeImplem implements SpellFacade, SortKeyAware
 
 	}
 
-	/**
-	 * @see pcgen.facade.core.InfoFacade#getSource()
-	 */
 	@Override
 	public String getSource()
 	{
 		return SourceFormat.getFormattedString(spell, Globals.getSourceDisplay(), true);
 	}
 
-	/**
-	 * @see pcgen.facade.core.InfoFacade#getSourceForNodeDisplay()
-	 */
 	@Override
 	public String getSourceForNodeDisplay()
 	{
 		return SourceFormat.getFormattedString(spell, SourceFormat.LONG, true);
 	}
 
-	/**
-	 * @see pcgen.facade.core.InfoFacade#getKeyName()
-	 */
 	@Override
 	public String getKeyName()
 	{
 		return spell.getKeyName();
 	}
 
-	/**
-	 * @see pcgen.facade.core.SpellFacade#getSchool()
-	 */
 	@Override
 	public String getSchool()
 	{
 		return spell.getListAsString(ListKey.SPELL_SCHOOL);
 	}
 
-	/**
-	 * @see pcgen.facade.core.SpellFacade#getSubschool()
-	 */
 	@Override
 	public String getSubschool()
 	{
 		return spell.getListAsString(ListKey.SPELL_SUBSCHOOL);
 	}
 
-	/**
-	 * @see pcgen.facade.core.SpellFacade#getDescriptors()
-	 */
 	@Override
 	public String[] getDescriptors()
 	{
@@ -109,30 +91,21 @@ public class SpellFacadeImplem implements SpellFacade, SortKeyAware
 		{
 			return new String[]{};
 		}
-		return descriptors.toArray(new String[descriptors.size()]);
+		return descriptors.toArray(new String[0]);
 	}
 
-	/**
-	 * @see pcgen.facade.core.SpellFacade#getComponents()
-	 */
 	@Override
 	public String getComponents()
 	{
 		return spell.getListAsString(ListKey.COMPONENTS);
 	}
 
-	/**
-	 * @see pcgen.facade.core.SpellFacade#getRange()
-	 */
 	@Override
 	public String getRange()
 	{
 		return pc.getSpellRange(charSpell, spellInfo);
 	}
 
-	/**
-	 * @see pcgen.facade.core.SpellFacade#getDuration()
-	 */
 	@Override
 	public String getDuration()
 	{
@@ -156,7 +129,8 @@ public class SpellFacadeImplem implements SpellFacade, SortKeyAware
 	/**
 	 * @return the charSpell
 	 */
-	CharacterSpell getCharSpell()
+	@Override
+	public CharacterSpell getCharSpell()
 	{
 		return charSpell;
 	}
@@ -164,40 +138,35 @@ public class SpellFacadeImplem implements SpellFacade, SortKeyAware
 	/**
 	 * @return the spellInfo
 	 */
-	SpellInfo getSpellInfo()
+	@Override
+	public SpellInfo getSpellInfo()
 	{
 		return spellInfo;
 	}
 
-	/**
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString()
 	{
 		StringBuilder buff = new StringBuilder();
 		if (spell != null)
 		{
-			buff.append(spell.toString());
+			buff.append(spell);
 		}
 		else if (charSpell != null)
 		{
-			buff.append(charSpell.toString());
+			buff.append(charSpell);
 		}
 		if (charSpell != null && charSpell.getOwner() instanceof Domain)
 		{
-			buff.append(" [").append(charSpell.getOwner().toString()).append("]");
+			buff.append(" [").append(charSpell.getOwner()).append("]");
 		}
 		if (spellInfo != null)
 		{
-			buff.append(spellInfo.toString());
+			buff.append(spellInfo);
 		}
 		return buff.toString();
 	}
 
-	/**
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode()
 	{
@@ -210,9 +179,6 @@ public class SpellFacadeImplem implements SpellFacade, SortKeyAware
 		return result;
 	}
 
-	/**
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -264,17 +230,13 @@ public class SpellFacadeImplem implements SpellFacade, SortKeyAware
 		}
 		if (spellInfo == null)
 		{
-			if (other.spellInfo != null)
-			{
-				return false;
-			}
+            return other.spellInfo == null;
 		}
-		else if (!spellInfo.equals(other.spellInfo))
+		else
 		{
-			return false;
+			return spellInfo.equals(other.spellInfo);
 		}
-		return true;
-	}
+    }
 
 	@Override
 	public boolean isNamePI()

@@ -49,20 +49,10 @@ public abstract class AbstractListContext
 
 	private final TrackingListCommitStrategy edits = new TrackingListCommitStrategy();
 
-	URI getSourceURI()
-	{
-		return edits.getSourceURI();
-	}
-
 	void setSourceURI(URI sourceURI)
 	{
 		edits.setSourceURI(sourceURI);
 		getCommitStrategy().setSourceURI(sourceURI);
-	}
-
-	URI getExtractURI()
-	{
-		return edits.getExtractURI();
 	}
 
 	void setExtractURI(URI extractURI)
@@ -86,12 +76,6 @@ public abstract class AbstractListContext
 	public void clearAllMasterLists(String tokenName, CDOMObject owner)
 	{
 		edits.clearAllMasterLists(tokenName, owner);
-	}
-
-	public <T extends CDOMObject> void clearMasterList(String tokenName, CDOMObject owner,
-		CDOMReference<? extends CDOMList<T>> list)
-	{
-		edits.clearMasterList(tokenName, owner, list);
 	}
 
 	public <T extends CDOMObject> AssociatedPrereqObject addToList(String tokenName, CDOMObject owner,
@@ -332,11 +316,6 @@ public abstract class AbstractListContext
 			{
 				return false;
 			}
-		}
-
-		public URI getExtractURI()
-		{
-			return extractURI;
 		}
 
 		@Override
@@ -591,9 +570,8 @@ public abstract class AbstractListContext
 		@Override
 		public boolean equalsTracking(ListCommitStrategy obj)
 		{
-			if (obj instanceof TrackingListCommitStrategy)
+			if (obj instanceof TrackingListCommitStrategy other)
 			{
-				TrackingListCommitStrategy other = (TrackingListCommitStrategy) obj;
 				return other.masterAllClear.equals(this.masterAllClear)
 					&& other.masterClearSet.equals(this.masterClearSet)
 					&& other.positiveMasterMap.equals(this.positiveMasterMap)
@@ -630,9 +608,8 @@ public abstract class AbstractListContext
 		@Override
 		public boolean equals(Object o)
 		{
-			if (o instanceof OwnerURI)
+			if (o instanceof OwnerURI other)
 			{
-				OwnerURI other = (OwnerURI) o;
 				if (source == null)
 				{
 					if (other.source != null)
@@ -674,7 +651,7 @@ public abstract class AbstractListContext
 	@SuppressWarnings("unchecked")
 	<T extends CDOMObject> void cloneInMasterLists(T cdoOld, T cdoNew)
 	{
-		MasterListInterface masterLists = SettingsHandler.getGame().getMasterLists();
+		MasterListInterface masterLists = SettingsHandler.getGameAsProperty().get().getMasterLists();
 		for (CDOMReference ref : masterLists.getActiveLists())
 		{
 			Collection<AssociatedPrereqObject> assocs = masterLists.getAssociations(ref, cdoOld);

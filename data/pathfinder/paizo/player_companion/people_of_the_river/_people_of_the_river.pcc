@@ -1,7 +1,6 @@
 CAMPAIGN:People of the River
 GAMEMODE:Pathfinder|Pathfinder_PFS
 TYPE:Paizo Publishing.Pathfinder Player Companion
-RANK:3
 GENRE:Fantasy
 STATUS:BETA
 BOOKTYPE:Supplement
@@ -19,6 +18,7 @@ SOURCELONG:Pathfinder Player Companion: People of the River
 SOURCESHORT:PotR
 SOURCEWEB:http://paizo.com/products/btpy978r
 SOURCEDATE:2014-08
+RANK:201408
 ISOGL:YES
 
 COVER:people_of_the_river.jpg
@@ -40,7 +40,6 @@ COPYRIGHT:PCGen dataset conversion for "Pathfinder Companion: People of the Rive
 
 ABILITY:potr_abilities.lst
 ABILITY:potr_abilities_class.lst
-ABILITYCATEGORY:potr_abilitycategories.lst
 CLASS:potr_classes.lst
 EQUIPMENT:potr_equip_arms_armor.lst
 EQUIPMENT:potr_equip_magic_items.lst
@@ -63,7 +62,7 @@ CLASS:support/potr_classes_acg.lst|PRECAMPAIGN:1,INCLUDES=Advanced Class Guide
 # LICENSE MONKEY: Paul Grosse
 # RELEASE REVIEW #
 # BETA: Andrew Maitland
-# RELEASE: 
+# RELEASE:
 # Built for PCGen Version: 6.07.03
 # Updated to work with version: -
 # MINVER:6.7

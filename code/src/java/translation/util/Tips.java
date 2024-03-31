@@ -1,11 +1,11 @@
 /*
  * Copyright 2012 Vincent Lhote
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -20,33 +20,29 @@ package translation.util;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.text.Format;
 import java.text.MessageFormat;
-import java.util.Calendar;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.time.DateFormatUtils;
-
 /**
  * This class allows the generation of a PO Template file from the tips.txt files,
- * and also generate translated tips ({@code tips_XX.txt}) from a PO file 
+ * and also generate translated tips ({@code tips_XX.txt}) from a PO file
  * (whose name is {@code _XX.po}).
  * PO Template and PO files are message catalog used in gettext.
  * The duplicates from the tips files should appear only once in the PO Template files.
  *
- * This class tries to be independent of code, but still needs Apache Commons Lang.
- *
- * @see <a href="http://www.gnu.org/software/gettext/manual/gettext.html">GNU gettext manual</a>
+ * @see <a href="https://www.gnu.org/software/gettext/manual/gettext.html">GNU gettext manual</a>
  */
 public final class Tips
 {
@@ -73,7 +69,7 @@ public final class Tips
 	}
 
 	/**
-	 * 
+	 *
 	 * @param rootDirectory root of the directories to parse
 	 * @param filename the name of the filename to parse
 	 */
@@ -95,21 +91,16 @@ public final class Tips
 						log("Found {0}", tipsFile);
 						// for each non comment line of the file, put its content in a
 						// Set<String>
-						try
+						try (BufferedReader reader = new BufferedReader(new FileReader(
+								tipsFile,
+								StandardCharsets.UTF_8
+						)))
 						{
-							BufferedReader reader = new BufferedReader(new FileReader(tipsFile));
 							addTips(tips, reader);
-							reader.close();
-						}
-						catch (FileNotFoundException e)
-						{
-							logError("Warning: file found then not found {0}, ignoring " + "this file", tipsFile);
-							e.printStackTrace();
 						}
 						catch (IOException e)
 						{
-							logError("Warning: IO error reading {0}, ignoring this file", tipsFile);
-							e.printStackTrace();
+							logError("Warning: file found then not found {0}, ignoring " + "this file", e, tipsFile);
 						}
 
 					}
@@ -133,42 +124,23 @@ public final class Tips
 		// create parent if necessary
 		pot.getParentFile().mkdirs();
 
-		BufferedWriter bw = null;
-		try
+		try (Writer bw = new BufferedWriter(new FileWriter(pot, StandardCharsets.UTF_8)))
 		{
-			bw = new BufferedWriter(new FileWriter(pot));
 			writePOT(tips, bw);
 			log("Wrote {0}", potFilename);
 		}
 		catch (IOException e)
 		{
-			logError("IO error while writing {0}", pot);
-			e.printStackTrace();
-		}
-		finally
-		{
-			try
-			{
-				if (bw != null)
-				{
-					bw.close();
-				}
-			}
-			catch (IOException e)
-			{
-				logError("IO error while closing {0}", pot);
-				e.printStackTrace();
-			}
+			logError("IO error while writing {0}", e, pot);
 		}
 	}
 
 	private static void writePOT(Iterable<String> tips, Writer bw) throws IOException
 	{
 		// header stuff
-		Calendar now = Calendar.getInstance();
 		bw.write("msgid \"\"\n" + "msgstr \"\"\n" + "\"Project-Id-Version: PCGen-tips 6.x\\n\"\n"
 			+ "\"Report-Msgid-Bugs-To: \\n\"\n" + "\"POT-Creation-Date: "
-			+ DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.format(now) + "\\n\"\n"
+			+ Instant.now() + "\\n\"\n"
 			+ "\"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n\"\n" + "\"Last-Translator: FULL NAME <EMAIL@ADDRESS>\\n\"\n"
 			+ "\"Language-Team: LANGUAGE <LL@li.org>\\n\"\n" + "\"MIME-Version: 1.0\\n\"\n"
 			+ "\"Content-Type: text/plain; charset=UTF-8\\n\"\n" + "\"Content-Transfer-Encoding: 8bit\\n\"\n\n");
@@ -201,8 +173,7 @@ public final class Tips
 		}
 		catch (IOException e)
 		{
-			logError("Warning: IO error reading a line, ignoring it");
-			e.printStackTrace();
+			logError("Warning: IO error reading a line, ignoring it", e);
 		}
 	}
 
@@ -246,7 +217,7 @@ public final class Tips
 	}
 
 	/**
-	 * 
+	 *
 	 * @param rootDirectory directory to search in (only done in sub-directories of this)
 	 * @param translation PO file
 	 * @param translationName name for new translation filename (like tips_fr.txt)
@@ -258,10 +229,8 @@ public final class Tips
 		int statTranslated = 0;
 		// load stuff from the PO catalog file
 		Map<String, String> tipsTranslated = new HashMap<>();
-		BufferedReader translationReader = null;
-		try
+		try (BufferedReader translationReader = new BufferedReader(new FileReader(translation, StandardCharsets.UTF_8)))
 		{
-			translationReader = new BufferedReader(new FileReader(translation));
 			String line = translationReader.readLine();
 			String key = null;
 			StringBuilder str = new StringBuilder();
@@ -310,23 +279,9 @@ public final class Tips
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			logError("io error", e);
 		}
-		finally
-		{
-			if (translationReader != null)
-			{
-				try
-				{
-					translationReader.close();
-				}
-				catch (IOException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
+
 		log("Translated tips: {0}", statTranslated);
 		log("Untranslated tips: {0}", statUntranslated);
 
@@ -344,12 +299,12 @@ public final class Tips
 					{
 						File newFile = new File(subfile, translationName);
 						log("Found {0}, creating {1}", tipsFile, newFile);
-						BufferedWriter bw = null;
-						BufferedReader reader = null;
-						try
+						try(BufferedReader reader = new BufferedReader(new FileReader(tipsFile,
+								StandardCharsets.UTF_8
+						));
+						    Writer bw = new BufferedWriter(new FileWriter(newFile, StandardCharsets.UTF_8)))
 						{
-							reader = new BufferedReader(new FileReader(tipsFile));
-							bw = new BufferedWriter(new FileWriter(newFile));
+
 							String readLine = reader.readLine();
 							while (readLine != null)
 							{
@@ -377,35 +332,7 @@ public final class Tips
 						}
 						catch (IOException e)
 						{
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						finally
-						{
-							try
-							{
-								if (reader != null)
-								{
-									reader.close();
-								}
-							}
-							catch (IOException e)
-							{
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							try
-							{
-								if (bw != null)
-								{
-									bw.close();
-								}
-							}
-							catch (IOException e)
-							{
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
+							logError("io error", e);
 						}
 
 					}
@@ -446,7 +373,7 @@ public final class Tips
 	{
 		if (args.length == 0)
 		{
-			logError("Missing argument");
+			logError("Missing argument", null);
 			usage();
 			return;
 		}
@@ -477,7 +404,7 @@ public final class Tips
 		}
 		else
 		{
-			logError("Unknown command");
+			logError("Unknown command", null);
 			usage();
 		}
 	}
@@ -498,6 +425,7 @@ public final class Tips
 	 * @param o arguments
 	 * @see MessageFormat#format(String, Object...)
 	 */
+	@SuppressWarnings({"UseOfSystemOutOrSystemErr", "PMD.AvoidPrintStackTrace"})
 	private static void log(String string, Object... o)
 	{
 		System.out.println(MessageFormat.format(string, o));
@@ -509,8 +437,13 @@ public final class Tips
 	 * @param o arguments
 	 * @see MessageFormat#format(String, Object...)
 	 */
-	private static void logError(String string, Object... o)
+	@SuppressWarnings({"CallToPrintStackTrace", "UseOfSystemOutOrSystemErr", "PMD.AvoidPrintStackTrace"})
+	private static void logError(String string, Throwable e, Object... o)
 	{
 		System.err.println(MessageFormat.format(string, o));
+		if (e != null)
+		{
+			e.printStackTrace();
+		}
 	}
 }

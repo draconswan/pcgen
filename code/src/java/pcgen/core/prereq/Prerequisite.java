@@ -392,7 +392,7 @@ public class Prerequisite implements Cloneable
 			buf.append(" ("); //$NON-NLS-1$
 			for (Prerequisite subreq : prerequisites)
 			{
-				buf.append(subreq.getDescription(shortForm));
+				buf.append(subreq.getDescription(false));
 			}
 			buf.append(')');
 		}
@@ -429,11 +429,10 @@ public class Prerequisite implements Cloneable
 		{
 			return true;
 		}
-		if (!(o instanceof Prerequisite))
+		if (!(o instanceof Prerequisite other))
 		{
 			return false;
 		}
-		Prerequisite other = (Prerequisite) o;
 		if (kind == null)
 		{
 			if (other.kind != null)

@@ -36,26 +36,23 @@ public class VisibleToken extends AbstractNonEmptyToken<ContentDefinition>
 	protected ParseResult parseNonEmptyToken(LoadContext context, ContentDefinition factDef, String value)
 	{
 		Visibility vis;
-		if (value.equals("YES"))
-		{
-			vis = Visibility.DEFAULT;
-		}
-		else if (value.equals("DISPLAY"))
-		{
-			vis = Visibility.DISPLAY_ONLY;
-		}
-		else if (value.equals("EXPORT"))
-		{
-			vis = Visibility.OUTPUT_ONLY;
-		}
-		else if (value.equals("NO"))
-		{
-			vis = Visibility.HIDDEN;
-		}
-		else
-		{
-			return new ParseResult.Fail("Unable to understand " + getTokenName() + " tag: " + value);
-		}
+        switch (value)
+        {
+            case "YES":
+                vis = Visibility.DEFAULT;
+                break;
+            case "DISPLAY":
+                vis = Visibility.DISPLAY_ONLY;
+                break;
+            case "EXPORT":
+                vis = Visibility.OUTPUT_ONLY;
+                break;
+            case "NO":
+                vis = Visibility.HIDDEN;
+                break;
+            default:
+                return new ParseResult.Fail("Unable to understand " + getTokenName() + " tag: " + value);
+        }
 		factDef.setVisibility(vis);
 		return ParseResult.SUCCESS;
 	}
@@ -69,26 +66,16 @@ public class VisibleToken extends AbstractNonEmptyToken<ContentDefinition>
 			return null;
 		}
 		String visString;
-		if (vis.equals(Visibility.DEFAULT))
+		switch (vis)
 		{
-			visString = "YES";
-		}
-		else if (vis.equals(Visibility.DISPLAY_ONLY))
-		{
-			visString = "DISPLAY";
-		}
-		else if (vis.equals(Visibility.OUTPUT_ONLY))
-		{
-			visString = "EXPORT";
-		}
-		else if (vis.equals(Visibility.HIDDEN))
-		{
-			visString = "NO";
-		}
-		else
-		{
-			context.addWriteMessage("Visibility " + vis + " is not a valid Visibility for a Fact Definition");
-			return null;
+			case DEFAULT -> visString = "YES";
+			case DISPLAY_ONLY -> visString = "DISPLAY";
+			case OUTPUT_ONLY -> visString = "EXPORT";
+			case HIDDEN -> visString = "NO";
+			default -> {
+				context.addWriteMessage("Visibility " + vis + " is not a valid Visibility for a Fact Definition");
+				return null;
+			}
 		}
 		return new String[]{visString};
 	}

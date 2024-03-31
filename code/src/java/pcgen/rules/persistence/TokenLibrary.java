@@ -17,6 +17,7 @@
  */
 package pcgen.rules.persistence;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,14 +34,12 @@ import pcgen.base.util.CaseInsensitiveMap;
 import pcgen.base.util.DoubleKeyMap;
 import pcgen.base.util.TreeMapToList;
 import pcgen.cdom.base.CDOMObject;
-import pcgen.cdom.base.ClassIdentity;
 import pcgen.cdom.base.GroupDefinition;
 import pcgen.cdom.base.Loadable;
 import pcgen.cdom.grouping.GroupingDefinition;
 import pcgen.core.PCClass;
 import pcgen.core.bonus.BonusObj;
 import pcgen.persistence.lst.LstToken;
-import pcgen.persistence.lst.prereq.PreMultParser;
 import pcgen.persistence.lst.prereq.PrerequisiteParserInterface;
 import pcgen.rules.persistence.token.CDOMCompatibilityToken;
 import pcgen.rules.persistence.token.CDOMInterfaceToken;
@@ -99,13 +98,15 @@ public final class TokenLibrary implements PluginLoader
 		POST_DEFERRED_TOKENS.clear();
 		QUALIFIER_MAP.clear();
 		PRIMITIVE_MAP.clear();
+		GROUPING_MAP.clear();
+		MODIFIER_MAP.clear();
+		IF_TOKEN_MAP.clear();
 		BONUS_TAG_MAP.clear();
 		TOKEN_FAMILIES.clear();
 		TokenFamily.CURRENT.clearTokens();
 		TOKEN_FAMILIES.add(TokenFamily.CURRENT);
 		TokenFamily.REV514.clearTokens();
 		TOKEN_FAMILIES.add(TokenFamily.REV514);
-		addToTokenMap(new PreMultParser());
 	}
 
 	private TokenLibrary()
@@ -128,11 +129,11 @@ public final class TokenLibrary implements PluginLoader
 	 * 
 	 * @return The GroupingDefinition available with the given Format and grouping key.
 	 */
-	public static <T extends Loadable> GroupingDefinition<T> getGrouping(ClassIdentity<T> classIdentity,
+	public static <T> GroupingDefinition<T> getGrouping(Class<T> inputClass,
 		String tokenKey)
 	{
 		boolean isDirect = true;
-		Class<?> actingClass = classIdentity.getReferenceClass();
+		Class<? super T> actingClass = inputClass;
 		while (actingClass != null)
 		{
 			GroupingDefinition token = GROUPING_MAP.get(actingClass, tokenKey);
@@ -158,25 +159,27 @@ public final class TokenLibrary implements PluginLoader
 
 	public static void addToModifierMap(ModifierFactory<?> m)
 	{
-		if (ModifierFactory.class.isAssignableFrom(m.getClass()))
-		{
-			String name = m.getIdentification();
-			Class<?> cl = m.getVariableFormat();
-			ModifierFactory<?> prev = MODIFIER_MAP.put(cl, name, m);
-			if (prev != null)
-			{
-				Logging.errorPrint("Found a second " + name + " Modifier for " + cl);
-			}
-		}
-	}
+        ModifierFactory.class.isAssignableFrom(m.getClass());
+        String name = m.getIdentification();
+        Class<?> cl = m.getVariableFormat();
+        ModifierFactory<?> prev = MODIFIER_MAP.put(cl, name, m);
+        if (prev != null)
+        {
+            Logging.errorPrint("Found a second " + name + " Modifier for " + cl);
+        }
+    }
 
 	public static <T> ModifierFactory<T> getModifier(Class<T> cl, String tokKey)
 	{
-		for (Iterator<ModifierFactory<T>> it = new ModifierIterator<>(cl, tokKey); it.hasNext();)
+		Iterator<ModifierFactory<T>> it = new ModifierIterator<>(cl, tokKey);
+		if (it.hasNext())
 		{
 			return it.next();
 		}
-		return null;
+		else
+		{
+			return null;
+		}
 	}
 
 	public static Collection<PostValidationToken<? extends Loadable>> getPostValidationTokens()
@@ -241,19 +244,16 @@ public final class TokenLibrary implements PluginLoader
 
 	public static void addToTokenMap(Object newToken)
 	{
-		if (newToken instanceof PostDeferredToken)
+		if (newToken instanceof PostDeferredToken<?> pdt)
 		{
-			PostDeferredToken<?> pdt = (PostDeferredToken<?>) newToken;
 			POST_DEFERRED_TOKENS.addToListFor(pdt.getPriority(), pdt);
 		}
-		if (newToken instanceof PostValidationToken)
+		if (newToken instanceof PostValidationToken<?> pdt)
 		{
-			PostValidationToken<?> pdt = (PostValidationToken<?>) newToken;
 			POST_VALIDATION_TOKENS.addToListFor(pdt.getPriority(), pdt);
 		}
-		if (newToken instanceof CDOMCompatibilityToken)
+		if (newToken instanceof CDOMCompatibilityToken<?> tok)
 		{
-			CDOMCompatibilityToken<?> tok = (CDOMCompatibilityToken<?>) newToken;
 			TokenFamily fam = TokenFamily.getConstant(tok.compatibilityLevel(), tok.compatibilitySubLevel(),
 				tok.compatibilityPriority());
 			if (fam.putToken(tok) != null)
@@ -270,9 +270,8 @@ public final class TokenLibrary implements PluginLoader
 				addToTokenMap(new ClassWrappedToken(clTok));
 			}
 		}
-		if (newToken instanceof CDOMInterfaceToken)
+		if (newToken instanceof CDOMInterfaceToken<?, ?> tok)
 		{
-			CDOMInterfaceToken<?, ?> tok = (CDOMInterfaceToken<?, ?>) newToken;
 			CDOMInterfaceToken<?, ?> existingToken = IF_TOKEN_MAP.put(tok.getTokenName(), tok);
 			if (existingToken != null)
 			{
@@ -290,9 +289,8 @@ public final class TokenLibrary implements PluginLoader
 		{
 			family.addDeferredToken((DeferredToken<?>) newToken);
 		}
-		if (newToken instanceof CDOMPrimaryToken)
+		if (newToken instanceof CDOMPrimaryToken<?> tok)
 		{
-			CDOMPrimaryToken<?> tok = (CDOMPrimaryToken<?>) newToken;
 			CDOMToken<?> existingToken = family.putToken(tok);
 			if (existingToken != null)
 			{
@@ -307,9 +305,8 @@ public final class TokenLibrary implements PluginLoader
 				addToTokenMap(new ClassWrappedToken(clTok));
 			}
 		}
-		if (newToken instanceof CDOMSecondaryToken)
+		if (newToken instanceof CDOMSecondaryToken<?> tok)
 		{
-			CDOMSecondaryToken<?> tok = (CDOMSecondaryToken<?>) newToken;
 			CDOMSubToken<?> existingToken = family.putSubToken(tok);
 			if (existingToken != null)
 			{
@@ -318,9 +315,8 @@ public final class TokenLibrary implements PluginLoader
 					+ existingToken.getClass().getName() + " and " + newToken.getClass().getName());
 			}
 		}
-		if (newToken instanceof PrerequisiteParserInterface)
+		if (newToken instanceof PrerequisiteParserInterface prereqToken)
 		{
-			PrerequisiteParserInterface prereqToken = (PrerequisiteParserInterface) newToken;
 			family.putPrerequisiteToken(prereqToken);
 			for (String s : prereqToken.kindsHandled())
 			{
@@ -440,7 +436,7 @@ public final class TokenLibrary implements PluginLoader
 				nextToken = grabToken(family, actingClass, tokenKey);
 				while (nextToken == null && actingClass != null && !actingClass.equals(stopClass))
 				{
-					actingClass = actingClass.getSuperclass();
+					actingClass = getSuperClass(actingClass);
 					nextToken = grabToken(family, actingClass, tokenKey);
 				}
 				if (stopClass == null)
@@ -449,6 +445,11 @@ public final class TokenLibrary implements PluginLoader
 				}
 				needNewToken = nextToken == null;
 			}
+		}
+
+		protected Class<?> getSuperClass(Class<?> actingClass)
+		{
+			return actingClass.getSuperclass();
 		}
 
 		protected abstract T grabToken(TokenFamily family, Class<?> cl, String key);
@@ -602,6 +603,17 @@ public final class TokenLibrary implements PluginLoader
 			return (T) MODIFIER_MAP.get(cl, key);
 		}
 
+		@Override
+		protected Class<?> getSuperClass(Class<?> actingClass)
+		{
+			if (actingClass.isArray())
+			{
+				Class<?> component = actingClass.getComponentType();
+				Class<?> parentComponent = getSuperClass(component);
+				return Array.newInstance(parentComponent, 0).getClass();
+			}
+			return super.getSuperClass(actingClass);
+		}
 	}
 
 	static class PreTokenIterator extends TokenLibrary.AbstractTokenIterator<CDOMObject, PrerequisiteParserInterface>

@@ -17,9 +17,9 @@
  */
 package pcgen.core.prereq;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.enumeration.Type;
 import pcgen.core.Equipment;
@@ -27,28 +27,18 @@ import pcgen.core.PlayerCharacter;
 import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.lst.prereq.PreParserFactory;
 
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>PreItemTest</code> tests that the PREITEM tag is
+ * {@code PreItemTest} tests that the PREITEM tag is
  * working correctly.
  */
 public class PreItemTest extends AbstractCharacterTestCase
 {
-	public static void main(final String[] args)
-	{
-		TestRunner.run(PreItemTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PreItemTest.class);
-	}
-
 	/*
 	 * Class under test for int passes(Prerequisite, PlayerCharacter)
 	 */
+	@Test
 	public void testPassesPrerequisitePlayerCharacter()
 	{
 		final PlayerCharacter character = getCharacter();
@@ -83,6 +73,7 @@ public class PreItemTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testType() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();

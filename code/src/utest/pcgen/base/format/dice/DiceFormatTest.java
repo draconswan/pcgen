@@ -16,116 +16,97 @@
  */
 package pcgen.base.format.dice;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import pcgen.TestConstants;
 import pcgen.base.format.StringManager;
 
-public class DiceFormatTest extends TestCase
-{
-	private DiceFormat manager = new DiceFormat();
+import org.junit.jupiter.api.Test;
 
+class DiceFormatTest
+{
+	@Test
 	public void testConvertFailNull()
 	{
-		try
-		{
-			manager.convert(null);
-			fail("null value should fail");
-		}
-		catch (NullPointerException | IllegalArgumentException e)
-		{
-			//ok
-		}
+		assertThrows(NullPointerException.class,
+				() -> TestConstants.DICE_MANAGER.convert(null));
 	}
 
+	@Test
 	public void testConvertFailNotNumeric()
 	{
-		try
-		{
-			manager.convert("SomeString");
-			fail("invalid value should fail");
-		}
-		catch (IllegalArgumentException e)
-		{
-			//ok as well
-		}
+		assertThrows(IllegalArgumentException.class,
+			() -> TestConstants.DICE_MANAGER.convert("SomeString"));
 	}
 
+	@Test
 	public void testUnconvertFailNull()
 	{
-		try
-		{
-			manager.unconvert(null);
-			fail("null value should fail");
-		}
-		catch (NullPointerException | IllegalArgumentException e)
-		{
-			//ok
-		}
+		assertThrows(NullPointerException.class,
+				() -> TestConstants.DICE_MANAGER.unconvert(null));
 	}
 
+	@Test
 	public void testConvertIndirectFailNull()
 	{
-		try
-		{
-			manager.convertIndirect(null);
-			fail("null value should fail");
-		}
-		catch (NullPointerException | IllegalArgumentException e)
-		{
-			//ok
-		}
+		assertThrows(NullPointerException.class,
+				() -> TestConstants.DICE_MANAGER.convertIndirect(null));
 	}
 
+	@Test
 	public void testConvertIndirectFailNotNumeric()
 	{
-		try
-		{
-			manager.convertIndirect("SomeString");
-			fail("invalid value should fail");
-		}
-		catch (IllegalArgumentException e)
-		{
-			//ok as well
-		}
+		assertThrows(IllegalArgumentException.class,
+				() -> TestConstants.DICE_MANAGER.convertIndirect("SomeString"));
 	}
 
+	@Test
 	public void testConvert()
 	{
-		assertEquals(new Dice(1, new Die(1)), manager.convert("1"));
-		assertEquals(new Dice(1, new Die(1)), manager.convert("1d1"));
-		assertEquals(new Dice(3, new Die(8)), manager.convert("3d8"));
-		assertEquals(new Dice(1, new Die(4)), manager.convert("d4"));
+		assertEquals(new Dice(1, new Die(1)), TestConstants.DICE_MANAGER.convert("1"));
+		assertEquals(new Dice(1, new Die(1)), TestConstants.DICE_MANAGER.convert("1d1"));
+		assertEquals(new Dice(3, new Die(8)), TestConstants.DICE_MANAGER.convert("3d8"));
+		assertEquals(new Dice(1, new Die(4)), TestConstants.DICE_MANAGER.convert("d4"));
 	}
 
+	@Test
 	public void testUnconvert()
 	{
-		assertEquals("1", manager.unconvert(new Dice(1, new Die(1))));
-		assertEquals("3d6", manager.unconvert(new Dice(3, new Die(6))));
-		assertEquals("1d4", manager.unconvert(new Dice(1, new Die(4))));
+		assertEquals("1", TestConstants.DICE_MANAGER.unconvert(new Dice(1, new Die(1))));
+		assertEquals("3d6", TestConstants.DICE_MANAGER.unconvert(new Dice(3, new Die(6))));
+		assertEquals("1d4", TestConstants.DICE_MANAGER.unconvert(new Dice(1, new Die(4))));
 	}
 
+	@Test
 	public void testConvertIndirect()
 	{
-		assertEquals(new Dice(1, new Die(1)), manager.convertIndirect("1").get());
-		assertEquals(new Dice(1, new Die(1)), manager.convertIndirect("1d1").get());
-		assertEquals(new Dice(3, new Die(8)), manager.convertIndirect("3d8").get());
-		assertEquals(new Dice(1, new Die(4)), manager.convertIndirect("d4").get());
+		assertEquals(new Dice(1, new Die(1)), TestConstants.DICE_MANAGER.convertIndirect("1").get());
+		assertEquals(new Dice(1, new Die(1)), TestConstants.DICE_MANAGER.convertIndirect("1d1").get());
+		assertEquals(new Dice(3, new Die(8)), TestConstants.DICE_MANAGER.convertIndirect("3d8").get());
+		assertEquals(new Dice(1, new Die(4)), TestConstants.DICE_MANAGER.convertIndirect("d4").get());
 	}
 
+	@Test
 	public void testGetIdentifier()
 	{
-		assertEquals("DICE", manager.getIdentifierType());
+		assertEquals("DICE", TestConstants.DICE_MANAGER.getIdentifierType());
 	}
 
+	@Test
 	public void testHashCodeEquals()
 	{
-		assertEquals(new DiceFormat().hashCode(), manager.hashCode());
-		assertFalse(manager.equals(new Object()));
-		assertFalse(manager.equals(new StringManager()));
-		assertTrue(manager.equals(new DiceFormat()));
+		assertEquals(new DiceFormat().hashCode(), TestConstants.DICE_MANAGER.hashCode());
+		assertNotEquals(new Object(), TestConstants.DICE_MANAGER);
+		assertNotEquals(TestConstants.DICE_MANAGER, new StringManager());
+		assertEquals(TestConstants.DICE_MANAGER, new DiceFormat());
 	}
 
+	@Test
 	public void testGetComponent()
 	{
-		assertNull(manager.getComponentManager());
+		assertTrue(TestConstants.DICE_MANAGER.getComponentManager().isEmpty());
 	}
 }

@@ -17,6 +17,10 @@
  */
 package tokenmodel;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.Collection;
 
 import pcgen.cdom.base.CDOMObject;
@@ -36,7 +40,7 @@ import plugin.lsttokens.choose.NoChoiceToken;
 import plugin.lsttokens.testsupport.BuildUtilities;
 import plugin.lsttokens.testsupport.TokenRegistration;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import tokenmodel.testsupport.AbstractAddListTokenTest;
 import tokenmodel.testsupport.AssocCheck;
 import tokenmodel.testsupport.NoAssociations;
@@ -72,9 +76,7 @@ public class AddAbilityVirtualTest extends AbstractAddListTokenTest<Ability>
 
 	private ParseResult runToken(CDOMObject source)
 	{
-		ParseResult result =
-				ADD_ABILITY_TOKEN.parseToken(context, source, "FEAT|VIRTUAL|STACKS,Granted");
-		return result;
+        return ADD_ABILITY_TOKEN.parseToken(context, source, "FEAT|VIRTUAL|STACKS,Granted");
 	}
 
 	@Override
@@ -161,24 +163,17 @@ public class AddAbilityVirtualTest extends AbstractAddListTokenTest<Ability>
 		context.unconditionallyProcess(a, "CHOOSE", "NOCHOICE");
 		runToken(source);
 		processToken(source);
-		assocCheck = new AssocCheck()
-		{
-			
-			@Override
-			public boolean check(CNAbility g)
-			{
-				if (pc.getDetailedAssociationCount(g) == 2)
-				{
-					return true;
-				}
-				else
-				{
-					System.err.println("Incorrect Association Count");
-					return false;
-				}
-			}
-			
-		};
+		assocCheck = g -> {
+            if (pc.getDetailedAssociationCount(g) == 2)
+            {
+                return true;
+            }
+            else
+            {
+                System.err.println("Incorrect Association Count");
+                return false;
+            }
+        };
 		assertEquals(0, getCount());
 		ClassSource classSource = new ClassSource(pcc);
 		domainFacet.add(id, source, classSource);

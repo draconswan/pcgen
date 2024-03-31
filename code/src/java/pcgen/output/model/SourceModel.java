@@ -19,9 +19,6 @@ package pcgen.output.model;
 
 import java.util.Date;
 
-import freemarker.template.TemplateHashModel;
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.base.Constants;
 import pcgen.cdom.enumeration.CharID;
@@ -31,6 +28,10 @@ import pcgen.cdom.facet.FacetLibrary;
 import pcgen.cdom.facet.ObjectWrapperFacet;
 import pcgen.core.Campaign;
 import pcgen.output.base.SimpleWrapperLibrary;
+
+import freemarker.template.TemplateHashModel;
+import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
 
 /**
  * An SourceModel is designed to process an interpolation and convert that into
@@ -69,56 +70,50 @@ public class SourceModel implements TemplateHashModel
 	@Override
 	public TemplateModel get(String key) throws TemplateModelException
 	{
-		if (key.equals("custom"))
+		switch (key)
 		{
-			Boolean isCustom = cdo.isType(Constants.TYPE_CUSTOM);
-			return SimpleWrapperLibrary.wrap(isCustom);
-		}
-		else if (key.equals("long"))
-		{
-			String sourceLong = getSource(StringKey.SOURCE_LONG);
-			return SimpleWrapperLibrary.wrap(sourceLong);
-		}
-		else if (key.equals("short"))
-		{
-			String sourceShort = getSource(StringKey.SOURCE_SHORT);
-			return SimpleWrapperLibrary.wrap(sourceShort);
-		}
-		else if (key.equals("date"))
-		{
-			Date sourceDate = cdo.get(ObjectKey.SOURCE_DATE);
-			//Fall back on Campaign if necessary
-			if (sourceDate == null)
-			{
-				Campaign campaign = cdo.get(ObjectKey.SOURCE_CAMPAIGN);
-				sourceDate = campaign.get(ObjectKey.SOURCE_DATE);
+			case "custom" -> {
+				Boolean isCustom = cdo.isType(Constants.TYPE_CUSTOM);
+				return SimpleWrapperLibrary.wrap(isCustom);
 			}
-			return SimpleWrapperLibrary.wrap(sourceDate);
-		}
-		else if (key.equals("page"))
-		{
-			String sourcePage = getSource(StringKey.SOURCE_PAGE);
-			return SimpleWrapperLibrary.wrap(sourcePage);
-		}
-		else if (key.equals("web"))
-		{
-			String sourceWeb = getSource(StringKey.SOURCE_WEB);
-			return SimpleWrapperLibrary.wrap(sourceWeb);
-		}
-		else if (key.equals("campaignsource"))
-		{
-			Campaign campaign = cdo.get(ObjectKey.SOURCE_CAMPAIGN);
-			return WRAPPER_FACET.wrap(id, campaign.get(StringKey.SOURCE_SHORT));
-		}
-		else if (key.equals("pubname"))
-		{
-			Campaign campaign = cdo.get(ObjectKey.SOURCE_CAMPAIGN);
-			return WRAPPER_FACET.wrap(id, campaign.getSafe(StringKey.PUB_NAME_LONG));
-		}
-		else if (key.equals("pubnameweb"))
-		{
-			Campaign campaign = cdo.get(ObjectKey.SOURCE_CAMPAIGN);
-			return WRAPPER_FACET.wrap(id, campaign.getSafe(StringKey.PUB_NAME_WEB));
+			case "long" -> {
+				String sourceLong = getSource(StringKey.SOURCE_LONG);
+				return SimpleWrapperLibrary.wrap(sourceLong);
+			}
+			case "short" -> {
+				String sourceShort = getSource(StringKey.SOURCE_SHORT);
+				return SimpleWrapperLibrary.wrap(sourceShort);
+			}
+			case "date" -> {
+				Date sourceDate = cdo.get(ObjectKey.SOURCE_DATE);
+				//Fall back on Campaign if necessary
+				if (sourceDate == null)
+				{
+					Campaign campaign = cdo.get(ObjectKey.SOURCE_CAMPAIGN);
+					sourceDate = campaign.get(ObjectKey.SOURCE_DATE);
+				}
+				return SimpleWrapperLibrary.wrap(sourceDate);
+			}
+			case "page" -> {
+				String sourcePage = getSource(StringKey.SOURCE_PAGE);
+				return SimpleWrapperLibrary.wrap(sourcePage);
+			}
+			case "web" -> {
+				String sourceWeb = getSource(StringKey.SOURCE_WEB);
+				return SimpleWrapperLibrary.wrap(sourceWeb);
+			}
+			case "campaignsource" -> {
+				Campaign campaign = cdo.get(ObjectKey.SOURCE_CAMPAIGN);
+				return WRAPPER_FACET.wrap(id, campaign.get(StringKey.SOURCE_SHORT));
+			}
+			case "pubname" -> {
+				Campaign campaign = cdo.get(ObjectKey.SOURCE_CAMPAIGN);
+				return WRAPPER_FACET.wrap(id, campaign.getSafe(StringKey.PUB_NAME_LONG));
+			}
+			case "pubnameweb" -> {
+				Campaign campaign = cdo.get(ObjectKey.SOURCE_CAMPAIGN);
+				return WRAPPER_FACET.wrap(id, campaign.getSafe(StringKey.PUB_NAME_WEB));
+			}
 		}
 		throw new TemplateModelException("source info does not have output of type " + key);
 	}
@@ -136,7 +131,7 @@ public class SourceModel implements TemplateHashModel
 	}
 
 	@Override
-	public boolean isEmpty() throws TemplateModelException
+	public boolean isEmpty()
 	{
 		return false;
 	}

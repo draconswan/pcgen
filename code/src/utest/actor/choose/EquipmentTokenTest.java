@@ -20,18 +20,19 @@ package actor.choose;
 import pcgen.cdom.base.Chooser;
 import pcgen.core.Equipment;
 import plugin.lsttokens.choose.EquipmentToken;
+
 import actor.testsupport.AbstractPersistentCDOMChoiceActorTestCase;
 
 public class EquipmentTokenTest extends
 		AbstractPersistentCDOMChoiceActorTestCase<Equipment>
 {
 
-	static EquipmentToken pca = new EquipmentToken();
+	private static final EquipmentToken PCA = new EquipmentToken();
 
 	@Override
 	public Chooser<Equipment> getActor()
 	{
-		return pca;
+		return PCA;
 	}
 
 	@Override

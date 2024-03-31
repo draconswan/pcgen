@@ -19,10 +19,10 @@
 package pcgen.io;
 
 /**
- * {@code IOConstants}
- *
+ * Set of constants for Tags. Not to be implemented.
+ * Grandfathered as an interface. Not to be implemented.
  */
-@SuppressWarnings("nls")
+@SuppressWarnings("PMD.ConstantsInInterface")
 interface IOConstants
 {
 	/** Unix-style line separator.  Used for cross platform compatability */
@@ -67,14 +67,8 @@ interface IOConstants
 	/** APPLIEDTO */
 	String TAG_APPLIEDTO = "APPLIEDTO";
 
-	/** ARMORPROF */
-	String TAG_ARMORPROF = "ARMORPROF";
-
 	/** ASSOCIATED DATA */
 	String TAG_ASSOCIATEDDATA = "ASSOCIATEDDATA";
-
-	/** AUTOSORTGEAR */
-	String TAG_AUTOSORTGEAR = "AUTOSORTGEAR";
 
 	/** AUTOSORTSKILLS */
 	String TAG_AUTOSORTSKILLS = "AUTOSORTSKILLS";
@@ -204,9 +198,6 @@ interface IOConstants
 	/** DOMAINGRANTS */
 	String TAG_DOMAINGRANTS = "DOMAINGRANTS";
 
-	/** DOMAINSPELLS */
-	String TAG_DOMAINSPELLS = "DOMAINSPELLS";
-
 	/** EquipSet Temporary Bonuses */
 	String TAG_EQSETBONUS = "EQSETBONUS";
 
@@ -215,8 +206,6 @@ interface IOConstants
 	/** Character equipment name */
 	String TAG_EQUIPNAME = "EQUIPNAME";
 
-	/** equipped */
-	String TAG_EQUIPPED = "EQUIPPED";
 	/** EQUIPSET */
 	String TAG_EQUIPSET = "EQUIPSET";
 
@@ -264,8 +253,6 @@ interface IOConstants
 	String TAG_HITDICE = "HITDICE";
 	/** HITPOINTS */
 	String TAG_HITPOINTS = "HITPOINTS";
-	/** HOLYITEM */
-	String TAG_HOLYITEM = "HOLYITEM";
 
 	/** Output Sheets */
 	String TAG_HTMLOUTPUTSHEET = "OUTPUTSHEETHTML";
@@ -296,8 +283,6 @@ interface IOConstants
 
 	/** MONEY */
 	String TAG_MONEY = "MONEY";
-	/** MULTISELECT */
-	String TAG_MULTISELECT = "MULTISELECT";
 	/** NAME */
 	String TAG_NAME = "NAME";
 	/** NOTE */
@@ -343,8 +328,6 @@ interface IOConstants
 
 	/** PROHIBITED */
 	String TAG_PROHIBITED = "PROHIBITED";
-	/** PROMPT */
-	String TAG_PROMPT = "PROMPT";
 	/** PURCHASEPOINTS */
 	String TAG_PURCHASEPOINTS = "PURCHASEPOINTS";
 	/** QUANTITY */
@@ -419,13 +402,9 @@ interface IOConstants
 	String TAG_SUBCLASS = "SUBCLASS";
 	/** SUBSTITUTIONLEVEL */
 	String TAG_SUBSTITUTIONLEVEL = "SUBSTITUTIONLEVEL";
-	/** Suppressed biography fields */
-	String TAG_SUPPRESS_BIO_FIELDS = "SUPPRESSBIOFIELDS";
 
 	/** SYNERGY */
 	String TAG_SYNERGY = "SYNERGY";
-	/** TABLABEL */
-	String TAG_TABLABEL = "TABLABEL";
 	/** TABNAME */
 	String TAG_TABNAME = "TABNAME";
 
@@ -473,4 +452,7 @@ interface IOConstants
 
 	/** USERPOOL - The amount the user has modified the pool by. */
 	String TAG_USERPOOL = "USERPOOL";
+
+	/** PREVIEWVAR - preview sheet variable,  allows preview input fields to be maintained*/
+	String TAG_PREVIEWSHEETVAR = "PREVIEWVAR";
 }

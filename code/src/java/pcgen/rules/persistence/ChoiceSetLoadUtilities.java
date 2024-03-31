@@ -31,6 +31,7 @@ import pcgen.cdom.base.PrimitiveCollection;
 import pcgen.cdom.grouping.GroupingCollection;
 import pcgen.cdom.grouping.GroupingDefinition;
 import pcgen.cdom.grouping.GroupingInfo;
+import pcgen.cdom.grouping.GroupingScopeFilter;
 import pcgen.cdom.primitive.CompoundAndPrimitive;
 import pcgen.cdom.primitive.CompoundOrPrimitive;
 import pcgen.cdom.primitive.NegatingPrimitive;
@@ -141,7 +142,7 @@ public final class ChoiceSetLoadUtilities
 				"Choice arguments may not end with " + separator + " : " + value);
 			return true;
 		}
-		if (value.indexOf(String.valueOf(new char[]{separator, separator})) != -1)
+		if (value.contains(String.valueOf(new char[]{separator, separator})))
 		{
 			Logging.addParseMessage(Logging.LST_ERROR,
 				"Choice arguments uses double separator " + separator + separator + " : " + value);
@@ -465,21 +466,26 @@ public final class ChoiceSetLoadUtilities
 	 * @return A GroupingCollection based on the given GroupingInfo interpreted within the
 	 *         given LoadContext
 	 */
-	public static <T, G extends Loadable> GroupingCollection<? extends Loadable> getDynamicGroup(LoadContext context,
+	public static <T, G> GroupingCollection<G> getDynamicGroup(LoadContext context,
 		GroupingInfo<G> info)
 	{
-		GroupingDefinition<G> groupingDefinition =
-				TokenLibrary.getGrouping(info.getIdentity(), info.getCharacteristic());
-		if (groupingDefinition == null)
+		Class<G> groupingClass = info.getManagedClass(context);
+		String groupType = info.getCharacteristic();
+		if (info.getCharacteristic() == null)
 		{
-			/*
-			 * If the given information was not a known GroupingDefintion, we suspect it
-			 * is a key, since object names should be usable directly. Therefore, try
-			 * processing it as a Key.
-			 */
-			groupingDefinition = TokenLibrary.getGrouping(info.getIdentity(), "KEY");
+			if ("ALL".equals(info.getValue()))
+			{
+				groupType = "ALL";
+			}
+			else
+			{
+				groupType = "KEY";
+			}
 		}
-		return groupingDefinition.process(context, info);
+		GroupingDefinition<G> groupingDefinition =
+				TokenLibrary.getGrouping(groupingClass, groupType);
+		GroupingCollection<G> collection = groupingDefinition.process(context, info);
+		return new GroupingScopeFilter<>(info.getScope(), collection);
 	}
 
 }

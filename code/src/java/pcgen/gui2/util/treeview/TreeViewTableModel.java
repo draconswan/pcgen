@@ -42,10 +42,11 @@ import pcgen.util.CollectionMaps;
 import pcgen.util.ListMap;
 import pcgen.util.Logging;
 
+@SuppressWarnings({"UseOfObsoleteCollectionType", "PMD.ReplaceVectorWithList", "PMD.UseArrayListInsteadOfVector"})
 public class TreeViewTableModel<E> extends AbstractTreeTableModel implements SortableTreeTableModel
 {
 
-	private final ListListener<E> listListener = new ListListener<E>()
+	private final ListListener<E> listListener = new ListListener<>()
 	{
 
 		@Override
@@ -100,12 +101,6 @@ public class TreeViewTableModel<E> extends AbstractTreeTableModel implements Sor
 			return true;
 		}
 
-		@Override
-		public boolean shouldCache()
-		{
-			return false;
-		}
-
 	};
 
 	protected final Set<E> dataElements = new HashSet<>();
@@ -113,10 +108,6 @@ public class TreeViewTableModel<E> extends AbstractTreeTableModel implements Sor
 	protected DataView<E> dataview;
 	protected ListFacade<E> model = null;
 	protected TreeView<? super E> selectedView = null;
-
-	protected TreeViewTableModel()
-	{
-	}
 
 	public TreeViewTableModel(DataView<E> dataView)
 	{
@@ -205,10 +196,7 @@ public class TreeViewTableModel<E> extends AbstractTreeTableModel implements Sor
 			Vector<TreeViewPath<? super E>> paths = new Vector<>();
 			for (E element : dataElements)
 			{
-				for (TreeViewPath<? super E> path : view.getPaths(element))
-				{
-					paths.add(path);
-				}
+				paths.addAll(view.getPaths(element));
 			}
 			setRoot(new TreeViewNode(paths));
 		}
@@ -244,13 +232,11 @@ public class TreeViewTableModel<E> extends AbstractTreeTableModel implements Sor
 
 	private DataViewColumn getDataColumn(int column)
 	{
-		switch (column)
+		if (column == 0)
 		{
-			case 0:
-				return namecolumn;
-			default:
-				return datacolumns.get(column - 1);
+			return namecolumn;
 		}
+		return datacolumns.get(column - 1);
 	}
 
 	@Override

@@ -20,7 +20,6 @@ package pcgen.cdom.enumeration;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
-import java.util.Map;
 
 import pcgen.base.formula.Formula;
 import pcgen.base.lang.UnreachableError;
@@ -153,26 +152,25 @@ public final class AssociationKey<T>
 	{
 		map = new CaseInsensitiveMap<>();
 		Field[] fields = AssociationKey.class.getDeclaredFields();
-		for (int i = 0; i < fields.length; i++)
-		{
-			int mod = fields[i].getModifiers();
+        for (Field field : fields)
+        {
+            int mod = field.getModifiers();
 
-			if (Modifier.isStatic(mod) && Modifier.isFinal(mod) && Modifier.isPublic(mod))
-			{
-				try
-				{
-					Object obj = fields[i].get(null);
-					if (obj instanceof AssociationKey)
-					{
-						map.put(fields[i].getName(), (AssociationKey<?>) obj);
-					}
-				}
-				catch (IllegalArgumentException | IllegalAccessException e)
-				{
-					throw new UnreachableError(e);
-				}
-			}
-		}
+            if (Modifier.isStatic(mod) && Modifier.isFinal(mod) && Modifier.isPublic(mod))
+            {
+                try
+                {
+                    Object obj = field.get(null);
+                    if (obj instanceof AssociationKey)
+                    {
+                        map.put(field.getName(), (AssociationKey<?>) obj);
+                    }
+                } catch (IllegalArgumentException | IllegalAccessException e)
+                {
+                    throw new UnreachableError(e);
+                }
+            }
+        }
 	}
 
 	@Override
@@ -186,14 +184,12 @@ public final class AssociationKey<T>
 		 * CONSIDER Should this find a way to do a Two-Way Map or something to
 		 * that effect?
 		 */
-		for (Map.Entry<?, AssociationKey<?>> me : map.entrySet())
-		{
-			if (me.getValue() == this)
-			{
-				return me.getKey().toString();
-			}
-		}
+		return map.entrySet()
+		          .stream()
+		          .filter(me -> me.getValue() == this)
+		          .findFirst()
+		          .map(me -> me.getKey().toString())
+		          .orElse("");
 		// Error
-		return "";
 	}
 }

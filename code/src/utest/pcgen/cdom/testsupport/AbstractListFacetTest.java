@@ -17,64 +17,48 @@
  */
 package pcgen.cdom.testsupport;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import junit.framework.TestCase;
-
-import org.junit.Test;
-
 import pcgen.cdom.enumeration.CharID;
 import pcgen.cdom.enumeration.DataSetID;
 import pcgen.cdom.facet.base.AbstractListFacet;
-import pcgen.cdom.facet.event.DataFacetChangeEvent;
-import pcgen.cdom.facet.event.DataFacetChangeListener;
 import pcgen.core.bonus.BonusObj;
 import pcgen.rules.persistence.TokenLibrary;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public abstract class AbstractListFacetTest<T>
-		extends TestCase
 {
 	protected CharID id;
 	protected CharID altid;
+	protected TestFacetListener<T> listener;
 
-	private Listener listener = new Listener();
-
-	private class Listener implements DataFacetChangeListener<CharID, T>
+	@BeforeEach
+	public void setUp()
 	{
-
-		public int addEventCount;
-		public int removeEventCount;
-
-        @Override
-		public void dataAdded(DataFacetChangeEvent<CharID, T> dfce)
-		{
-			addEventCount++;
-		}
-
-        @Override
-		public void dataRemoved(DataFacetChangeEvent<CharID, T> dfce)
-		{
-			removeEventCount++;
-		}
-
-	}
-
-	@Override
-	public void setUp() throws Exception
-	{
-		super.setUp();
 		DataSetID cid = DataSetID.getID();
 		id = CharID.getID(cid);
 		altid = CharID.getID(cid);
+		listener = new TestFacetListener<T>();
 		getFacet().addDataFacetChangeListener(listener);
 	}
 
-	protected void assertEventCount(int a, int r)
+	@AfterEach
+	public void tearDown()
 	{
-		assertEquals(a, listener.addEventCount);
-		assertEquals(r, listener.removeEventCount);
+		id = null;
+		altid = null;
+		listener = null;
 	}
 
 	@Test
@@ -101,37 +85,21 @@ public abstract class AbstractListFacetTest<T>
 	{
 		//Remove to try to avoid any event being formed
 		getFacet().removeDataFacetChangeListener(listener);
-		try
-		{
-			getFacet().add(null, getObject());
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// Yep!
-		}
+		assertThrows(NullPointerException.class, () -> getFacet().add(null, getObject()));
 		testListUnsetZeroCount();
 		testListUnsetEmpty();
 		testListUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
 	public void testAddNullItem()
 	{
-		try
-		{
-			getFacet().add(id, null);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// Yep!
-		}
+		assertThrows(NullPointerException.class, () -> getFacet().add(id, null));
 		testListUnsetZeroCount();
 		testListUnsetEmpty();
 		testListUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -144,7 +112,7 @@ public abstract class AbstractListFacetTest<T>
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// No cross-pollution
 		assertEquals(0, getFacet().getCount(altid));
 		assertTrue(getFacet().isEmpty(altid));
@@ -162,7 +130,7 @@ public abstract class AbstractListFacetTest<T>
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, still only once in set (and only one event)
 		getFacet().add(id, t1);
 		assertEquals(1, getFacet().getCount(id));
@@ -170,7 +138,7 @@ public abstract class AbstractListFacetTest<T>
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -184,7 +152,7 @@ public abstract class AbstractListFacetTest<T>
 		assertNotNull(setofone);
 		assertEquals(1, setofone.size());
 		assertEquals(t1, setofone.iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		T t2 = getObject();
 		getFacet().add(id, t2);
 		assertEquals(2, getFacet().getCount(id));
@@ -194,7 +162,7 @@ public abstract class AbstractListFacetTest<T>
 		assertEquals(2, setoftwo.size());
 		assertTrue(setoftwo.contains(t1));
 		assertTrue(setoftwo.contains(t2));
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 	}
 
 	@Test
@@ -211,16 +179,8 @@ public abstract class AbstractListFacetTest<T>
 	@Test
 	public void testAddAllNull()
 	{
-		try
-		{
-			getFacet().addAll(id, null);
-			fail();
-		}
-		catch (NullPointerException e)
-		{
-			// Expected
-		}
-		assertEventCount(0, 0);
+		assertThrows(NullPointerException.class, () -> getFacet().addAll(id, null));
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -230,7 +190,7 @@ public abstract class AbstractListFacetTest<T>
 		testListUnsetZeroCount();
 		testListUnsetEmpty();
 		testListUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -249,7 +209,7 @@ public abstract class AbstractListFacetTest<T>
 		assertEquals(2, setoftwo.size());
 		assertTrue(setoftwo.contains(t1));
 		assertTrue(setoftwo.contains(t2));
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 		// Prove independence
 		pct.remove(t2);
 		assertEquals(2, getFacet().getCount(id));
@@ -275,7 +235,7 @@ public abstract class AbstractListFacetTest<T>
 		assertNotNull(setofone);
 		assertEquals(1, setofone.size());
 		assertTrue(setofone.contains(t1));
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -287,15 +247,7 @@ public abstract class AbstractListFacetTest<T>
 		pct.add(t1);
 		pct.add(null);
 		pct.add(t2);
-		try
-		{
-			getFacet().addAll(id, pct);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// Yep!
-		}
+		assertThrows(NullPointerException.class, () -> getFacet().addAll(id, pct));
 		/*
 		 * TODO This should be zero, one or two??? Not a huge fan of only 1, but
 		 * not sure what the better solution is to keep facet code from becoming
@@ -308,25 +260,17 @@ public abstract class AbstractListFacetTest<T>
 		assertNotNull(setofone);
 		assertEquals(1, setofone.size());
 		assertTrue(setofone.contains(t1));
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
 	public void testRemoveUseless()
 	{
-		try
-		{
-			getFacet().remove(id, null);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// Expected
-		}
+		assertThrows(NullPointerException.class, () -> getFacet().remove(id, null));
 		testListUnsetZeroCount();
 		testListUnsetEmpty();
 		testListUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -339,14 +283,14 @@ public abstract class AbstractListFacetTest<T>
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Remove
 		getFacet().remove(id, t1);
 		assertEquals(0, getFacet().getCount(id));
 		assertTrue(getFacet().isEmpty(id));
 		assertNotNull(getFacet().getSet(id));
 		assertTrue(getFacet().getSet(id).isEmpty());
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 	}
 
 	@Test
@@ -359,7 +303,7 @@ public abstract class AbstractListFacetTest<T>
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Useless Remove
 		getFacet().remove(id, getObject());
 		assertEquals(1, getFacet().getCount(id));
@@ -367,7 +311,7 @@ public abstract class AbstractListFacetTest<T>
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -380,7 +324,7 @@ public abstract class AbstractListFacetTest<T>
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, still only once in set
 		getFacet().add(id, t1);
 		assertEquals(1, getFacet().getCount(id));
@@ -388,19 +332,19 @@ public abstract class AbstractListFacetTest<T>
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Only requires one Remove (internally a Set, not List)
 		getFacet().remove(id, t1);
 		testListUnsetZeroCount();
 		testListUnsetEmpty();
 		testListUnsetEmptySet();
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 		// Second has no effect
 		getFacet().remove(id, t1);
 		testListUnsetZeroCount();
 		testListUnsetEmpty();
 		testListUnsetEmptySet();
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 	}
 
 	@Test
@@ -417,22 +361,14 @@ public abstract class AbstractListFacetTest<T>
 		assertNotNull(setofone);
 		assertEquals(1, setofone.size());
 		assertTrue(setofone.contains(t2));
-		assertEventCount(2, 1);
+		listener.assertEventCount(2, 1);
 	}
 
 	@Test
 	public void testRemoveAllNull()
 	{
 		getFacet().add(id, getObject());
-		try
-		{
-			getFacet().removeAll(id, null);
-			fail();
-		}
-		catch (NullPointerException e)
-		{
-			// Expected
-		}
+		assertThrows(NullPointerException.class, () -> getFacet().removeAll(id, null));
 	}
 
 	@Test
@@ -442,7 +378,7 @@ public abstract class AbstractListFacetTest<T>
 		testListUnsetZeroCount();
 		testListUnsetEmpty();
 		testListUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -457,9 +393,9 @@ public abstract class AbstractListFacetTest<T>
 		getFacet().add(id, t3);
 		pct.add(t1);
 		pct.add(t3);
-		assertEventCount(3, 0);
+		listener.assertEventCount(3, 0);
 		getFacet().removeAll(id, pct);
-		assertEventCount(3, 2);
+		listener.assertEventCount(3, 2);
 		assertEquals(1, getFacet().getCount(id));
 		assertFalse(getFacet().isEmpty(id));
 		Collection<T> setofone = getFacet().getSet(id);
@@ -484,9 +420,9 @@ public abstract class AbstractListFacetTest<T>
 		getFacet().add(id, t2);
 		pct.add(t1);
 		pct.add(t1);
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 		getFacet().removeAll(id, pct);
-		assertEventCount(2, 1);
+		listener.assertEventCount(2, 1);
 		assertEquals(1, getFacet().getCount(id));
 		assertFalse(getFacet().isEmpty(id));
 		Collection<T> setofone = getFacet().getSet(id);
@@ -506,17 +442,9 @@ public abstract class AbstractListFacetTest<T>
 		pct.add(t1);
 		pct.add(null);
 		pct.add(t2);
-		assertEventCount(2, 0);
-		try
-		{
-			getFacet().removeAll(id, pct);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// Expected
-		}
-		assertEventCount(2, 1);
+		listener.assertEventCount(2, 0);
+		assertThrows(NullPointerException.class, () -> getFacet().removeAll(id, pct));
+		listener.assertEventCount(2, 1);
 		assertEquals(1, getFacet().getCount(id));
 		assertFalse(getFacet().isEmpty(id));
 		Collection<T> setofone = getFacet().getSet(id);
@@ -534,9 +462,9 @@ public abstract class AbstractListFacetTest<T>
 		T t2 = getObject();
 		getFacet().add(id, t1);
 		getFacet().add(id, t2);
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 		Collection<T> setoftwo = getFacet().removeAll(id);
-		assertEventCount(2, 2);
+		listener.assertEventCount(2, 2);
 		assertNotNull(setoftwo);
 		assertEquals(2, setoftwo.size());
 		assertTrue(setoftwo.contains(t1));

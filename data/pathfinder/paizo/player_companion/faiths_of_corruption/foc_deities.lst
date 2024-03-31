@@ -1,5 +1,6 @@
+#  Fri Nov 16 19:52:40 2018 -- reformated by PCGen PrettyLST v6.08.00
 # CVS $Revision: 9628 $ $Author: zaister $ -- Fri Jan  1 12:57:05 2016 -- reformated by PCGen PrettyLST v6.06.00
-SOURCELONG:Faiths of Corruption	SOURCESHORT:FOC	SOURCEWEB:http://paizo.com/products/btpy8odc?Pathfinder-Player-Companion-Faiths-of-Corruption	SOURCEDATE:2011-10
+SOURCELONG:Pathfinder Player Companion: Faiths of Corruption	SOURCESHORT:FOC	SOURCEWEB:http://paizo.com/products/btpy8odc	SOURCEDATE:2011-10
 # Original Entry by: Stefan Radermacher
 
 ###Block: Minor Deities
@@ -66,6 +67,10 @@ Nyarlathotep	NAMEISPI:YES	DOMAINS:Chaos,Evil,Knowledge,Magic,Trickery|PREALIGN:N
 Shub-Niggurath	NAMEISPI:YES	DOMAINS:Animal,Chaos,Evil,Plant,Void|PREALIGN:NE,CN,CE		FACTSET:Pantheon|Great Old Ones & Outer Gods	DEITYWEAP:Dagger		ALIGN:CE	SOURCEPAGE:p.20
 Xhamen-Dor		NAMEISPI:YES	DOMAINS:Death,Evil,Plant,Trickery|PREALIGN:TN,LE,NE,CE		FACTSET:Pantheon|Great Old Ones & Outer Gods	DEITYWEAP:Spear		ALIGN:NE	SOURCEPAGE:p.20
 Yog-Sothoth		NAMEISPI:YES	DOMAINS:Chaos,Darkness,Knowledge,Travel,Void|PREALIGN:CG,TN,CN,CE	FACTSET:Pantheon|Great Old Ones & Outer Gods	DEITYWEAP:Dagger		ALIGN:CN	SOURCEPAGE:p.20
+
+###Block: Inquisitor Support
+# Inquisitor Domains
+Yog-Sothoth.MOD	BONUS:VAR|InquisitorDomainChaos,InquisitorDomainDarkness,InquisitorDomainKnowledge,InquisitorDomainTravel,InquisitorDomainVoid|1|PREALIGN:CG,TN,CN,CE
 
 #
 # End

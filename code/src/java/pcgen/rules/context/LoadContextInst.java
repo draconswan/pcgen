@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import pcgen.base.formula.inst.NEPFormula;
@@ -37,7 +38,7 @@ import pcgen.cdom.enumeration.DataSetID;
 import pcgen.cdom.facet.DataSetInitializationFacet;
 import pcgen.cdom.facet.FacetInitialization;
 import pcgen.cdom.facet.FacetLibrary;
-import pcgen.cdom.formula.scope.GlobalScope;
+import pcgen.cdom.formula.scope.GlobalPCScope;
 import pcgen.cdom.formula.scope.PCGenScope;
 import pcgen.cdom.grouping.GroupingCollection;
 import pcgen.cdom.grouping.GroupingInfo;
@@ -106,18 +107,9 @@ abstract class LoadContextInst implements LoadContext
 
 	public LoadContextInst(AbstractReferenceContext rc, AbstractListContext lc, AbstractObjectContext oc)
 	{
-		if (rc == null)
-		{
-			throw new IllegalArgumentException("ReferenceContext cannot be null");
-		}
-		if (lc == null)
-		{
-			throw new IllegalArgumentException("ListContext cannot be null");
-		}
-		if (oc == null)
-		{
-			throw new IllegalArgumentException("ObjectContext cannot be null");
-		}
+		Objects.requireNonNull(rc, "ReferenceContext cannot be null");
+		Objects.requireNonNull(lc, "ListContext cannot be null");
+		Objects.requireNonNull(oc, "ObjectContext cannot be null");
 		ref = rc;
 		list = lc;
 		obj = oc;
@@ -333,7 +325,6 @@ abstract class LoadContextInst implements LoadContext
 
 	@Override
 	public <T extends Loadable> boolean processToken(T derivative, String typeStr, String argument)
-		throws PersistenceLayerException
 	{
 		return support.processToken(this, derivative, typeStr, argument);
 	}
@@ -341,23 +332,16 @@ abstract class LoadContextInst implements LoadContext
 	@Override
 	public <T extends Loadable> void unconditionallyProcess(T cdo, String key, String value)
 	{
-		try
+		if (processToken(cdo, key, value))
 		{
-			if (processToken(cdo, key, value))
-			{
-				commit();
-			}
-			else
-			{
-				rollback();
-				Logging.replayParsedMessages();
-			}
-			Logging.clearParseMessages();
+			commit();
 		}
-		catch (PersistenceLayerException e)
+		else
 		{
-			Logging.errorPrint("Error in token parse: " + e.getLocalizedMessage());
+			rollback();
+			Logging.replayParsedMessages();
 		}
+		Logging.clearParseMessages();
 	}
 
 	/**
@@ -443,7 +427,7 @@ abstract class LoadContextInst implements LoadContext
 	}
 
 	@Override
-	public boolean addStatefulToken(String s) throws PersistenceLayerException
+	public boolean addStatefulToken(String s)
 	{
 		int colonLoc = s.indexOf(':');
 		if (colonLoc == -1)
@@ -455,7 +439,7 @@ abstract class LoadContextInst implements LoadContext
 		{
 			stateful = new ObjectCache();
 		}
-		return processToken(stateful, s.substring(0, colonLoc).intern(), s.substring(colonLoc + 1).intern());
+		return processToken(stateful, s.substring(0, colonLoc), s.substring(colonLoc + 1));
 	}
 
 	@Override
@@ -538,7 +522,7 @@ abstract class LoadContextInst implements LoadContext
 	{
 		if (legalScope == null)
 		{
-			legalScope = var.getScope(GlobalScope.GLOBAL_SCOPE_NAME);
+			legalScope = var.getScope(GlobalPCScope.GLOBAL_SCOPE_NAME);
 		}
 		return legalScope;
 	}
@@ -579,11 +563,11 @@ abstract class LoadContextInst implements LoadContext
 	}
 
 	@Override
-	public <T> GroupingCollection<? extends Loadable> getGrouping(PCGenScope scope, String groupingName)
+	public GroupingCollection<?> getGrouping(PCGenScope scope, String groupingName)
 	{
 		try
 		{
-			GroupingInfo<?> info = new GroupingInfoFactory(this).process(scope, groupingName);
+			GroupingInfo<?> info = new GroupingInfoFactory().process(scope, groupingName);
 			return ChoiceSetLoadUtilities.getDynamicGroup(this, info);
 		}
 		catch (GroupingStateException e)
@@ -790,7 +774,6 @@ abstract class LoadContextInst implements LoadContext
 
 		@Override
 		public <T extends Loadable> boolean processToken(T derivative, String typeStr, String argument)
-			throws PersistenceLayerException
 		{
 			return support.processToken(this, derivative, typeStr, argument);
 		}
@@ -888,7 +871,7 @@ abstract class LoadContextInst implements LoadContext
 		}
 
 		@Override
-		public <T> GroupingCollection<? extends Loadable> getGrouping(PCGenScope scope, String groupingName)
+		public GroupingCollection<?> getGrouping(PCGenScope scope, String groupingName)
 		{
 			return parent.getGrouping(scope, groupingName);
 		}

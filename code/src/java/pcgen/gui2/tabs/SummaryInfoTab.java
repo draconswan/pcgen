@@ -62,20 +62,18 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
-import org.apache.commons.lang3.StringUtils;
-
+import pcgen.cdom.enumeration.Gender;
+import pcgen.cdom.enumeration.Handed;
+import pcgen.cdom.util.CControl;
+import pcgen.core.Deity;
 import pcgen.core.PCAlignment;
+import pcgen.core.PCClass;
+import pcgen.core.Race;
 import pcgen.facade.core.CharacterFacade;
 import pcgen.facade.core.CharacterLevelFacade;
 import pcgen.facade.core.CharacterLevelsFacade;
-import pcgen.facade.core.ClassFacade;
 import pcgen.facade.core.DataSetFacade;
-import pcgen.facade.core.DeityFacade;
-import pcgen.facade.core.GenderFacade;
-import pcgen.facade.core.HandedFacade;
 import pcgen.facade.core.InfoFacade;
-import pcgen.facade.core.RaceFacade;
-import pcgen.facade.core.SimpleFacade;
 import pcgen.facade.core.TodoFacade;
 import pcgen.facade.util.ReferenceFacade;
 import pcgen.facade.util.event.ListEvent;
@@ -97,14 +95,19 @@ import pcgen.gui2.tabs.summary.InfoPaneHandler;
 import pcgen.gui2.tabs.summary.LanguageTableModel;
 import pcgen.gui2.tabs.summary.StatTableModel;
 import pcgen.gui2.tools.Icons;
-import pcgen.gui2.tools.Utility;
 import pcgen.gui2.util.FacadeComboBoxModel;
 import pcgen.gui2.util.FontManipulation;
+import pcgen.gui2.util.ManagedField;
 import pcgen.gui2.util.SignIcon;
 import pcgen.gui2.util.SignIcon.Sign;
 import pcgen.gui2.util.SimpleTextIcon;
+import pcgen.gui3.JFXPanelFromResource;
+import pcgen.gui3.SimpleHtmlPanelController;
+import pcgen.gui3.utilty.ColorUtilty;
 import pcgen.system.LanguageBundle;
 import pcgen.util.enumeration.Tab;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This component displays a basic summary of a character such as name,
@@ -152,7 +155,7 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 	private final JButton removeLevelsButton;
 	private final JButton hpButton;
 	private final JLabel totalHPLabel;
-	private final JEditorPane infoPane;
+	private final JFXPanelFromResource<SimpleHtmlPanelController> infoPane;
 	private final JLabel statTotalLabel;
 	private final JLabel statTotal;
 	private final JLabel modTotalLabel;
@@ -201,7 +204,10 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 		this.expsubtractButton = new JButton();
 		this.hpButton = new JButton();
 		this.totalHPLabel = new JLabel();
-		this.infoPane = new JEditorPane();
+		this.infoPane = new JFXPanelFromResource<>(
+				SimpleHtmlPanelController.class,
+				"SimpleHtmlPanel.fxml"
+		);
 		this.statTotalLabel = new JLabel();
 		this.statTotal = new JLabel();
 		this.modTotalLabel = new JLabel();
@@ -328,8 +334,6 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 		statsPanel.add(statTotalPanel);
 
 		middlePanel.add(statsPanel);
-
-		InfoPaneHandler.initializeEditorPane(infoPane);
 
 		pane = new JScrollPane(infoPane);
 		setPanelTitle(pane, LanguageBundle.getString("in_sumStats")); //$NON-NLS-1$
@@ -643,14 +647,15 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 		models.put(ComboBoxModelHandler.class, new ComboBoxModelHandler(character));
 
 		models.put(RandomNameAction.class,
-			new RandomNameAction(character, (JFrame) SwingUtilities.getWindowAncestor(this)));
+                new RandomNameAction(character, (JFrame) SwingUtilities.getWindowAncestor(this)));
 		models.put(ClassLevelTableModel.class, new ClassLevelTableModel(character, classLevelTable, classComboBox));
 
 		models.put(GenerateRollsAction.class, new GenerateRollsAction(character));
 		models.put(RollMethodAction.class,
-			new RollMethodAction(character, (JFrame) SwingUtilities.getWindowAncestor(this)));
+				new RollMethodAction(character, (JFrame) SwingUtilities.getWindowAncestor(this))
+		);
 		models.put(CreateMonsterAction.class,
-			new CreateMonsterAction(character, (JFrame) SwingUtilities.getWindowAncestor(this)));
+                new CreateMonsterAction(character, (JFrame) SwingUtilities.getWindowAncestor(this)));
 		models.put(AddLevelsAction.class, new AddLevelsAction(character));
 		models.put(RemoveLevelsAction.class, new RemoveLevelsAction(character));
 		models.put(StatTableModel.class, new StatTableModel(character, statsTable));
@@ -681,7 +686,6 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 		models.get(StatTableModel.class).uninstall();
 		models.get(TodoListHandler.class).uninstall();
 		models.get(GenerateRollsAction.class).uninstall();
-		models.get(RollMethodAction.class).uninstall();
 		models.get(HPHandler.class).uninstall();
 
 		models.get(ComboBoxRendererHandler.class).uninstall();
@@ -700,7 +704,6 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 		models.get(ClassLevelTableModel.class).install();
 		models.get(TodoListHandler.class).install();
 		models.get(GenerateRollsAction.class).install();
-		models.get(RollMethodAction.class).install();
 		models.get(HPHandler.class).install();
 
 		random.setAction(models.get(RandomNameAction.class));
@@ -729,12 +732,24 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 		private final LabelHandler statTotalHandler;
 		private final LabelHandler modTotalLabelHandler;
 		private final LabelHandler modTotalHandler;
-		private final TextFieldHandler charNameHandler;
-		private final TextFieldHandler playerNameHandler;
-		private final TextFieldHandler tabNameHandler;
-		private final FormattedFieldHandler ageHandler;
-		private final FormattedFieldHandler expHandler;
-		private final FormattedFieldHandler nextLevelHandler;
+		
+		/**
+		 * Field for Character Name
+		 */
+		private final ManagedField charNameHandler;
+
+		/**
+		 * Field for PlayerName
+		 */
+		private final ManagedField playerNameHandler;
+
+		/**
+		 * Field for Tab Name
+		 */
+		private final ManagedField tabNameHandler;
+		private final ManagedField ageHandler;
+		private final ManagedField expHandler;
+		private final ManagedField nextLevelHandler;
 
 		LabelAndFieldHandler(final CharacterFacade character)
 		{
@@ -858,13 +873,13 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 	private class ComboBoxModelHandler
 	{
 		private final CharacterFacade character;
-		private final CharacterComboBoxModel<GenderFacade> genderModel;
-		private final CharacterComboBoxModel<HandedFacade> handsModel;
+		private final CharacterComboBoxModel<Gender> genderModel;
+		private final CharacterComboBoxModel<Handed> handsModel;
 		private CharacterComboBoxModel<PCAlignment> alignmentModel;
-		private CharacterComboBoxModel<DeityFacade> deityModel;
-		private final DeferredCharacterComboBoxModel<RaceFacade> raceModel;
-		private final CharacterComboBoxModel<SimpleFacade> ageCatModel;
-		private final FacadeComboBoxModel<ClassFacade> classModel;
+		private CharacterComboBoxModel<Deity> deityModel;
+		private final DeferredCharacterComboBoxModel<Race> raceModel;
+		private final CharacterComboBoxModel<String> ageCatModel;
+		private final FacadeComboBoxModel<PCClass> classModel;
 		private final CharacterComboBoxModel<String> xpTableModel;
 		private final CharacterComboBoxModel<String> characterTypeModel;
 
@@ -875,7 +890,7 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 
 			//initialize character type model
 			characterTypeModel =
-					new CharacterComboBoxModel<String>(dataset.getCharacterTypes(), character.getCharacterTypeRef())
+					new CharacterComboBoxModel<>(dataset.getCharacterTypes(), character.getCharacterTypeRef())
 					{
 
 						@Override
@@ -888,26 +903,26 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 
 			//initialize gender model
 			genderModel =
-					new CharacterComboBoxModel<GenderFacade>(character.getAvailableGenders(), character.getGenderRef())
+					new CharacterComboBoxModel<>(character.getAvailableGenders(), character.getGenderRef())
 					{
 
 						@Override
 						public void setSelectedItem(Object anItem)
 						{
-							character.setGender((GenderFacade) anItem);
+							character.setGender((Gender) anItem);
 						}
 
 					};
 
 			//initialize handed model
 			handsModel =
-					new CharacterComboBoxModel<HandedFacade>(character.getAvailableHands(), character.getHandedRef())
+					new CharacterComboBoxModel<>(character.getAvailableHands(), character.getHandedRef())
 					{
 
 						@Override
 						public void setSelectedItem(Object anItem)
 						{
-							character.setHanded((HandedFacade) anItem);
+							character.setHanded((Handed) anItem);
 						}
 
 					};
@@ -916,7 +931,7 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 			{
 				//initialize alignment model
 				alignmentModel =
-						new CharacterComboBoxModel<PCAlignment>(dataset.getAlignments(), character.getAlignmentRef())
+						new CharacterComboBoxModel<>(dataset.getAlignments(), character.getAlignmentRef())
 						{
 
 							@Override
@@ -928,48 +943,50 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 						};
 			}
 
-			if (dataset.hasDeityDomain())
+			if (character.isFeatureEnabled(CControl.DOMAINFEATURE))
 			{
 				//initialize deity model
-				deityModel = new CharacterComboBoxModel<DeityFacade>(dataset.getDeities(), character.getDeityRef())
+				deityModel = new CharacterComboBoxModel<>(dataset.getDeities(), character.getDeityRef())
 				{
 
 					@Override
 					public void setSelectedItem(Object anItem)
 					{
-						character.setDeity((DeityFacade) anItem);
+						character.setDeity((Deity) anItem);
 					}
 
 				};
 			}
 
 			//initialize race model
-			raceModel = new DeferredCharacterComboBoxModel<RaceFacade>(dataset.getRaces(), character.getRaceRef())
+			raceModel = new DeferredCharacterComboBoxModel<>(dataset.getRaces(), character.getRaceRef())
 			{
 
 				@Override
 				public void commitSelectedItem(Object anItem)
 				{
-					character.setRace((RaceFacade) anItem);
+					character.setRace((Race) anItem);
 				}
 
 			};
 
 			//initialize age category model
-			ageCatModel = new CharacterComboBoxModel<SimpleFacade>(character.getAgeCategories(),
-				character.getAgeCategoryRef())
+			ageCatModel = new CharacterComboBoxModel<>(
+					character.getAgeCategories(),
+					character.getAgeCategoryRef()
+			)
 			{
 
 				@Override
 				public void setSelectedItem(Object anItem)
 				{
-					character.setAgeCategory((SimpleFacade) anItem);
+					character.setAgeCategory((String) anItem);
 				}
 
 			};
 
 			//initialize XP table model
-			xpTableModel = new CharacterComboBoxModel<String>(dataset.getXPTableNames(), character.getXPTableNameRef())
+			xpTableModel = new CharacterComboBoxModel<>(dataset.getXPTableNames(), character.getXPTableNameRef())
 			{
 
 				@Override
@@ -997,7 +1014,7 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 				alignmentComboBox.setModel(alignmentModel);
 				alignmentComboBox.setVisible(true);
 			}
-			boolean hasDeityDomain = character.getDataSet().hasDeityDomain();
+			boolean hasDeityDomain = character.isFeatureEnabled(CControl.DOMAINFEATURE);
 			deityComboBox.setVisible(hasDeityDomain);
 			if (hasDeityDomain)
 			{
@@ -1068,16 +1085,17 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 			boolean cellHasFocus)
 		{
 			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-			if (value instanceof InfoFacade && !character.isQualifiedFor((InfoFacade) value))
+			if ((character != null) && (value instanceof InfoFacade) && !character.isQualifiedFor((InfoFacade) value))
 			{
 				if (index == -1)
 				{// this is a hack to prevent the combobox from overwriting the text color
 					setText("");
-					setIcon(new SimpleTextIcon(list, value.toString(), UIPropertyContext.getNotQualifiedColor()));
+					setIcon(new SimpleTextIcon(list, value.toString(),
+							ColorUtilty.colorToAWTColor(UIPropertyContext.getNotQualifiedColor())));
 				}
 				else
 				{
-					setForeground(UIPropertyContext.getNotQualifiedColor());
+					setForeground(ColorUtilty.colorToAWTColor(UIPropertyContext.getNotQualifiedColor()));
 				}
 			}
 			return this;
@@ -1093,16 +1111,17 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 			boolean cellHasFocus)
 		{
 			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-			if (value instanceof ClassFacade && !character.isQualifiedFor((ClassFacade) value))
+			if (value instanceof PCClass && !character.isQualifiedFor((PCClass) value))
 			{
 				if (index == -1)
 				{// this is a hack to prevent the combobox from overwriting the text color
 					setText("");
-					setIcon(new SimpleTextIcon(list, value.toString(), UIPropertyContext.getNotQualifiedColor()));
+					setIcon(new SimpleTextIcon(list, value.toString(),
+							ColorUtilty.colorToAWTColor(UIPropertyContext.getNotQualifiedColor())));
 				}
 				else
 				{
-					setForeground(UIPropertyContext.getNotQualifiedColor());
+					setForeground(ColorUtilty.colorToAWTColor(UIPropertyContext.getNotQualifiedColor()));
 				}
 			}
 			return this;
@@ -1149,7 +1168,7 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 
 	}
 
-	private class RandomNameAction extends AbstractAction
+	private static class RandomNameAction extends AbstractAction
 	{
 
 		private final CharacterFacade character;
@@ -1185,7 +1204,7 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 	 * Handler for actions from the generate rolls button. Also defines the
 	 * appearance of the button.
 	 */
-	private final class GenerateRollsAction extends AbstractAction
+	private static final class GenerateRollsAction extends AbstractAction
 			implements ListListener<CharacterLevelFacade>, ReferenceListener<Integer>
 	{
 
@@ -1247,9 +1266,6 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 			update();
 		}
 
-		/**
-		 * @see pcgen.facade.util.event.ListListener#elementsChanged(ListEvent)
-		 */
 		@Override
 		public void elementsChanged(ListEvent<CharacterLevelFacade> e)
 		{
@@ -1274,13 +1290,13 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 	 * Handler for actions from the generate rolls button. Also defines the
 	 * appearance of the button.
 	 */
-	private class RollMethodAction extends AbstractAction
+	private static final class RollMethodAction extends AbstractAction
 	{
 
 		private final JFrame parent;
 		private final CharacterFacade character;
 
-		RollMethodAction(CharacterFacade character, JFrame parent)
+		private RollMethodAction(CharacterFacade character, JFrame parent)
 		{
 			putValue(NAME, LanguageBundle.getString("in_sumRoll_Method")); //$NON-NLS-1$
 			putValue(SHORT_DESCRIPTION, LanguageBundle.getString("in_sumRoll_Method_Tip")); //$NON-NLS-1$
@@ -1288,36 +1304,19 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 			this.character = character;
 		}
 
-		/**
-		 * Attach the handler to the screen button. e.g. When the character is
-		 * made active.
-		 */
-		public void install()
-		{
-		}
-
-		/**
-		 * Detach the handler from the on screen button. e.g. when the character
-		 * is no longer being displayed.
-		 */
-		public void uninstall()
-		{
-		}
-
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			CharacterStatsPanel charStatsPanel = new CharacterStatsPanel(null);
+			CharacterStatsPanel charStatsPanel = new CharacterStatsPanel();
 			SinglePrefDialog prefsDialog = new SinglePrefDialog(parent, charStatsPanel);
-			charStatsPanel.setParent(prefsDialog);
-			Utility.setComponentRelativeLocation(parent, prefsDialog);
+			prefsDialog.setLocationRelativeTo(parent);
 			prefsDialog.setVisible(true);
 			character.refreshRollMethod();
 		}
 
 	}
 
-	private class CreateMonsterAction extends AbstractAction
+	private static class CreateMonsterAction extends AbstractAction
 	{
 
 		private final CharacterFacade character;
@@ -1335,7 +1334,7 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 		public void actionPerformed(ActionEvent e)
 		{
 			KitSelectionDialog kitDialog = new KitSelectionDialog(frame, character);
-			Utility.setComponentRelativeLocation(frame, kitDialog);
+			kitDialog.setLocationRelativeTo(frame);
 			kitDialog.setVisible(true);
 		}
 
@@ -1355,13 +1354,13 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			ClassFacade c = (ClassFacade) classComboBox.getSelectedItem();
+			PCClass c = (PCClass) classComboBox.getSelectedItem();
 			if (c != null)
 			{
 				Number levels = (Number) addLevelsField.getValue();
 				if (levels.intValue() >= 0)
 				{
-					ClassFacade[] classes = new ClassFacade[levels.intValue()];
+					PCClass[] classes = new PCClass[levels.intValue()];
 					Arrays.fill(classes, c);
 					character.addCharacterLevels(classes);
 				}
@@ -1374,7 +1373,7 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 			int maxLvl = characterLevelsFacade.getSize();
 			if (maxLvl > 0)
 			{
-				ClassFacade classTaken =
+				PCClass classTaken =
 						characterLevelsFacade.getClassTaken(characterLevelsFacade.getElementAt(maxLvl - 1));
 				classComboBox.setSelectedItem(classTaken);
 			}
@@ -1465,7 +1464,7 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 	 * reference is updated. The handler also knows how to react to install and
 	 * uninstall actions when the displayed character changes.
 	 */
-	private class LabelHandler implements ReferenceListener<String>
+	private static class LabelHandler implements ReferenceListener<String>
 	{
 
 		private ReferenceFacade<String> reference = null;
@@ -1665,13 +1664,6 @@ public class SummaryInfoTab extends JPanel implements CharacterInfoTab, TodoHand
 			}
 			return super.getComponentAfter(aContainer, aComponent);
 		}
-
-		@Override
-		public Component getComponentBefore(Container aContainer, Component aComponent)
-		{
-			return super.getComponentBefore(aContainer, aComponent);
-		}
-
 	}
 
 }

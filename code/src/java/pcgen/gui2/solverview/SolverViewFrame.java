@@ -26,7 +26,9 @@ import java.awt.event.ActionListener;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
@@ -50,12 +52,11 @@ import pcgen.cdom.facet.model.VarScopedFacet;
 import pcgen.cdom.formula.PCGenScoped;
 import pcgen.facade.core.CharacterFacade;
 import pcgen.gui2.tools.Utility;
-import pcgen.gui2.util.JComboBoxEx;
 import pcgen.rules.context.LoadContext;
 import pcgen.system.CharacterManager;
 import pcgen.system.LanguageBundle;
 
-public class SolverViewFrame extends JFrame
+public final class SolverViewFrame extends JFrame
 {
 
 	private final ScopeFacet scopeFacet = FacetLibrary.getFacet(ScopeFacet.class);
@@ -63,16 +64,16 @@ public class SolverViewFrame extends JFrame
 	private final VarScopedFacet varScopedFacet = FacetLibrary.getFacet(VarScopedFacet.class);
 	private final LoadContextFacet loadContextFacet = FacetLibrary.getFacet(LoadContextFacet.class);
 
-	private final JComboBoxEx<LegalScopeWrapper> scopeChooser;
+	private final JComboBox<LegalScopeWrapper> scopeChooser;
 	private LegalScope selectedScope;
 
 	private final JTextField varName;
 	private String varNameText = "                               ";
 
-	private final JComboBoxEx<ObjectNameDisplayer> objectChooser;
+	private final JComboBox<ObjectNameDisplayer> objectChooser;
 	private VarScoped activeObject;
 
-	private final JComboBoxEx<PCRef> identifierChooser;
+	private final JComboBox<PCRef> identifierChooser;
 	private CharID activeIdentifier;
 
 	private JTable viewTable;
@@ -81,7 +82,7 @@ public class SolverViewFrame extends JFrame
 
 	public SolverViewFrame()
 	{
-		identifierChooser = new JComboBoxEx<>();
+		identifierChooser = new JComboBox<>();
 		for (CharacterFacade pcf : CharacterManager.getCharacters())
 		{
 			String pcname = pcf.getNameRef().get();
@@ -90,10 +91,10 @@ public class SolverViewFrame extends JFrame
 		}
 		identifierChooser.addActionListener(new IdentifierActionListener());
 
-		objectChooser = new JComboBoxEx<>();
+		objectChooser = new JComboBox<>();
 		objectChooser.addActionListener(new ObjectActionListener());
 
-		scopeChooser = new JComboBoxEx<>();
+		scopeChooser = new JComboBox<>();
 		scopeChooser.addActionListener(new ScopeActionListener());
 
 		varName = new JTextField();
@@ -116,7 +117,15 @@ public class SolverViewFrame extends JFrame
 			tableModel.setSteps(Collections.emptyList());
 			return;
 		}
-		ScopeInstance scope = scopeFacet.get(activeIdentifier, LegalScope.getFullName(selectedScope), activeObject);
+		ScopeInstance scope;
+		if (activeObject == null)
+		{
+			scope = scopeFacet.getGlobalScope(activeIdentifier);
+		}
+		else
+		{
+			scope = scopeFacet.get(activeIdentifier, LegalScope.getFullName(selectedScope), activeObject);
+		}
 		if (loadContextFacet.get(activeIdentifier.getDatasetID()).get().getVariableContext()
 			.isLegalVariableID(scope.getLegalScope(), varNameText))
 		{
@@ -229,7 +238,8 @@ public class SolverViewFrame extends JFrame
 			String scopeName = LegalScope.getFullName(selectedScope);
 			for (VarScoped cdo : objects)
 			{
-				if (scopeName.equals(cdo.getLocalScopeName()))
+				Optional<String> localScopeName = cdo.getLocalScopeName();
+				if (localScopeName.isPresent() && scopeName.equals(localScopeName.get()))
 				{
 					if (scopeFacet.get(activeIdentifier, scopeName, cdo) != null)
 					{
@@ -299,7 +309,7 @@ public class SolverViewFrame extends JFrame
 		setTitle("Core Variable Debug View");
 		getContentPane().setSize(500, 400);
 		pack();
-		Utility.centerComponent(this, true);
+		setLocationRelativeTo(null);
 	}
 
 	private static class SolverTableModel<T> extends AbstractTableModel
@@ -331,21 +341,15 @@ public class SolverViewFrame extends JFrame
 		public Object getValueAt(int rowIndex, int columnIndex)
 		{
 			ProcessStep<T> ps = steps.get(rowIndex);
-			switch (columnIndex)
-			{
-				case 0:
-					return ps.getModifier().getIdentification();
-				case 1:
-					return ps.getModifier().getInstructions();
-				case 2:
-					return ps.getResult();
-				case 3:
-					return ps.getModifier().getPriority();
-				case 4:
-					return ps.getSourceInfo();
-				default:
-					return "";
-			}
+			return switch (columnIndex)
+					{
+						case 0 -> ps.getModifier().getIdentification();
+						case 1 -> ps.getModifier().getInstructions();
+						case 2 -> ps.getResult();
+						case 3 -> ps.getModifier().getPriority();
+						case 4 -> ps.getSourceInfo();
+						default -> "";
+					};
 		}
 
 		@Override

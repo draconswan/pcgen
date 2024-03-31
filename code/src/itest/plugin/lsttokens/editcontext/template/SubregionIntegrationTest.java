@@ -17,20 +17,18 @@
  */
 package plugin.lsttokens.editcontext.template;
 
-import org.junit.Test;
-
-import pcgen.cdom.enumeration.SubRegion;
 import pcgen.core.PCTemplate;
-import pcgen.persistence.PersistenceLayerException;
 import pcgen.rules.persistence.CDOMLoader;
 import pcgen.rules.persistence.token.CDOMPrimaryToken;
-import plugin.lsttokens.editcontext.testsupport.AbstractTypeSafeIntegrationTestCase;
-import plugin.lsttokens.editcontext.testsupport.TestContext;
+
+import plugin.lsttokens.editcontext.testsupport.AbstractStringIntegrationTestCase;
 import plugin.lsttokens.template.SubregionToken;
 import plugin.lsttokens.testsupport.CDOMTokenLoader;
 
-public class SubregionIntegrationTest extends
-		AbstractTypeSafeIntegrationTestCase<PCTemplate>
+import org.junit.jupiter.api.Test;
+
+public class SubregionIntegrationTest
+		extends AbstractStringIntegrationTestCase<PCTemplate>
 {
 
 	private static SubregionToken token = new SubregionToken();
@@ -54,62 +52,15 @@ public class SubregionIntegrationTest extends
 		return token;
 	}
 
-	@Override
-	public Object getConstant(String string)
-	{
-		return SubRegion.getConstant(string);
-	}
-
-	@Override
-	protected boolean requiresPreconstruction()
-	{
-		return false;
-	}
-
 	@Test
 	public void dummyTest()
 	{
 		// Just to get Eclipse to recognize this as a JUnit 4.0 Test Case
 	}
 
-	@Test
-	public void testRoundRobinSpecialCaseOne() throws PersistenceLayerException
+	@Override
+	public boolean isClearLegal()
 	{
-		verifyCleanStart();
-		TestContext tc = new TestContext();
-		commit(testCampaign, tc, "YES");
-		commit(modCampaign, tc, "Yarra Valley");
-		completeRoundRobin(tc);
+		return false;
 	}
-
-	@Test
-	public void testRoundRobinSpecialCaseTwo() throws PersistenceLayerException
-	{
-		verifyCleanStart();
-		TestContext tc = new TestContext();
-		commit(testCampaign, tc, "Yarra Valley");
-		commit(modCampaign, tc, "YES");
-		completeRoundRobin(tc);
-	}
-
-	@Test
-	public void testRoundRobinSpecialNoSet() throws PersistenceLayerException
-	{
-		verifyCleanStart();
-		TestContext tc = new TestContext();
-		emptyCommit(testCampaign, tc);
-		commit(modCampaign, tc, "YES");
-		completeRoundRobin(tc);
-	}
-
-	@Test
-	public void testRoundRobinSpecialNoReset() throws PersistenceLayerException
-	{
-		verifyCleanStart();
-		TestContext tc = new TestContext();
-		commit(testCampaign, tc, "YES");
-		emptyCommit(modCampaign, tc);
-		completeRoundRobin(tc);
-	}
-
 }

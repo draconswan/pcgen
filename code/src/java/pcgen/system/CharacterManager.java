@@ -18,23 +18,20 @@
 package pcgen.system;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import pcgen.cdom.base.Constants;
+import pcgen.core.Campaign;
+import pcgen.core.GameMode;
 import pcgen.core.Globals;
 import pcgen.core.PlayerCharacter;
-import pcgen.facade.core.CampaignFacade;
 import pcgen.facade.core.CharacterFacade;
 import pcgen.facade.core.CharacterStubFacade;
 import pcgen.facade.core.DataSetFacade;
-import pcgen.facade.core.GameModeFacade;
 import pcgen.facade.core.PartyFacade;
 import pcgen.facade.core.SourceSelectionFacade;
 import pcgen.facade.core.UIDelegate;
@@ -42,13 +39,14 @@ import pcgen.facade.util.ListFacade;
 import pcgen.facade.util.ListFacades;
 import pcgen.gui2.facade.CharacterFacadeImpl;
 import pcgen.gui2.facade.PartyFacadeImpl;
-import pcgen.gui2.util.HtmlInfoBuilder;
 import pcgen.io.PCGFile;
 import pcgen.io.PCGIOHandler;
 import pcgen.pluginmgr.PCGenMessageHandler;
 import pcgen.pluginmgr.PluginManager;
 import pcgen.pluginmgr.messages.PlayerCharacterWasLoadedMessage;
 import pcgen.util.Logging;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This class stores the characters that are currently opened by
@@ -174,12 +172,11 @@ public final class CharacterManager
 	{
 		@SuppressWarnings("rawtypes")
 		List campaigns = ListFacades.wrap(dataset.getCampaigns());
-		final PCGIOHandler ioHandler = new PCGIOHandler();
-		final PlayerCharacter newPC;
 		try
 		{
-			newPC = new PlayerCharacter(campaigns);
+			final PlayerCharacter newPC = new PlayerCharacter(campaigns);
 			newPC.setFileName(file.getAbsolutePath());
+			final PCGIOHandler ioHandler = new PCGIOHandler();
 			ioHandler.read(newPC, file.getAbsolutePath());
 			// Ensure any custom equipment held by the character is added to the dataset's list
 			dataset.refreshEquipment();
@@ -242,42 +239,37 @@ public final class CharacterManager
 			return true;
 		}
 
-		HtmlInfoBuilder warningMsg = new HtmlInfoBuilder();
+		StringBuilder warningMsg = new StringBuilder();
 		Level lvl;
 		if (errors)
 		{
-			warningMsg.append(LanguageBundle.getString("in_cmErrorStart")); //$NON-NLS-1$
+			warningMsg.append(LanguageBundle.getString("in_cmErrorStart"));
 			Logging.errorPrint("The following errors were encountered while loading " + fileName);
 			lvl = Logging.ERROR;
 		}
 		else
 		{
-			warningMsg.append(LanguageBundle.getString("in_cmWarnStart")); //$NON-NLS-1$
+			warningMsg.append(LanguageBundle.getString("in_cmWarnStart"));
 			Logging.log(Logging.WARNING, "The following warnings were encountered while loading " + fileName);
 			lvl = Logging.WARNING;
 		}
-		warningMsg.appendLineBreak();
-		warningMsg.append("<UL>"); //$NON-NLS-1$
+		warningMsg.append('\n');
 		for (final String string : warnings)
 		{
-			warningMsg.appendLineBreak();
-			warningMsg.append("<li>"); //$NON-NLS-1$
 			warningMsg.append(string);
-			warningMsg.append("</li>"); //$NON-NLS-1$
+			warningMsg.append('\n');
 			Logging.log(lvl, "* " + string); //$NON-NLS-1$
 		}
-		warningMsg.append("</UL>"); //$NON-NLS-1$
-		warningMsg.appendLineBreak();
+
 		if (errors)
 		{
-			warningMsg.append(LanguageBundle.getString("in_cmErrorEnd")); //$NON-NLS-1$
+			warningMsg.append(LanguageBundle.getString("in_cmErrorEnd"));
 			delegate.showErrorMessage(fileName, warningMsg.toString());
 			return false;
 		}
 
-		warningMsg.append(LanguageBundle.getString("in_cmWarnEnd")); //$NON-NLS-1$
+		warningMsg.append(LanguageBundle.getString("in_cmWarnEnd"));
 		return delegate.showWarningConfirm(fileName, warningMsg.toString());
-
 	}
 
 	/**
@@ -292,22 +284,20 @@ public final class CharacterManager
 	public static PartyFacade openParty(File file, final UIDelegate delegate, final DataSetFacade dataset)
 	{
 		Logging.log(Logging.INFO, "Loading party " + file.getAbsolutePath()); //$NON-NLS-1$
-		PCGIOHandler ioHandler = new PCGIOHandler();
-		ioHandler.readCharacterFileList(file).forEach(charFile -> openCharacter(charFile, delegate, dataset));
+		PCGIOHandler.readCharacterFileList(file).forEach(charFile -> openCharacter(charFile, delegate, dataset));
 		CHARACTERS.setFile(file);
 		return CHARACTERS;
 	}
 
 	public static SourceSelectionFacade getRequiredSourcesForParty(File pcpFile, UIDelegate delegate)
 	{
-		PCGIOHandler ioHandler = new PCGIOHandler();
-		List<File> files = ioHandler.readCharacterFileList(pcpFile);
+		List<File> files = PCGIOHandler.readCharacterFileList(pcpFile);
 		if ((files == null) || files.isEmpty())
 		{
 			return null;
 		}
-		GameModeFacade gameMode = null;
-		HashSet<CampaignFacade> campaignSet = new HashSet<>();
+		GameMode gameMode = null;
+		HashSet<Campaign> campaignSet = new HashSet<>();
 		for (final File file : files)
 		{
 			SourceSelectionFacade selection = getRequiredSourcesForCharacter(file, delegate);
@@ -316,7 +306,7 @@ public final class CharacterManager
 				Logging.errorPrint("Failed to find sources in: " + file.getAbsolutePath());
 				continue;
 			}
-			GameModeFacade game = selection.getGameMode().get();
+			GameMode game = selection.getGameMode().get();
 			if (gameMode == null)
 			{
 				gameMode = game;
@@ -327,7 +317,7 @@ public final class CharacterManager
 				return null;
 			}
 
-			for (final CampaignFacade campaign : selection.getCampaigns())
+			for (final Campaign campaign : selection.getCampaigns())
 			{
 				campaignSet.add(campaign);
 			}
@@ -347,7 +337,7 @@ public final class CharacterManager
 	{
 		if (!PCGFile.isPCGenCharacterFile(pcgFile))
 		{
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("invalid file: " + pcgFile);
 		}
 
 		final PCGIOHandler ioHandler = new PCGIOHandler();
@@ -413,13 +403,6 @@ public final class CharacterManager
 			{
 				Logging.errorPrint("Could not save " + character.getNameRef().get(), e);
 				delegate.showErrorMessage(Constants.APPLICATION_NAME, "Could not save " + character.getNameRef().get());
-				return false;
-			}
-			catch (final IOException e)
-			{
-				Logging.errorPrint("Could not save " + character.getNameRef().get(), e);
-				delegate.showErrorMessage(Constants.APPLICATION_NAME,
-					"Could not save " + character.getNameRef().get() + " due to the error:\n" + e.getMessage());
 				return false;
 			}
 		}
@@ -499,13 +482,13 @@ public final class CharacterManager
 	public static CharacterFacade getCharacterMatching(CharacterStubFacade companion)
 	{
 		File compFile = companion.getFileRef().get();
-		if (compFile == null || StringUtils.isEmpty(compFile.getName()))
+		if (StringUtils.isEmpty(compFile.getName()))
 		{
 			String compName = companion.getNameRef().get();
 			for (final CharacterFacade character : getCharacters())
 			{
 				String charName = character.getNameRef().get();
-				if (ObjectUtils.equals(compName, charName))
+				if (Objects.equals(compName, charName))
 				{
 					return character;
 				}

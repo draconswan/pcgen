@@ -20,7 +20,6 @@ package pcgen.gui2.tabs.spells;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
 
@@ -28,13 +27,13 @@ import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
+import org.apache.commons.io.FilenameUtils;
+import pcgen.core.PCClass;
 import pcgen.facade.core.CharacterFacade;
-import pcgen.facade.core.ClassFacade;
 import pcgen.facade.core.SpellFacade;
 import pcgen.facade.core.SpellSupportFacade.SpellNode;
 import pcgen.facade.core.SpellSupportFacade.SuperNode;
@@ -58,10 +57,11 @@ import pcgen.system.LanguageBundle;
 import pcgen.system.PCGenSettings;
 import pcgen.util.enumeration.Tab;
 
+import javafx.stage.FileChooser;
+
 @SuppressWarnings("serial")
 public class SpellsKnownTab extends FlippingSplitPane implements CharacterInfoTab
 {
-
 	private final TabTitle tabTitle = new TabTitle(Tab.KNOWN_SPELLS);
 	private final FilteredTreeViewTable<CharacterFacade, SuperNode> availableTable;
 	private final JTreeViewTable<SuperNode> selectedTable;
@@ -74,24 +74,20 @@ public class SpellsKnownTab extends FlippingSplitPane implements CharacterInfoTa
 	private final JTextField spellSheetField;
 	private final InfoPane spellsPane;
 	private final InfoPane classPane;
-	private JFileChooser fileChooser = null;
 	private JButton previewSpellsButton;
 	private JButton exportSpellsButton;
 
 	public SpellsKnownTab()
 	{
-		super("SpellsKnown");
 		this.availableTable = new FilteredTreeViewTable<>();
-		this.selectedTable = new JTreeViewTable<SuperNode>()
+		this.selectedTable = new JTreeViewTable<>()
 		{
-
 			@Override
 			public void setTreeViewModel(TreeViewModel<SuperNode> viewModel)
 			{
 				super.setTreeViewModel(viewModel);
 				sortModel();
 			}
-
 		};
 		this.spellRenderer = new QualifiedSpellTreeCellRenderer();
 		this.addButton = new JButton();
@@ -111,13 +107,11 @@ public class SpellsKnownTab extends FlippingSplitPane implements CharacterInfoTa
 		selectedTable.setTreeCellRenderer(spellRenderer);
 		selectedTable.setRowSorter(new SortableTableRowSorter()
 		{
-
 			@Override
 			public SortableTableModel getModel()
 			{
 				return (SortableTableModel) selectedTable.getModel();
 			}
-
 		});
 		selectedTable.getRowSorter().toggleSortOrder(0);
 		FilterBar<CharacterFacade, SuperNode> filterBar = new FilterBar<>();
@@ -125,10 +119,10 @@ public class SpellsKnownTab extends FlippingSplitPane implements CharacterInfoTa
 		qFilterButton.setText(LanguageBundle.getString("in_igQualFilter")); //$NON-NLS-1$
 		filterBar.addDisplayableFilter(qFilterButton);
 
-		FlippingSplitPane upperPane = new FlippingSplitPane("SpellsKnownTop");
+		FlippingSplitPane upperPane = new FlippingSplitPane();
 		JPanel availPanel = FilterUtilities.configureFilteredTreeViewPane(availableTable, filterBar);
+
 		Box box = Box.createVerticalBox();
-		box.add(Box.createVerticalStrut(2));
 		{
 			Box hbox = Box.createHorizontalBox();
 			hbox.add(Box.createHorizontalStrut(5));
@@ -136,7 +130,6 @@ public class SpellsKnownTab extends FlippingSplitPane implements CharacterInfoTa
 			hbox.add(Box.createHorizontalGlue());
 			box.add(hbox);
 		}
-		//box.add(Box.createVerticalStrut(2));
 		{
 			Box hbox = Box.createHorizontalBox();
 			hbox.add(Box.createHorizontalStrut(5));
@@ -144,41 +137,24 @@ public class SpellsKnownTab extends FlippingSplitPane implements CharacterInfoTa
 			hbox.add(Box.createHorizontalGlue());
 			hbox.add(Box.createHorizontalStrut(10));
 			hbox.add(addButton);
-			hbox.add(Box.createHorizontalStrut(5));
 			box.add(hbox);
 		}
-		box.add(Box.createVerticalStrut(5));
 		availPanel.add(box, BorderLayout.SOUTH);
 		upperPane.setLeftComponent(availPanel);
 
-		box = Box.createVerticalBox();
-		box.add(new JScrollPane(selectedTable));
-		box.add(Box.createVerticalStrut(4));
+		JPanel rightPanel = new JPanel(new BorderLayout());
+		rightPanel.add(new JScrollPane(selectedTable), BorderLayout.CENTER);
 		{
 			Box hbox = Box.createHorizontalBox();
-			hbox.add(Box.createHorizontalStrut(5));
 			hbox.add(removeButton);
 			hbox.add(Box.createHorizontalStrut(10));
 
 			JButton spellSheetButton = new JButton(LanguageBundle.getString("InfoSpells.select.spellsheet"));
-			spellSheetButton.addActionListener(new ActionListener()
-			{
-
-				@Override
-				public void actionPerformed(ActionEvent e)
-				{
-					selectSpellSheetButton();
-				}
-
-			});
+			spellSheetButton.addActionListener(e -> selectSpellSheetButton());
 			hbox.add(spellSheetButton);
 			hbox.add(Box.createHorizontalStrut(3));
 
-			String text = PCGenSettings.getSelectedSpellSheet();
-			if (text != null)
-			{
-				text = new File(text).getName();
-			}
+			String text = FilenameUtils.getName(PCGenSettings.getSelectedSpellSheet());
 			spellSheetField.setEditable(false);
 			spellSheetField.setText(text);
 			spellSheetField.setToolTipText(text);
@@ -189,15 +165,13 @@ public class SpellsKnownTab extends FlippingSplitPane implements CharacterInfoTa
 			hbox.add(Box.createHorizontalStrut(3));
 			exportSpellsButton = new JButton(Icons.Print16.getImageIcon());
 			hbox.add(exportSpellsButton);
-			hbox.add(Box.createHorizontalStrut(5));
-			box.add(hbox);
+			rightPanel.add(hbox, BorderLayout.SOUTH);
 		}
-		box.add(Box.createVerticalStrut(5));
-		upperPane.setRightComponent(box);
+		upperPane.setRightComponent(rightPanel);
 		upperPane.setResizeWeight(0);
 		setTopComponent(upperPane);
 
-		FlippingSplitPane bottomPane = new FlippingSplitPane("SpellsKnownBottom");
+		FlippingSplitPane bottomPane = new FlippingSplitPane();
 		bottomPane.setLeftComponent(spellsPane);
 		bottomPane.setRightComponent(classPane);
 		setBottomComponent(bottomPane);
@@ -258,23 +232,21 @@ public class SpellsKnownTab extends FlippingSplitPane implements CharacterInfoTa
 	 */
 	private void selectSpellSheetButton()
 	{
-		if (fileChooser == null)
-		{
-			fileChooser = new JFileChooser();
-		}
-
-		fileChooser.setDialogTitle(LanguageBundle.getString("InfoSpells.select.output.sheet")); //$NON-NLS-1$
-		fileChooser.setCurrentDirectory(new File(ConfigurationSettings.getOutputSheetsDir()));
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle(LanguageBundle.getString("InfoSpells.select.output.sheet"));
+		fileChooser.setInitialDirectory(new File(ConfigurationSettings.getOutputSheetsDir()));
 		if (PCGenSettings.getSelectedSpellSheet() != null)
 		{
-			fileChooser.setSelectedFile(new File(PCGenSettings.getSelectedSpellSheet()));
+			fileChooser.setInitialFileName(PCGenSettings.getSelectedSpellSheet());
 		}
-		if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+		File selectedFile = fileChooser.showOpenDialog(null);
+
+		if (selectedFile != null)
 		{
 			PCGenSettings.getInstance().setProperty(PCGenSettings.SELECTED_SPELL_SHEET_PATH,
-				fileChooser.getSelectedFile().getAbsolutePath());
-			spellSheetField.setText(fileChooser.getSelectedFile().getName());
-			spellSheetField.setToolTipText(fileChooser.getSelectedFile().getName());
+				selectedFile.getAbsolutePath());
+			spellSheetField.setText(selectedFile.getName());
+			spellSheetField.setToolTipText(selectedFile.getName());
 		}
 	}
 
@@ -402,7 +374,7 @@ public class SpellsKnownTab extends FlippingSplitPane implements CharacterInfoTa
 
 	}
 
-	private class PreviewSpellsAction extends AbstractAction
+	private static class PreviewSpellsAction extends AbstractAction
 	{
 
 		private final CharacterFacade character;
@@ -421,7 +393,7 @@ public class SpellsKnownTab extends FlippingSplitPane implements CharacterInfoTa
 
 	}
 
-	private class ExportSpellsAction extends AbstractAction
+	private static class ExportSpellsAction extends AbstractAction
 	{
 
 		private final CharacterFacade character;
@@ -488,11 +460,10 @@ public class SpellsKnownTab extends FlippingSplitPane implements CharacterInfoTa
 		@Override
 		public boolean accept(CharacterFacade context, SuperNode element)
 		{
-			if (element instanceof SpellNode)
+			if (element instanceof SpellNode spellNode)
 			{
-				SpellNode spellNode = (SpellNode) element;
 				SpellFacade spell = spellNode.getSpell();
-				ClassFacade pcClass = spellNode.getSpellcastingClass();
+				PCClass pcClass = spellNode.getSpellcastingClass();
 				return character.isQualifiedFor(spell, pcClass);
 			}
 			return true;

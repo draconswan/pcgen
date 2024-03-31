@@ -18,8 +18,7 @@
  */
 package pcgen.gui2;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.Dimension;
 import java.util.List;
 import java.util.logging.LogRecord;
 
@@ -28,46 +27,58 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.SwingWorker;
 
 import pcgen.gui2.tools.CursorControlUtilities;
 import pcgen.gui2.tools.Icons;
 import pcgen.gui2.util.StatusWorker;
-import pcgen.gui2.util.SwingWorker;
+import pcgen.gui3.GuiAssertions;
+import pcgen.gui3.GuiUtility;
+import pcgen.gui3.dialog.DebugDialog;
 import pcgen.system.PCGenTask;
 import pcgen.util.Logging;
+
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.event.ActionEvent;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 /**
  * This is the southern component of the PCGenFrame.
  * It will show source loading progress and a corresponding error icon
  * (if there are errors)
- * TODO: add support for concurrent task execution
  */
 public final class PCGenStatusBar extends JPanel
 {
 	private final PCGenFrame frame;
 	private final JLabel messageLabel;
 	private final JProgressBar progressBar;
-	private final JLabel loadStatusLabel;
+	private final Button loadStatusButton;
 
-	public PCGenStatusBar(PCGenFrame frame)
+	PCGenStatusBar(PCGenFrame frame)
 	{
 		this.frame = frame;
 		this.messageLabel = new JLabel();
 		this.progressBar = new JProgressBar();
-		this.loadStatusLabel = new JLabel();
-		initComponents();
-	}
+		this.loadStatusButton = new Button();
 
-	private void initComponents()
-	{
-		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 		add(messageLabel);
 		add(Box.createHorizontalGlue());
 		progressBar.setStringPainted(true);
 		progressBar.setVisible(false);
 		add(progressBar);
-		add(loadStatusLabel);
-		loadStatusLabel.addMouseListener(new LoadStatusMouseAdapter());
+		add(Box.createHorizontalGlue());
+		JFXPanel wrappedButton = GuiUtility.wrapParentAsJFXPanel(loadStatusButton);
+		//todo: calculate this rather than hard code
+		wrappedButton.setMaximumSize(new Dimension(750, 20000000));
+		add(wrappedButton);
+		loadStatusButton.setOnAction(PCGenStatusBar::loadStatusLabelAction);
 	}
 
 	public void setContextMessage(String message)
@@ -85,8 +96,9 @@ public final class PCGenStatusBar extends JPanel
 		return progressBar;
 	}
 
-	public void setSourceLoadErrors(List<LogRecord> errors)
+	void setSourceLoadErrors(List<LogRecord> errors)
 	{
+		GuiAssertions.assertIsNotJavaFXThread();
 		if (errors != null && !errors.isEmpty())
 		{
 			int nerrors = 0;
@@ -102,20 +114,34 @@ public final class PCGenStatusBar extends JPanel
 					nwarnings++;
 				}
 			}
+
+			Image image;
 			if (nerrors > 0)
 			{
-				loadStatusLabel.setIcon(Icons.Stop16.getImageIcon());
+				image = Icons.Stop16.asJavaFX();
 			}
 			else if (nwarnings > 0)
 			{
-				loadStatusLabel.setIcon(Icons.Alert16.getImageIcon());
+				image = Icons.Alert16.asJavaFX();
 			}
 			else
 			{
-				loadStatusLabel.setIcon(Icons.Ok16.getImageIcon());
+				image = Icons.Ok16.asJavaFX();
 			}
-			loadStatusLabel
-				.setToolTipText(nerrors + " errors and " + nwarnings + " warnings occurred while loading the sources");
+			int finalNerrors = nerrors;
+			int finalNwarnings = nwarnings;
+			Platform.runLater(() -> {
+				Tooltip tooltip = new Tooltip(String.format(
+						"%d errors and %d warnings occurred while loading the sources",
+						finalNerrors,
+						finalNwarnings
+				));
+				loadStatusButton.setTooltip(tooltip);
+				loadStatusButton.setGraphicTextGap(0.0);
+				loadStatusButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+				loadStatusButton.setAlignment(Pos.CENTER_RIGHT);
+				loadStatusButton.setGraphic(new ImageView(image));
+			});
 		}
 	}
 
@@ -131,14 +157,9 @@ public final class PCGenStatusBar extends JPanel
 	 * @param task a PCGenTask
 	 * @return a SwingWorker
 	 */
-	public SwingWorker<List<LogRecord>> createWorker(String taskName, PCGenTask task)
+	SwingWorker<List<LogRecord>, List<LogRecord>> createWorker(String taskName, PCGenTask task)
 	{
 		return new StatusWorker(taskName, task, this);
-	}
-
-	public PCGenFrame getFrame()
-	{
-		return frame;
 	}
 
 	/**
@@ -149,7 +170,7 @@ public final class PCGenStatusBar extends JPanel
 	 */
 	public void startShowingProgress(final String msg, boolean indeterminate)
 	{
-		if (!PCGenStatusBar.this.isValid())
+		if (!this.isValid())
 		{
 			// Do nothing if called during startup or shutdown
 			return;
@@ -177,13 +198,8 @@ public final class PCGenStatusBar extends JPanel
 	/**
 	 * Shows the log window when the load status icon is clicked.
 	 */
-	private class LoadStatusMouseAdapter extends MouseAdapter
+	private static void loadStatusLabelAction(final ActionEvent actionEvent)
 	{
-		@Override
-		public void mouseReleased(MouseEvent arg0)
-		{
-			frame.getActionMap().get(PCGenActionMap.LOG_COMMAND).actionPerformed(null);
-		}
-
+		DebugDialog.show();
 	}
 }

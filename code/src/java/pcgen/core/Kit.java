@@ -20,6 +20,7 @@ package pcgen.core;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
@@ -32,13 +33,14 @@ import pcgen.cdom.enumeration.ObjectKey;
 import pcgen.cdom.enumeration.SourceFormat;
 import pcgen.cdom.enumeration.Type;
 import pcgen.cdom.helper.AllowUtilities;
+import pcgen.cdom.util.CControl;
 import pcgen.core.analysis.OutputNameFormatting;
 import pcgen.core.kit.BaseKit;
 import pcgen.core.kit.KitStat;
 import pcgen.core.kit.KitTable;
 import pcgen.core.prereq.PrereqHandler;
 import pcgen.core.prereq.PrerequisiteUtilities;
-import pcgen.facade.core.KitFacade;
+import pcgen.output.channel.ChannelUtilities;
 import pcgen.util.Logging;
 import pcgen.util.enumeration.View;
 import pcgen.util.enumeration.Visibility;
@@ -46,7 +48,7 @@ import pcgen.util.enumeration.Visibility;
 /**
  * {@code Kit}.
  */
-public final class Kit extends PObject implements Comparable<Object>, KitFacade
+public final class Kit extends PObject
 {
 	private int selectValue = -1;
 
@@ -109,8 +111,6 @@ public final class Kit extends PObject implements Comparable<Object>, KitFacade
 	 * @param   other  Object
 	 *
 	 * @return  int
-	 *
-	 * @see     java.lang.Comparable#compareTo(Object)
 	 */
 	@Override
 	public int compareTo(final Object other)
@@ -121,35 +121,22 @@ public final class Kit extends PObject implements Comparable<Object>, KitFacade
 
 	/**
 	 * The method that actually adds the various items in this Kit to the PC.
-	 * Does not take account of Kit Number.
-	 *
-	 * @param  pc           The Player Character object that we will be applying
-	 *                      the kit to.
-	 * @param  thingsToAdd  The list of things that will be added by this kit
-	 *                      wrapped in KitWrapper objects
-	 */
-	public void processKit(final PlayerCharacter pc, final List<BaseKit> thingsToAdd)
-	{
-		processKit(pc, thingsToAdd, -1);
-	}
-
-	/**
-	 * The method that actually adds the various items in this Kit to the PC.
 	 * Takes account of Kit Number
 	 *
 	 * @param  pc           The Player Character object that we will be applying
 	 *                      the kit to.
 	 * @param  thingsToAdd  The list of things that will be added by this kit
 	 *                      wrapped in KitWrapper objects
-	 * @param  kitNo        An integer that will be used to set the kit number
-	 *                      in items of equipment added by this kit
 	 */
-	public void processKit(final PlayerCharacter pc, final List<BaseKit> thingsToAdd, final int kitNo)
+	public void processKit(final PlayerCharacter pc, final Collection<BaseKit> thingsToAdd)
 	{
 		BigDecimal totalCostToBeCharged = getTotalCostToBeCharged(pc);
 		if (totalCostToBeCharged != null)
 		{
-			pc.setGold(pc.getGold().subtract(totalCostToBeCharged));
+			Number currentGold = (Number) ChannelUtilities
+				.readControlledChannel(pc.getCharID(), CControl.GOLDINPUT);
+			ChannelUtilities.setControlledChannel(pc.getCharID(),
+				CControl.GOLDINPUT, new BigDecimal(currentGold.toString()).subtract(totalCostToBeCharged));
 		}
 
 		for (KitStat kStat : getStats())
@@ -210,7 +197,7 @@ public final class Kit extends PObject implements Comparable<Object>, KitFacade
 		BigDecimal totalCost = null;
 		if (f != null)
 		{
-			totalCost = new BigDecimal(f.resolve(aPC, "").doubleValue());
+			totalCost = BigDecimal.valueOf(f.resolve(aPC, "").doubleValue());
 		}
 		return totalCost;
 	}
@@ -251,13 +238,12 @@ public final class Kit extends PObject implements Comparable<Object>, KitFacade
 		{
 			return qualifies(aPC, this);
 		}
-		else if (kitVisible.isVisibleTo(v))
+		else
 		{
-			return true;
+			return kitVisible.isVisibleTo(v);
 		}
 
-		return false;
-	}
+    }
 
 	/**
 	 * Test applying the top level kit and record the choices made and any 
@@ -316,28 +302,19 @@ public final class Kit extends PObject implements Comparable<Object>, KitFacade
 		BigDecimal totalCostToBeCharged = getTotalCostToBeCharged(tempPC);
 		if (totalCostToBeCharged != null)
 		{
-			BigDecimal pcGold = tempPC.getGold();
+			BigDecimal pcGold = new BigDecimal(ChannelUtilities
+					.readControlledChannel(tempPC.getCharID(), CControl.GOLDINPUT).toString());
 			if (pcGold.compareTo(BigDecimal.ZERO) >= 0 && pcGold.compareTo(totalCostToBeCharged) < 0)
 			{
 				warnings.add("Could not purchase kit. Not enough funds.");
 			}
 			else
 			{
-				tempPC.setGold(pcGold.subtract(totalCostToBeCharged));
+				ChannelUtilities.setControlledChannel(tempPC.getCharID(),
+					CControl.GOLDINPUT, pcGold.subtract(totalCostToBeCharged));
 			}
 		}
 
-	}
-
-	private static class ObjectTypeComparator implements Comparator<BaseKit>
-	{
-		@Override
-		public int compare(BaseKit bk1, BaseKit bk2)
-		{
-			String name1 = bk1.getObjectName();
-			String name2 = bk2.getObjectName();
-			return name1.compareTo(name2);
-		}
 	}
 
 	/**
@@ -360,9 +337,8 @@ public final class Kit extends PObject implements Comparable<Object>, KitFacade
 			info.append("  <b>Requirements</b>: ").append(aString);
 		}
 
-		List<BaseKit> sortedObjects = new ArrayList<>();
-		sortedObjects.addAll(getSafeListFor(ListKey.KIT_TASKS));
-		sortedObjects.sort(new ObjectTypeComparator());
+		List<BaseKit> sortedObjects = new ArrayList<>(getSafeListFor(ListKey.KIT_TASKS));
+		sortedObjects.sort(Comparator.comparing(BaseKit::getObjectName));
 
 		String lastObjectName = "";
 		for (BaseKit bk : sortedObjects)
@@ -370,11 +346,11 @@ public final class Kit extends PObject implements Comparable<Object>, KitFacade
 			String objName = bk.getObjectName();
 			if (!objName.equals(lastObjectName))
 			{
-				if (!"".equals(lastObjectName))
+				if (!lastObjectName.isEmpty())
 				{
 					info.append("; ");
 				}
-				info.append("  <b>" + objName + "</b>: ");
+				info.append("  <b>").append(objName).append("</b>: ");
 				lastObjectName = objName;
 			}
 			else
@@ -392,10 +368,8 @@ public final class Kit extends PObject implements Comparable<Object>, KitFacade
 
 	private String getPreReqHTMLStrings(PlayerCharacter aPC)
 	{
-		StringBuilder sb = new StringBuilder();
-		sb.append(PrerequisiteUtilities.preReqHTMLStringsForList(aPC, this, getPrerequisiteList(), false));
-		sb.append(AllowUtilities.getAllowInfo(aPC, this));
-		return sb.toString();
+		return PrerequisiteUtilities.preReqHTMLStringsForList(aPC, this, getPrerequisiteList(), false)
+				+ AllowUtilities.getAllowInfo(aPC, this);
 	}
 
 	public static void applyKit(final Kit aKit, final PlayerCharacter aPC)
@@ -424,7 +398,7 @@ public final class Kit extends PObject implements Comparable<Object>, KitFacade
 				}
 			}
 		}
-		aKit.processKit(aPC, thingsToAdd, 0);
+		aKit.processKit(aPC, thingsToAdd);
 	}
 
 	public KitTable getTable(String name)
@@ -437,14 +411,12 @@ public final class Kit extends PObject implements Comparable<Object>, KitFacade
 		return addToMapFor(MapKey.KIT_TABLE, table.getTableName(), table);
 	}
 
-	@Override
 	public String getDisplayType()
 	{
 		List<Type> trueTypeList = getTrueTypeList(true);
 		return StringUtil.join(trueTypeList, ".");
 	}
 
-	@Override
 	public boolean isPermanent()
 	{
 		return getSafe(ObjectKey.APPLY_MODE) == KitApply.PERMANENT;

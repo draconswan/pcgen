@@ -17,9 +17,11 @@
  */
 package plugin.lsttokens.testsupport;
 
-import java.net.URISyntaxException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import java.net.URISyntaxException;
 
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.base.FormulaFactory;
@@ -51,6 +53,9 @@ import plugin.lsttokens.equipment.ProficiencyToken;
 import plugin.primitive.language.LangBonusToken;
 import plugin.qualifier.pobject.QualifiedToken;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public abstract class AbstractQualifierTokenTestCase<T extends CDOMObject, TC extends CDOMObject>
 		extends AbstractCDOMTokenTestCase<T>
 {
@@ -73,7 +78,7 @@ public abstract class AbstractQualifierTokenTestCase<T extends CDOMObject, TC ex
 	@Override
 	protected LoadContext getPrimaryContext()
 	{
-		GameMode game = SettingsHandler.getGame();
+		GameMode game = SettingsHandler.getGameAsProperty().get();
 		game.clearLoadContext();
 		return game.getContext();
 	}
@@ -87,6 +92,7 @@ public abstract class AbstractQualifierTokenTestCase<T extends CDOMObject, TC ex
 
 	protected abstract boolean allowsNotQualifier();
 
+	@BeforeEach
 	@Override
 	public void setUp() throws PersistenceLayerException, URISyntaxException
 	{
@@ -1883,7 +1889,7 @@ public abstract class AbstractQualifierTokenTestCase<T extends CDOMObject, TC ex
 		Globals.emptyLists();
 		resetContext();
 		BuildUtilities.buildUnselectedRace(Globals.getContext());
-		GameMode gamemode = SettingsHandler.getGame();
+		GameMode gamemode = SettingsHandler.getGameAsProperty().get();
 		
 		str = BuildUtilities.createStat("Strength", "STR", "A");
 		str.put(VariableKey.getConstant("LOADSCORE"), FormulaFactory

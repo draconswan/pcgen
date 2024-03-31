@@ -52,10 +52,6 @@ public abstract class DeferredCharacterComboBoxModel<E> extends FacadeListModel<
 	private ReferenceFacade<E> reference = null;
 	protected Object selectedItem = null;
 
-	public DeferredCharacterComboBoxModel()
-	{
-	}
-
 	public DeferredCharacterComboBoxModel(ListFacade<E> list, ReferenceFacade<E> ref)
 	{
 		setListFacade(list);
@@ -123,16 +119,6 @@ public abstract class DeferredCharacterComboBoxModel<E> extends FacadeListModel<
 			return;
 		}
 
-		// Focus was really lost; commit the update but do it after the focus is lost
-		final Runnable doUpdate = new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				commitSelectedItem(selectedItem);
-			}
-		};
-
-		SwingUtilities.invokeLater(doUpdate);
+		SwingUtilities.invokeLater(() -> commitSelectedItem(selectedItem));
 	}
 }

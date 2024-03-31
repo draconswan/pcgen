@@ -2,45 +2,44 @@
  * reports to be run as part of the PCGen nightly build. It is
  * called from the main build.gradle file.
  *
- * Usage: gradle allReports
+ * Usage: ./gradlew allReports
  */
 
-buildScan {
-	licenseAgreementUrl = 'https://gradle.com/terms-of-service';
-	licenseAgree = 'yes'
-}
-
 checkstyle {
-	configFile = new File('code/standards/checkstyle.xml')
-	ignoreFailures = true
-	showViolations = false
-	toolVersion = '8.9'
-	sourceSets = []
+    configFile = new File('code/standards/checkstyle.xml')
+    configProperties = [samedir: "${rootDir}/code/standards"]
+    showViolations = true
+    toolVersion = '10.7.0'
+    sourceSets = []
 }
 
 pmd {
-	// turn off the default rules
-	ruleSets = []
-	ruleSetFiles = files('code/standards/ruleset.xml')
-	consoleOutput = true
-	sourceSets = []
-	toolVersion = "6.2.0"
+    // turn off the default rules
+    ruleSets = []
+    ruleSetFiles = files('code/standards/ruleset.xml')
+    consoleOutput = true
+    sourceSets = []
+    toolVersion = "6.54.0"
+    incrementalAnalysis = true
 }
 
+// TODO fix the outstanding bugs and then remove the ignoreFailures
 spotbugs {
-	excludeFilter = file("$rootProject.projectDir/code/standards/spotbugs_ignore.xml")
-	omitVisitors = ['Naming', 'CrossSiteScripting', 'DontUseEnum', 'DoInsideDoPrivileged']
-	reportLevel = 'low'
-	ignoreFailures = 'true'
+    toolVersion = '4.7.3'
+    excludeFilter = file("$rootProject.projectDir/code/standards/spotbugs_ignore.xml")
+    omitVisitors = ['Naming', 'CrossSiteScripting', 'DontUseEnum', 'DoInsideDoPrivileged']
+    reportLevel = 'low'
+    ignoreFailures = true
 }
 
-//Unable to determine how to do this with SpotBugs - this is consistent with their docs, but dumps stack
-//tasks.withType(com.github.spotbugs.SpotBugs) {
-//	reports {
-//		xml.enabled = false
-//		html.enabled = true
-//		html.stylesheet resources.text.fromFile('code/standards/fancy-hist.xsl')
-//	}
-//}
+spotbugsMain {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+        html.stylesheet resources.text.fromFile('code/standards/fancy-hist.xsl')
+    }
+}
 
-task allReports { dependsOn = ['checkstyleMain', 'pmdMain', 'spotbugsMain'] }
+task allReports {
+    dependsOn = ['checkstyleMain', 'pmdMain', 'spotbugsMain']
+}

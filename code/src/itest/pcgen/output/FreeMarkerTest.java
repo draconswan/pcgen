@@ -29,33 +29,32 @@ import pcgen.output.publish.OutputDB;
 import pcgen.output.testsupport.AbstractOutputTestCase;
 import pcgen.output.wrapper.CDOMObjectWrapper;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public class FreeMarkerTest extends AbstractOutputTestCase
 {
-
 	private static final CheckFacet CF = new CheckFacet();
 
-	private static boolean classSetUpRun = false;
-
+	@BeforeEach
 	@Override
-	protected void setUp() throws Exception
+	public void setUp() throws Exception
 	{
 		super.setUp();
-		if (!classSetUpRun)
-		{
-			classSetUp();
-			classSetUpRun = true;
-		}
 		CDOMWrapperInfoFacet wiFacet =
 				FacetLibrary.getFacet(CDOMWrapperInfoFacet.class);
 		wiFacet.initialize(dsid);
 	}
 
-	private void classSetUp()
+	@BeforeAll
+	public static void classSetUp()
 	{
 		OutputDB.reset();
 		CF.init();
 	}
 
+	@Test
 	public void testBasic()
 	{
 		createChecks();
@@ -63,6 +62,7 @@ public class FreeMarkerTest extends AbstractOutputTestCase
 			+ "</#list>", "WillRefFort");
 	}
 
+	@Test
 	public void testNested()
 	{
 		createChecks();

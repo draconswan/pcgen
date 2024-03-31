@@ -104,7 +104,7 @@ public class PreFactSetParser extends AbstractPrerequisiteListParser
 		}
 		catch (NumberFormatException nfe)
 		{
-			throw new PersistenceLayerException('\'' + elements[0] + "' is not a valid integer");
+			throw new PersistenceLayerException('\'' + elements[0] + "' is not a valid integer", nfe);
 		}
 
 		String filetype = elements[1];
@@ -176,11 +176,11 @@ public class PreFactSetParser extends AbstractPrerequisiteListParser
 		}
 		catch (IllegalArgumentException e)
 		{
-			throw new PersistenceLayerException("Unknown FACT in PREFACT. Test was: " + factTest);
+			throw new PersistenceLayerException("Unknown FACT in PREFACT. Test was: " + factTest, e);
 		}
 	}
 
-	private static void setLocation(Prerequisite prereq, String location) throws PersistenceLayerException
+	private static void setLocation(Prerequisite prereq, String location)
 	{
 		if (prereq.getPrerequisiteCount() == 0)
 		{

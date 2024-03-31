@@ -17,15 +17,19 @@
  */
 package pcgen.gui2;
 
-import gmgen.GMGenSystem;
-import org.apache.commons.lang3.SystemUtils;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import pcgen.cdom.base.Constants;
 import pcgen.gui2.dialog.PreferencesDialog;
-import pcgen.gui2.facade.GMGenMessageHandler;
-import pcgen.gui2.plaf.MacGUIHandler;
-import pcgen.pluginmgr.PluginManager;
+import pcgen.gui3.GuiAssertions;
+import pcgen.gui3.application.DesktopHandler;
+import pcgen.gui3.preferences.PCGenPreferencesModel;
 import pcgen.system.Main;
+import pcgen.util.Logging;
 
-import javax.swing.*;
+import javafx.application.Platform;
+
 
 /**
  * The PCGenUIManager is responsible for starting up and shutting down PCGen's
@@ -45,24 +49,32 @@ public final class PCGenUIManager
 
 	public static void initializeGUI()
 	{
-		if (SystemUtils.IS_OS_MAC_OSX)
+		DesktopHandler.initialize();
+		pcgenFrame = new PCGenFrame(new UIContext());
+		String className = UIManager.getSystemLookAndFeelClassName();
+		try
 		{
-			MacGUIHandler.initialize();
+			UIManager.setLookAndFeel(className);
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e)
+		{
+			Logging.errorPrint("system look and feel not found", e);
 		}
-		pcgenFrame = new PCGenFrame();
-		PluginManager pluginMgr = PluginManager.getInstance();
-		GMGenMessageHandler handler = new GMGenMessageHandler(pcgenFrame, pluginMgr.getPostbox());
-		pluginMgr.addMember(handler);
+
 	}
 
 	public static void startGUI()
 	{
+		GuiAssertions.assertIsNotOnGUIThread();
+		Platform.setImplicitExit(false);
 		SwingUtilities.invokeLater(pcgenFrame::startPCGenFrame);
 	}
 
 	public static void displayPreferencesDialog()
 	{
-		PreferencesDialog.show(pcgenFrame);
+		GuiAssertions.assertIsSwingThread();
+		PreferencesDialog prefsDialog;
+		prefsDialog = new PreferencesDialog(pcgenFrame, PCGenPreferencesModel.buildRoot(), Constants.APPLICATION_NAME);
+		prefsDialog.setVisible(true);
 	}
 
 	public static void displayAboutDialog()
@@ -72,25 +84,15 @@ public final class PCGenUIManager
 
 	public static void closePCGen()
 	{
-		if (!pcgenFrame.closeAllCharacters())
+		if (pcgenFrame != null)
 		{
-			return;
-		}
+			if (!pcgenFrame.closeAllCharacters())
+			{
+				return;
+			}
 
-		pcgenFrame.dispose();
-		Main.shutdown();
+			pcgenFrame.dispose();
+		}
+		Main.shutdown(true);
 	}
-
-	static void displayGmGen()
-	{
-		if (GMGenSystem.inst == null)
-		{
-			new GMGenSystem();
-		}
-		else
-		{
-			GMGenSystem.inst.setVisible(true);
-		}
-	}
-
 }

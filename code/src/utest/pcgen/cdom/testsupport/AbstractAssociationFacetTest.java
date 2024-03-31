@@ -17,6 +17,14 @@
  */
 package pcgen.cdom.testsupport;
 
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,22 +34,28 @@ import pcgen.cdom.enumeration.CharID;
 import pcgen.cdom.enumeration.DataSetID;
 import pcgen.cdom.facet.base.AbstractAssociationFacet;
 
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public abstract class AbstractAssociationFacetTest<CT, ST> extends
-		TestCase
+public abstract class AbstractAssociationFacetTest<CT, ST>
 {
 	private CharID id;
 	private CharID altid;
 
-	@Override
-	public void setUp() throws Exception
+	@BeforeEach
+	void setUp()
 	{
-		super.setUp();
 		DataSetID cid = DataSetID.getID();
 		id = CharID.getID(cid);
 		altid = CharID.getID(cid);
+	}
+	
+	@AfterEach
+	void tearDown()
+	{
+		id = null;
+		altid = null;
 	}
 
 	@Test
@@ -74,15 +88,7 @@ public abstract class AbstractAssociationFacetTest<CT, ST> extends
 	public void testTypeAddNullID()
 	{
 		ST source1 = developSource(getTypeObj());
-		try
-		{
-			getFacet().set(null, getTypeObj(), source1);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// Yep!
-		}
+		assertThrows(NullPointerException.class, () -> getFacet().set(null, getTypeObj(), source1));
 		testObjUnsetZeroCount();
 		testObjUnsetEmpty();
 		testObjUnsetEmptySet();
@@ -92,15 +98,7 @@ public abstract class AbstractAssociationFacetTest<CT, ST> extends
 	public void testObjAddNull()
 	{
 		ST source1 = developSource(getTypeObj());
-		try
-		{
-			getFacet().set(id, null, source1);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// Yep!
-		}
+		assertThrows(NullPointerException.class, () ->getFacet().set(id, null, source1));
 		testObjUnsetZeroCount();
 		testObjUnsetEmpty();
 		testObjUnsetEmptySet();
@@ -110,15 +108,7 @@ public abstract class AbstractAssociationFacetTest<CT, ST> extends
 	public void testObjAddNullSource()
 	{
 		CT t1 = getTypeObj();
-		try
-		{
-			getFacet().set(id, t1, null);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// OK
-		}
+		assertThrows(NullPointerException.class, () -> getFacet().set(id, t1, null));
 		assertEquals(0, getFacet().getCount(id));
 		assertTrue(getFacet().isEmpty(id));
 		assertNotNull(getFacet().getSet(id));

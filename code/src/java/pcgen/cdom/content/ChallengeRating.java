@@ -96,27 +96,15 @@ public class ChallengeRating extends ConcretePrereqObject
 	 */
 	public Integer toInteger()
 	{
-		return SettingsHandler.getGame().getCRInteger(rating.toString());
+		return SettingsHandler.getGameAsProperty().get().getCRInteger(rating.toString());
 	}
 
-	/**
-	 * Returns the consistent-with-equals hashCode for this ChallengeRating
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode()
 	{
 		return rating.hashCode();
 	}
 
-	/**
-	 * Returns true if this ChallengeRating is equal to the given Object.
-	 * Equality is defined as being another ChallengeRating object with equal
-	 * rating and Prerequisites
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -124,9 +112,8 @@ public class ChallengeRating extends ConcretePrereqObject
 		{
 			return true;
 		}
-		if (obj instanceof ChallengeRating)
+		if (obj instanceof ChallengeRating other)
 		{
-			ChallengeRating other = (ChallengeRating) obj;
 			return rating.equals(other.rating) && equalsPrereqObject(other);
 		}
 		return false;

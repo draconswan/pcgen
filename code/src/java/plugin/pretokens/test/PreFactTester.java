@@ -48,7 +48,7 @@ public class PreFactTester extends AbstractPrerequisiteTest implements Prerequis
 		catch (NumberFormatException exceptn)
 		{
 			throw new PrerequisiteException(
-				LanguageBundle.getFormattedString("PreFact.error", prereq.toString())); //$NON-NLS-1$
+				LanguageBundle.getFormattedString("PreFact.error", prereq.toString()), exceptn); //$NON-NLS-1$
 		}
 
 		String location = prereq.getCategoryName();
@@ -96,9 +96,8 @@ public class PreFactTester extends AbstractPrerequisiteTest implements Prerequis
 			return prereq.getKey();
 		}
 
-		final String foo = LanguageBundle.getFormattedString("PreFact.toHtml", //$NON-NLS-1$
-			prereq.getOperator().toDisplayString(), prereq.getOperand(), prereq.getKey());
-		return foo;
+        return LanguageBundle.getFormattedString("PreFact.toHtml", //$NON-NLS-1$
+            prereq.getOperator().toDisplayString(), prereq.getOperand(), prereq.getKey());
 	}
 
 }

@@ -28,7 +28,6 @@ import pcgen.base.lang.StringUtil;
 import pcgen.base.util.Indirect;
 import pcgen.cdom.base.CDOMReference;
 import pcgen.cdom.base.Constants;
-import pcgen.cdom.enumeration.BiographyField;
 import pcgen.cdom.enumeration.FactKey;
 import pcgen.cdom.enumeration.FactSetKey;
 import pcgen.cdom.enumeration.ListKey;
@@ -36,6 +35,7 @@ import pcgen.cdom.enumeration.ObjectKey;
 import pcgen.cdom.enumeration.SourceFormat;
 import pcgen.cdom.reference.CDOMSingleRef;
 import pcgen.cdom.reference.ReferenceUtilities;
+import pcgen.cdom.util.CControl;
 import pcgen.core.Deity;
 import pcgen.core.Globals;
 import pcgen.core.PCAlignment;
@@ -46,6 +46,7 @@ import pcgen.core.analysis.OutputNameFormatting;
 import pcgen.core.display.CharacterDisplay;
 import pcgen.io.ExportHandler;
 import pcgen.io.exporttoken.Token;
+import pcgen.output.channel.ChannelUtilities;
 import pcgen.util.Logging;
 
 /**
@@ -70,25 +71,20 @@ public class DeityToken extends Token
 	/** Token name */
 	public static final String TOKENNAME = "DEITY";
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getTokenName()
-	 */
 	@Override
 	public String getTokenName()
 	{
 		return TOKENNAME;
 	}
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getToken(java.lang.String, pcgen.core.PlayerCharacter, pcgen.io.ExportHandler)
-	 */
 	@Override
 	public String getToken(String tokenSource, PlayerCharacter pc, ExportHandler eh)
 	{
 		String retString = "";
 
 		CharacterDisplay display = pc.getDisplay();
-		Deity deity = display.getDeity();
+		Deity deity = (Deity) ChannelUtilities
+			.readControlledChannel(pc.getCharID(), CControl.DEITYINPUT);
 		if (deity != null)
 		{
 			StringTokenizer aTok = new StringTokenizer(tokenSource, ".", false);
@@ -102,17 +98,11 @@ public class DeityToken extends Token
 
 			if ("NAME".equals(subTag))
 			{
-				if (!display.getSuppressBioField(BiographyField.DEITY))
-				{
-					retString = deity.getDisplayName();
-				}
+				retString = deity.getDisplayName();
 			}
 			else if ("OUTPUTNAME".equals(subTag))
 			{
-				if (!display.getSuppressBioField(BiographyField.DEITY))
-				{
-					retString = OutputNameFormatting.getOutputName(deity);
-				}
+				retString = OutputNameFormatting.getOutputName(deity);
 			}
 			else if ("DOMAINLIST".equals(subTag))
 			{

@@ -19,6 +19,7 @@ package pcgen.gui2.facade;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import pcgen.cdom.enumeration.Type;
 import pcgen.core.PObject;
@@ -224,13 +225,12 @@ public abstract class GeneralChooserFacadeBase implements ChooserFacade
 	{
 		List<String> branches = new ArrayList<>();
 
-		if (item instanceof PObject)
+		if (item instanceof PObject pObject)
 		{
-			PObject pObject = (PObject) item;
-			for (Type type : pObject.getTrueTypeList(true))
-			{
-				branches.add(type.toString());
-			}
+			branches = pObject.getTrueTypeList(true)
+			                  .stream()
+			                  .map(Type::toString)
+			                  .collect(Collectors.toUnmodifiableList());
 		}
 		return branches;
 	}
@@ -249,15 +249,6 @@ public abstract class GeneralChooserFacadeBase implements ChooserFacade
 		this.defaultView = defaultView;
 	}
 
-	/**
-	 * Identify if the user must use up all remaining selections before closing the chooser.
-	 * @param requireCompleteSelection the requireCompleteSelection to set
-	 */
-	public void setRequireCompleteSelection(boolean requireCompleteSelection)
-	{
-		this.requireCompleteSelection = requireCompleteSelection;
-	}
-
 	@Override
 	public boolean isRequireCompleteSelection()
 	{
@@ -274,11 +265,6 @@ public abstract class GeneralChooserFacadeBase implements ChooserFacade
 	public boolean isUserInput()
 	{
 		return false;
-	}
-
-	public void setPreferRadioSelection(boolean preferRadioSelection)
-	{
-		this.preferRadioSelection = preferRadioSelection;
 	}
 
 	@Override

@@ -17,13 +17,18 @@
  */
 package pcgen.cdom.testsupport;
 
-import java.util.Set;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import java.util.Set;
 
 import pcgen.cdom.enumeration.CharID;
 import pcgen.cdom.facet.event.DataFacetChangeEvent;
 import pcgen.cdom.facet.event.DataFacetChangeListener;
+
+import org.junit.jupiter.api.Test;
 
 public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		AbstractSourcedListFacetTest<T>
@@ -54,7 +59,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(getConverted(t1), getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// No cross-pollution
 		assertEquals(0, getFacet().getCount(altid));
 		assertTrue(getFacet().isEmpty(altid));
@@ -76,7 +81,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(getConverted(t1), getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// No cross-pollution
 		assertEquals(0, getFacet().getCount(altid));
 		assertTrue(getFacet().isEmpty(altid));
@@ -98,7 +103,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(getConverted(t1), getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, still only once in set (and only one event)
 		dfce =
                 new DataFacetChangeEvent<>(id, t1, source,
@@ -109,7 +114,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(getConverted(t1), getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -126,7 +131,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(getConverted(t1), getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, still only once in set (and only one event)
 		Object source2 = new Object();
 		dfce =
@@ -138,7 +143,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(getConverted(t1), getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -156,7 +161,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		assertNotNull(setofone);
 		assertEquals(1, setofone.size());
 		assertEquals(getConverted(t1), setofone.iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		ST t2 = getSourceObject();
 		dfce =
                 new DataFacetChangeEvent<>(id, t2, source,
@@ -169,7 +174,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		assertEquals(2, setoftwo.size());
 		assertTrue(setoftwo.contains(getConverted(t1)));
 		assertTrue(setoftwo.contains(getConverted(t2)));
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 	}
 
 	@Test
@@ -205,7 +210,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(getConverted(t1), getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		Object source2 = new Object();
 		dfce =
                 new DataFacetChangeEvent<>(id, t1, source2,
@@ -219,7 +224,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 			assertNotNull(getFacet().getSet(id));
 			assertEquals(1, getFacet().getSet(id).size());
 			assertEquals(t1, getFacet().getSet(id).iterator().next());
-			assertEventCount(1, 0);
+			listener.assertEventCount(1, 0);
 		}
 		else
 		{
@@ -227,7 +232,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 			assertTrue(getFacet().isEmpty(id));
 			assertNotNull(getFacet().getSet(id));
 			assertEquals(0, getFacet().getSet(id).size());
-			assertEventCount(1, 1);
+			listener.assertEventCount(1, 1);
 		}
 	}
 
@@ -245,7 +250,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(getConverted(t1), getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Remove
 		dfce =
                 new DataFacetChangeEvent<>(id, t1, source1,
@@ -255,7 +260,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		assertTrue(getFacet().isEmpty(id));
 		assertNotNull(getFacet().getSet(id));
 		assertTrue(getFacet().getSet(id).isEmpty());
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 	}
 
 	@Test
@@ -272,7 +277,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(getConverted(t1), getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Useless Remove
 		dfce =
                 new DataFacetChangeEvent<>(id, getSourceObject(), source1,
@@ -283,7 +288,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(getConverted(t1), getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -300,7 +305,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(getConverted(t1), getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, still only once in set (but twice on that source)
 		dfce =
                 new DataFacetChangeEvent<>(id, t1, source1,
@@ -311,7 +316,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(getConverted(t1), getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Only one Remove required to clear (source Set not source List)
 		dfce =
                 new DataFacetChangeEvent<>(id, t1, source1,
@@ -320,7 +325,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		testTypeUnsetZeroCount();
 		testTypeUnsetEmpty();
 		testTypeUnsetEmptySet();
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 		// Second remove useless
 		dfce =
                 new DataFacetChangeEvent<>(id, t1, source1,
@@ -329,7 +334,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		testTypeUnsetZeroCount();
 		testTypeUnsetEmpty();
 		testTypeUnsetEmptySet();
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 	}
 
 	@Test
@@ -356,7 +361,7 @@ public abstract class AbstractConsolidatingFacetTest<ST, T> extends
 		assertNotNull(setofone);
 		assertEquals(1, setofone.size());
 		assertTrue(setofone.contains(getConverted(t2)));
-		assertEventCount(2, 1);
+		listener.assertEventCount(2, 1);
 	}
 
 }

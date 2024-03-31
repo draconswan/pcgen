@@ -19,6 +19,7 @@
 package plugin.pretokens.test;
 
 import pcgen.cdom.base.CDOMObject;
+import pcgen.cdom.enumeration.MovementType;
 import pcgen.core.display.CharacterDisplay;
 import pcgen.core.prereq.AbstractDisplayPrereqTest;
 import pcgen.core.prereq.Prerequisite;
@@ -49,10 +50,10 @@ public class PreMoveTester extends AbstractDisplayPrereqTest
 			catch (NumberFormatException e)
 			{
 				throw new PrerequisiteException(
-					LanguageBundle.getFormattedString("PreMove.error.bad_operand", prereq.toString())); //$NON-NLS-1$
+					LanguageBundle.getFormattedString("PreMove.error.bad_operand", prereq.toString()), e);
 			}
 
-			int speed = (int) display.getMovementOfType(moveType);
+			int speed = (int) display.getMovementOfType(MovementType.getConstant(moveType));
 			if (speed >= moveAmount)
 			{
 				runningTotal += speed;

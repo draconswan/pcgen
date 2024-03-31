@@ -17,10 +17,10 @@
  */
 package pcgen.io.exporttoken;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.enumeration.ListKey;
 import pcgen.cdom.enumeration.ObjectKey;
@@ -38,6 +38,10 @@ import pcgen.rules.context.LoadContext;
 import plugin.exporttokens.SpellMemToken;
 import plugin.lsttokens.testsupport.BuildUtilities;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
  * Verify the correct functioning of the SPELLMEM token.
  */
@@ -49,39 +53,11 @@ public class SpellMemTokenTest extends AbstractCharacterTestCase
 	private Race human = null;
 	private Spell testSpell = null;
 
-	/**
-	 * Quick test suite creation - adds all methods beginning with "test"
-	 * @return The Test suite
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(SpellMemTokenTest.class);
-	}
-
-	/**
-	 * Basic constructor, name only.
-	 * @param name The name of the test class.
-	 */
-	public SpellMemTokenTest(String name)
-	{
-		super(name);
-	}
-
-	
-	
+	@BeforeEach
 	@Override
 	protected void setUp() throws Exception
 	{
 		super.setUp();
-		Globals.getContext().loadCampaignFacets();
-	}
-
-	/*
-	 * @see TestCase#setUp()
-	 */
-    @Override
-	protected void additionalSetUp() throws Exception
-	{
 		LoadContext context = Globals.getContext();
 
 		// Human
@@ -119,11 +95,10 @@ public class SpellMemTokenTest extends AbstractCharacterTestCase
 		context.getReferenceContext().constructCDOMObject(Domain.class, "Fire");
 		
 		context.getReferenceContext().importObject(divineClass);
+		finishLoad();
 	}
 
-	/*
-	 * @see TestCase#tearDown()
-	 */
+	@AfterEach
     @Override
 	protected void tearDown() throws Exception
 	{
@@ -138,6 +113,7 @@ public class SpellMemTokenTest extends AbstractCharacterTestCase
 	 * list of known spells is auto populated and that the spell can be
 	 * retrieved correctly.
 	 */
+	@Test
 	public void testSpontaneousCasterKnown()
 	{
 		PlayerCharacter character = getCharacter();
@@ -173,6 +149,7 @@ public class SpellMemTokenTest extends AbstractCharacterTestCase
 	 * a prepared list, and that the spell can be retrieved correctly from both
 	 * books.
 	 */
+	@Test
 	public void testPreparedCaster()
 	{
 		PlayerCharacter character = getCharacter();
@@ -217,5 +194,11 @@ public class SpellMemTokenTest extends AbstractCharacterTestCase
 		assertEquals("Retrieve spell from prepared list of divine caster.",
 			"Test Spell", token.getToken("SPELLMEM.0.2.1.0.NAME", character,
 				null));
+	}
+
+	@Override
+	protected void defaultSetupEnd()
+	{
+		//Nothing, we will trigger ourselves
 	}
 }

@@ -17,8 +17,8 @@
  */
 package pcgen.gui2.facade;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import pcgen.AbstractCharacterTestCase;
 import pcgen.core.PlayerCharacter;
@@ -26,8 +26,11 @@ import pcgen.core.SettingsHandler;
 import pcgen.core.character.EquipSet;
 import plugin.lsttokens.testsupport.BuildUtilities;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * The Class <code>CharacterFacadeImplTest</code> verifies the behaviour of 
+ * The Class {@code CharacterFacadeImplTest} verifies the behaviour of
  * CharacterFacadeImpl.
  *
  * <br/>
@@ -56,16 +59,13 @@ public class CharacterFacadeImplTest extends AbstractCharacterTestCase
 		assertEquals("Incorrect id of the default equip set",
 			EquipSet.DEFAULT_SET_PATH, defaultEquipSet.getIdPath());
 	}
-	
-	/**
-	 * @see pcgen.AbstractCharacterTestCase#setUp()
-	 */
+
+	@BeforeEach
 	@Override
-	@Before
 	public void setUp() throws Exception
 	{
 		super.setUp();
-		dataset = new MockDataSetFacade(SettingsHandler.getGame());
+		dataset = new MockDataSetFacade(SettingsHandler.getGameAsProperty().get());
 		dataset.addAbilityCategory(BuildUtilities.getFeatCat());
 		uiDelegate = new MockUIDelegate();
 	}

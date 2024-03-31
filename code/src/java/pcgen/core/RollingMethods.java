@@ -23,13 +23,13 @@ import java.util.Stack;
 import java.util.Vector;
 import java.util.stream.IntStream;
 
+import pcgen.base.util.RandomUtil;
+import pcgen.util.Logging;
+
 import org.nfunk.jep.JEP;
 import org.nfunk.jep.ParseException;
 import org.nfunk.jep.function.List;
 import org.nfunk.jep.function.PostfixMathCommand;
-
-import pcgen.base.util.RandomUtil;
-import pcgen.util.Logging;
 
 public final class RollingMethods
 {
@@ -241,9 +241,8 @@ public final class RollingMethods
 		 * to the operator as a stack, pops off the two it needs, does type checking,
 		 * rolls the dice on the randomizer, and pushes the result back onto the stack.
 		 * Logging is performed if it is turned on.</p>
-		 * 
-		 * @see org.nfunk.jep.function.PostfixMathCommandI#run(java.util.Stack)
 		 */
+		@SuppressWarnings({"UseOfObsoleteCollectionType", "PMD.ReplaceVectorWithList"})
 		@Override
 		public void run(final Stack stack) throws ParseException
 		{
@@ -272,7 +271,7 @@ public final class RollingMethods
 				{
 					reroll = ((Reroll.Rerolls) param).getRolls();
 				}
-				else if ((param instanceof Vector) && (curNumberOfParameters == 3))
+				else if ((param instanceof final Vector vec) && (curNumberOfParameters == 3))
 				{
 					if (numToKeep != 0)
 					{
@@ -283,7 +282,6 @@ public final class RollingMethods
 						throw new ParseException(
 							"Reroll not compatable with " + "older syntax, use top(NUMBER) instead");
 					}
-					final Vector vec = (Vector) param;
 					keep = new int[vec.size()];
 					for (int x = 0; x < vec.size(); x++)
 					{
@@ -316,13 +314,13 @@ public final class RollingMethods
 				{
 					throw new ParseException("Values greater than " + Integer.MAX_VALUE + " not allowed.");
 				}
-				int iRolls = (int) Math.round(((Double) numberOfRolls).doubleValue());
-				int iFaces = (int) Math.round(((Double) faces).doubleValue());
+				int iRolls = (int) Math.round((Double) numberOfRolls);
+				int iFaces = (int) Math.round((Double) faces);
 				if (numToKeep == 0)
 				{
 					numToKeep = iRolls;
 				}
-				double result = 0;
+				double result;
 				if (keep == null)
 				{
 					result = roll(iRolls, iFaces, numToKeep, reroll);

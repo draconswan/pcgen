@@ -20,18 +20,19 @@ package actor.choose;
 import pcgen.cdom.base.Chooser;
 import pcgen.core.PCClass;
 import plugin.lsttokens.choose.ClassToken;
+
 import actor.testsupport.AbstractPersistentCDOMChoiceActorTestCase;
 
 public class ClassTokenTest extends
 		AbstractPersistentCDOMChoiceActorTestCase<PCClass>
 {
 
-	static ClassToken pca = new ClassToken();
+	private static final ClassToken PCA = new ClassToken();
 
 	@Override
 	public Chooser<PCClass> getActor()
 	{
-		return pca;
+		return PCA;
 	}
 
 	@Override

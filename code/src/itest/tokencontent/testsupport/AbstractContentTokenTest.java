@@ -17,7 +17,8 @@
  */
 package tokencontent.testsupport;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.base.UserSelection;
@@ -28,6 +29,7 @@ import pcgen.cdom.helper.CNAbilitySelection;
 import pcgen.cdom.helper.ClassSource;
 import pcgen.cdom.inst.PCClassLevel;
 import pcgen.cdom.list.CompanionList;
+import pcgen.cdom.util.CControl;
 import pcgen.core.Ability;
 import pcgen.core.Campaign;
 import pcgen.core.Deity;
@@ -40,8 +42,12 @@ import pcgen.core.PCStat;
 import pcgen.core.PCTemplate;
 import pcgen.core.Race;
 import pcgen.core.character.CompanionMod;
-import pcgen.output.channel.ChannelCompatibility;
+import pcgen.output.channel.ChannelUtilities;
+import pcgen.output.channel.compat.AlignmentCompat;
+
 import plugin.lsttokens.testsupport.BuildUtilities;
+
+import org.junit.jupiter.api.Test;
 import tokenmodel.testsupport.AbstractTokenModelTest;
 
 public abstract class AbstractContentTokenTest extends AbstractTokenModelTest
@@ -66,10 +72,10 @@ public abstract class AbstractContentTokenTest extends AbstractTokenModelTest
 	{
 		processToken(lg);
 		assertEquals(baseCount(), targetFacetCount());
-		ChannelCompatibility.setCurrentAlignment(pc.getCharID(), lg);
+		AlignmentCompat.setCurrentAlignment(pc.getCharID(), lg);
 		assertTrue(containsExpected());
 		assertEquals(baseCount() + 1, targetFacetCount());
-		ChannelCompatibility.setCurrentAlignment(pc.getCharID(), ng);
+		AlignmentCompat.setCurrentAlignment(pc.getCharID(), ng);
 		assertEquals(baseCount(), targetFacetCount());
 	}
 
@@ -148,10 +154,10 @@ public abstract class AbstractContentTokenTest extends AbstractTokenModelTest
 		Deity source = create(Deity.class, "Source");
 		processToken(source);
 		assertEquals(baseCount(), targetFacetCount());
-		deityFacet.set(id, source);
+		ChannelUtilities.setControlledChannel(id, CControl.DEITYINPUT, source);
 		assertTrue(containsExpected());
 		assertEquals(baseCount() + 1, targetFacetCount());
-		deityFacet.remove(id);
+		ChannelUtilities.setControlledChannel(id, CControl.DEITYINPUT, new Deity());
 		assertEquals(baseCount(), targetFacetCount());
 	}
 

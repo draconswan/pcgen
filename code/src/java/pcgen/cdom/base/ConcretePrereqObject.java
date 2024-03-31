@@ -61,12 +61,7 @@ public class ConcretePrereqObject implements Cloneable, PrereqObject
 		{
 			return Collections.emptyList();
 		}
-		/*
-		 * TODO This is an ugly facade, but required for easy compatibility with
-		 * 5.14 - to be changed once 5.14 code is gone and this can be changed
-		 * to return Collection or Set (or perhaps ListSet?)
-		 */
-		return Collections.unmodifiableList(new ArrayList<>(thePrereqs));
+		return List.copyOf(thePrereqs);
 	}
 
 	/**
@@ -88,15 +83,8 @@ public class ConcretePrereqObject implements Cloneable, PrereqObject
 			return false;
 		}
 
-		for (Prerequisite prereq : getPrerequisiteList())
-		{
-			if (PrerequisiteUtilities.hasPreReqKindOf(prereq, matchType))
-			{
-				return true;
-			}
-		}
-
-		return false;
+		return getPrerequisiteList().stream()
+		                            .anyMatch(prereq -> PrerequisiteUtilities.hasPreReqKindOf(prereq, matchType));
 	}
 
 	/**
@@ -104,8 +92,6 @@ public class ConcretePrereqObject implements Cloneable, PrereqObject
 	 * List of Prerequisites is cloned (to allow Prerequisites to be
 	 * added/removed without altering the original or the clone), but the
 	 * Prerequisites contained within the ConcretePrereqObject are not cloned.
-	 * 
-	 * @see java.lang.Object#clone()
 	 */
 	@Override
 	public ConcretePrereqObject clone() throws CloneNotSupportedException

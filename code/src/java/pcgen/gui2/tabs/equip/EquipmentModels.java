@@ -54,11 +54,10 @@ import pcgen.facade.core.CharacterFacade;
 import pcgen.facade.core.EquipmentFacade;
 import pcgen.facade.core.EquipmentListFacade;
 import pcgen.facade.core.EquipmentSetFacade;
-import pcgen.facade.core.EquipmentSetFacade.EquipNode;
-import pcgen.facade.core.EquipmentSetFacade.EquipNode.NodeType;
 import pcgen.facade.util.ReferenceFacade;
 import pcgen.facade.util.event.ReferenceEvent;
 import pcgen.facade.util.event.ReferenceListener;
+import pcgen.gui2.facade.EquipNode;
 import pcgen.gui2.filter.DisplayableFilter;
 import pcgen.gui2.filter.FilterHandler;
 import pcgen.gui2.tools.Icons;
@@ -84,17 +83,13 @@ public class EquipmentModels
 		@Override
 		public String toString()
 		{
-			switch (this)
-			{
-				case FULL:
-					return LanguageBundle.getString("in_equipListFull"); //$NON-NLS-1$
-				case UNEQUIPPED:
-					return LanguageBundle.getString("in_equipListUnequipped"); //$NON-NLS-1$
-				case EQUIPPED:
-					return LanguageBundle.getString("in_equipListEquipped"); //$NON-NLS-1$
-				default:
-					throw new InternalError();
-			}
+			return switch (this)
+					{
+						case FULL -> LanguageBundle.getString("in_equipListFull"); //$NON-NLS-1$
+						case UNEQUIPPED -> LanguageBundle.getString("in_equipListUnequipped"); //$NON-NLS-1$
+						case EQUIPPED -> LanguageBundle.getString("in_equipListEquipped"); //$NON-NLS-1$
+						default -> throw new InternalError();
+					};
 		}
 
 	}
@@ -127,12 +122,10 @@ public class EquipmentModels
 	{
 		this.character = character;
 		this.unequippedList = new UnequippedList(character);
-		this.fullModel = new EquipmentTableModel(character);
+		this.fullModel = new EquippedTableRootModel(character);
 		fullModel.setEquipmentList(character.getPurchasedEquipment());
-		fullModel.setEquipmentSet(character.getEquipmentSetRef().get());
-		this.unequippedModel = new EquipmentTableModel(character);
+		this.unequippedModel = new EquippedTableRootModel(character);
 		unequippedModel.setEquipmentList(unequippedList);
-		unequippedModel.setEquipmentSet(character.getEquipmentSetRef().get());
 		this.equippedModel = new EquippedTableModel(character);
 
 		selectedModel = fullModel;
@@ -162,6 +155,8 @@ public class EquipmentModels
 		unequipButton.setAction(unequipAction);
 		moveUpButton.setAction(moveUpAction);
 		moveDownButton.setAction(moveDownAction);
+		moveDownAction.install();
+		moveUpAction.install();
 		equipAction.install();
 		unequipAction.install();
 
@@ -184,7 +179,7 @@ public class EquipmentModels
 		for (int row : rows)
 		{
 			EquipNode path = (EquipNode) equipmentSetTable.getValueAt(row, 0);
-			if (path.getNodeType() == NodeType.EQUIPMENT)
+			if (path.getNodeType() == EquipNode.NodeType.EQUIPMENT)
 			{
 				paths.add(path);
 			}
@@ -265,21 +260,21 @@ public class EquipmentModels
 			selectedView = (EquipView) equipViewBox.getSelectedItem();
 			switch (selectedView)
 			{
-				case FULL:
+				case FULL -> {
 					selectedModel = fullModel;
 					equipAction.setEnabled(true);
-					break;
-				case UNEQUIPPED:
+				}
+				case UNEQUIPPED -> {
 					selectedModel = unequippedModel;
 					equipAction.setEnabled(true);
-					break;
-				case EQUIPPED:
+				}
+				case EQUIPPED -> {
 					selectedModel = equippedModel;
 					equipAction.setEnabled(false);
-					break;
-				default:
-					//Case not caught, should this cause an error?
-					break;
+				}
+				default -> {
+				}
+				//Case not caught, should this cause an error?
 			}
 			equipmentTable.setModel(selectedModel);
 			filterHandler.refilter();
@@ -304,6 +299,29 @@ public class EquipmentModels
 		{
 			setEquipmentList(e.getNewReference().getEquippedItems());
 			setEquipmentSet(e.getNewReference());
+		}
+
+	}
+
+	private static class EquippedTableRootModel extends EquipmentTableModel implements ReferenceListener<EquipmentSetFacade>
+	{
+
+		public EquippedTableRootModel(CharacterFacade character)
+		{
+			super(character);
+			ReferenceFacade<EquipmentSetFacade> ref = character.getEquipmentSetRef();
+			ref.addReferenceListener(this);
+			setEquipmentSet(ref.get());
+		}
+
+		@Override
+		public void referenceChanged(ReferenceEvent<EquipmentSetFacade> e)
+		{
+			EquipmentSetFacade es = e.getNewReference();
+			if (es.isRoot())
+			{
+				setEquipmentSet(e.getNewReference());
+			}
 		}
 
 	}

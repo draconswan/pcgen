@@ -69,7 +69,7 @@ public class AbilitySelection extends Selection<Ability, String> implements Comp
 				+ "must start with CATEGORY=, found: " + persistentFormat);
 		}
 		String cat = catString.substring(9);
-		AbilityCategory ac = SettingsHandler.getGame().getAbilityCategory(cat);
+		AbilityCategory ac = SettingsHandler.getGameAsProperty().get().getAbilityCategory(cat);
 		if (ac == null)
 		{
 			throw new IllegalArgumentException(
@@ -222,9 +222,6 @@ public class AbilitySelection extends Selection<Ability, String> implements Comp
 		return selection.compareTo(oselection);
 	}
 
-	/**
-	 * @see pcgen.cdom.base.Reducible#getCDOMObject()
-	 */
 	@Override
 	public CDOMObject getCDOMObject()
 	{

@@ -18,6 +18,10 @@
  */
 package pcgen.core;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -39,6 +43,9 @@ import pcgen.persistence.lst.prereq.PreParserFactory;
 import pcgen.util.TestHelper;
 import plugin.lsttokens.testsupport.BuildUtilities;
 
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Test;
+
 /**
  * This class tests the handling of DESC fields in PCGen
  */
@@ -49,6 +56,7 @@ public class DescriptionTest extends AbstractCharacterTestCase
 	/**
 	 * Tests outputting an empty description.
 	 */
+	@Test
 	public void testEmptyDesc()
 	{
 		final Ability dummy =
@@ -62,6 +70,7 @@ public class DescriptionTest extends AbstractCharacterTestCase
 	/**
 	 * Tests outputting a simple description.
 	 */
+	@Test
 	public void testSimpleDesc()
 	{
 		final Ability dummy =
@@ -70,8 +79,7 @@ public class DescriptionTest extends AbstractCharacterTestCase
 		final Description desc = new Description(simpleDesc);
 		List<CNAbility> singletonAbility = Collections.singletonList(CNAbilityFactory
 			.getCNAbility(BuildUtilities.getFeatCat(), Nature.NORMAL, dummy));
-		assertTrue(
-			desc.getDescription(getCharacter(), singletonAbility).equals(simpleDesc));
+		assertEquals(simpleDesc, desc.getDescription(getCharacter(), singletonAbility));
 	}
 
 	/**
@@ -79,6 +87,7 @@ public class DescriptionTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testPreReqs() throws PersistenceLayerException
 	{
 		final Ability dummy =
@@ -92,19 +101,20 @@ public class DescriptionTest extends AbstractCharacterTestCase
 		desc.addPrerequisite(prereqNE);
 		List<CNAbility> singletonAbility = Collections.singletonList(CNAbilityFactory
 			.getCNAbility(BuildUtilities.getFeatCat(), Nature.NORMAL, dummy));
-		is(desc.getDescription(getCharacter(), singletonAbility), strEq(""));
+		assertThat(desc.getDescription(getCharacter(), singletonAbility), Matchers.is(""));
 
 		PCTemplate template = new PCTemplate();
 		template.setName("Natural Lycanthrope");
 		template.put(StringKey.KEY_NAME, "KEY_Natural Lycanthrope");
 		Globals.getContext().getReferenceContext().importObject(template);
 		getCharacter().addTemplate(template);
-		is(desc.getDescription(getCharacter(), singletonAbility), strEq(simpleDesc));
+		assertThat(desc.getDescription(getCharacter(), singletonAbility), Matchers.is(simpleDesc));
 	}
 
 	/**
 	 * Tests a simple string replacement.
 	 */
+	@Test
 	public void testSimpleReplacement()
 	{
 		final Ability dummy =
@@ -113,13 +123,13 @@ public class DescriptionTest extends AbstractCharacterTestCase
 		desc.addVariable("\"Variable\"");
 		List<CNAbility> singletonAbility = Collections.singletonList(CNAbilityFactory
 			.getCNAbility(BuildUtilities.getFeatCat(), Nature.NORMAL, dummy));
-		assertTrue(
-			desc.getDescription(getCharacter(), singletonAbility).equals("Variable"));
+		assertEquals("Variable", desc.getDescription(getCharacter(), singletonAbility));
 	}
 
 	/**
 	 * Test name replacement
 	 */
+	@Test
 	public void testSimpleNameReplacement()
 	{
 		final PCTemplate pobj = new PCTemplate();
@@ -128,12 +138,13 @@ public class DescriptionTest extends AbstractCharacterTestCase
 		final Description desc = new Description("%1");
 		desc.addVariable("%NAME");
 		pobj.addToListFor(ListKey.DESCRIPTION, desc);
-		assertTrue(getCharacter().getDescription(pobj).equals("PObject"));
+		assertEquals("PObject", getCharacter().getDescription(pobj));
 	}
 
 	/**
 	 * Tests simple variable replacement
 	 */
+	@Test
 	public void testSimpleVariableReplacement()
 	{
 		final Race dummy = new Race();
@@ -143,15 +154,16 @@ public class DescriptionTest extends AbstractCharacterTestCase
 		final Description desc = new Description("%1");
 		desc.addVariable("TestVar");
 		dummy.addToListFor(ListKey.DESCRIPTION, desc);
-		assertTrue(getCharacter().getDescription(dummy).equals("0"));
+		assertEquals("0", getCharacter().getDescription(dummy));
 
 		getCharacter().setRace(dummy);
-		assertTrue(getCharacter().getDescription(dummy).equals("2"));
+		assertEquals("2", getCharacter().getDescription(dummy));
 	}
 
 	/**
 	 * Tests simple replacement of %CHOICE
 	 */
+	@Test
 	public void testSimpleChoiceReplacement()
 	{
 		final PCTemplate pobj = new PCTemplate();
@@ -165,12 +177,13 @@ public class DescriptionTest extends AbstractCharacterTestCase
 		assertTrue(getCharacter().getDescription(pobj).isEmpty());
 
 		add(ChooserUtilities.getChoiceManager(pobj, pc), pc, pobj, "Foo");
-		assertTrue(getCharacter().getDescription(pobj).equals("Foo"));
+		assertEquals("Foo", getCharacter().getDescription(pobj));
 	}
 
 	/**
 	 * Tests simple %LIST replacement.
 	 */
+	@Test
 	public void testSimpleListReplacement()
 	{
 		final Domain pobj = new Domain();
@@ -184,13 +197,14 @@ public class DescriptionTest extends AbstractCharacterTestCase
 		assertTrue(getCharacter().getDescription(pobj).isEmpty());
 
 		add(ChooserUtilities.getChoiceManager(pobj, pc), pc, pobj, "Foo");
-		
-		assertTrue(getCharacter().getDescription(pobj).equals("Foo"));
+
+		assertEquals("Foo", getCharacter().getDescription(pobj));
 	}
 
 	/**
 	 * Test a replacement with missing variables.
 	 */
+	@Test
 	public void testEmptyReplacement()
 	{
 		final Deity pobj = new Deity();
@@ -202,6 +216,7 @@ public class DescriptionTest extends AbstractCharacterTestCase
 	/**
 	 * Test having extra variables present
 	 */
+	@Test
 	public void testExtraVariables()
 	{
 		final Race pobj = new Race();
@@ -212,15 +227,16 @@ public class DescriptionTest extends AbstractCharacterTestCase
 		desc.addVariable("%LIST");
 		pobj.addToListFor(ListKey.DESCRIPTION, desc);
 		PlayerCharacter pc = getCharacter();
-		assertTrue(getCharacter().getDescription(pobj).equals("Testing"));
+		assertEquals("Testing", getCharacter().getDescription(pobj));
 
 		add(ChooserUtilities.getChoiceManager(pobj, pc), pc, pobj, "Foo");
-		assertTrue(getCharacter().getDescription(pobj).equals("Testing"));
+		assertEquals("Testing", getCharacter().getDescription(pobj));
 	}
 
 	/**
 	 * Test complex replacements.
 	 */
+	@Test
 	public void testComplexVariableReplacement()
 	{
 		final Ability dummy = BuildUtilities.getFeatCat().newInstance();
@@ -255,9 +271,10 @@ public class DescriptionTest extends AbstractCharacterTestCase
 			desc.getDescription(pc, wrappedPCA));
 
 		desc.addVariable("%LIST");
-		assertEquals("Replacement of %LIST failed",
-			"2 test Associated 1 and Associated 2 Associated 1",
-			desc.getDescription(pc, wrappedPCA));
+		assertEquals(
+				"2 test Associated 1 and Associated 2 Associated 1",
+			desc.getDescription(pc, wrappedPCA), "Replacement of %LIST failed"
+		);
 	}
 
 	private static <T> void add(ChoiceManagerList<T> aMan, PlayerCharacter pc,

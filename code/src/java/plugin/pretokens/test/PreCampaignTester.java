@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import pcgen.cdom.base.CDOMObject;
+import pcgen.cdom.enumeration.ListKey;
 import pcgen.core.Campaign;
 import pcgen.core.Globals;
 import pcgen.core.display.CharacterDisplay;
@@ -57,7 +58,7 @@ public class PreCampaignTester extends AbstractDisplayPrereqTest implements Prer
 		catch (NumberFormatException exceptn)
 		{
 			throw new PrerequisiteException(
-				LanguageBundle.getFormattedString("PreFeat.error", prereq.toString())); //$NON-NLS-1$
+				LanguageBundle.getFormattedString("PreFeat.error", prereq.toString()), exceptn); //$NON-NLS-1$
 		}
 
 		int runningTotal = 0;
@@ -111,7 +112,7 @@ public class PreCampaignTester extends AbstractDisplayPrereqTest implements Prer
 			}
 			for (Campaign camp : fullCampList)
 			{
-				for (String listType : camp.getBookTypeList())
+				for (String listType : camp.getSafeListFor(ListKey.BOOK_TYPE))
 				{
 					if (bookType.equalsIgnoreCase(listType))
 					{
@@ -219,9 +220,8 @@ public class PreCampaignTester extends AbstractDisplayPrereqTest implements Prer
 			return prereq.getKey();
 		}
 
-		final String foo = LanguageBundle.getFormattedString("PreCampaign.toHtml", //$NON-NLS-1$
-			prereq.getOperator().toDisplayString(), prereq.getOperand(), prereq.getKey());
-		return foo;
+        return LanguageBundle.getFormattedString("PreCampaign.toHtml", //$NON-NLS-1$
+            prereq.getOperator().toDisplayString(), prereq.getOperand(), prereq.getKey());
 	}
 
 }

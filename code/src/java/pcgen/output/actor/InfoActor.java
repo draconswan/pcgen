@@ -17,12 +17,12 @@
  */
 package pcgen.output.actor;
 
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.enumeration.CharID;
 import pcgen.output.base.OutputActor;
 import pcgen.output.model.InfoModel;
+
+import freemarker.template.TemplateModel;
 
 /**
  * An InfoActor is designed to process an interpolation and convert that into a
@@ -35,7 +35,7 @@ import pcgen.output.model.InfoModel;
 public class InfoActor implements OutputActor<CDOMObject>
 {
 	@Override
-	public TemplateModel process(CharID id, CDOMObject d) throws TemplateModelException
+	public TemplateModel process(CharID id, CDOMObject d)
 	{
 		return new InfoModel(id, d);
 	}

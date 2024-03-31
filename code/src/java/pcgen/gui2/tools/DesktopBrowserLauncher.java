@@ -19,41 +19,62 @@ package pcgen.gui2.tools;
 
 import java.awt.Desktop;
 import java.awt.Desktop.Action;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
+import pcgen.gui3.GuiUtility;
+import pcgen.system.LanguageBundle;
+import pcgen.util.Logging;
+
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+
 /**
- * Provide an utility method to open files with {@link Desktop}.
- * Non package elements should use {@link Utility#viewInBrowser} which is public.
- * 
- *
+ * Provide a utility method to open files with {@link Desktop}.
  */
-final class DesktopBrowserLauncher
+public final class DesktopBrowserLauncher
 {
 
 	private static final Desktop DESKTOP = Desktop.getDesktop();
-	private static final Boolean IS_BROWSE_SUPPORTED =
-			Desktop.isDesktopSupported() && DESKTOP.isSupported(Action.BROWSE);
 
 	private DesktopBrowserLauncher()
 	{
 	}
 
 	/**
-	 * @see Desktop#isDesktopSupported()
-	 * @throws IOException if {@link Desktop} is not supported and throws an exception
+	 * View a file (should be browsable) in a browser.
+	 *
+	 * @param file Path of the file to display in browser.
+	 * @throws IOException if file doesn't exist
 	 */
-	static void browse(final URI uri) throws IOException
+	public static void viewInBrowser(File file) throws IOException
 	{
-		DESKTOP.browse(uri);
+		viewInBrowser(file.toURI());
 	}
 
 	/**
-	 * @return {@code true} if {@link #browse} is supported
-	 * @see Desktop#isSupported(Action)
+	 * View a URI in a browser
+	 * p.s. JDK 20 will deprecate all public constructors of java.net.URL
+	 *
+	 * @param uri URI to display in browser.
+	 * @throws IOException if the URL is bad or the browser can not be launched
 	 */
-	static boolean isBrowseSupported()
+	@SuppressWarnings({"ThrowInsideCatchBlockWhichIgnoresCaughtException", "PMD.PreserveStackTrace"})
+	public static void viewInBrowser(URI uri) throws IOException
 	{
-		return IS_BROWSE_SUPPORTED;
+		if (Desktop.isDesktopSupported() && DESKTOP.isSupported(Action.BROWSE))
+		{
+			DESKTOP.browse(uri);
+		}
+		else
+		{
+			Dialog<ButtonType> alert = GuiUtility.runOnJavaFXThreadNow(() ->  new Alert(Alert.AlertType.WARNING));
+			Logging.debugPrint("Unable to browse to " + uri);
+			alert.setTitle(LanguageBundle.getString("in_err_browser_err"));
+			alert.setContentText(LanguageBundle.getFormattedString("in_err_browser_uri", uri));
+			GuiUtility.runOnJavaFXThreadNow(alert::showAndWait);
+		}
 	}
 }

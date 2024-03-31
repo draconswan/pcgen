@@ -1,7 +1,6 @@
 CAMPAIGN:Divine Anthology
 GAMEMODE:Pathfinder|Pathfinder_PFS
 TYPE:Paizo Publishing.Pathfinder Player Companion
-RANK:3
 STATUS:BETA
 GENRE:Fantasy
 BOOKTYPE:Supplement
@@ -14,6 +13,7 @@ SOURCELONG:Pathfinder Player Companion: Divine Anthology
 SOURCESHORT:DA
 SOURCEWEB:http://paizo.com/products/btpy9nvh
 SOURCEDATE:2016-10
+RANK:201610
 ISOGL:YES
 
 COVER:divine_anthology.jpg
@@ -56,7 +56,7 @@ ABILITY:support/da_abilities_class_ui.lst|PRECAMPAIGN:1,INCLUDES=Ultimate Intrig
 DEITY:support/da_deities_deg.lst|PRECAMPAIGN:1,INCLUDES=Dragon Empires Gazetteer
 DEITY:support/da_deities_deg_ma_oa.lst|PRECAMPAIGN:3,INCLUDES=Dragon Empires Gazetteer,INCLUDES=Mythic Adventures,INCLUDES=Occult Adventures
 DEITY:support/da_deities_deg_oa.lst|PRECAMPAIGN:2,INCLUDES=Dragon Empires Gazetteer,INCLUDES=Occult Adventures
-DEITY:support/da_deities_deg_ui.lst|PRECAMPAIGN:2,INCLUDES=Dragon Empires Gazetteer,INCLUDES=Ultimate Intrigue
+DEITY:support/da_deities_deg_ui.lst|PRECAMPAIGN:1,INCLUDES=Dragon Empires Gazetteer|PRECAMPAIGN:1,INCLUDES=Ultimate Intrigue
 DEITY:support/da_deities_isg.lst|PRECAMPAIGN:1,INCLUDES=Inner Sea Gods
 DEITY:support/da_deities_isg_oa.lst|PRECAMPAIGN:2,INCLUDES=Inner Sea Gods,INCLUDES=Occult Adventures
 DEITY:support/da_deities_isg_ui.lst|PRECAMPAIGN:2,INCLUDES=Inner Sea Gods,INCLUDES=Ultimate Intrigue

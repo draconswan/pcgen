@@ -17,6 +17,11 @@
  */
 package pcgen.cdom.facet.fact;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -58,7 +63,7 @@ public class ChronicleEntryFacetTest extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, now there twice (LIST not SET)
 		getFacet().add(id, t1);
 		assertEquals(2, getFacet().getCount(id));
@@ -66,7 +71,7 @@ public class ChronicleEntryFacetTest extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(2, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 	}
 
 	@Override
@@ -83,7 +88,7 @@ public class ChronicleEntryFacetTest extends
 		assertNotNull(setofone);
 		assertEquals(2, setofone.size());
 		assertTrue(setofone.contains(t1));
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 	}
 
 	@Override
@@ -96,7 +101,7 @@ public class ChronicleEntryFacetTest extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, now twice in list
 		getFacet().add(id, t1);
 		assertEquals(2, getFacet().getCount(id));
@@ -104,7 +109,7 @@ public class ChronicleEntryFacetTest extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(2, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 		// Only requires one Remove (internally a Set, not List)
 		getFacet().remove(id, t1);
 		assertEquals(1, getFacet().getCount(id));
@@ -112,13 +117,13 @@ public class ChronicleEntryFacetTest extends
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(2, 1);
+		listener.assertEventCount(2, 1);
 		// Second has no effect
 		getFacet().remove(id, t1);
 		testListUnsetZeroCount();
 		testListUnsetEmpty();
 		testListUnsetEmptySet();
-		assertEventCount(2, 2);
+		listener.assertEventCount(2, 2);
 	}
 
 }

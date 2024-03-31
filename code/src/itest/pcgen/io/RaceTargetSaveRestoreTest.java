@@ -17,7 +17,9 @@
  */
 package pcgen.io;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import pcgen.cdom.enumeration.SkillCost;
 import pcgen.core.PCClass;
@@ -32,6 +34,8 @@ import plugin.lsttokens.pcclass.IsmonsterToken;
 import plugin.lsttokens.race.FavclassToken;
 import plugin.lsttokens.race.MoncskillToken;
 import plugin.lsttokens.skill.ExclusiveToken;
+
+import org.junit.jupiter.api.Test;
 
 public class RaceTargetSaveRestoreTest extends
 		AbstractGlobalTargetedSaveRestoreTest<Race>
@@ -81,23 +85,16 @@ public class RaceTargetSaveRestoreTest extends
 		pc.incrementClassLevel(1,  monclass);
 		pc.setHP(pc.getActiveClassLevel(monclass, 0), 3);
 		final Runnable cleanup = getPreEqualityCleanup();
-		Runnable fullcleanup = new Runnable()
-		{
-
-			@Override
-			public void run()
+		Runnable fullcleanup = () -> {
+			if (cleanup != null)
 			{
-				if (cleanup != null)
-				{
-					cleanup.run();
-				}
-				//TODO need this to create the spell support :/
-				PCClass cl =
-						context.getReferenceContext().silentlyGetConstructedCDOMObject(PCClass.class,
-							"MonClass");
-				reloadedPC.getSpellSupport(cl);
+				cleanup.run();
 			}
-			
+			//TODO need this to create the spell support :/
+			PCClass cl =
+					context.getReferenceContext().silentlyGetConstructedCDOMObject(PCClass.class,
+						"MonClass");
+			reloadedPC.getSpellSupport(cl);
 		};
 		runRoundRobin(fullcleanup);
 		assertEquals(SkillCost.CLASS,

@@ -44,11 +44,11 @@
 	  ====================================-->
 	<basics>
 		<rules>
-			<pfs>
-				<os>${pcstring('VAR.PFS_System.INTVAL')}</os>
-				<id_number>${pcstring('ABILITYALL.ANY.0.ASPECT=PFS_ID.ASPECT.PFS_ID')}</id_number>
+			<society>
+				<os>${pcstring('VAR.Society_System.INTVAL')}</os>
+				<id_number>${pcstring('ABILITYALL.ANY.0.ASPECT=Society_ID.ASPECT.Society_ID')}</id_number>
 				<faction>${pcstring('ABILITYALL.ANY.0.TYPE=Society Faction.NAME')}</faction>
-			</pfs>
+			</society>
 		</rules>
 		<bonuses>${pcstring('BONUSLIST.STAT.STR')}</bonuses>
 		<bonuses>${pcstring('BONUSLIST.STAT.STR.TOTAL')}</bonuses>
@@ -575,6 +575,12 @@
 				<sunder_attack>${pcstring('VAR.CMB_Sunder.INTVAL.SIGN')}</sunder_attack>
 				<bullrush_attack>${pcstring('VAR.CMB_BullRush.INTVAL.SIGN')}</bullrush_attack>
 				<overrun_attack>${pcstring('VAR.CMB_Overrun.INTVAL.SIGN')}</overrun_attack>
+
+
+
+
+
+
 				<!-- Defense values -->
 				<defense>${pcstring('VAR.CMD.INTVAL')}</defense>
 				<grapple_defense>${pcstring('VAR.CMD_Grapple.INTVAL')}</grapple_defense>
@@ -589,6 +595,7 @@
 				<sunder_defense>${pcstring('VAR.CMD_Sunder.INTVAL')}</sunder_defense>
 				<bullrush_defense>${pcstring('VAR.CMD_BullRush.INTVAL')}</bullrush_defense>
 				<overrun_defense>${pcstring('VAR.CMD_Overrun.INTVAL')}</overrun_defense>
+
 
 				<#else>
 				<!-- Pathfinder Beta version -->
@@ -609,6 +616,17 @@
 				<overrun_defense>${pcstring('VAR.CMB_Overrun_DEF.INTVAL')}</overrun_defense>
 				</#if>
 			</cmb>
+			<cmb2>
+				<dirtytrick_attack>${pcstring('VAR.CMB_dirtytrick.INTVAL.SIGN')}</dirtytrick_attack>
+				<drag_attack>${pcstring('VAR.CMB_Drag.INTVAL.SIGN')}</drag_attack>
+				<reposition_attack>${pcstring('VAR.CMB_Reposition.INTVAL.SIGN')}</reposition_attack>
+				<steal_attack>${pcstring('VAR.CMB_Steal.INTVAL.SIGN')}</steal_attack>
+				<dirtytrick_defense>${pcstring('VAR.CMD_dirtytrick.INTVAL')}</dirtytrick_defense>
+				<drag_defense>${pcstring('VAR.CMD_Drag.INTVAL')}</drag_defense>
+				<reposition_defense>${pcstring('VAR.CMD_Reposition.INTVAL')}</reposition_defense>
+				<steal_defense>${pcstring('VAR.CMD_Steal.INTVAL')}</steal_defense>
+			</cmb2>
+
 			<#else>
 			<grapple>
 				<total>${pcstring('ATTACK.GRAPPLE.TOTAL')}</total>
@@ -753,7 +771,7 @@
 			</#macro>
 
 	<weapons>
-		<#if (pcvar("VAR.UseMartialArts") = 1)>
+		<#if (pcvar("VAR.UseMartialArts") > 0)>
 		<martialarts>
 			<total>${pcstring('WEAPONH.TOTALHIT')}</total>
 			<#if (pcvar("VAR.MartialArtsBonusDamage") < 0)>
@@ -1477,7 +1495,7 @@
 			<auto>F</auto>
 			<hidden>F</hidden>
 			<virtual>F</virtual>
-			<source>${pcstring('FEAT.VISIBLE.${feat}.SOURCE')}</source>
+			<source>${pcstring('FEAT.VISIBLE.${feat}.SOURCESHORT')}</source>
 		</feat>
 		</@loop>
 
@@ -1509,7 +1527,7 @@
 			<auto>F</auto>
 			<hidden>F</hidden>
 			<virtual>T</virtual>
-			<source>${pcstring('VFEAT.VISIBLE.${feat}.SOURCE')}</source>
+			<source>${pcstring('VFEAT.VISIBLE.${feat}.SOURCESHORT')}</source>
 		</feat>
 		</@loop>
 		<!-- End Virtual Feats -->
@@ -1525,7 +1543,7 @@
 			<auto>F</auto>
 			<hidden>T</hidden>
 			<virtual>F</virtual>
-			<source>${pcstring('FEAT.HIDDEN.${feat}.SOURCE')}</source>
+			<source>${pcstring('FEAT.HIDDEN.${feat}.SOURCESHORT')}</source>
 		</feat>
 		</@loop>
 		<!-- Hidden VFEAT -->
@@ -1540,7 +1558,7 @@
 			<auto>F</auto>
 			<hidden>T</hidden>
 			<virtual>T</virtual>
-			<source>${pcstring('VFEAT.HIDDEN.${feat}.SOURCE')}</source>
+			<source>${pcstring('VFEAT.HIDDEN.${feat}.SOURCESHORT')}</source>
 		</feat>
 		</@loop>
 		<!-- END Hidden VFEAT -->
@@ -1555,7 +1573,7 @@
 			<auto>T</auto>
 			<hidden>T</hidden>
 			<virtual>F</virtual>
-			<source>${pcstring('FEATAUTO.HIDDEN.${feat}.SOURCE')}</source>
+			<source>${pcstring('FEATAUTO.HIDDEN.${feat}.SOURCESHORT')}</source>
 		</feat>
 		</@loop>
 	</feats>
@@ -1627,7 +1645,9 @@
 			<hidden><#if hidden>T<#else>F</#if></hidden>
 			<virtual>${isVirtual}</virtual>
 			<category>${category}</category>
-			<source>${pcstring('${abilityExportToken}.SOURCE')}</source>
+			<source>
+						${pcstring('${abilityExportToken}.SOURCESHORT')}
+			</source>
 		</${nodeName}>
 	</@loop>
 	</#macro>
@@ -1762,6 +1782,16 @@
 	<class_features>
 	<@abilityBlock category="Class Feature" nature="ALL" hidden=false typeName="Class Feature" nodeName="class_feature" />
 	</class_features>
+
+		<!--
+	  ====================================
+	  ====================================
+			Words of Power
+	  ====================================
+	  ====================================-->
+	<words_of_powers>
+	<@abilityBlock category="Words of Power" nature="ALL" hidden=false typeName="WordsOfPowerOutput" nodeName="words_of_power" />
+	</words_of_powers>
 
 	<!--
 	  ====================================

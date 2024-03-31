@@ -19,19 +19,19 @@ package selectionactor.race;
 
 import pcgen.cdom.base.ChooseSelectionActor;
 import pcgen.core.PCClass;
-
 import plugin.lsttokens.race.FavclassToken;
+
 import selectionactor.testsupport.AbstractSelectionActorTest;
 
 public class FavClassTokenTest extends AbstractSelectionActorTest<PCClass>
 {
 
-	static FavclassToken cra = new FavclassToken();
+	private static final FavclassToken CRA = new FavclassToken();
 
 	@Override
 	public ChooseSelectionActor<PCClass> getActor()
 	{
-		return cra;
+		return CRA;
 	}
 
 	@Override

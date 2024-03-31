@@ -17,8 +17,6 @@
  */
 package pcgen.cdom.helper;
 
-import org.apache.commons.lang3.StringUtils;
-
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.base.PersistentChoiceActor;
 import pcgen.cdom.enumeration.IntegerKey;
@@ -33,6 +31,8 @@ import pcgen.core.analysis.SkillRankControl;
 import pcgen.core.pclevelinfo.PCLevelInfo;
 import pcgen.rules.context.LoadContext;
 import pcgen.util.Logging;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A ClassSkillChoiceActor is a PersistentChoiceActor that can apply skill
@@ -102,19 +102,19 @@ public class ClassSkillChoiceActor implements PersistentChoiceActor<Skill>
 		pc.addLocalCost(pcc, choice, SkillCost.CLASS, owner);
 		if (applyRank != null)
 		{
-			if (owner instanceof PCClassLevel)
+			if (owner instanceof PCClassLevel classLevel)
 			{
 				// Ensure that the skill points for this level are already calculated.
-				PCClassLevel classLevel = (PCClassLevel) owner;
 				PCClass pcClass = (PCClass) classLevel.getSafe(ObjectKey.PARENT);
 
 				int levelIndex = 1;
 				for (PCLevelInfo lvlInfo : pc.getLevelInfo())
 				{
-					if (lvlInfo.getClassKeyName() == pcClass.getKeyName()
+					if (lvlInfo.getClassKeyName().equals(pcClass.getKeyName())
 						&& lvlInfo.getClassLevel() == classLevel.getSafe(IntegerKey.LEVEL))
 					{
-						pc.checkSkillModChangeForLevel(pcClass, lvlInfo, classLevel, levelIndex++);
+						pc.checkSkillModChangeForLevel(pcClass, lvlInfo, classLevel, levelIndex);
+						levelIndex++;
 						break;
 					}
 				}

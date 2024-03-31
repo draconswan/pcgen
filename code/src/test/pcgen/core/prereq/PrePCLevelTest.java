@@ -15,9 +15,9 @@
  */
 package pcgen.core.prereq;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.base.FormulaFactory;
 import pcgen.cdom.enumeration.FormulaKey;
@@ -33,8 +33,11 @@ import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.lst.prereq.PreParserFactory;
 import pcgen.rules.context.LoadContext;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>PREPCLEVELTest</code> tests that the PREPCLEVEL tag is
+ * {@code PREPCLEVELTest} tests that the PREPCLEVEL tag is
  * working correctly.
  */
 public class PrePCLevelTest extends AbstractCharacterTestCase
@@ -42,24 +45,12 @@ public class PrePCLevelTest extends AbstractCharacterTestCase
 	private PCClass myClass = new PCClass();
 	private Race race = new Race();
 
-	public static void main(final String[] args)
-	{
-		TestRunner.run(PrePCLevelTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PrePCLevelTest.class);
-	}
-
 	/**
 	 * Test that Level works.
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testLevel() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();
@@ -99,13 +90,6 @@ public class PrePCLevelTest extends AbstractCharacterTestCase
 		prereq = factory.parse("!PREPCLEVEL:MAX=3");
 		assertTrue("Character is 3rd or higher level", PrereqHandler.passes(prereq,
 				character, null));
-		
-		
-		
-		
-		
-		
-		
 	}
 
 	/**
@@ -113,6 +97,7 @@ public class PrePCLevelTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testHD() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();
@@ -174,6 +159,7 @@ public class PrePCLevelTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testPCLevel() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();
@@ -226,6 +212,7 @@ public class PrePCLevelTest extends AbstractCharacterTestCase
 		
 	}
 
+	@BeforeEach
     @Override
 	protected void setUp() throws Exception
 	{

@@ -46,18 +46,12 @@ public class RaceToken extends Token
 	private static final String TOKENNAME = "RACE"; //$NON-NLS-1$
 	private static final String[] SUBTOKENLIST = {"ABILITYLIST"}; //$NON-NLS-1$
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getTokenName()
-	 */
 	@Override
 	public String getTokenName()
 	{
 		return TOKENNAME;
 	}
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getToken(java.lang.String, pcgen.core.PlayerCharacter, pcgen.io.ExportHandler)
-	 */
 	@Override
 	public String getToken(String tokenSource, PlayerCharacter pc, ExportHandler eh)
 	{
@@ -70,14 +64,14 @@ public class RaceToken extends Token
 		else
 		{
 			final String preString = TOKENNAME + SUBTOKENSEP;
-			for (int i = 0; i < SUBTOKENLIST.length; i++)
-			{
-				final String subToken = preString + SUBTOKENLIST[i];
-				if (subToken.equals(tokenSource))
-				{
-					retString = getSubToken(SUBTOKENLIST[i], pc.getDisplay());
-				}
-			}
+            for (String s : SUBTOKENLIST)
+            {
+                final String subToken = preString + s;
+                if (subToken.equals(tokenSource))
+                {
+                    retString = getSubToken(s, pc.getDisplay());
+                }
+            }
 		}
 
 		return retString;
@@ -119,7 +113,7 @@ public class RaceToken extends Token
 
 	private static String getRaceToken(PlayerCharacter pc)
 	{
-		String retString = Constants.EMPTY_STRING;
+		String retString;
 
 		Race race = pc.getDisplay().getRace();
 		String tempRaceName = OutputNameFormatting.getOutputName(race);

@@ -1,16 +1,16 @@
 /*
  * Copyright 2007 (C) Tom Parker <thpr@users.sourceforge.net>
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
  * any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
@@ -113,25 +113,23 @@ public enum SkillArmorCheck
 		{
 			final Load load = pc.getDisplay().getLoadType();
 
-			switch (load)
-			{
-				case LIGHT:
-					penalty = SettingsHandler.getGame().getLoadInfo().getLoadCheckPenalty("LIGHT");
-					break;
-
-				case MEDIUM:
-					penalty = SettingsHandler.getGame().getLoadInfo().getLoadCheckPenalty("MEDIUM");
-					break;
-
-				case HEAVY:
-				case OVERLOAD:
-					penalty = SettingsHandler.getGame().getLoadInfo().getLoadCheckPenalty("HEAVY");
-					break;
-
-				default:
-					throw new UnreachableError(
-						"Internal Error: In Skill.modifier the load " + load + " is not supported.");
-			}
+			penalty = switch (load)
+					{
+						case LIGHT -> SettingsHandler.getGameAsProperty()
+						                             .get()
+						                             .getLoadInfo()
+						                             .getLoadCheckPenalty("LIGHT");
+						case MEDIUM -> SettingsHandler.getGameAsProperty()
+						                              .get()
+						                              .getLoadInfo()
+						                              .getLoadCheckPenalty("MEDIUM");
+						case HEAVY, OVERLOAD -> SettingsHandler.getGameAsProperty()
+						                                       .get()
+						                                       .getLoadInfo()
+						                                       .getLoadCheckPenalty("HEAVY");
+						default -> throw new UnreachableError(
+								"Internal Error: In Skill.modifier the load " + load + " is not supported.");
+					};
 		}
 		return penalty;
 	}

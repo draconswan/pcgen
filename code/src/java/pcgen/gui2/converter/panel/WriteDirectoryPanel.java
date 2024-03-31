@@ -18,23 +18,21 @@
 package pcgen.gui2.converter.panel;
 
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.enumeration.ListKey;
@@ -42,26 +40,22 @@ import pcgen.cdom.enumeration.ObjectKey;
 import pcgen.core.Campaign;
 import pcgen.gui2.converter.event.ProgressEvent;
 import pcgen.gui2.converter.event.TaskStrategyMessage;
+import pcgen.gui3.GuiUtility;
 import pcgen.system.PCGenSettings;
+import pcgen.util.Logging;
+
+import javafx.stage.DirectoryChooser;
+import org.apache.commons.lang3.SystemUtils;
 
 public class WriteDirectoryPanel extends ConvertSubPanel
 {
 
-	private File path = null;
+	private File path;
 
 	private final SpringLayout layout = new SpringLayout();
 
 	private final JLabel fileLabel;
 	private final JLabel warningLabel;
-
-	private final FilenameFilter pccFileFilter = (parentDir, fileName) -> {
-
-		if (StringUtils.endsWithIgnoreCase(fileName, ".pcc"))
-		{
-			return true;
-		}
-		return new File(parentDir, fileName).isDirectory();
-	};
 
 	private List<Campaign> campaignList;
 
@@ -98,9 +92,6 @@ public class WriteDirectoryPanel extends ConvertSubPanel
 		return false;
 	}
 
-	/**
-	 * @see pcgen.gui2.converter.panel.ConvertSubPanel#returnAllowed()
-	 */
 	@Override
 	public boolean returnAllowed()
 	{
@@ -114,40 +105,36 @@ public class WriteDirectoryPanel extends ConvertSubPanel
 		Component label = new JLabel("Please select the Directory where Converted files should be written: ");
 		AbstractButton button = new JButton("Browse...");
 		button.setMnemonic('r');
-		button.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent arg0)
+		button.addActionListener(arg0 -> {
+			DirectoryChooser directoryChooser = new DirectoryChooser();
+			directoryChooser.setInitialDirectory(path);
+
+			while (true)
 			{
-				JFileChooser chooser = new JFileChooser();
-				chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				chooser.setDialogType(JFileChooser.OPEN_DIALOG);
-				chooser.setCurrentDirectory(path.getParentFile());
-				chooser.setSelectedFile(path);
-				while (true)
+				File fileToOpen = GuiUtility.runOnJavaFXThreadNow(() ->
+						directoryChooser.showDialog(null));
+				if (fileToOpen != null)
 				{
-					int open = chooser.showOpenDialog(null);
-					if (open == JFileChooser.APPROVE_OPTION)
+					assert fileToOpen.isDirectory();
+					if (fileToOpen.canRead() && fileToOpen.canWrite())
 					{
-						File fileToOpen = chooser.getSelectedFile();
-						if (fileToOpen.isDirectory() && fileToOpen.canRead() && fileToOpen.canWrite())
-						{
-							path = fileToOpen;
-							pc.put(ObjectKey.WRITE_DIRECTORY, path);
-							fileLabel.setText(path.getAbsolutePath());
-							PCGenSettings context = PCGenSettings.getInstance();
-							context.setProperty(PCGenSettings.CONVERT_OUTPUT_SAVE_PATH, path.getAbsolutePath());
-							showWarning();
-							break;
-						}
-						JOptionPane.showMessageDialog(null,
-							"Selection must be a valid " + "(readable & writeable) Directory");
-						chooser.setCurrentDirectory(path.getParentFile());
-					}
-					else if (open == JFileChooser.CANCEL_OPTION)
-					{
+						path = fileToOpen;
+						pc.put(ObjectKey.WRITE_DIRECTORY, path);
+						fileLabel.setText(path.getAbsolutePath());
+						PCGenSettings context = PCGenSettings.getInstance();
+						context.setProperty(PCGenSettings.CONVERT_OUTPUT_SAVE_PATH, path.getAbsolutePath());
+						showWarning();
 						break;
 					}
+					JOptionPane.showMessageDialog(
+							null,
+							"Selection must be a valid " + "(readable & writeable) Directory"
+					);
+					directoryChooser.setInitialDirectory(path.getParentFile());
+				}
+				else
+				{
+					break;
 				}
 			}
 		});
@@ -158,9 +145,11 @@ public class WriteDirectoryPanel extends ConvertSubPanel
 		showWarning();
 		layout.putConstraint(SpringLayout.NORTH, label, 50, SpringLayout.NORTH, panel);
 		layout.putConstraint(SpringLayout.NORTH, fileLabel, 75 + label.getPreferredSize().height, SpringLayout.NORTH,
-			panel);
+				panel
+		);
 		layout.putConstraint(SpringLayout.NORTH, button, 75 + label.getPreferredSize().height, SpringLayout.NORTH,
-			panel);
+				panel
+		);
 		layout.putConstraint(SpringLayout.WEST, label, 25, SpringLayout.WEST, panel);
 		layout.putConstraint(SpringLayout.WEST, fileLabel, 25, SpringLayout.WEST, panel);
 		layout.putConstraint(SpringLayout.EAST, button, -50, SpringLayout.EAST, panel);
@@ -184,11 +173,11 @@ public class WriteDirectoryPanel extends ConvertSubPanel
 			{
 				if ((i >= maxCampaigns) && (existingCampaigns.size() > maxCampaigns))
 				{
-					warning.append("<li>" + (existingCampaigns.size() - maxCampaigns + 1) + " more campaigns.</li>");
+					warning.append("<li>").append(existingCampaigns.size() - maxCampaigns + 1).append(" more campaigns.</li>");
 					break;
 				}
 				warning.append("<li>");
-				warning.append(camp.getName());
+				warning.append(camp.getKeyName());
 				warning.append("</li>");
 				i++;
 			}
@@ -200,42 +189,36 @@ public class WriteDirectoryPanel extends ConvertSubPanel
 
 	private List<Campaign> getExistingPccs()
 	{
-		List<File> existingFiles = new ArrayList<>();
-		findPCCFiles(path, existingFiles);
+		List<Path> existingFiles = findPCCFiles(path);
 
 		List<Campaign> matchingCampaigns = new ArrayList<>();
 
 		for (Campaign camp : campaignList)
 		{
 			File campFile = new File(camp.getSourceURI());
-			for (File file : existingFiles)
+			if (existingFiles.stream()
+			                 .anyMatch(file -> file.getFileName().toString().equals(campFile.getName())))
 			{
-				if (file.getName().equals(campFile.getName()))
-				{
-					matchingCampaigns.add(camp);
-					break;
-				}
+				matchingCampaigns.add(camp);
 			}
 		}
 
 		return matchingCampaigns;
 	}
 
-	private void findPCCFiles(File aDirectory, List<File> existingFiles)
+	private static List<Path> findPCCFiles(File aDirectory)
 	{
-		if (aDirectory.isDirectory())
+		try
 		{
-			for (File file : aDirectory.listFiles(pccFileFilter))
-			{
-				if (file.isDirectory())
-				{
-					findPCCFiles(file, existingFiles);
-					continue;
-				}
-				existingFiles.add(file);
-			}
+			return Files.walk(aDirectory.toPath())
+			            .filter(file -> file.getFileName().toString().endsWith("pcc"))
+			            .collect(Collectors.toUnmodifiableList());
 		}
-
+		catch (IOException e)
+		{
+			Logging.errorPrint("failed to walk " + aDirectory, e);
+			return Collections.emptyList();
+		}
 	}
 
 }

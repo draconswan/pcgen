@@ -19,9 +19,6 @@ package plugin.lsttokens.editcontext.skill;
 
 import java.net.URISyntaxException;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import pcgen.core.PCStat;
 import pcgen.core.Skill;
 import pcgen.persistence.PersistenceLayerException;
@@ -33,6 +30,9 @@ import plugin.lsttokens.skill.KeystatToken;
 import plugin.lsttokens.testsupport.BuildUtilities;
 import plugin.lsttokens.testsupport.CDOMTokenLoader;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public class KeystatIntegrationTest extends AbstractIntegrationTestCase<Skill>
 {
 
@@ -40,7 +40,7 @@ public class KeystatIntegrationTest extends AbstractIntegrationTestCase<Skill>
 	private static CDOMTokenLoader<Skill> loader = new CDOMTokenLoader<>();
 
 	@Override
-	@Before
+	@BeforeEach
 	public void setUp() throws PersistenceLayerException, URISyntaxException
 	{
 		super.setUp();

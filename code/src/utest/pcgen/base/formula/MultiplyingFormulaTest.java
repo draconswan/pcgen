@@ -17,119 +17,99 @@
  */
 package pcgen.base.formula;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.fail;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class MultiplyingFormulaTest
+import org.junit.jupiter.api.Test;
+
+
+class MultiplyingFormulaTest
 {
 
 	@Test
-	public void testToString()
+	void testToString()
 	{
 		assertEquals("*1", new MultiplyingFormula(1).toString());
 		assertEquals("*3", new MultiplyingFormula(3).toString());
 		assertEquals("*0", new MultiplyingFormula(0).toString());
 		assertEquals("*-3", new MultiplyingFormula(-3).toString());
 	}
-	
+
 	@Test
-	public void testIdentity()
+	void testIdentity()
 	{
 		MultiplyingFormula f = new MultiplyingFormula(1);
-		assertEquals(2, f.resolve(2).intValue());
-		assertEquals(2, f.resolve(2.5).intValue());
-		testBrokenCalls(f);
+        assertEquals(2, f.resolve(2));
+        assertEquals(2, f.resolve(2.5));
 	}
 
 	@Test
-	public void testEquality()
+	void testZero()
+	{
+		MultiplyingFormula f = new MultiplyingFormula(0);
+        assertEquals(0, f.resolve(5));
+        assertEquals(0, f.resolve(2.3));
+	}
+
+	@Test
+	void testEquality()
 	{
 		MultiplyingFormula f1 = new MultiplyingFormula(1);
 		MultiplyingFormula f2 = new MultiplyingFormula(1);
 		MultiplyingFormula f3 = new MultiplyingFormula(2);
 		MultiplyingFormula f4 = new MultiplyingFormula(-1);
-		assertNotSame(f1, f2);
 		assertEquals(f1.hashCode(), f2.hashCode());
 		assertEquals(f1, f2);
-		assertNotNull(f1);
-		assertFalse(f1.hashCode() == f3.hashCode());
-		assertFalse(f1.equals(f3));
-		assertFalse(f1.hashCode() == f4.hashCode());
-		assertFalse(f1.equals(f4));
+		assertNotEquals(f1.hashCode(), f3.hashCode());
+		assertNotEquals(f1, f3);
+		assertNotEquals(f1.hashCode(), f4.hashCode());
+		assertNotEquals(f1, f4);
 	}
 
 	@Test
-	public void testPositive()
+	void testPositive()
 	{
 		MultiplyingFormula f = new MultiplyingFormula(3);
-		assertEquals(15, f.resolve(5).intValue());
-		//TODO Need to specify the order of operations - is this rounded first or second?
-		//assertEquals(17, f.resolve(Double.valueOf(5.5)).intValue());
-		testBrokenCalls(f);
+        assertEquals(15, f.resolve(5));
 	}
 
 	@Test
-	public void testZero()
-	{
-		MultiplyingFormula f = new MultiplyingFormula(0);
-		assertEquals(0, f.resolve(5).intValue());
-		assertEquals(0, f.resolve(2.3).intValue());
-		testBrokenCalls(f);
-	}
-
-	@Test
-	public void testNegative()
+	void testNegative()
 	{
 		MultiplyingFormula f = new MultiplyingFormula(-2);
-		assertEquals(-10, f.resolve(5).intValue());
-		//TODO Need to specify the order of operations - is this rounded first or second?
-		//assertEquals(13, f.resolve(Double.valueOf(-6.7)).intValue());
-		testBrokenCalls(f);
+        assertEquals(-10, f.resolve(5));
 	}
 
-	private void testBrokenCalls(MultiplyingFormula f)
+    @Test
+    void testRoundsLikeIntegerCastOnResult()
+    {
+        MultiplyingFormula negative = new MultiplyingFormula(-2);
+        MultiplyingFormula positive = new MultiplyingFormula(2);
+        assertEquals((int) (-6.7 * -2), negative.resolve(-6.7));
+        assertEquals((int) (2 * 5.5), positive.resolve(5.5));
+    }
+
+	@Test
+	void testInputNotNull()
 	{
-		try
-		{
-			f.resolve((Number[]) null);
-			fail("null should be illegal");
-		}
-		catch (IllegalArgumentException e)
-		{
-			// OK
-		}
-		try
-		{
-			f.resolve();
-			fail("empty array should be illegal");
-		}
-		catch (IllegalArgumentException e)
-		{
-			// OK
-		}
-		try
-		{
-			f.resolve(4, 2.5);
-			fail("two arguments in array should be illegal");
-		}
-		catch (IllegalArgumentException e)
-		{
-			// OK
-		}
-		try
-		{
-			f.resolve(4, 2.5);
-			fail("two arguments should be illegal");
-		}
-		catch (IllegalArgumentException e)
-		{
-			// OK
-		}
+	    MultiplyingFormula timesOne = new MultiplyingFormula(1);
+        assertThrows(IllegalArgumentException.class, () -> timesOne.resolve((Number[]) null));
+	}
+
+	@Test
+	void testInputNotEmpty()
+	{
+	    MultiplyingFormula timesOne = new MultiplyingFormula(1);
+        assertThrows(IllegalArgumentException.class, () -> timesOne.resolve());
+	}
+
+	@Test
+	void testInputNotLongerThan1()
+	{
+	    MultiplyingFormula timesOne = new MultiplyingFormula(1);
+        assertThrows(IllegalArgumentException.class, () -> timesOne.resolve(4, 2.5));
 	}
 
 }

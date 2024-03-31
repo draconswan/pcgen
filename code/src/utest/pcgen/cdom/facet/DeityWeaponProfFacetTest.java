@@ -26,6 +26,8 @@ import pcgen.cdom.testsupport.AbstractExtractingFacetTest;
 import pcgen.core.Deity;
 import pcgen.core.WeaponProf;
 
+import org.junit.jupiter.api.BeforeEach;
+
 public class DeityWeaponProfFacetTest extends
 		AbstractExtractingFacetTest<Deity, WeaponProf>
 {
@@ -35,8 +37,9 @@ public class DeityWeaponProfFacetTest extends
 	private WeaponProf[] target;
 	private Deity[] source;
 
+	@BeforeEach
 	@Override
-	public void setUp() throws Exception
+	public void setUp()
 	{
 		super.setUp();
 		Deity cdo1 = new Deity();

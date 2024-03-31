@@ -17,6 +17,8 @@
  */
 package pcgen.cdom.content.fact;
 
+import java.util.Objects;
+
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.content.ContentDefinition;
 import pcgen.cdom.enumeration.DataSetID;
@@ -77,12 +79,12 @@ public class FactDefinition<T extends CDOMObject, F> extends ContentDefinition<T
 	{
 		context.loadLocalToken(new FactParser<>(this));
 		Boolean required = getRequired();
-		if ((required != null) && required.booleanValue())
+		if ((required != null) && required)
 		{
 			context.loadLocalToken(new FactDefinitionEnforcer<>(this));
 		}
 		Boolean selectable = getSelectable();
-		if ((selectable != null) && selectable.booleanValue())
+		if ((selectable != null) && selectable)
 		{
 			context.loadLocalToken(new FactGroupDefinition<>(this));
 		}
@@ -98,10 +100,7 @@ public class FactDefinition<T extends CDOMObject, F> extends ContentDefinition<T
 	 */
 	public void setFactName(String name)
 	{
-		if (name == null)
-		{
-			throw new IllegalArgumentException("Fact Name cannot be null");
-		}
+		Objects.requireNonNull(name, "Fact Name cannot be null");
 		if (name.isEmpty())
 		{
 			throw new IllegalArgumentException("Fact Name cannot be empty");

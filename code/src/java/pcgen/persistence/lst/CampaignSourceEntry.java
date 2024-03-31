@@ -44,11 +44,11 @@ import pcgen.util.Logging;
  */
 public class CampaignSourceEntry implements SourceEntry
 {
-	private Campaign campaign = null;
+	private Campaign campaign;
 	private List<String> excludeItems = new ArrayList<>();
 	private List<String> includeItems = new ArrayList<>();
 	private List<Prerequisite> prerequisites = new ArrayList<>();
-	private URIEntry uri = null;
+	private URIEntry uri;
 
 	/**
 	 * CampaignSourceEntry constructor.
@@ -124,11 +124,10 @@ public class CampaignSourceEntry implements SourceEntry
 		{
 			return true;
 		}
-		if (!(arg0 instanceof CampaignSourceEntry))
+		if (!(arg0 instanceof CampaignSourceEntry other))
 		{
 			return false;
 		}
-		CampaignSourceEntry other = (CampaignSourceEntry) arg0;
 		return uri.equals(other.uri) && excludeItems.equals(other.excludeItems)
 			&& includeItems.equals(other.includeItems);
 	}
@@ -142,12 +141,10 @@ public class CampaignSourceEntry implements SourceEntry
 	@Override
 	public String toString()
 	{
-		StringBuilder sBuff = new StringBuilder();
-		sBuff.append("Campaign: ");
-		sBuff.append(campaign.getDisplayName());
-		sBuff.append("; SourceFile: ");
-		sBuff.append(getURI());
-		return sBuff.toString();
+		return "Campaign: "
+				+ campaign.getDisplayName()
+				+ "; SourceFile: "
+				+ getURI();
 	}
 
 	public static CampaignSourceEntry getNewCSE(Campaign campaign2, URI sourceUri, String value)
@@ -265,47 +262,45 @@ public class CampaignSourceEntry implements SourceEntry
 	static List<String> parseSuffix(String suffix, URI sourceUri, String value)
 	{
 		List<String> tagList = new ArrayList<>();
-		String currentTag = "";
+		StringBuilder currentTag = new StringBuilder();
 		int bracketLevel = 0;
 
 		StringTokenizer tokenizer = new StringTokenizer(suffix, "|()", true);
 		while (tokenizer.hasMoreTokens())
 		{
 			String token = tokenizer.nextToken();
-			if (token.equals("("))
+			switch (token)
 			{
-				currentTag += token;
-				bracketLevel++;
+				case "(":
+					currentTag.append(token);
+					bracketLevel++;
 
-			}
-			else if (token.equals(")"))
-			{
-				if (bracketLevel > 0)
-				{
-					bracketLevel--;
-				}
-				currentTag += token;
-			}
-			else if (token.equals("|"))
-			{
-				if (bracketLevel > 0)
-				{
-					currentTag += token;
-				}
-				else if (!currentTag.isEmpty())
-				{
-					tagList.add(currentTag);
-					currentTag = "";
-				}
-			}
-			else
-			{
-				currentTag += token;
+					break;
+				case ")":
+					if (bracketLevel > 0)
+					{
+						bracketLevel--;
+					}
+					currentTag.append(token);
+					break;
+				case "|":
+					if (bracketLevel > 0)
+					{
+						currentTag.append(token);
+					} else if (currentTag.length() > 0)
+					{
+						tagList.add(currentTag.toString());
+						currentTag = new StringBuilder();
+					}
+					break;
+				default:
+					currentTag.append(token);
+					break;
 			}
 		}
-		if (!currentTag.isEmpty())
+		if (currentTag.length() > 0)
 		{
-			tagList.add(currentTag);
+			tagList.add(currentTag.toString());
 		}
 
 		// Check for a bracket mismatch
@@ -364,7 +359,7 @@ public class CampaignSourceEntry implements SourceEntry
 		boolean hasKeyOnly = false;
 		List<String> catKeyList = new ArrayList<>();
 		String target = inExString.substring(8);
-		if (target == null || target.isEmpty())
+		if (target.isEmpty())
 		{
 			Logging.errorPrint("Must Specify Items after :");
 			return null;
@@ -422,7 +417,7 @@ public class CampaignSourceEntry implements SourceEntry
 		return sb.toString();
 	}
 
-	private StringBuilder joinIncExcList(List<String> list)
+	private String joinIncExcList(List<String> list)
 	{
 		MapToList<String, String> map = new HashMapToList<>();
 		for (String s : list)
@@ -430,7 +425,7 @@ public class CampaignSourceEntry implements SourceEntry
 			int commaLoc = s.indexOf(',');
 			if (commaLoc == -1)
 			{
-				return StringUtil.joinToStringBuilder(list, Constants.PIPE);
+				return StringUtil.join(list, Constants.PIPE);
 			}
 			else
 			{
@@ -449,9 +444,9 @@ public class CampaignSourceEntry implements SourceEntry
 			sb.append("CATEGORY=");
 			sb.append(category);
 			sb.append(Constants.COMMA);
-			sb.append(StringUtil.joinToStringBuilder(map.getListFor(category), Constants.COMMA));
+			sb.append(StringUtil.join(map.getListFor(category), Constants.COMMA));
 		}
-		return sb;
+		return sb.toString();
 	}
 
 	public CampaignSourceEntry getRelatedTarget(String fileName)

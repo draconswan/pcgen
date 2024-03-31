@@ -23,7 +23,10 @@ import pcgen.facade.core.EquipmentListFacade;
 import pcgen.facade.core.EquipmentListFacade.EquipmentListEvent;
 import pcgen.facade.core.EquipmentListFacade.EquipmentListListener;
 import pcgen.facade.core.EquipmentSetFacade;
+import pcgen.facade.util.ReferenceFacade;
 import pcgen.facade.util.event.ListEvent;
+import pcgen.facade.util.event.ReferenceEvent;
+import pcgen.facade.util.event.ReferenceListener;
 import pcgen.gui2.filter.FilteredListFacadeTableModel;
 
 /**
@@ -33,7 +36,9 @@ import pcgen.gui2.filter.FilteredListFacadeTableModel;
  * 
  * 
  */
-public class EquipmentTableModel extends FilteredListFacadeTableModel<EquipmentFacade> implements EquipmentListListener
+public class EquipmentTableModel
+		extends FilteredListFacadeTableModel<EquipmentFacade>
+		implements EquipmentListListener, ReferenceListener<EquipmentSetFacade>
 {
 
 	protected EquipmentListFacade equipmentList = null;
@@ -42,6 +47,17 @@ public class EquipmentTableModel extends FilteredListFacadeTableModel<EquipmentF
 	public EquipmentTableModel(CharacterFacade character)
 	{
 		super(character);
+		ReferenceFacade<EquipmentSetFacade> ref = character.getEquipmentSetRef();
+		ref.addReferenceListener(this);
+		setEquipmentList(ref.get().getEquippedItems());
+		setEquipmentSet(ref.get());
+	}
+
+	@Override
+	public void referenceChanged(ReferenceEvent<EquipmentSetFacade> e)
+	{
+		setEquipmentList(e.getNewReference().getEquippedItems());
+		setEquipmentSet(e.getNewReference());
 	}
 
 	protected void setEquipmentList(EquipmentListFacade equipmentList)
@@ -73,22 +89,15 @@ public class EquipmentTableModel extends FilteredListFacadeTableModel<EquipmentF
 	@Override
 	public Class<?> getColumnClass(int columnIndex)
 	{
-		switch (columnIndex)
-		{
-			case 0:
-				return Object.class;
-			case 1:
-			case 2:
-				return String.class;
-			case 3:
-				return Integer.class;
-			case 4:
-				return Float.class;
-			case 5:
-				return String.class;
-			default:
-				return Object.class;
-		}
+		return switch (columnIndex)
+				{
+					case 0 -> Object.class;
+					case 1, 2 -> String.class;
+					case 3 -> Integer.class;
+					case 4 -> Float.class;
+					case 5 -> String.class;
+					default -> Object.class;
+				};
 	}
 
 	@Override
@@ -112,23 +121,16 @@ public class EquipmentTableModel extends FilteredListFacadeTableModel<EquipmentF
 	@Override
 	protected Object getValueAt(EquipmentFacade equipment, int column)
 	{
-		switch (column)
-		{
-			case 0:
-				return equipment;
-			case 1:
-				return equipment.getTypes()[0];
-			case 2:
-				return equipmentSet.getLocation(equipment);
-			case 3:
-				return equipmentList.getQuantity(equipment);
-			case 4:
-				return character.getInfoFactory().getWeight(equipment);
-			case 5:
-				return character.getInfoFactory().getDescription(equipment);
-			default:
-				return null;
-		}
+		return switch (column)
+				{
+					case 0 -> equipment;
+					case 1 -> equipment.getTypes()[0];
+					case 2 -> equipmentSet.getLocation(equipment);
+					case 3 -> equipmentList.getQuantity(equipment);
+					case 4 -> character.getInfoFactory().getWeight(equipment);
+					case 5 -> character.getInfoFactory().getDescription(equipment);
+					default -> null;
+				};
 	}
 
 	@Override

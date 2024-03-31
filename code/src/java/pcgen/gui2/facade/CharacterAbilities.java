@@ -48,7 +48,6 @@ import pcgen.core.RuleConstants;
 import pcgen.core.display.CharacterDisplay;
 import pcgen.core.utils.MessageType;
 import pcgen.core.utils.ShowMessageDelegate;
-import pcgen.facade.core.AbilityCategoryFacade;
 import pcgen.facade.core.AbilityFacade;
 import pcgen.facade.core.DataSetFacade;
 import pcgen.facade.core.UIDelegate;
@@ -78,8 +77,8 @@ public class CharacterAbilities
 	private final CharacterDisplay charDisplay;
 	private final UIDelegate delegate;
 
-	private Map<AbilityCategoryFacade, DefaultListFacade<AbilityFacade>> abilityListMap;
-	private DefaultListFacade<AbilityCategoryFacade> activeCategories;
+	private Map<AbilityCategory, DefaultListFacade<AbilityFacade>> abilityListMap;
+	private DefaultListFacade<AbilityCategory> activeCategories;
 	private CharID charID;
 	private final DataSetFacade dataSetFacade;
 	private final List<ChangeListener> abilityCatSelectionListeners;
@@ -130,64 +129,44 @@ public class CharacterAbilities
 		grantedAbilityFacet.addDataFacetChangeListener(grantedAbilityChangeHandler);
 	}
 
-	void removeAbilityFromLists(AbilityCategory cat, Ability ability, Nature nature)
-	{
-		removeCategorisedAbility(cat, ability, nature);
-
-		boolean stillActive = cat.isVisibleTo(View.VISIBLE_DISPLAY);
-		if (!stillActive && activeCategories.containsElement(cat))
-		{
-			activeCategories.removeElement(cat);
-		}
-		else
-		{
-			adviseSelectionChangeLater(cat);
-		}
-		updateAbilityCategoryLater(cat);
-	}
-
 	/**
 	 * Rebuild the ability lists for the character to include the character's 
 	 * current abilities.
 	 */
 	synchronized void rebuildAbilityLists()
 	{
-		Map<AbilityCategoryFacade, DefaultListFacade<AbilityFacade>> workingAbilityListMap = new LinkedHashMap<>();
-		DefaultListFacade<AbilityCategoryFacade> workingActiveCategories = new DefaultListFacade<>();
+		Map<AbilityCategory, DefaultListFacade<AbilityFacade>> workingAbilityListMap = new LinkedHashMap<>();
+		DefaultListFacade<AbilityCategory> workingActiveCategories = new DefaultListFacade<>();
 
-		for (AbilityCategoryFacade category : dataSetFacade.getAbilities().getKeys())
+		for (AbilityCategory category : dataSetFacade.getAbilities().getKeys())
 		{
-			AbilityCategory cat = (AbilityCategory) category;
-
-			for (CNAbility cna : theCharacter.getPoolAbilities(cat))
+			for (CNAbility cna : theCharacter.getPoolAbilities(category))
 			{
 				addCategorisedAbility(cna, workingAbilityListMap);
 			}
 
 			// deal with visibility
-			boolean visible = cat.isVisibleTo(theCharacter, View.VISIBLE_DISPLAY);
+			boolean visible = category.isVisibleTo(theCharacter, View.VISIBLE_DISPLAY);
 
-			if (visible && !workingActiveCategories.containsElement(cat))
+			if (visible && !workingActiveCategories.containsElement(category))
 			{
-				int index = getCatIndex(cat, workingActiveCategories);
-				workingActiveCategories.addElement(index, cat);
+				int index = getCatIndex(category, workingActiveCategories);
+				workingActiveCategories.addElement(index, category);
 			}
-			if (!visible && workingActiveCategories.containsElement(cat))
+			if (!visible && workingActiveCategories.containsElement(category))
 			{
-				workingActiveCategories.removeElement(cat);
+				workingActiveCategories.removeElement(category);
 				//				updateAbilityCategoryTodo(cat);
 			}
 
 			if (visible)
 			{
-				adviseSelectionChangeLater(cat);
+				adviseSelectionChangeLater(category);
 			}
 		}
 
 		// Update map contents
-		for (AbilityCategoryFacade category : workingAbilityListMap.keySet())
-		{
-			DefaultListFacade<AbilityFacade> workingListFacade = workingAbilityListMap.get(category);
+		workingAbilityListMap.forEach((category, workingListFacade) -> {
 			DefaultListFacade<AbilityFacade> masterListFacade = abilityListMap.get(category);
 			if (masterListFacade == null)
 			{
@@ -197,11 +176,11 @@ public class CharacterAbilities
 			{
 				masterListFacade.updateContentsNoOrder(workingListFacade.getContents());
 			}
-			updateAbilityCategoryTodo((AbilityCategory) category);
-		}
+			updateAbilityCategoryTodo(category);
+		});
 
-		Set<AbilityCategoryFacade> origCats = new HashSet<>(abilityListMap.keySet());
-		for (AbilityCategoryFacade category : origCats)
+		Set<AbilityCategory> origCats = new HashSet<>(abilityListMap.keySet());
+		for (AbilityCategory category : origCats)
 		{
 			if (!workingAbilityListMap.containsKey(category))
 			{
@@ -213,7 +192,7 @@ public class CharacterAbilities
 				{
 					abilityListMap.remove(category);
 				}
-				updateAbilityCategoryTodo((AbilityCategory) category);
+				updateAbilityCategoryTodo(category);
 			}
 		}
 		activeCategories.updateContents(workingActiveCategories.getContents());
@@ -221,11 +200,10 @@ public class CharacterAbilities
 
 	private void updateAbilityCategoryTodo(Category<Ability> cat)
 	{
-		if (!(cat instanceof AbilityCategory))
+		if (!(cat instanceof AbilityCategory category))
 		{
 			return;
 		}
-		AbilityCategory category = (AbilityCategory) cat;
 
 		int numSelections = theCharacter.getAvailableAbilityPool(category).intValue();
 		if (category.getVisibility().isVisibleTo(View.HIDDEN_DISPLAY))
@@ -262,11 +240,11 @@ public class CharacterAbilities
 	 * @param abilityCategory The category being added 
 	 * @return The index at which to insert the category.
 	 */
-	private int getCatIndex(AbilityCategory abilityCategory, ListFacade<AbilityCategoryFacade> catList)
+	private int getCatIndex(AbilityCategory abilityCategory, ListFacade<AbilityCategory> catList)
 	{
-		Set<AbilityCategoryFacade> allCategories = dataSetFacade.getAbilities().getKeys();
+		Set<AbilityCategory> allCategories = dataSetFacade.getAbilities().getKeys();
 		int index = 0;
-		for (AbilityCategoryFacade compCat : allCategories)
+		for (AbilityCategory compCat : allCategories)
 		{
 			if (compCat == abilityCategory || index >= catList.getSize())
 			{
@@ -287,7 +265,7 @@ public class CharacterAbilities
 	 * @param workingAbilityListMap The map to be adjusted.
 	 */
 	private void addCategorisedAbility(CNAbility cna,
-		Map<AbilityCategoryFacade, DefaultListFacade<AbilityFacade>> workingAbilityListMap)
+		Map<AbilityCategory, DefaultListFacade<AbilityFacade>> workingAbilityListMap)
 	{
 		Ability ability = cna.getAbility();
 		List<CNAbilitySelection> cas = new ArrayList<>();
@@ -319,38 +297,21 @@ public class CharacterAbilities
 		}
 	}
 
-	private void removeCategorisedAbility(AbilityCategory cat, Ability ability, Nature nature)
-	{
-		CNAbilitySelection cas;
-		if (ability.getSafe(ObjectKey.MULTIPLE_ALLOWED))
-		{
-			cas = new CNAbilitySelection(CNAbilityFactory.getCNAbility(cat, nature, ability), "");
-		}
-		else
-		{
-			cas = new CNAbilitySelection(CNAbilityFactory.getCNAbility(cat, nature, ability));
-		}
-		removeElement(cas);
-	}
-
 	/**
 	 * Process a request by the user to add an ability. The user will be informed 
 	 * if the request cannot be allowed. Updates to the displayed lists are 
 	 * handled by events (see initForCharacter).
 	 * 
-	 * @param categoryFacade The category in which the ability s bing added.
+	 * @param category The category in which the ability s bing added.
 	 * @param abilityFacade The ability to be added.
 	 */
-	public void addAbility(AbilityCategoryFacade categoryFacade, AbilityFacade abilityFacade)
+	public void addAbility(AbilityCategory category, AbilityFacade abilityFacade)
 	{
-		if (abilityFacade == null || !(abilityFacade instanceof Ability) || categoryFacade == null
-			|| !(categoryFacade instanceof AbilityCategory))
+		if (abilityFacade == null || !(abilityFacade instanceof Ability ability) || category == null)
 		{
 			return;
 		}
 
-		Ability ability = (Ability) abilityFacade;
-		AbilityCategory category = (AbilityCategory) categoryFacade;
 		if (!checkAbilityQualify(ability, category))
 		{
 			return;
@@ -388,19 +349,15 @@ public class CharacterAbilities
 	 * informed if the request cannot be allowed. Updates to the displayed 
 	 * lists are handled by events (see initForCharacter).
 	 * 
-	 * @param categoryFacade The category from which the ability is being removed.
+	 * @param theCategory The category from which the ability is being removed.
 	 * @param abilityFacade The ability to be removed.
 	 */
-	public void removeAbility(AbilityCategoryFacade categoryFacade, AbilityFacade abilityFacade)
+	public void removeAbility(AbilityCategory theCategory, AbilityFacade abilityFacade)
 	{
-		if (abilityFacade == null || !(abilityFacade instanceof Ability) || categoryFacade == null
-			|| !(categoryFacade instanceof AbilityCategory))
+		if (abilityFacade == null || !(abilityFacade instanceof Ability anAbility) || theCategory == null)
 		{
 			return;
 		}
-
-		Ability anAbility = (Ability) abilityFacade;
-		AbilityCategory theCategory = (AbilityCategory) categoryFacade;
 
 		try
 		{
@@ -435,7 +392,7 @@ public class CharacterAbilities
 	 * @param category The ability category to be retrieved.
 	 * @return The list of abilities.
 	 */
-	public ListFacade<AbilityFacade> getAbilities(AbilityCategoryFacade category)
+	public ListFacade<AbilityFacade> getAbilities(AbilityCategory category)
 	{
 		DefaultListFacade<AbilityFacade> abList = abilityListMap.get(category);
 		if (abList == null)
@@ -449,58 +406,55 @@ public class CharacterAbilities
 	/**
 	 * @return The list of active ability categories.
 	 */
-	public ListFacade<AbilityCategoryFacade> getActiveAbilityCategories()
+	public ListFacade<AbilityCategory> getActiveAbilityCategories()
 	{
 		return activeCategories;
 	}
 
 	/**
 	 * Get the total number of selections for this category.
-	 * @param categoryFacade The ability category to be retrieved.
+	 * @param category The ability category to be retrieved.
 	 * @return The total number of choices.
 	 */
-	public int getTotalSelections(AbilityCategoryFacade categoryFacade)
+	public int getTotalSelections(AbilityCategory category)
 	{
-		if (categoryFacade == null || !(categoryFacade instanceof AbilityCategory))
+		if (category == null)
 		{
 			return 0;
 		}
 
-		AbilityCategory category = (AbilityCategory) categoryFacade;
 		BigDecimal pool = theCharacter.getTotalAbilityPool(category);
 		return pool.intValue();
 	}
 
 	/**
 	 * Get the number of selections that are remaining for this category.
-	 * @param categoryFacade The ability category to be retrieved.
+	 * @param category The ability category to be retrieved.
 	 * @return The number of choices left.
 	 */
-	public int getRemainingSelections(AbilityCategoryFacade categoryFacade)
+	public int getRemainingSelections(AbilityCategory category)
 	{
-		if (categoryFacade == null || !(categoryFacade instanceof AbilityCategory))
+		if (category == null)
 		{
 			return 0;
 		}
 
-		AbilityCategory category = (AbilityCategory) categoryFacade;
 		BigDecimal pool = theCharacter.getAvailableAbilityPool(category);
 		return pool.intValue();
 	}
 
 	/**
 	 * Set the number of selections that are remaining for this category.
-	 * @param categoryFacade The ability category to be set.
+	 * @param category The ability category to be set.
 	 * @param remaining The number of choices left.
 	 */
-	public void setRemainingSelection(AbilityCategoryFacade categoryFacade, int remaining)
+	public void setRemainingSelection(AbilityCategory category, int remaining)
 	{
-		if (categoryFacade == null || !(categoryFacade instanceof AbilityCategory))
+		if (category == null)
 		{
 			return;
 		}
 
-		AbilityCategory category = (AbilityCategory) categoryFacade;
 		BigDecimal pool = theCharacter.getAvailableAbilityPool(category);
 
 		final BigDecimal newRemain = new BigDecimal(remaining);
@@ -518,7 +472,7 @@ public class CharacterAbilities
 	 * @param ability The ability to be checked.
 	 * @return true if the character has the ability, false otherwise.
 	 */
-	public boolean hasAbility(AbilityCategoryFacade category, AbilityFacade ability)
+	public boolean hasAbility(AbilityCategory category, AbilityFacade ability)
 	{
 		DefaultListFacade<AbilityFacade> abList = abilityListMap.get(category);
 		if (abList == null)
@@ -573,34 +527,11 @@ public class CharacterAbilities
 	 */
 	private void adviseSelectionChangeLater(final AbilityCategory cat)
 	{
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				updateAbilityCategoryTodo(cat);
-				fireAbilityCatSelectionUpdated(cat);
-				refreshChoices(cat);
-			}
-		});
-	}
-
-	/**
-	 * After any other processing has finished, refresh the todo information. 
-	 * This occurs as category totals are updated after we are notified of the 
-	 * abilities being added or removed.
-	 * @param category The ability category that may have changed.
-	 */
-	private void updateAbilityCategoryLater(final Category<Ability> category)
-	{
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				updateAbilityCategoryTodo(category);
-			}
-		});
+		SwingUtilities.invokeLater(() -> {
+            updateAbilityCategoryTodo(cat);
+            fireAbilityCatSelectionUpdated(cat);
+            refreshChoices(cat);
+        });
 	}
 
 	/**
@@ -662,7 +593,7 @@ public class CharacterAbilities
 		return true;
 	}
 
-	private void addElement(Map<AbilityCategoryFacade, DefaultListFacade<AbilityFacade>> workingAbilityListMap,
+	private void addElement(Map<AbilityCategory, DefaultListFacade<AbilityFacade>> workingAbilityListMap,
 		CNAbilitySelection cnas)
 	{
 		CNAbility cas = cnas.getCNAbility();
@@ -672,7 +603,7 @@ public class CharacterAbilities
 			// Filter out hidden abilities
 			return;
 		}
-		AbilityCategoryFacade cat = (AbilityCategoryFacade) cas.getAbilityCategory();
+		AbilityCategory cat = (AbilityCategory) cas.getAbilityCategory();
 		DefaultListFacade<AbilityFacade> listFacade = workingAbilityListMap.get(cat);
 		if (listFacade == null)
 		{
@@ -682,18 +613,6 @@ public class CharacterAbilities
 		if (!listFacade.containsElement(ability))
 		{
 			listFacade.addElement(ability);
-		}
-	}
-
-	private void removeElement(CNAbilitySelection cnas)
-	{
-		CNAbility cas = cnas.getCNAbility();
-		Ability ability = cas.getAbility();
-		AbilityCategoryFacade cat = (AbilityCategoryFacade) cas.getAbilityCategory();
-		DefaultListFacade<AbilityFacade> listFacade = abilityListMap.get(cat);
-		if (listFacade != null)
-		{
-			listFacade.removeElement(ability);
 		}
 	}
 

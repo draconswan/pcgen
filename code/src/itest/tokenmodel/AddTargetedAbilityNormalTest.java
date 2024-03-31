@@ -17,6 +17,8 @@
  */
 package tokenmodel;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.Collection;
 
 import pcgen.cdom.base.CDOMObject;
@@ -30,9 +32,9 @@ import pcgen.rules.persistence.token.CDOMToken;
 import pcgen.rules.persistence.token.ParseResult;
 import plugin.lsttokens.add.AbilityToken;
 import plugin.lsttokens.testsupport.BuildUtilities;
+
 import tokenmodel.testsupport.AbstractAddListTokenTest;
 import util.TestURI;
-
 public class AddTargetedAbilityNormalTest extends AbstractAddListTokenTest<Ability>
 {
 

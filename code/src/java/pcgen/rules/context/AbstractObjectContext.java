@@ -20,6 +20,7 @@ package pcgen.rules.context;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.Objects;
 import java.util.Set;
 
 import pcgen.base.formula.Formula;
@@ -47,21 +48,11 @@ public abstract class AbstractObjectContext implements ObjectCommitStrategy
 {
 	private final TrackingObjectCommitStrategy edits = new TrackingObjectCommitStrategy();
 
-	URI getSourceURI()
-	{
-		return edits.getSourceURI();
-	}
-
 	@Override
 	public void setSourceURI(URI sourceURI)
 	{
 		edits.setSourceURI(sourceURI);
 		getCommitStrategy().setSourceURI(sourceURI);
-	}
-
-	URI getExtractURI()
-	{
-		return edits.getExtractURI();
 	}
 
 	@Override
@@ -215,9 +206,8 @@ public abstract class AbstractObjectContext implements ObjectCommitStrategy
 		{
 			for (ConcretePrereqObject cpo : edits.negativeMap.getSecondaryKeySet(uri))
 			{
-				if (cpo instanceof CDOMObject)
+				if (cpo instanceof CDOMObject cdo)
 				{
-					CDOMObject cdo = (CDOMObject) cpo;
 					CDOMObject neg = edits.negativeMap.get(uri, cdo);
 					for (ObjectKey<?> ok : neg.getSafeListFor(ListKey.REMOVED_OBJECTKEY))
 					{
@@ -259,9 +249,8 @@ public abstract class AbstractObjectContext implements ObjectCommitStrategy
 				{
 					commit.put(cpo, p);
 				}
-				if (cpo instanceof CDOMObject)
+				if (cpo instanceof CDOMObject cdo)
 				{
-					CDOMObject cdo = (CDOMObject) cpo;
 					for (StringKey key : pos.getStringKeys())
 					{
 						commit.put(cdo, key, pos.get(key));
@@ -460,7 +449,7 @@ public abstract class AbstractObjectContext implements ObjectCommitStrategy
 		return edits.cloneConstructedCDOMObject(obj, newName);
 	}
 
-	private static class SimpleCDOMObject extends CDOMObject
+	public static class DummyCDOMObject extends CDOMObject
 	{
 		@Override
 		public boolean isType(String str)
@@ -494,14 +483,11 @@ public abstract class AbstractObjectContext implements ObjectCommitStrategy
 
 		private CDOMObject getNegative(URI source, CDOMObject cdo)
 		{
-			if (cdo == null)
-			{
-				throw new IllegalArgumentException("Cannot remove contents from null object");
-			}
+			Objects.requireNonNull(cdo, "Cannot remove contents from null object");
 			CDOMObject negative = negativeMap.get(source, cdo);
 			if (negative == null)
 			{
-				negative = new SimpleCDOMObject();
+				negative = new DummyCDOMObject();
 				negativeMap.put(source, cdo, negative);
 			}
 			return negative;
@@ -521,14 +507,11 @@ public abstract class AbstractObjectContext implements ObjectCommitStrategy
 
 		private CDOMObject getPositive(URI source, ConcretePrereqObject cdo)
 		{
-			if (cdo == null)
-			{
-				throw new IllegalArgumentException("Cannot assign contents to null object");
-			}
+			Objects.requireNonNull(cdo, "Cannot assign contents to null object");
 			CDOMObject positive = positiveMap.get(source, cdo);
 			if (positive == null)
 			{
-				positive = new SimpleCDOMObject();
+				positive = new DummyCDOMObject();
 				positiveMap.put(source, cdo, positive);
 			}
 			return positive;

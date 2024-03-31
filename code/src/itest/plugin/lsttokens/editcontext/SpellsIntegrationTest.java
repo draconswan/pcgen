@@ -19,9 +19,6 @@ package plugin.lsttokens.editcontext;
 
 import java.net.URISyntaxException;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.base.Constants;
 import pcgen.core.Ability;
@@ -41,6 +38,9 @@ import plugin.pretokens.parser.PreRaceParser;
 import plugin.pretokens.writer.PreClassWriter;
 import plugin.pretokens.writer.PreRaceWriter;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public class SpellsIntegrationTest extends
 		AbstractIntegrationTestCase<CDOMObject>
 {
@@ -53,7 +53,7 @@ public class SpellsIntegrationTest extends
 	PreRaceWriter preracewriter = new PreRaceWriter();
 
 	@Override
-	@Before
+	@BeforeEach
 	public void setUp() throws PersistenceLayerException, URISyntaxException
 	{
 		super.setUp();

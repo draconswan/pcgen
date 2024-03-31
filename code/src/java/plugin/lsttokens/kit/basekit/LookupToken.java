@@ -37,6 +37,7 @@ import pcgen.rules.persistence.token.ParseResult;
  */
 public class LookupToken extends AbstractToken implements CDOMPrimaryToken<KitGear>
 {
+
 	/**
 	 * Gets the name of the tag this class will parse.
 	 * 
@@ -93,6 +94,6 @@ public class LookupToken extends AbstractToken implements CDOMPrimaryToken<KitGe
 		{
 			list.add(nf.getName() + ',' + nf.getFormula().toString());
 		}
-		return list.toArray(new String[list.size()]);
+		return list.toArray(new String[0]);
 	}
 }

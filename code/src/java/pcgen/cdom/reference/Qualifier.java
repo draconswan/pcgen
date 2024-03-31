@@ -61,29 +61,17 @@ public class Qualifier
 		return qualRef;
 	}
 
-	/**
-	 * Returns a consistent-with-equals hashCode for this Qualifier
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode()
 	{
 		return qualRef.hashCode();
 	}
 
-	/**
-	 * Returns true if the given object is a Qualifier with identical underlying
-	 * reference.
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj)
 	{
-		if (obj instanceof Qualifier)
+		if (obj instanceof Qualifier other)
 		{
-			Qualifier other = (Qualifier) obj;
 			return qualRef.equals(other.qualRef);
 		}
 		return false;

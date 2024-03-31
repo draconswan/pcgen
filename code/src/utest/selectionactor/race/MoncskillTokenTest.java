@@ -19,19 +19,19 @@ package selectionactor.race;
 
 import pcgen.cdom.base.ChooseSelectionActor;
 import pcgen.core.Skill;
-
 import plugin.lsttokens.race.MoncskillToken;
+
 import selectionactor.testsupport.AbstractSelectionActorTest;
 
 public class MoncskillTokenTest extends AbstractSelectionActorTest<Skill>
 {
 
-	static MoncskillToken cra = new MoncskillToken();
+	private static final MoncskillToken CRA = new MoncskillToken();
 
 	@Override
 	public ChooseSelectionActor<Skill> getActor()
 	{
-		return cra;
+		return CRA;
 	}
 
 	@Override

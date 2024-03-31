@@ -17,16 +17,15 @@
  */
 package pcgen.cdom.base;
 
-import java.awt.SystemColor;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
 /**
  * This interface holds all global constants.
  *
- * (The reason for an interface rather than a class
- * is that an interface uses a little less memory.)
+ * Grandfathered as an interface. Not to be implemented.
  */
+@SuppressWarnings("PMD.ConstantsInInterface")
 public interface Constants
 {
 
@@ -176,31 +175,6 @@ public interface Constants
 	DecimalFormat STANDARD_UNITSET_WEIGHT_DISPLAY_PATTERN = new DecimalFormat("#.###"); //$NON-NLS-1$
 
 	/********************************************************************
-	 * Systems for plug-ins
-	 ********************************************************************/
-
-	/** PCGen. */
-	String SYSTEM_PCGEN = "PCGen"; //$NON-NLS-1$
-	/** GMGen. */
-	String SYSTEM_GMGEN = "GMGen"; //$NON-NLS-1$
-
-	/********************************************************************
-	 * What equipment to auto generate
-	 ********************************************************************/
-
-	/** Auto-generate the racial equipment. */
-	int AUTOGEN_RACIAL = 1;
-
-	/** Auto-generate the masterwork equipment. */
-	int AUTOGEN_MASTERWORK = 2;
-
-	/** Auto-generate the magic equipment. */
-	int AUTOGEN_MAGIC = 3;
-
-	/** Auto-generate equipment made from exotic materials. */
-	int AUTOGEN_EXOTIC_MATERIAL = 4;
-
-	/********************************************************************
 	 * Character stat generation methods
 	 ********************************************************************/
 
@@ -235,35 +209,6 @@ public interface Constants
 	 * valid choice available - add single choice to selected list and then
 	 * close. */
 	int CHOOSER_SINGLE_CHOICE_METHOD_SELECT_EXIT = 2;
-
-	/********************************************************************
-	 * How to display the PC's name
-	 ********************************************************************/
-
-	/**
-	 * A constant used to define the style of name that will be used for
-	 * this PC.  This option selects the plain unadorned name. */
-	int DISPLAY_STYLE_NAME = 0;
-
-	/**
-	 * A constant used to define the style of name that will be used for
-	 * this PC.  This option selects  */
-	int DISPLAY_STYLE_NAME_CLASS = 1;
-
-	/**
-	 * A constant used to define the style of name that will be used for
-	 * this PC.  This option appends the PC's race to its name.  */
-	int DISPLAY_STYLE_NAME_RACE = 2;
-
-	/**
-	 * A constant used to define the style of name that will be used for
-	 * this PC.  This option appends the PC's class to its name. */
-	int DISPLAY_STYLE_NAME_RACE_CLASS = 3;
-
-	/**
-	 * A constant used to define the style of name that will be used for
-	 * this PC.  This option appends the PC's race  and class to its name. */
-	int DISPLAY_STYLE_NAME_FULL = 4;
 
 	/********************************************************************
 	 * How to roll hitpoints
@@ -475,18 +420,6 @@ public interface Constants
 	/** The default percentage of an item's worth a character must pay when buying
 	 * an item in the equipment tab. */
 	int DEFAULT_GEAR_TAB_BUY_RATE = 100;
-
-	/**
-	 * The default colour of items in the GUI which the character does not qualify
-	 * for. 0xFF0000 is red. This  is used to initialise the value in the settings
-	 * handler if the user has not overridden it. */
-	int DEFAULT_PREREQ_FAIL_COLOUR = 0xFF0000;
-
-	/**
-	 * The default colour of items in the GUI which the character does qualify
-	 * for.  This is used to initialise the value in the settings
-	 * handler if the user has not overridden it. */
-	int DEFAULT_PREREQ_QUALIFY_COLOUR = SystemColor.text.getRGB() & 0x00FFFFFF;
 
 	/** A constant used to define an array of age sets. */
 	int NUMBER_OF_AGESET_KIT_SELECTIONS = 10;

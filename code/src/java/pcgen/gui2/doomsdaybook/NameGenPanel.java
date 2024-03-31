@@ -36,7 +36,6 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
-import java.util.prefs.Preferences;
 
 import javax.swing.BoxLayout;
 import javax.swing.ComboBoxModel;
@@ -50,15 +49,6 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
-import org.jdom2.DataConversionException;
-import org.jdom2.DocType;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.input.SAXBuilder;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
-
-import gmgen.util.LogUtilities;
 import pcgen.core.doomsdaybook.CRRule;
 import pcgen.core.doomsdaybook.DataElement;
 import pcgen.core.doomsdaybook.DataElementComperator;
@@ -73,22 +63,28 @@ import pcgen.gui2.tools.Icons;
 import pcgen.gui2.util.FontManipulation;
 import pcgen.system.LanguageBundle;
 import pcgen.util.Logging;
-import plugin.doomsdaybook.RandomNamePlugin;
+
+import org.jdom2.DataConversionException;
+import org.jdom2.DocType;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.input.SAXBuilder;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
 
 /**
  * Main panel of the random name generator.
- * 
  */
+@SuppressWarnings({"UseOfObsoleteCollectionType", "PMD.ReplaceVectorWithList", "PMD.UseArrayListInsteadOfVector"})
 public class NameGenPanel extends JPanel
 {
-	private final Preferences namePrefs = Preferences.userNodeForPackage(NameGenPanel.class);
 	private final Map<String, List<RuleSet>> categories = new HashMap<>();
 	private JButton generateButton;
 	private JButton jButton1;
 	private JCheckBox chkStructure;
 	private JComboBox<RuleSet> cbCatalog;
 	private JComboBox<String> cbCategory;
-	private JComboBox<String> cbSex;
+	private JComboBox<String> cbGender;
 	private JComboBox<DataElement> cbStructure;
 	private JLabel jLabel1;
 	private JLabel jLabel2;
@@ -126,9 +122,7 @@ public class NameGenPanel extends JPanel
 	/** Creates new form NameGenPanel */
 	public NameGenPanel()
 	{
-		initComponents();
-		initPrefs();
-		loadData(new File("."));
+		this(new File("."));
 	}
 
 	/**
@@ -139,7 +133,6 @@ public class NameGenPanel extends JPanel
 	public NameGenPanel(File dataPath)
 	{
 		initComponents();
-		initPrefs();
 		loadData(dataPath);
 	}
 
@@ -163,7 +156,7 @@ public class NameGenPanel extends JPanel
 				rule = (Rule) cbStructure.getSelectedItem();
 			}
 
-			ArrayList<DataValue> aName = rule.getData();
+			List<DataValue> aName = rule.getData();
 			setNameText(aName);
 			setMeaningText(aName);
 			setPronounciationText(aName);
@@ -176,29 +169,6 @@ public class NameGenPanel extends JPanel
 
 			return null;
 		}
-	}
-
-	/**
-	 *  Initialization of the bulk of preferences.  sets the defaults
-	 *  if this is the first time you have used this version
-	 */
-	private void initPrefs()
-	{
-		boolean prefsSet = namePrefs.getBoolean("arePrefsSet", false);
-
-		if (!prefsSet)
-		{
-			namePrefs.putBoolean("arePrefsSet", true);
-		}
-
-		double version = namePrefs.getDouble("Version", 0);
-
-		if ((version < 0.5) || !prefsSet)
-		{
-			namePrefs.putDouble("Version", 0.5);
-		}
-
-		namePrefs.putDouble("SubVersion", 0);
 	}
 
 	private void setMeaningText(String meaning)
@@ -228,7 +198,6 @@ public class NameGenPanel extends JPanel
 	private void setNameText(String name)
 	{
 		this.name.setText(name);
-		LogUtilities.inst().logMessage(RandomNamePlugin.LOG_NAME, name);
 	}
 
 	private void setNameText(Iterable<DataValue> data)
@@ -292,7 +261,7 @@ public class NameGenPanel extends JPanel
 				this.lastRule = rule;
 			}
 
-			ArrayList<DataValue> aName = rule.getLastData();
+			List<DataValue> aName = rule.getLastData();
 
 			setNameText(aName);
 			setMeaningText(aName);
@@ -329,14 +298,14 @@ public class NameGenPanel extends JPanel
 
 	//GEN-LAST:event_cbCategoryActionPerformed
 
-	private void cbSexActionPerformed(ActionEvent evt)
-	{ //GEN-FIRST:event_cbSexActionPerformed
+	private void cbGenderActionPerformed(ActionEvent evt)
+	{ //GEN-FIRST:event_cbGenderActionPerformed
 		loadCatalogDD();
 		loadStructureDD();
 		this.clearButtons();
 	}
 
-	//GEN-LAST:event_cbSexActionPerformed
+	//GEN-LAST:event_cbGenderActionPerformed
 
 	private void chkStructureActionPerformed(ActionEvent evt)
 	{ //GEN-FIRST:event_chkStructureActionPerformed
@@ -413,7 +382,7 @@ public class NameGenPanel extends JPanel
 		generateButton = new JButton();
 		jPanel9 = new JPanel();
 		jLabel5 = new JLabel();
-		cbSex = new JComboBox<>();
+		cbGender = new JComboBox<>();
 		jPanel7 = new JPanel();
 		jSeparator4 = new JSeparator();
 		jPanel12 = new JPanel();
@@ -483,9 +452,9 @@ public class NameGenPanel extends JPanel
 		jLabel5.setText(LanguageBundle.getString("in_rndNameSex")); //$NON-NLS-1$
 		jPanel9.add(jLabel5);
 
-		cbSex.addActionListener(this::cbSexActionPerformed);
+		cbGender.addActionListener(this::cbGenderActionPerformed);
 
-		jPanel9.add(cbSex);
+		jPanel9.add(cbGender);
 
 		jPanel14.add(jPanel9, BorderLayout.NORTH);
 
@@ -605,7 +574,7 @@ public class NameGenPanel extends JPanel
 		try
 		{
 			String catKey = (String) cbCategory.getSelectedItem();
-			String sexKey = (String) cbSex.getSelectedItem();
+			String genderKey = (String) cbGender.getSelectedItem();
 			RuleSet oldRS = (RuleSet) cbCatalog.getSelectedItem();
 			String catalogKey = "";
 
@@ -615,9 +584,9 @@ public class NameGenPanel extends JPanel
 			}
 
 			List<RuleSet> cats = categories.get(catKey);
-			List<RuleSet> sexes = categories.get("Sex: " + sexKey);
+			List<RuleSet> genders = categories.get("Sex: " + genderKey);
 			List<RuleSet> join = new ArrayList<>(cats);
-			join.retainAll(sexes);
+			join.retainAll(genders);
 			join.sort(new DataElementComperator());
 
 			Vector<RuleSet> catalogs = new Vector<>();
@@ -677,7 +646,7 @@ public class NameGenPanel extends JPanel
 	{
 		List<String> genders = getGenderCategoryNames();
 		Vector<String> selectable = new Vector<>();
-		String gender = (String) cbSex.getSelectedItem();
+		String gender = (String) cbGender.getSelectedItem();
 
 		//	Get the selected category name
 		String category = (String) cbCategory.getSelectedItem();
@@ -711,10 +680,10 @@ public class NameGenPanel extends JPanel
 		Collections.sort(selectable);
 
 		//	Create a new model for the combobox and set it
-		cbSex.setModel(new DefaultComboBoxModel<>(selectable));
+		cbGender.setModel(new DefaultComboBoxModel<>(selectable));
 		if (gender != null && selectable.contains(gender))
 		{
-			cbSex.setSelectedItem(gender);
+			cbGender.setSelectedItem(gender);
 		}
 	}
 
@@ -812,11 +781,10 @@ public class NameGenPanel extends JPanel
 		Element generator = nameSet.getRootElement();
 		java.util.List<?> rulesets = generator.getChildren("RULESET");
 		java.util.List<?> lists = generator.getChildren("LIST");
-		ListIterator<?> listIterator = lists.listIterator();
 
-		while (listIterator.hasNext())
+		for (final Object o : lists)
 		{
-			Element list = (Element) listIterator.next();
+			Element list = (Element) o;
 			loadList(list);
 		}
 
@@ -870,33 +838,31 @@ public class NameGenPanel extends JPanel
 			Element child = (Element) element;
 			String elementName = child.getName();
 
-			if (elementName.equals("GETLIST"))
+			switch (elementName)
 			{
-				String listId = child.getAttributeValue("idref");
-				dataRule.add(listId);
-			}
-			else if (elementName.equals("SPACE"))
-			{
-				SpaceRule sp = new SpaceRule();
-				allVars.addDataElement(sp);
-				dataRule.add(sp.getId());
-			}
-			else if (elementName.equals("HYPHEN"))
-			{
-				HyphenRule hy = new HyphenRule();
-				allVars.addDataElement(hy);
-				dataRule.add(hy.getId());
-			}
-			else if (elementName.equals("CR"))
-			{
-				CRRule cr = new CRRule();
-				allVars.addDataElement(cr);
-				dataRule.add(cr.getId());
-			}
-			else if (elementName.equals("GETRULE"))
-			{
-				String ruleId = child.getAttributeValue("idref");
-				dataRule.add(ruleId);
+				case "GETLIST" -> {
+					String listId = child.getAttributeValue("idref");
+					dataRule.add(listId);
+				}
+				case "SPACE" -> {
+					SpaceRule sp = new SpaceRule();
+					allVars.addDataElement(sp);
+					dataRule.add(sp.getId());
+				}
+				case "HYPHEN" -> {
+					HyphenRule hy = new HyphenRule();
+					allVars.addDataElement(hy);
+					dataRule.add(hy.getId());
+				}
+				case "CR" -> {
+					CRRule cr = new CRRule();
+					allVars.addDataElement(cr);
+					dataRule.add(cr.getId());
+				}
+				case "GETRULE" -> {
+					String ruleId = child.getAttributeValue("idref");
+					dataRule.add(ruleId);
+				}
 			}
 		}
 
@@ -975,7 +941,7 @@ public class NameGenPanel extends JPanel
 	 */
 	public String getGender()
 	{
-		return (String) cbSex.getSelectedItem();
+		return (String) cbGender.getSelectedItem();
 	}
 
 	/**
@@ -983,14 +949,14 @@ public class NameGenPanel extends JPanel
 	 */
 	public void setGender(String gender)
 	{
-		if (gender != null && cbSex != null)
+		if (gender != null && cbGender != null)
 		{
-			cbSex.setSelectedItem(gender);
+			cbGender.setSelectedItem(gender);
 		}
 	}
 
 	/**
-	 * The Class <code>GeneratorDtdResolver</code> is an EntityResolver implementation 
+	 * The Class {@code GeneratorDtdResolver} is an EntityResolver implementation
 	 * for use with a SAX parser. It forces the generator.dtd to be read from a 
 	 * known location.
 	 */

@@ -17,9 +17,12 @@
  */
 package pcgen.io.exporttoken;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.enumeration.ObjectKey;
 import pcgen.core.Ability;
@@ -32,27 +35,19 @@ import pcgen.util.TestHelper;
 import pcgen.util.enumeration.Visibility;
 import plugin.lsttokens.testsupport.BuildUtilities;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>AbilityListTokenTest</code> tests the functioning of the ABILITYLIST 
+ * {@code AbilityListTokenTest} tests the functioning of the ABILITYLIST
  * token processing code. 
  */
 public class AbilityListTokenTest extends AbstractCharacterTestCase
 {
 
-	/**
-	 * Quick test suite creation - adds all methods beginning with "test"
-	 * @return The Test suite
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(AbilityListTokenTest.class);
-	}
-
-	/*
-	 * @see TestCase#setUp()
-	 */
+	@BeforeEach
     @Override
-	protected void setUp() throws Exception
+	public void setUp() throws Exception
 	{
 		super.setUp();
 		// Make some ability categories and add them to the game mode
@@ -83,46 +78,55 @@ public class AbilityListTokenTest extends AbstractCharacterTestCase
 	/**
 	 * Test the output for positive numbers with fractions.
 	 */
+	@Test
 	public void testTypes()
 	{
 		AbilityListToken tok = new AbilityListToken();
-		ExportHandler eh = new ExportHandler(null);
+		ExportHandler eh = ExportHandler.createExportHandler(null);
 		PlayerCharacter character = getCharacter();
 
-		is(tok.getToken("ABILITYLIST.FEAT", character, eh), 
-				strEq("Perform (Dance), Perform (Oratory), Silent Step"), "ABILITYLIST.FEAT");
+		assertEquals(
+			"ABILITYLIST.FEAT",
+			tok.getToken("ABILITYLIST.FEAT", character, eh), "Perform (Dance), Perform (Oratory), Silent Step"
+		);
 
-		is(tok.getToken("ABILITYLIST.FEAT.TYPE=Fighter", character, eh),
-				strEq("Perform (Dance), Perform (Oratory)"), "ABILITYLIST.FEAT.TYPE=Fighter");
+		assertEquals(
+			"ABILITYLIST.FEAT.TYPE=Fighter",
+			tok.getToken("ABILITYLIST.FEAT.TYPE=Fighter", character, eh), "Perform (Dance), Perform (Oratory)"
+		);
 
-		is(tok.getToken("ABILITYLIST.FEAT.!TYPE=Fighter", character, eh),
-				strEq("Silent Step"), "ABILITYLIST.FEAT.!TYPE=Fighter");
+		assertEquals(
+			"ABILITYLIST.FEAT.!TYPE=Fighter",
+			tok.getToken("ABILITYLIST.FEAT.!TYPE=Fighter", character, eh), "Silent Step"
+		);
 	}
 
 	/**
 	 * Test the output for negative numbers with fractions.
 	 */
+	@Test
 	public void testCategory()
 	{
 		AbilityListToken tok = new AbilityListToken();
-		ExportHandler eh = new ExportHandler(null);
+		ExportHandler eh = ExportHandler.createExportHandler(null);
 		PlayerCharacter character = getCharacter();
 
-		is(tok.getToken("ABILITYLIST.BARDIC", character, eh),
-			strEq("Perform (Dance)"),
-			"ABILITYLIST.BARDIC");
+		assertEquals(
+			"ABILITYLIST.BARDIC",
+			tok.getToken("ABILITYLIST.BARDIC", character, eh), "Perform (Dance)"
+		);
 	}
 
 	/**
 	 * Test the JEP count function on abilities.  
 	 */
+	@Test
 	public void testCount()
 	{
-//		verbose = true;
 		PlayerCharacter character = getCharacter();
 
 		AbilityCategory featCategory = 
-			SettingsHandler.getGame().getAbilityCategory("Feat");
+			SettingsHandler.getGameAsProperty().get().getAbilityCategory("Feat");
 
 		Ability ab5 = TestHelper.makeAbility("Silent Step (Greater)",
 			BuildUtilities.getFeatCat(), "General");
@@ -136,31 +140,38 @@ public class AbilityListTokenTest extends AbstractCharacterTestCase
         addAbility(featCategory, ab6);
 
 
-		is(character.getVariableValue("count(\"ABILITIES\",\"CATEGORY=FEAT\",\"VISIBILITY=DEFAULT\")", ""),
-			eq(4.0, 0.1), "count(\"ABILITIES\",\"CATEGORY=FEAT\",\"VISIBILITY=DEFAULT\")");
+        assertThat(
+		(double) character.getVariableValue("count(\"ABILITIES\",\"CATEGORY=FEAT\",\"VISIBILITY=DEFAULT\")", ""),
+            closeTo(4.0, 0.1));
 
-		is(character.getVariableValue(
-			"count(\"ABILITIES\",\"CATEGORY=FEAT\",\"VISIBILITY=DEFAULT[or]VISIBILITY=OUTPUT_ONLY\")", ""),
-			eq(5.0, 0.1), "count(\"ABILITIES\",\"CATEGORY=FEAT\",\"VISIBILITY=DEFAULT[or]VISIBILITY=OUTPUT_ONLY\")");
+		assertThat(
+				(double) character.getVariableValue("count(\"ABILITIES\",\"CATEGORY=FEAT\","
+						+ "\"VISIBILITY=DEFAULT[or]VISIBILITY=OUTPUT_ONLY\")", ""),
+				closeTo(5.0, 0.1));
 
-		is(character.getVariableValue(
-			"count(\"ABILITIES\",\"CATEGORY=FEAT[and]TYPE=Fighter\",\"VISIBILITY=DEFAULT[or]VISIBILITY=OUTPUT_ONLY\")",
-			""), eq(2.0, 0.1),
-			"count(\"ABILITIES\",\"CATEGORY=FEAT[and]TYPE=Fighter\",\"VISIBILITY=DEFAULT[or]VISIBILITY=OUTPUT_ONLY\")");
+		assertThat(
+				(double) character.getVariableValue("count(\"ABILITIES\",\"CATEGORY=FEAT[and]TYPE=Fighter\",\"VISIBILITY=DEFAULT[or]VISIBILITY=OUTPUT_ONLY\")", ""),
+				closeTo(2.0, 0.1));
 
-		is(character.getVariableValue("count(\"ABILITIES\",\"CATEGORY=BARDIC[and]TYPE=Bardic.General\")", ""),
-			eq(1.0, 0.1), "count(\"ABILITIES\",\"CATEGORY=BARDIC[and]TYPE=Bardic.General\")");
+		assertThat(
+				(double) character.getVariableValue("count(\"ABILITIES\",\"CATEGORY=BARDIC[and]TYPE=Bardic.General\")", ""),
+				closeTo(1.0, 0.1));
 
-		is(character.getVariableValue("count(\"ABILITIES\",\"NATURE=AUTOMATIC\")", ""), eq(0.0, 0.1),
-			"count(\"ABILITIES\",\"NATURE=AUTOMATIC\")");
+		assertThat(
+				(double) character.getVariableValue("count(\"ABILITIES\",\"NATURE=AUTOMATIC\")", ""),
+				closeTo(0.0, 0.1));
 
-		is(character.getVariableValue("count(\"ABILITIES\",\"NATURE=VIRTUAL\")", ""), eq(0.0, 0.1),
-			"count(\"ABILITIES\",\"NATURE=VIRTUAL\")");
+		assertThat(
+				(double) character.getVariableValue("count(\"ABILITIES\",\"NATURE=VIRTUAL\")", ""),
+				closeTo(0.0, 0.1));
 
-		is(character.getVariableValue("count(\"ABILITIES\",\"NATURE=NORMAL\")", ""), eq(6.0, 0.1),
-			"count(\"ABILITIES\",\"NATURE=NORMAL\")");
+		assertThat(
+				(double) character.getVariableValue("count(\"ABILITIES\",\"NATURE=NORMAL\")", ""),
+				closeTo(6.0, 0.1));
 
-		is(character.getVariableValue("count(\"ABILITIES\")", ""), eq(6.0, 0.1), "count(\"ABILITIES\")");
+		assertThat(
+				(double) character.getVariableValue("count(\"ABILITIES\")", ""),
+				closeTo(6.0, 0.1));
 	}
 
 	/**
@@ -168,6 +179,7 @@ public class AbilityListTokenTest extends AbstractCharacterTestCase
 	 * ensure it copes with JEP functions with multiple comma 
 	 * separated parameters. 
 	 */
+	@Test
 	public void testForNodeSplit()
 	{
 		String testStr =
@@ -185,6 +197,7 @@ public class AbilityListTokenTest extends AbstractCharacterTestCase
 		assertEquals("Complex split combined token 5", "0|", result.get(5));
 	}
 
+	@Test
 	public void testForNodeSplitNonJEP()
 	{
 		String testStr =

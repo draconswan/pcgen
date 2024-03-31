@@ -19,8 +19,7 @@ package pcgen.cdom.base;
 
 import java.util.Collection;
 import java.util.Collections;
-
-import org.jetbrains.annotations.NotNull;
+import java.util.Objects;
 
 import pcgen.cdom.enumeration.GroupingState;
 import pcgen.cdom.reference.CDOMSingleRef;
@@ -28,6 +27,8 @@ import pcgen.core.PlayerCharacter;
 import pcgen.core.chooser.CDOMChoiceManager;
 import pcgen.core.chooser.ChoiceManagerList;
 import pcgen.rules.context.LoadContext;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This is a transitional class from PCGen 5.15+ to the final CDOM core. It is
@@ -85,18 +86,9 @@ public class CategorizedChooseInformation<T extends Categorized<T>> implements C
 	public CategorizedChooseInformation(String name, CDOMSingleRef<? extends Category<T>> cat,
 		PrimitiveChoiceSet<T> choice)
 	{
-		if (name == null)
-		{
-			throw new IllegalArgumentException("Name cannot be null");
-		}
-		if (cat == null)
-		{
-			throw new IllegalArgumentException("Category cannot be null");
-		}
-		if (choice == null)
-		{
-			throw new IllegalArgumentException("PrimitiveChoiceSet cannot be null");
-		}
+		Objects.requireNonNull(name, "Name cannot be null");
+		Objects.requireNonNull(cat, "Category cannot be null");
+		Objects.requireNonNull(choice, "PrimitiveChoiceSet cannot be null");
 		setName = name;
 		category = cat;
 		pcs = choice;
@@ -158,12 +150,11 @@ public class CategorizedChooseInformation<T extends Categorized<T>> implements C
 	@Override
 	public T decodeChoice(LoadContext context, String persistentFormat)
 	{
-		String choiceStr = persistentFormat;
 		if (choiceActor instanceof CategorizedChooser)
 		{
-			return ((CategorizedChooser<T>) choiceActor).decodeChoice(context, choiceStr, category.get());
+			return ((CategorizedChooser<T>) choiceActor).decodeChoice(context, persistentFormat, category.get());
 		}
-		return choiceActor.decodeChoice(context, choiceStr);
+		return choiceActor.decodeChoice(context, persistentFormat);
 	}
 
 	@Override
@@ -172,18 +163,11 @@ public class CategorizedChooseInformation<T extends Categorized<T>> implements C
 		return choiceActor;
 	}
 
-	/**
-	 * Returns true if the given Object is a TransitionChoice and has identical
-	 * underlying choices and choiceCount
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj)
 	{
-		if (obj instanceof CategorizedChooseInformation)
+		if (obj instanceof CategorizedChooseInformation<?> other)
 		{
-			CategorizedChooseInformation<?> other = (CategorizedChooseInformation<?>) obj;
 			if (title == null)
 			{
 				if (other.title != null)
@@ -200,11 +184,6 @@ public class CategorizedChooseInformation<T extends Categorized<T>> implements C
 		return false;
 	}
 
-	/**
-	 * Returns a consistent-with-equals hashCode for this TransitionChoice.
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode()
 	{

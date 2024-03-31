@@ -19,8 +19,6 @@ package plugin.lsttokens.editcontext.pcclass;
 
 import java.net.URISyntaxException;
 
-import org.junit.Test;
-
 import pcgen.core.PCClass;
 import pcgen.persistence.PersistenceLayerException;
 import pcgen.rules.persistence.CDOMLoader;
@@ -33,6 +31,9 @@ import plugin.lsttokens.testsupport.TokenRegistration;
 import plugin.pretokens.parser.PreRaceParser;
 import plugin.pretokens.writer.PreRaceWriter;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public class ProhibitSpellIntegrationTest extends
 		AbstractIntegrationTestCase<PCClass>
 {
@@ -44,6 +45,7 @@ public class ProhibitSpellIntegrationTest extends
 	PreRaceWriter preracewriter = new PreRaceWriter();
 
 	@Override
+	@BeforeEach
 	public void setUp() throws PersistenceLayerException, URISyntaxException
 	{
 		super.setUp();

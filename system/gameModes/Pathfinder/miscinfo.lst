@@ -7,19 +7,11 @@
 LEVELMSG:Congratulations, you can advance with that much experience!
 #
 #
-ALIGNMENTNAME:Alignment
-HPNAME:Hit Points
-HPABBREV:HP
-ALTHPNAME:Wound
-ALTHPABBREV:WP
 
 # AC tags can be used to display AC info by using appropriate name and abbrev.
-# ACNAME: and ACABBREV: are required for proper usage.
 ACNAME:Armor Class
-ACABBREV:AC
 
 # Whether to allow AutoResizing of Equipment for nonmedium characters in this gamemode
-ALLOWAUTORESIZE:Y
 
 # Stacking bonuses
 BONUSSTACKS:Defense.Dodge.Circumstance.Racial.NotRanged.NotFlatFooted
@@ -27,7 +19,6 @@ BONUSSTACKS:Defense.Dodge.Circumstance.Racial.NotRanged.NotFlatFooted
 #
 #misc. currency specific items
 #
-CURRENCYUNIT:Gold
 CURRENCYUNITABBREV:gp
 
 #
@@ -38,20 +29,10 @@ DEFAULTUNITSET:Imperial
 
 # The following determine whether some Class-related
 # variables are displayed on the Classes tab.
-# SHOWCLASSDEFENSE: determines whether BONUS:COMBAT|AC|x|TYPE=ClassDefense
 #  value is displayed.
-# DISPLAYVARIABLExTEXT: determines the Label displayed for the variable
-# DISPLAYVARIABLExNAME: determines the variable displayed.
-#  This must match the DEFINE: variable in order to be displayed
-# Up to 3 variables can be displayed in this manner
+#
+#
 
-SHOWCLASSDEFENSE:No
-#DISPLAYVARIABLE1TEXT:
-#DISPLAYVARIABLE1NAME:
-#DISPLAYVARIABLE2TEXT:
-#DISPLAYVARIABLE2NAME:
-#DISPLAYVARIABLE3TEXT:
-#DISPLAYVARIABLE3NAME:
 
 #
 # Whether or not the game mode displays these tabs
@@ -75,7 +56,6 @@ TAB:TEMPMOD		NAME:in_InfoTempMod	CONTEXT:tabpages\tabtemporarybonuses.html
 # use & for mnemonic, && for & (MENUENTRY only)
 #
 MENUENTRY:Pathfinder RPG
-MENUTOOLTIP:Use Pathfinder RPG character creation settings
 DISPLAYORDER:1
 ALLOWEDMODES:Pathfinder|Pathfinder_RPG
 GAMEMODEKEY:Pathfinder_RPG
@@ -142,8 +122,6 @@ BABMAXATT:4
 BABATTCYC:5
 BABMINVAL:1
 # Epic stuff
-#BABMAXLVL:20
-#CHECKSMAXLVL:20
 
 #Class Types
 CLASSTYPE:PC		CRFORMULA:CL	ISMONSTER:NO	XPPENALTY:NO	CRMOD:-1	CRMODPRIORITY:1
@@ -154,7 +132,7 @@ CLASSTYPE:Companion	CRFORMULA:NONE	ISMONSTER:YES	XPPENALTY:NO
 #AC Types
 ACTYPE:Total				ADD:TOTAL		REMOVE:TouchMisc|CMD
 # Since TouchMisc should only add to the Touch, and not the total AC I'm deviating from the standard and using Remove in the Total.
-ACTYPE:Flatfooted				ADD:TOTAL		REMOVE:TouchMisc|CMD	REMOVE:Ability|PRESTAT:1,DEX=10|!PREABILITY:1,CATEGORY=Special Ability,Retain Dex To AC ~ Flat-footed		REMOVE:Dodge|!PREABILITY:1,CATEGORY=Special Ability,Retain Dex To AC ~ Flat-footed
+ACTYPE:Flatfooted				ADD:TOTAL		REMOVE:TouchMisc	REMOVE:CMD|!PREABILITY:1,CATEGORY=Special Ability,Retain Dex To AC ~ Flat-footed	REMOVE:Ability|PRESTAT:1,DEX=10|!PREABILITY:1,CATEGORY=Special Ability,Retain Dex To AC ~ Flat-footed		REMOVE:Dodge|!PREABILITY:1,CATEGORY=Special Ability,Retain Dex To AC ~ Flat-footed
 ACTYPE:Touch				ADD:TOTAL		REMOVE:Armor|ArmorEnhancement|Shield|ShieldEnhancement|NaturalArmor|NaturalArmorEnhancement|CMD	ADD:Shield|ShieldEnhancement|PREVARGTEQ:ShieldAddsToTouchAC,1
 ACTYPE:TouchMisc				ADD:TouchMisc
 ACTYPE:Base					ADD:Base
@@ -217,9 +195,9 @@ WEAPONNONPROFPENALTY:-4
 # Number of hands required to wield weapon categories
 #											Object Size difference
 #													Damage multiplier: hands = multiplier
-WIELDCATEGORY:Light				HANDS:1		FINESSABLE:Yes	SIZEDIFF:-1	DAMAGEMULT:1=1,2=1
-WIELDCATEGORY:OneHanded				HANDS:1					SIZEDIFF:0	DAMAGEMULT:1=1,2=1.5
-WIELDCATEGORY:TwoHanded				HANDS:2					SIZEDIFF:1	DAMAGEMULT:2=1.5
+WIELDCATEGORY:Light				HANDS:1		FINESSABLE:Yes	SIZEDIFF:-1
+WIELDCATEGORY:OneHanded				HANDS:1					SIZEDIFF:0
+WIELDCATEGORY:TwoHanded				HANDS:2					SIZEDIFF:1
 WIELDCATEGORY:TooSmall				HANDS:999
 WIELDCATEGORY:TooLarge				HANDS:999
 WIELDCATEGORY:Unusable				HANDS:999
@@ -230,6 +208,8 @@ WIELDCATEGORY:OneHandOnlyTooLarge		HANDS:999
 WIELDCATEGORY:TwoHandsOnly			HANDS:2
 WIELDCATEGORY:TwoHandsOnlyTooSmall		HANDS:999
 WIELDCATEGORY:TwoHandsOnlyTooLarge		HANDS:999
+WIELDCATEGORY:OneHandedNoSize			HANDS:1
+WIELDCATEGORY:TwoHandedNoSize			HANDS:2
 
 # Light weapon vs PC size changes
 WIELDCATEGORY:Light		PREVARLTEQ:EQUIP.SIZE.INT,PC.SIZE.INT-1	SWITCH:TooSmall
@@ -257,18 +237,15 @@ WIELDCATEGORY:TwoHandsOnly	PREVARGTEQ:EQUIP.SIZE.INT,PC.SIZE.INT+1	SWITCH:TwoHan
 WIELDCATEGORY:OneHandOnly	PREVARLTEQ:EQUIP.SIZE.INT,PC.SIZE.INT-1	SWITCH:OneHandOnlyTooSmall
 WIELDCATEGORY:OneHandOnly	PREVARGTEQ:EQUIP.SIZE.INT,PC.SIZE.INT+1	SWITCH:OneHandOnlyTooLarge
 
-
-
 #
 # Wield Category Steps
 #  This is used when figuring bonuses that allow you to wield Larger or Smaller size weapons
-WCSTEPSFORMULA:EQUIP.SIZE.INT-PC.SIZE.INT
 
-WIELDCATEGORY:TooSmall		UP:Light|OneHanded|TwoHanded							ZERO:Light
+WIELDCATEGORY:TooSmall		UP:Light|OneHanded|TwoHanded							
 WIELDCATEGORY:Light		UP:OneHanded|TwoHanded
 WIELDCATEGORY:OneHanded		UP:TwoHanded			DOWN:Light
 WIELDCATEGORY:TwoHanded							DOWN:OneHanded|Light
-WIELDCATEGORY:TooLarge							DOWN:TwoHanded|OneHanded|Light	ZERO:TwoHanded
+WIELDCATEGORY:TooLarge							DOWN:TwoHanded|OneHanded|Light	
 
 WIELDCATEGORY:TwoHandsOnly	UP:TwoHandsOnlyTooLarge	DOWN:TwoHandsOnlyTooSmall
 WIELDCATEGORY:OneHandOnlyOnly	UP:OneHandOnlyTooLarge	DOWN:OneHandOnlyTooSmall

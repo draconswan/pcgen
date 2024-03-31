@@ -44,18 +44,12 @@ public class FollowerToken extends Token
 	/** Token Name */
 	public static final String TOKENNAME = "FOLLOWER";
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getTokenName()
-	 */
 	@Override
 	public String getTokenName()
 	{
 		return TOKENNAME;
 	}
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getToken(java.lang.String, pcgen.core.PlayerCharacter, pcgen.io.ExportHandler)
-	 */
 	@Override
 	public String getToken(String tokenSource, PlayerCharacter pc, ExportHandler eh)
 	{
@@ -118,8 +112,7 @@ public class FollowerToken extends Token
 			if (follower.getFileName().equals(eachDisplay.getFileName())
 				&& follower.getName().equals(eachDisplay.getName()))
 			{
-				PlayerCharacter newPC = eachPC;
-				eh.replaceToken(token, bw, newPC);
+                eh.replaceToken(token, bw, eachPC);
 			}
 		}
 		try

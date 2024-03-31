@@ -17,15 +17,17 @@
  */
 package plugin.exporttokens;
 
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Collections;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import pcgen.AbstractCharacterTestCase;
 import pcgen.cdom.content.ACControl;
 import pcgen.cdom.enumeration.IntegerKey;
 import pcgen.cdom.enumeration.ListKey;
 import pcgen.cdom.enumeration.StringKey;
+import pcgen.cdom.enumeration.Type;
 import pcgen.core.Equipment;
 import pcgen.core.EquipmentModifier;
 import pcgen.core.GameMode;
@@ -38,8 +40,12 @@ import pcgen.core.character.EquipSet;
 import pcgen.rules.context.LoadContext;
 import pcgen.util.TestHelper;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>ACTokenTest</code> tests the function of the AC token and 
+ * {@code ACTokenTest} tests the function of the AC token and
  * thus the calculations of armor class.  
  */
 public class ACTokenTest extends AbstractCharacterTestCase
@@ -49,18 +55,7 @@ public class ACTokenTest extends AbstractCharacterTestCase
 	private EquipmentModifier plus1;
 	private Equipment chainShirt;
 
-	/**
-	 * Quick test suite creation - adds all methods beginning with "test"
-	 * @return The Test suite
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(ACTokenTest.class);
-	}
-
-	/*
-	 * @see TestCase#setUp()
-	 */
+	@BeforeEach
     @Override
 	protected void setUp() throws Exception
 	{
@@ -107,7 +102,7 @@ public class ACTokenTest extends AbstractCharacterTestCase
 		masterwork.setName("Masterwork");
 		masterwork.put(StringKey.KEY_NAME, "MWORKA");
 		TestHelper.addType(masterwork, "Armor.Shield");
-		masterwork.addToListFor(ListKey.ITEM_TYPES, "Masterwork");
+		masterwork.addToListFor(ListKey.ITEM_TYPES, Type.MASTERWORK);
 		aBonus = Bonus.newBonus(context, "EQMARMOR|ACCHECK|1|TYPE=Enhancement");
 		
 		if (aBonus != null)
@@ -121,9 +116,9 @@ public class ACTokenTest extends AbstractCharacterTestCase
 		plus1.put(StringKey.KEY_NAME, "PLUS1A");
 		TestHelper.addType(plus1, "Armor.Shield");
 		plus1.put(IntegerKey.PLUS, 1);
-		plus1.addToListFor(ListKey.ITEM_TYPES, "Enhancement");
-		plus1.addToListFor(ListKey.ITEM_TYPES, "Magic");
-		plus1.addToListFor(ListKey.ITEM_TYPES, "Plus1");
+		plus1.addToListFor(ListKey.ITEM_TYPES, Type.getConstant("Enhancement"));
+		plus1.addToListFor(ListKey.ITEM_TYPES, Type.MAGIC);
+		plus1.addToListFor(ListKey.ITEM_TYPES, Type.getConstant("Plus1"));
 		aBonus = Bonus.newBonus(context, "COMBAT|AC|1|TYPE=Armor.REPLACE");
 		
 		if (aBonus != null)
@@ -133,7 +128,7 @@ public class ACTokenTest extends AbstractCharacterTestCase
 		Globals.getContext().getReferenceContext().importObject(plus1);
 
 		// Load AC definitions - but only once
-		final GameMode gamemode = SettingsHandler.getGame();
+		final GameMode gamemode = SettingsHandler.getGameAsProperty().get();
 		if (!gamemode.isValidACType("Total"))
 		{
 			gamemode.addACAdds("Total", Collections.singletonList(new ACControl("TOTAL")));
@@ -143,9 +138,7 @@ public class ACTokenTest extends AbstractCharacterTestCase
 
 	}
 
-	/*
-	 * @see TestCase#tearDown()
-	 */
+	@AfterEach
     @Override
 	protected void tearDown() throws Exception
 	{
@@ -160,21 +153,23 @@ public class ACTokenTest extends AbstractCharacterTestCase
 	/**
 	 * Test the character's AC calcs with no armor.
 	 */
+	@Test
 	public void testBase()
 	{
-		assertEquals("Total AC no armor", "12", new ACToken().getToken(
-			"AC.Total", getCharacter(), null));
+		assertEquals("12", new ACToken().getToken(
+			"AC.Total", getCharacter(), null), "Total AC no armor");
 
-		assertEquals("Armor AC no armor", "0", new ACToken().getToken(
-			"AC.Armor", getCharacter(), null));
+		assertEquals("0", new ACToken().getToken(
+			"AC.Armor", getCharacter(), null), "Armor AC no armor");
 
-		assertEquals("Ability AC no armor", "2", new ACToken().getToken(
-			"AC.Ability", getCharacter(), null));
+		assertEquals("2", new ACToken().getToken(
+			"AC.Ability", getCharacter(), null), "Ability AC no armor");
 	}
 
 	/**
 	 * Test the character's AC calcs with armor with no equip mods applied.
 	 */
+	@Test
 	public void testNonMagic()
 	{
 		PlayerCharacter character = getCharacter();
@@ -185,19 +180,20 @@ public class ACTokenTest extends AbstractCharacterTestCase
 		character.setCalcEquipmentList();
 		character.calcActiveBonuses();
 
-		assertEquals("Ability AC normal armor", "2", new ACToken().getToken(
-			"AC.Ability", getCharacter(), null));
+		assertEquals("2", new ACToken().getToken(
+			"AC.Ability", getCharacter(), null), "Ability AC normal armor");
 
-		assertEquals("Armor AC with normal armor", "4", new ACToken().getToken(
-			"AC.Armor", getCharacter(), null));
+		assertEquals("4", new ACToken().getToken(
+			"AC.Armor", getCharacter(), null), "Armor AC with normal armor");
 
-		assertEquals("Total AC with normal armor", "16", new ACToken()
-			.getToken("AC.Total", getCharacter(), null));
+		assertEquals("16", new ACToken()
+			.getToken("AC.Total", getCharacter(), null), "Total AC with normal armor");
 	}
 
 	/**
 	 * Test the character's AC calcs with armor with equipmods applied, including magic.
 	 */
+	@Test
 	public void testMagic()
 	{
 		PlayerCharacter character = getCharacter();
@@ -209,14 +205,14 @@ public class ACTokenTest extends AbstractCharacterTestCase
 		character.setCalcEquipmentList();
 		character.calcActiveBonuses();
 
-		assertEquals("Ability AC magic armor", "2", new ACToken().getToken(
-			"AC.Ability", getCharacter(), null));
+		assertEquals("2", new ACToken().getToken(
+			"AC.Ability", getCharacter(), null), "Ability AC magic armor");
 
-		assertEquals("Armor AC with magic armor", "5", new ACToken().getToken(
-			"AC.Armor", getCharacter(), null));
+		assertEquals("5", new ACToken().getToken(
+			"AC.Armor", getCharacter(), null), "Armor AC with magic armor");
 
-		assertEquals("Total AC with magic armor", "17", new ACToken().getToken(
-			"AC.Total", getCharacter(), null));
+		assertEquals("17", new ACToken().getToken(
+			"AC.Total", getCharacter(), null), "Total AC with magic armor");
 	}
 
 }

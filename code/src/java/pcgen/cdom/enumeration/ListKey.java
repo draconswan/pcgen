@@ -34,8 +34,6 @@ import pcgen.cdom.content.ChangeProf;
 import pcgen.cdom.content.DamageReduction;
 import pcgen.cdom.content.KnownSpellIdentifier;
 import pcgen.cdom.content.LevelCommandFactory;
-import pcgen.cdom.content.RemoteModifier;
-import pcgen.cdom.content.VarModifier;
 import pcgen.cdom.helper.ArmorProfProvider;
 import pcgen.cdom.helper.Capacity;
 import pcgen.cdom.helper.EqModRef;
@@ -59,12 +57,13 @@ import pcgen.core.EquipmentModifier;
 import pcgen.core.FollowerOption;
 import pcgen.core.Kit;
 import pcgen.core.Language;
-import pcgen.core.Movement;
+import pcgen.core.MoveClone;
 import pcgen.core.PCClass;
 import pcgen.core.PCStat;
 import pcgen.core.PCTemplate;
 import pcgen.core.QualifiedObject;
 import pcgen.core.Race;
+import pcgen.core.SimpleMovement;
 import pcgen.core.Skill;
 import pcgen.core.SpecialAbility;
 import pcgen.core.SpecialProperty;
@@ -175,7 +174,7 @@ public final class ListKey<T>
 	public static final ListKey<Type> PROHIBITED_ITEM = new ListKey<>();
 	public static final ListKey<Type> ITEM = new ListKey<>();
 	public static final ListKey<Integer> HITDICE_ADVANCEMENT = new ListKey<>();
-	public static final ListKey<String> ITEM_TYPES = new ListKey<>();
+	public static final ListKey<Type> ITEM_TYPES = new ListKey<>();
 	public static final ListKey<CDOMSingleRef<EquipmentModifier>> REPLACED_KEYS = new ListKey<>();
 	public static final ListKey<SpecialProperty> SPECIAL_PROPERTIES = new ListKey<>();
 	public static final ListKey<ChangeArmorType> ARMORTYPE = new ListKey<>();
@@ -206,8 +205,9 @@ public final class ListKey<T>
 	public static final ListKey<StatLock> STAT_MINVALUE = new ListKey<>();
 	public static final ListKey<StatLock> STAT_MAXVALUE = new ListKey<>();
 	public static final ListKey<TransitionChoice<Kit>> KIT_CHOICE = new ListKey<>();
-	public static final ListKey<Movement> MOVEMENT = new ListKey<>();
-	public static final ListKey<Movement> BASE_MOVEMENT = new ListKey<>();
+	public static final ListKey<SimpleMovement> SIMPLEMOVEMENT = new ListKey<>();
+	public static final ListKey<MoveClone> MOVEMENTCLONE = new ListKey<>();
+	public static final ListKey<SimpleMovement> BASE_MOVEMENT = new ListKey<>();
 	public static final ListKey<FollowerOption> COMPANIONLIST = new ListKey<>();
 	public static final ListKey<FollowerLimit> FOLLOWERS = new ListKey<>();
 	public static final ListKey<Description> DESCRIPTION = new ListKey<>();
@@ -271,14 +271,12 @@ public final class ListKey<T>
 	public static final ListKey<String> SITUATION = new ListKey<>();
 	public static final ListKey<FactKey<?>> REMOVED_FACTKEY = new ListKey<>();
 	public static final ListKey<FactSetKey<?>> REMOVED_FACTSETKEY = new ListKey<>();
-	public static final ListKey<VarModifier<?>> MODIFY = new ListKey<>();
 	public static final ListKey<CampaignSourceEntry> FILE_VARIABLE = new ListKey<>();
 	public static final ListKey<CampaignSourceEntry> FILE_DATACTRL = new ListKey<>();
 	public static final ListKey<CampaignSourceEntry> FILE_SAVE = new ListKey<>();
 	public static final ListKey<CampaignSourceEntry> FILE_STAT = new ListKey<>();
 	public static final ListKey<CampaignSourceEntry> FILE_SIZE = new ListKey<>();
 	public static final ListKey<CampaignSourceEntry> FILE_ALIGNMENT = new ListKey<>();
-	public static final ListKey<RemoteModifier<?>> REMOTE_MODIFIER = new ListKey<>();
 	public static final ListKey<String> GROUP = new ListKey<>();
 	public static final ListKey<CampaignSourceEntry> FILE_GLOBALMOD = new ListKey<>();
 	public static final ListKey<CampaignSourceEntry> FILE_DYNAMIC = new ListKey<>();
@@ -331,27 +329,26 @@ public final class ListKey<T>
 	{
 		map = new CaseInsensitiveMap<>();
 		Field[] fields = ListKey.class.getDeclaredFields();
-		for (int i = 0; i < fields.length; i++)
-		{
-			int mod = fields[i].getModifiers();
+        for (Field field : fields)
+        {
+            int mod = field.getModifiers();
 
-			if (java.lang.reflect.Modifier.isStatic(mod) && java.lang.reflect.Modifier.isFinal(mod)
-				&& java.lang.reflect.Modifier.isPublic(mod))
-			{
-				try
-				{
-					Object obj = fields[i].get(null);
-					if (obj instanceof ListKey)
-					{
-						map.put(fields[i].getName(), (ListKey<?>) obj);
-					}
-				}
-				catch (IllegalArgumentException | IllegalAccessException e)
-				{
-					throw new UnreachableError(e);
-				}
-			}
-		}
+            if (java.lang.reflect.Modifier.isStatic(mod) && java.lang.reflect.Modifier.isFinal(mod)
+                    && java.lang.reflect.Modifier.isPublic(mod))
+            {
+                try
+                {
+                    Object obj = field.get(null);
+                    if (obj instanceof ListKey)
+                    {
+                        map.put(field.getName(), (ListKey<?>) obj);
+                    }
+                } catch (IllegalArgumentException | IllegalAccessException e)
+                {
+                    throw new UnreachableError(e);
+                }
+            }
+        }
 	}
 
 	@Override

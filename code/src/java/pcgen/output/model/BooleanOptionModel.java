@@ -17,9 +17,9 @@
  */
 package pcgen.output.model;
 
-import freemarker.template.TemplateBooleanModel;
-import freemarker.template.TemplateModelException;
 import pcgen.system.PCGenSettings;
+
+import freemarker.template.TemplateBooleanModel;
 
 /**
  * An BooleanOptionModel is designed to process an interpolation and convert
@@ -56,7 +56,7 @@ public class BooleanOptionModel implements TemplateBooleanModel
 	}
 
 	@Override
-	public boolean getAsBoolean() throws TemplateModelException
+	public boolean getAsBoolean()
 	{
 		return PCGenSettings.OPTIONS_CONTEXT.getBoolean(prefName, defaultValue);
 	}

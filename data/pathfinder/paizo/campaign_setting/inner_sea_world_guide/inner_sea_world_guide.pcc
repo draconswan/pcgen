@@ -2,12 +2,12 @@
 CAMPAIGN:Inner Sea World Guide
 GAMEMODE:Pathfinder|Pathfinder_PFS
 TYPE:Paizo Publishing.Pathfinder Campaign Setting
-RANK:2
 STATUS:BETA
 GENRE:Fantasy
 BOOKTYPE:Campaign Setting
 SETTING:Pathfinder|Golarion
-PRECAMPAIGN:2,INCLUDESBOOKTYPE=Core Rules,INCLUDES=Advanced Player's Guide
+PRECAMPAIGN:1,INCLUDESBOOKTYPE=Core Rules
+PRECAMPAIGN:1,INCLUDES=Advanced Player's Guide
 PUBNAMELONG:Paizo Inc.
 PUBNAMESHORT:Paizo
 PUBNAMEWEB:http://paizo.com/
@@ -15,6 +15,7 @@ SOURCELONG:Inner Sea World Guide
 SOURCESHORT:ISWG
 SOURCEWEB:http://paizo.com/store/games/roleplayingGames/p/pathfinderRPG/paizo/pathfinderChronicles/v5748btpy8ief
 SOURCEDATE:2011-03
+RANK:201103
 ISOGL:YES
 
 COVER:inner_sea_world_guide.jpg
@@ -55,7 +56,6 @@ COPYRIGHT:PCGen dataset conversion for "Pathfinder Campaign Setting: The Inner S
 # Do not remove the EXTRAFILE comment.
 #EXTRAFILE:OGL.txt
 
-
 # Data files
 ABILITY:iswg_abilities.lst
 ABILITY:iswg_abilities_class.lst
@@ -80,5 +80,9 @@ SPELL:iswg_spells.lst
 TEMPLATE:iswg_templates.lst
 ARMORPROF:iswg_profs_armor.lst
 WEAPONPROF:iswg_profs_weapon.lst
+
+# Races
+PCC:@\pathfinder\paizo\roleplaying_game\core_essentials\races\gillman\_race.pcc
+PCC:@\pathfinder\paizo\roleplaying_game\core_essentials\races\strix\_race.pcc
 
 # Web Update:  http://paizo.com/paizo/blog/v5748dyo5lbwn?Golarion-Day-Subdomains-for-Everyone - For Deities File. - AM (26/Dec/2013)

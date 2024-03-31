@@ -17,6 +17,8 @@
  */
 package pcgen.core;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
 import pcgen.AbstractCharacterTestCase;
@@ -35,8 +37,11 @@ import pcgen.rules.persistence.TokenUtilities;
 import pcgen.util.TestHelper;
 import plugin.lsttokens.testsupport.BuildUtilities;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * The Class <code>PlayerCharacterSpellTest</code> checks the function of spell related
+ * The Class {@code PlayerCharacterSpellTest} checks the function of spell related
  * code in PlayerCharacter and associated objects.
  *
  * <br/>
@@ -51,16 +56,11 @@ public class PlayerCharacterSpellTest extends AbstractCharacterTestCase
 	private Spell domainSpell;
 	private PCClass divineClass;
 
+	@BeforeEach
 	@Override
-	protected void setUp() throws Exception
+	public void setUp() throws Exception
 	{
 		super.setUp();
-		Globals.getContext().loadCampaignFacets();
-	}
-
-	@Override
-	protected void additionalSetUp() throws Exception
-	{
 		LoadContext context = Globals.getContext();
 		CampaignSourceEntry source = TestHelper.createSource(getClass());
 
@@ -79,7 +79,6 @@ public class PlayerCharacterSpellTest extends AbstractCharacterTestCase
 			source);
 		classLoader.parseClassLevelLine(context, divineClass, 1, source,
 			"CAST:5,4	BONUS:DOMAIN|NUMBER|2	BONUS:VAR|DomainLVL|CL");
-		context.getReferenceContext().importObject(divineClass);
 		
 		final String domainLine = "Sun	SPELLLEVEL:DOMAIN|Sun=1|KEY_domainSpell";
 		GenericLoader<Domain> domainLoader = new GenericLoader<>(Domain.class);
@@ -92,13 +91,15 @@ public class PlayerCharacterSpellTest extends AbstractCharacterTestCase
 				context.getListContext().addToMasterList("CLASSES", classSpell,
 					ref, classSpell);
 		edge.setAssociation(AssociationKey.SPELL_LEVEL, 1);
-		context.commit();
+
+		finishLoad();
 	}
 
 	/**
 	 * Test that domain spell lists are built and managed correctly.
 	 * @throws Exception If an error occurs.
 	 */
+	@Test
 	public void testDomainSpell() throws Exception
 	{
 		PlayerCharacter pc = getCharacter();
@@ -118,6 +119,7 @@ public class PlayerCharacterSpellTest extends AbstractCharacterTestCase
 	 * Test that class spell lists are built and managed correctly.
 	 * @throws Exception If an error occurs.
 	 */
+	@Test
 	public void testPcClassSpell() throws Exception
 	{
 		PlayerCharacter pc = getCharacter();
@@ -127,5 +129,11 @@ public class PlayerCharacterSpellTest extends AbstractCharacterTestCase
 		assertEquals("Incorrect number of spell lists in class list", 1, spellLists.size());
 		int level = SpellLevel.getFirstLevelForKey(classSpell, spellLists, pc);
 		assertEquals("Incorrect spell level in class list", 1, level);
+	}
+
+	@Override
+	protected void defaultSetupEnd()
+	{
+		//Nothing, we will trigger ourselves
 	}
 }

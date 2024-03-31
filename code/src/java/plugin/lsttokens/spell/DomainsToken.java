@@ -130,15 +130,15 @@ public class DomainsToken extends AbstractTokenWithSeparator<Spell> implements C
 
 			String nameList = tokString.substring(0, equalLoc);
 			String levelString = tokString.substring(equalLoc + 1);
-			Integer level;
+			int level;
 			try
 			{
-				level = Integer.valueOf(levelString);
-				if (level.intValue() < -1)
+				level = Integer.parseInt(levelString);
+				if (level < -1)
 				{
 					return new ParseResult.Fail(getTokenName() + " may not use a negative level: " + value);
 				}
-				else if (level.intValue() == -1)
+				else if (level == -1)
 				{
 					if (prereq != null)
 					{
@@ -295,7 +295,7 @@ public class DomainsToken extends AbstractTokenWithSeparator<Spell> implements C
 								"Incoming Allows Edge to " + spell.getKeyName() + " had no Spell Level defined");
 							return null;
 						}
-						if (level.intValue() < 0)
+						if (level < 0)
 						{
 							context.addWriteMessage("Incoming Allows Edge to " + spell.getKeyName()
 								+ " had invalid Level: " + level + ". Must be >= 0.");
@@ -314,7 +314,7 @@ public class DomainsToken extends AbstractTokenWithSeparator<Spell> implements C
 			}
 			else
 			{
-				return list.toArray(new String[list.size()]);
+				return list.toArray(new String[0]);
 			}
 		}
 		PrerequisiteWriter prereqWriter = new PrerequisiteWriter();
@@ -356,7 +356,7 @@ public class DomainsToken extends AbstractTokenWithSeparator<Spell> implements C
 			}
 			list.add(sb.toString());
 		}
-		return list.toArray(new String[list.size()]);
+		return list.toArray(new String[0]);
 	}
 
 	@Override

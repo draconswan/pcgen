@@ -51,7 +51,7 @@ public final class EquipmentChoice
 
 	private boolean allowDuplicates = false;
 	private boolean noSign = false;
-	private boolean bAdd = false;
+	private boolean bAdd;
 	private boolean skipZero = false;
 
 	private int minValue = 0;
@@ -61,7 +61,7 @@ public final class EquipmentChoice
 	/*
 	 * CONSIDER This is never read, which is probably a bug - thpr Dec 6, 2008
 	 */
-	private int pool = 0;
+	private int pool;
 	private String title = null;
 
 	private List<Object> availableList = new ArrayList<>();
@@ -102,24 +102,23 @@ public final class EquipmentChoice
 		if (getMinValue() < getMaxValue())
 		{
 			finalList = new ArrayList<>();
-			for (int i = 0; i < availableList.size(); i++)
-			{
-				final String choice = String.valueOf(availableList.get(i));
-				if (choice.indexOf('|') < 0)
-				{
-					for (int j = getMinValue(); j <= getMaxValue(); j += getIncValue())
-					{
-						if (!skipZero || j != 0)
-						{
-							finalList.add(choice + '|' + Delta.toString(j));
-						}
-					}
-				}
-				else
-				{
-					finalList.add(choice);
-				}
-			}
+            for (Object o : availableList)
+            {
+                final String choice = String.valueOf(o);
+                if (choice.indexOf('|') < 0)
+                {
+                    for (int j = getMinValue();j <= getMaxValue();j += getIncValue())
+                    {
+                        if (!skipZero || j != 0)
+                        {
+                            finalList.add(choice + '|' + Delta.toString(j));
+                        }
+                    }
+                } else
+                {
+                    finalList.add(choice);
+                }
+            }
 		}
 		else
 		{
@@ -556,10 +555,12 @@ public final class EquipmentChoice
 			if (kind.startsWith("TITLE="))
 			{
 				//Do nothing, handled above
+				Logging.log(Logging.DEBUG, "kind starts with TITLE= and we've already processed this.");
 			}
 			else if (kind.startsWith("COUNT="))
 			{
 				// Do nothing, handled above
+				Logging.log(Logging.DEBUG, "kind starts with COUNT= and we've already processed this.");
 			}
 			else
 			{
@@ -592,10 +593,6 @@ public final class EquipmentChoice
 				else if ("STAT".equals(kind))
 				{
 					this.addStats();
-				}
-				else if ("SKILL".equals(kind) || originalkind.equals("SKILL") && "ANY".equals("SKILL"))
-				{
-					this.addSkills();
 				}
 				else if ("SKILL".equals(kind))
 				{
@@ -689,27 +686,18 @@ public final class EquipmentChoice
 			currPos = 0;
 		}
 
-		/**
-		 * @see java.util.Iterator#hasNext()
-		 */
 		@Override
 		public boolean hasNext()
 		{
 			return currPos < choiceList.size();
 		}
 
-		/**
-		 * @see java.util.Iterator#next()
-		 */
 		@Override
 		public Object next()
 		{
 			return choiceList.get(currPos++);
 		}
 
-		/**
-		 * @see java.util.Iterator#remove()
-		 */
 		@Override
 		public void remove()
 		{

@@ -27,6 +27,10 @@ import pcgen.util.Delta;
 public final class UnarmedDamageDisplay
 {
 
+	private UnarmedDamageDisplay()
+	{
+	}
+
 	/**
 	 * Get the unarmed damage string for this PC as adjusted by the booleans
 	 * passed in.
@@ -48,7 +52,7 @@ public final class UnarmedDamageDisplay
 				pcClass.getUdamForLevel(display.getLevel(pcClass), pc, adjustForPCSize));
 		}
 
-		int sizeInt = adjustForPCSize ? display.sizeInt() : display.racialSizeInt();
+		int sizeInt = adjustForPCSize ? pc.sizeInt() : pc.racialSizeInt();
 		for (List<String> unarmedDamage : display.getUnarmedDamage())
 		{
 			String aDamage;

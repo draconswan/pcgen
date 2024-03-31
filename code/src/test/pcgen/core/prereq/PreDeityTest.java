@@ -17,47 +17,40 @@
  */
 package pcgen.core.prereq;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import pcgen.AbstractCharacterTestCase;
 import pcgen.base.format.StringManager;
 import pcgen.base.util.BasicIndirect;
 import pcgen.cdom.enumeration.FactSetKey;
 import pcgen.cdom.enumeration.ObjectKey;
 import pcgen.cdom.reference.CDOMDirectSingleRef;
+import pcgen.cdom.util.CControl;
 import pcgen.core.Deity;
 import pcgen.core.PlayerCharacter;
-import pcgen.output.channel.ChannelCompatibility;
+import pcgen.output.channel.ChannelUtilities;
+import pcgen.output.channel.compat.AlignmentCompat;
 import pcgen.persistence.PersistenceLayerException;
 import pcgen.persistence.lst.prereq.PreParserFactory;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
- * <code>PreDeityTest</code> tests that the PREDEITY tag is
+ * {@code PreDeityTest} tests that the PREDEITY tag is
  * working correctly.
  */
 public class PreDeityTest extends AbstractCharacterTestCase
 {
 	private Deity deity;
 
-	public static void main(final String[] args)
-	{
-		TestRunner.run(PreDeityTest.class);
-	}
-
-	/**
-	 * @return Test
-	 */
-	public static Test suite()
-	{
-		return new TestSuite(PreDeityTest.class);
-	}
-
 	/**
 	 * Test that the boolean version (Y/N) works.
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testBoolean() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();
@@ -75,8 +68,9 @@ public class PreDeityTest extends AbstractCharacterTestCase
 		assertTrue("Character has no deity selected", PrereqHandler.passes(
 			prereq, character, null));
 
-		ChannelCompatibility.setCurrentAlignment(character.getCharID(), ng);
-		character.setDeity(deity);
+		AlignmentCompat.setCurrentAlignment(character.getCharID(), ng);
+		ChannelUtilities.setControlledChannel(character.getCharID(),
+			CControl.DEITYINPUT, deity);
 
 		assertFalse("Character has deity selected", PrereqHandler.passes(
 			prereq, character, null));
@@ -93,6 +87,7 @@ public class PreDeityTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testFormat() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();
@@ -110,8 +105,9 @@ public class PreDeityTest extends AbstractCharacterTestCase
 		assertTrue("Character has no deity selected", PrereqHandler.passes(
 			prereq, character, null));
 
-		ChannelCompatibility.setCurrentAlignment(character.getCharID(), ng);
-		character.setDeity(deity);
+		AlignmentCompat.setCurrentAlignment(character.getCharID(), ng);
+		ChannelUtilities.setControlledChannel(character.getCharID(),
+			CControl.DEITYINPUT, deity);
 
 		assertFalse("Character has deity selected", PrereqHandler.passes(
 			prereq, character, null));
@@ -137,6 +133,7 @@ public class PreDeityTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testName() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();
@@ -149,8 +146,9 @@ public class PreDeityTest extends AbstractCharacterTestCase
 		assertFalse("Character has no deity selected", PrereqHandler.passes(
 			prereq, character, null));
 
-		ChannelCompatibility.setCurrentAlignment(character.getCharID(), ng);
-		character.setDeity(deity);
+		AlignmentCompat.setCurrentAlignment(character.getCharID(), ng);
+		ChannelUtilities.setControlledChannel(character.getCharID(),
+			CControl.DEITYINPUT, deity);
 
 		assertTrue("Character has Test Deity selected", PrereqHandler.passes(
 			prereq, character, null));
@@ -166,6 +164,7 @@ public class PreDeityTest extends AbstractCharacterTestCase
 	 *
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
+	@Test
 	public void testNewFormat() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();
@@ -183,8 +182,9 @@ public class PreDeityTest extends AbstractCharacterTestCase
 		assertTrue("Character has no deity selected", PrereqHandler.passes(
 			prereq, character, null));
 
-		ChannelCompatibility.setCurrentAlignment(character.getCharID(), ng);
-		character.setDeity(deity);
+		AlignmentCompat.setCurrentAlignment(character.getCharID(), ng);
+		ChannelUtilities.setControlledChannel(character.getCharID(),
+			CControl.DEITYINPUT, deity);
 
 		assertFalse("Character has deity selected", PrereqHandler.passes(
 			prereq, character, null));
@@ -209,6 +209,7 @@ public class PreDeityTest extends AbstractCharacterTestCase
 	 * Test the pantheon fucntioanlity of the PREDEITY tag. 
 	 * @throws PersistenceLayerException 
 	 */
+	@Test
 	public void testPantheon() throws PersistenceLayerException
 	{
 		final PlayerCharacter character = getCharacter();
@@ -221,8 +222,9 @@ public class PreDeityTest extends AbstractCharacterTestCase
 		assertFalse("Character has no deity selected", PrereqHandler.passes(
 			prereq, character, null));
 
-		ChannelCompatibility.setCurrentAlignment(character.getCharID(), ng);
-		character.setDeity(deity);
+		AlignmentCompat.setCurrentAlignment(character.getCharID(), ng);
+		ChannelUtilities.setControlledChannel(character.getCharID(),
+			CControl.DEITYINPUT, deity);
 		assertTrue("Character has Celtic deity selected", PrereqHandler.passes(
 			prereq, character, null));
 
@@ -232,6 +234,7 @@ public class PreDeityTest extends AbstractCharacterTestCase
 			prereq, character, null));
 	}
 
+	@BeforeEach
     @Override
 	protected void setUp() throws Exception
 	{

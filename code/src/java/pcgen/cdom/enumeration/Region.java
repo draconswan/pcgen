@@ -17,11 +17,15 @@
  */
 package pcgen.cdom.enumeration;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 
 import pcgen.base.enumeration.TypeSafeConstant;
+import pcgen.base.lang.UnreachableError;
 import pcgen.base.util.CaseInsensitiveMap;
+import pcgen.cdom.base.Constants;
 
 /**
  * 
@@ -31,6 +35,10 @@ import pcgen.base.util.CaseInsensitiveMap;
  */
 public final class Region implements TypeSafeConstant, Comparable<Region>
 {
+	/**
+	 * A "None" region for universal use.
+	 */
+	public static final Region NONE = new Region(Constants.NONE);
 
 	/**
 	 * This Map contains the mappings from Strings to the Type Safe Constant
@@ -54,10 +62,7 @@ public final class Region implements TypeSafeConstant, Comparable<Region>
 
 	private Region(String name)
 	{
-		if (name == null)
-		{
-			throw new IllegalArgumentException("Name for Region cannot be null");
-		}
+		Objects.requireNonNull(name, "Name for Region cannot be null");
 		ordinal = ordinalCount++;
 		fieldName = name;
 	}
@@ -111,6 +116,28 @@ public final class Region implements TypeSafeConstant, Comparable<Region>
 		if (typeMap == null)
 		{
 			typeMap = new CaseInsensitiveMap<>();
+			Field[] fields = Region.class.getDeclaredFields();
+            for (Field field : fields)
+            {
+                int mod = field.getModifiers();
+
+                if (java.lang.reflect.Modifier.isStatic(mod)
+                        && java.lang.reflect.Modifier.isFinal(mod)
+                        && java.lang.reflect.Modifier.isPublic(mod))
+                {
+                    try
+                    {
+                        Object obj = field.get(null);
+                        if (obj instanceof Region)
+                        {
+                            typeMap.put(field.getName(), (Region) obj);
+                        }
+                    } catch (IllegalArgumentException | IllegalAccessException e)
+                    {
+                        throw new UnreachableError(e);
+                    }
+                }
+            }
 		}
 	}
 

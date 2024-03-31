@@ -17,6 +17,10 @@
  */
 package tokenmodel;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import pcgen.cdom.facet.FacetLibrary;
 import pcgen.cdom.facet.StartingLanguageFacet;
 import pcgen.core.Language;
@@ -25,7 +29,8 @@ import pcgen.rules.persistence.token.CDOMToken;
 import pcgen.rules.persistence.token.ParseResult;
 import plugin.lsttokens.pcclass.LangbonusToken;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import tokenmodel.testsupport.AbstractTokenModelTest;
 import util.TestURI;
 
@@ -63,6 +68,7 @@ public class PCClassLangbonusTest extends AbstractTokenModelTest
 	}
 
 	@Override
+	@BeforeEach
 	protected void setUp() throws Exception
 	{
 		super.setUp();

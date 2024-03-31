@@ -17,8 +17,6 @@
  */
 package pcgen.cdom.facet.analysis;
 
-import org.junit.Test;
-
 import pcgen.cdom.base.CDOMObject;
 import pcgen.cdom.enumeration.CharID;
 import pcgen.cdom.enumeration.ObjectKey;
@@ -29,6 +27,9 @@ import pcgen.core.PCStat;
 import pcgen.core.PCTemplate;
 import pcgen.core.Race;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+
 public class HasAnyFavoredClassFacetTest extends
 		AbstractExtractingFacetTest<CDOMObject, Boolean>
 {
@@ -36,8 +37,9 @@ public class HasAnyFavoredClassFacetTest extends
 	private Boolean[] target;
 	private CDOMObject[] source;
 
+	@BeforeEach
 	@Override
-	public void setUp() throws Exception
+	public void setUp()
 	{
 		super.setUp();
 		CDOMObject cdo1 = new PCTemplate();
@@ -50,10 +52,10 @@ public class HasAnyFavoredClassFacetTest extends
 		pcs2.setName("Stat2");
 		Boolean st1 = Boolean.TRUE;
 		Boolean st2 = Boolean.FALSE;
-		cdo1.put(ObjectKey.ANY_FAVORED_CLASS, st1);
-		cdo2.put(ObjectKey.ANY_FAVORED_CLASS, st2);
+		cdo1.put(ObjectKey.ANY_FAVORED_CLASS, true);
+		cdo2.put(ObjectKey.ANY_FAVORED_CLASS, false);
 		source = new CDOMObject[]{cdo1, cdo2};
-		target = new Boolean[]{st1, st2};
+		target = new Boolean[]{true, false};
 	}
 
 	@Override

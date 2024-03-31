@@ -57,18 +57,12 @@ public class TemplateToken extends Token
 	/** Token name */
 	public static final String TOKENNAME = "TEMPLATE";
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getTokenName()
-	 */
 	@Override
 	public String getTokenName()
 	{
 		return TOKENNAME;
 	}
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getToken(java.lang.String, pcgen.core.PlayerCharacter, pcgen.io.ExportHandler)
-	 */
 	@Override
 	public String getToken(String tokenSource, PlayerCharacter pc, ExportHandler eh)
 	{
@@ -257,16 +251,6 @@ public class TemplateToken extends Token
 	}
 
 	/**
-	 * Get value of NAME sub token
-	 * @param template
-	 * @return value of NAME sub token
-	 */
-	public static String getNameToken(PCTemplate template)
-	{
-		return template.toString();
-	}
-
-	/**
 	 * Get value of OUTPUTNAME sub token
 	 * @param template
 	 * @return value of OUTPUTNAME sub token
@@ -288,8 +272,7 @@ public class TemplateToken extends Token
 		List<SpecialAbility> saList = new ArrayList<>();
 		saList.addAll(display.getResolvedUserSpecialAbilities(template));
 		saList.addAll(display.getResolvedSpecialAbilities(template));
-		List<PCTemplate> subList = new ArrayList<>();
-		subList.addAll(template.getConditionalTemplates(display.getTotalLevels(), display.totalHitDice()));
+		List<PCTemplate> subList = new ArrayList<>(template.getConditionalTemplates(display.getTotalLevels(), display.totalHitDice()));
 		for (PCTemplate subt : subList)
 		{
 			saList.addAll(display.getResolvedUserSpecialAbilities(subt));

@@ -17,7 +17,9 @@
  */
 package pcgen.core;
 
-import pcgen.facade.core.NoteFacade;
+import java.util.Optional;
+
+import pcgen.cdom.enumeration.PCStringKey;
 import pcgen.io.FileAccess;
 import pcgen.util.Logging;
 
@@ -25,20 +27,31 @@ import pcgen.util.Logging;
  * {@code NoteItem}.
  *
  */
-public final class NoteItem implements NoteFacade, Cloneable
+public final class NoteItem implements Cloneable
 {
-	private String name = "";
-	private String value = "";
-	private int id_parent = -1;
-	private int id_value = -1;
-	private boolean required;
+	private String name;
+	private String value;
+	private int id_parent;
+	private int id_value;
+	private final Optional<PCStringKey> key;
 
-	public NoteItem(final int my_id, final int my_parent, final String aName, final String aValue)
+	public NoteItem(Optional<PCStringKey> key, final int my_id, final int my_parent, final String aName, final String aValue)
 	{
+		this.key = key;
 		id_value = my_id;
 		id_parent = my_parent;
 		name = aName;
 		value = aValue;
+	}
+
+	public NoteItem(PCStringKey key, final int my_id, final int my_parent, final String aName, final String aValue)
+	{
+		this(Optional.of(key), my_id, my_parent, aName, aValue);
+	}
+
+	public NoteItem(final int my_id, final int my_parent, final String aName, final String aValue)
+	{
+		this(Optional.empty(), my_id, my_parent, aName, aValue);
 	}
 
 	/**
@@ -74,7 +87,6 @@ public final class NoteItem implements NoteFacade, Cloneable
 		name = x;
 	}
 
-	@Override
 	public String getName()
 	{
 		return name;
@@ -90,31 +102,19 @@ public final class NoteItem implements NoteFacade, Cloneable
 		return id_parent;
 	}
 
-	@Override
 	public void setValue(final String x)
 	{
 		value = x;
 	}
 
-	@Override
 	public String getValue()
 	{
 		return value;
 	}
 
-	@Override
-	public boolean isRequired()
+	public Optional<PCStringKey> getPCStringKey()
 	{
-		return required;
-	}
-
-	/**
-	 * Update the flag identifying if this note can be renamed or removed.
-	 * @param required the new required flag
-	 */
-	public void setRequired(boolean required)
-	{
-		this.required = required;
+		return key;
 	}
 
 	@Override
@@ -146,11 +146,10 @@ public final class NoteItem implements NoteFacade, Cloneable
 	@Override
 	public boolean equals(Object o)
 	{
-		if (o instanceof NoteItem)
+		if (o instanceof NoteItem other)
 		{
-			NoteItem other = (NoteItem) o;
 			return (id_parent == other.id_parent) && (id_value == other.id_value) && (name.equals(other.name))
-				&& (value.equals(other.value)) && (required == other.required);
+				&& (value.equals(other.value)) && (key.equals(other.key));
 		}
 		return false;
 	}

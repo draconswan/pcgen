@@ -30,14 +30,15 @@ import java.util.Map;
 import pcgen.persistence.PersistenceLayerException;
 import pcgen.system.PluginLoader;
 import pcgen.util.Logging;
+import plugin.pretokens.writer.PreMultWriter;
 
 /**
- * A Factory for PreReq Writing 
+ * A Factory for PreReq Writing
  */
 public final class PrerequisiteWriterFactory implements PluginLoader
 {
 	private static PrerequisiteWriterFactory instance = null;
-	private static Map<String, PrerequisiteWriterInterface> parserLookup = new HashMap<>();
+	private Map<String, PrerequisiteWriterInterface> parserLookup = new HashMap<>();
 
 	private PrerequisiteWriterFactory()
 	{
@@ -62,10 +63,10 @@ public final class PrerequisiteWriterFactory implements PluginLoader
 	 */
 	public PrerequisiteWriterInterface getWriter(String kind)
 	{
-		PrerequisiteWriterInterface test = null;
+		PrerequisiteWriterInterface test;
 		if (kind == null)
 		{
-			test = new PrerequisiteMultWriter();
+			test = new PreMultWriter();
 		}
 		else
 		{
@@ -84,7 +85,7 @@ public final class PrerequisiteWriterFactory implements PluginLoader
 	 * @param testClass the test class
 	 * @throws PersistenceLayerException the persistence layer exception
 	 */
-	public static void register(PrerequisiteWriterInterface testClass) throws PersistenceLayerException
+	public void register(PrerequisiteWriterInterface testClass) throws PersistenceLayerException
 	{
 		String kindHandled = testClass.kindHandled();
 
@@ -110,5 +111,13 @@ public final class PrerequisiteWriterFactory implements PluginLoader
 	public Class[] getPluginClasses()
 	{
 		return new Class[]{PrerequisiteWriterInterface.class};
+	}
+
+	public static void clear()
+	{
+		if (instance != null)
+		{
+			instance.parserLookup.clear();
+		}
 	}
 }

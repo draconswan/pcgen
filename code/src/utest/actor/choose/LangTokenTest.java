@@ -20,18 +20,19 @@ package actor.choose;
 import pcgen.cdom.base.Chooser;
 import pcgen.core.Language;
 import plugin.lsttokens.choose.LangToken;
+
 import actor.testsupport.AbstractPersistentCDOMChoiceActorTestCase;
 
 public class LangTokenTest extends
 		AbstractPersistentCDOMChoiceActorTestCase<Language>
 {
 
-	static LangToken pca = new LangToken();
+	private static final LangToken PCA = new LangToken();
 
 	@Override
 	public Chooser<Language> getActor()
 	{
-		return pca;
+		return PCA;
 	}
 
 	@Override

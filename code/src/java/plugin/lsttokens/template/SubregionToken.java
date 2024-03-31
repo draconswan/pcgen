@@ -17,8 +17,7 @@
  */
 package plugin.lsttokens.template;
 
-import pcgen.cdom.enumeration.ObjectKey;
-import pcgen.cdom.enumeration.SubRegion;
+import pcgen.cdom.enumeration.StringKey;
 import pcgen.core.PCTemplate;
 import pcgen.rules.context.LoadContext;
 import pcgen.rules.persistence.token.AbstractNonEmptyToken;
@@ -42,13 +41,17 @@ public class SubregionToken extends AbstractNonEmptyToken<PCTemplate> implements
 	{
 		if (value.equalsIgnoreCase("YES"))
 		{
-			context.getObjectContext().put(template, ObjectKey.USETEMPLATENAMEFORSUBREGION, true);
-			context.getObjectContext().put(template, ObjectKey.SUBREGION, null);
+			return new ParseResult.Fail(
+				"SUBREGION:YES is no longer supported.  "
+					+ "Please specify the exact SubRegion granted by this Template");
+		}
+		else if (value.equalsIgnoreCase("NONE"))
+		{
+			return ParseResult.SUCCESS;
 		}
 		else
 		{
-			context.getObjectContext().put(template, ObjectKey.USETEMPLATENAMEFORSUBREGION, null);
-			context.getObjectContext().put(template, ObjectKey.SUBREGION, SubRegion.getConstant(value));
+			context.getObjectContext().put(template, StringKey.SUBREGION, value);
 		}
 		return ParseResult.SUCCESS;
 	}
@@ -56,16 +59,7 @@ public class SubregionToken extends AbstractNonEmptyToken<PCTemplate> implements
 	@Override
 	public String[] unparse(LoadContext context, PCTemplate pct)
 	{
-		Boolean useName = context.getObjectContext().getObject(pct, ObjectKey.USETEMPLATENAMEFORSUBREGION);
-		SubRegion subregion = context.getObjectContext().getObject(pct, ObjectKey.SUBREGION);
-		if (useName != null && useName)
-		{
-			if (subregion != null)
-			{
-				context.addWriteMessage("Cannot have Template with " + getTokenName() + " YES and specific value");
-			}
-			return new String[]{"YES"};
-		}
+		String subregion = context.getObjectContext().getString(pct, StringKey.SUBREGION);
 		if (subregion == null)
 		{
 			// Okay, nothing set

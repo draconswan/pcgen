@@ -3,7 +3,6 @@ CAMPAIGN:Bestiary 2 (PFS)
 KEY:PFS ~ Bestiary 2
 #GAMEMODE:Pathfinder|Pathfinder_PFS
 TYPE:Paizo Publishing PFS.Pathfinder RPG
-RANK:1
 STATUS:RELEASE
 GENRE:Fantasy
 BOOKTYPE:Supplement
@@ -18,6 +17,7 @@ SOURCELONG:Bestiary 2
 SOURCESHORT:B2
 SOURCEWEB:http://paizo.com/store/byCompany/p/paizoPublishingLLC/pathfinder/pathfinderRPG/v5748btpy8hif
 SOURCEDATE:2010-12
+RANK:201012
 ISOGL:YES
 
 #COVER:@/pathfinder/paizo/roleplaying_game/bestiary_2/bestiary_2.jpg
@@ -108,6 +108,8 @@ COPYRIGHT:PCGen dataset conversion for "Pathfinder RPG Bestiary 2" Copyright 201
 EQUIPMENT:pfs_b2_equip_arms_armor.lst|PRECAMPAIGN:1,INCLUDES=Bestiary 2
 EQUIPMENT:pfs_b2_equip_general.lst|PRECAMPAIGN:1,INCLUDES=Bestiary 2
 LANGUAGE:pfs_ce_languages.lst|PRECAMPAIGN:1,INCLUDES=Bestiary 2
+
+ABILITY:pfs_b2_abilities_familiar.lst|PRECAMPAIGN:1,INCLUDES=Bestiary 2
 
 # TODO: All languages found in this book are available for a character to learn with the linguistics skill.
 # PCGen shows all the languages for INT bonus languages.

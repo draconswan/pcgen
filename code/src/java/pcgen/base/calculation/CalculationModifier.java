@@ -17,8 +17,12 @@
  */
 package pcgen.base.calculation;
 
+import java.util.Objects;
+
 import pcgen.base.formula.base.DependencyManager;
 import pcgen.base.formula.base.EvaluationManager;
+import pcgen.base.formula.base.FormulaSemantics;
+import pcgen.base.formula.exception.SemanticsException;
 import pcgen.base.util.FormatManager;
 
 /**
@@ -54,14 +58,8 @@ public final class CalculationModifier<T> extends AbstractPCGenModifier<T>
 	 */
 	public CalculationModifier(NEPCalculation<T> calc, FormatManager<T> fmtManager)
 	{
-		if (calc == null)
-		{
-			throw new IllegalArgumentException("Calculation cannot be null");
-		}
-		if (fmtManager == null)
-		{
-			throw new IllegalArgumentException("FormatManager cannot be null");
-		}
+		Objects.requireNonNull(calc, "Calculation cannot be null");
+		Objects.requireNonNull(fmtManager, "FormatManager cannot be null");
 		toDo = calc;
 		formatManager = fmtManager;
 	}
@@ -111,9 +109,8 @@ public final class CalculationModifier<T> extends AbstractPCGenModifier<T>
 	@Override
 	public boolean equals(Object o)
 	{
-		if (o instanceof CalculationModifier)
+		if (o instanceof CalculationModifier<?> other)
 		{
-			CalculationModifier<?> other = (CalculationModifier<?>) o;
 			return (other.getUserPriority() == getUserPriority()) && other.toDo.equals(toDo);
 		}
 		return false;
@@ -132,5 +129,18 @@ public final class CalculationModifier<T> extends AbstractPCGenModifier<T>
 	public boolean isCompatible(FormatManager<?> fm)
 	{
 		return formatManager.equals(fm);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return getClass().getSimpleName() + ": " + toDo + " ["
+			+ formatManager.getIdentifierType() + "]";
+	}
+
+	@Override
+	public void isValid(FormulaSemantics semantics) throws SemanticsException
+	{
+		toDo.isValid(semantics);
 	}
 }

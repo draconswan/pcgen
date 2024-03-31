@@ -152,11 +152,7 @@ public class AbilityToken extends AbstractNonEmptyToken<CDOMObject>
 				context.getReferenceContext().getCDOMReference(ABILITY_CATEGORY_CLASS, first);
 
 		Nature nature = Nature.valueOf(second);
-		if (nature == null)
-		{
-			return new ParseResult.Fail(getFullName() + ": Invalid ability nature: " + second);
-		}
-		if (Nature.ANY.equals(nature))
+        if (Nature.ANY.equals(nature))
 		{
 			return new ParseResult.Fail(
 				getTokenName() + " refers to ANY Ability Nature, cannot be used in " + getTokenName() + ": " + value);
@@ -325,7 +321,7 @@ public class AbilityToken extends AbstractNonEmptyToken<CDOMObject>
 					Integer stackLimit = container.getStackLimit();
 					if (stackLimit != null)
 					{
-						if (stackLimit.intValue() <= 0)
+						if (stackLimit <= 0)
 						{
 							context.addWriteMessage("Stack Limit in " + getFullName() + " must be > 0");
 							return null;
@@ -339,7 +335,7 @@ public class AbilityToken extends AbstractNonEmptyToken<CDOMObject>
 				addStrings.add(sb.toString());
 			}
 		}
-		return addStrings.toArray(new String[addStrings.size()]);
+		return addStrings.toArray(new String[0]);
 	}
 
 	@Override
@@ -400,10 +396,6 @@ public class AbilityToken extends AbstractNonEmptyToken<CDOMObject>
 	@Override
 	public void restoreChoice(PlayerCharacter pc, CDOMObject owner, CNAbilitySelection choice)
 	{
-		// String featName = choice.getAbilityKey();
-		// Ability aFeat = pc.getAbilityKeyed(AbilityCategory.FEAT,
-		// Ability.Nature.NORMAL, featName);
-		// pc.addAssoc(owner, AssociationListKey.ADDED_ABILITY, aFeat);
 	}
 
 	@Override

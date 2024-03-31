@@ -15,34 +15,40 @@
  */
 package pcgen.cdom.helper;
 
-import java.util.Collections;
-import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-
-import pcgen.cdom.base.CDOMObject;
+import pcgen.base.util.ArrayUtilities;
+import pcgen.base.util.Tuple;
 import pcgen.cdom.enumeration.CharID;
 import pcgen.cdom.facet.base.AbstractSourcedListFacet;
+import pcgen.cdom.formula.PCGenScoped;
 import pcgen.cdom.formula.VariableChangeEvent;
 import pcgen.cdom.formula.VariableListener;
+import pcgen.facade.util.event.ReferenceEvent;
+import pcgen.facade.util.event.ReferenceListener;
 
 /**
  * A BridgeListener converts from a VariableListener to then inject items into an
  * AbstractSourcedListFacet acting in the traditional Facet events.
  */
-public class BridgeListener implements VariableListener<Object>
+public class BridgeListener
+		implements VariableListener<Object>, ReferenceListener<Object>
 {
 	/**
 	 * The AbstractSourcedListFacet to which objects will be forwarded
 	 */
-	private final AbstractSourcedListFacet<CharID, CDOMObject> variableBridgeFacet;
+	private final AbstractSourcedListFacet<CharID, PCGenScoped> variableBridgeFacet;
 
 	/**
 	 * The CharID that this BridgeListener is serving
 	 */
 	private final CharID id;
+
+	/**
+	 * The source granting the variable this BridgeListener maintains
+	 */
+	private final Object source;
 
 	/**
 	 * Constructs a new BridgeListener for the given CharID which will use the given
@@ -54,73 +60,69 @@ public class BridgeListener implements VariableListener<Object>
 	 *            The AbstractSourcedListFacet to be used as a bridge to the traditional
 	 *            Facet events
 	 */
-	public BridgeListener(CharID id, AbstractSourcedListFacet<CharID, CDOMObject> variableBridgeFacet)
+	public BridgeListener(CharID id,
+		AbstractSourcedListFacet<CharID, PCGenScoped> variableBridgeFacet, Object source)
 	{
 		this.variableBridgeFacet = Objects.requireNonNull(variableBridgeFacet);
 		this.id = Objects.requireNonNull(id);
+		this.source = Objects.requireNonNull(source);
 	}
 
 	@Override
 	public void variableChanged(VariableChangeEvent<Object> vcEvent)
 	{
-		Object oldValue = vcEvent.getOldValue();
-		Object newValue = vcEvent.getNewValue();
+		processChange(vcEvent.getOldValue(), vcEvent.getNewValue());
+	}
+
+	@Override
+	public void referenceChanged(ReferenceEvent<Object> e)
+	{
+		processChange(e.getOldReference(), e.getNewReference());
+	}
+
+	private void processChange(Object oldValue, Object newValue)
+	{
 		/*
-		 * CONSIDER This is a hard-coding based on array - the format manager, which is
-		 * available from the event, might want to provide more insight. Currently, this
-		 * isn't possible, but it's something to think about with the FormatManager
-		 * objects going forward...
+		 * CONSIDER This is a hard-coding based on array - which is quirky
 		 */
 		if (newValue.getClass().isArray())
 		{
-			ImmutablePair<Set<Object>, Set<Object>> t = processIdentityDeltas((Object[]) oldValue, (Object[]) newValue);
-			for (Object o : t.getLeft())
+			Tuple<List<Object>, List<Object>> difference =
+					ArrayUtilities.calculateIdentityDifference(
+						(Object[]) oldValue, (Object[]) newValue);
+			for (Object toRemove : difference.getFirst())
 			{
-				variableBridgeFacet.remove(id, (CDOMObject) o, vcEvent.getSource());
+				variableBridgeFacet.remove(id, (PCGenScoped) toRemove, source);
 			}
-			for (Object o : t.getRight())
+			for (Object toAdd : difference.getSecond())
 			{
-				variableBridgeFacet.add(id, (CDOMObject) o, vcEvent.getSource());
+				variableBridgeFacet.add(id, (PCGenScoped) toAdd, source);
 			}
 		}
 		else
 		{
 			if (oldValue != null)
 			{
-				variableBridgeFacet.remove(id, (CDOMObject) oldValue, vcEvent.getSource());
+				variableBridgeFacet.remove(id, (PCGenScoped) oldValue, source);
 			}
-			variableBridgeFacet.add(id, (CDOMObject) newValue, vcEvent.getSource());
+			variableBridgeFacet.add(id, (PCGenScoped) newValue, source);
 		}
-	}
-
-	private ImmutablePair<Set<Object>, Set<Object>> processIdentityDeltas(Object[] oldValue, Object[] newValue)
-	{
-		Set<Object> toAdd = Collections.newSetFromMap(new IdentityHashMap<>());
-		Collections.addAll(toAdd, newValue);
-		Set<Object> toRemove = Collections.newSetFromMap(new IdentityHashMap<>());
-		Collections.addAll(toRemove, oldValue);
-		if ((oldValue.length != 0) && (newValue.length != 0))
-		{
-			//Note order sensitivity
-			toRemove.removeAll(toAdd);
-			Collections.addAll(toAdd, oldValue);
-		}
-		return new ImmutablePair<>(toRemove, toAdd);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return id.hashCode() * 31 + variableBridgeFacet.hashCode();
+		return (id.hashCode() * 31 + variableBridgeFacet.hashCode()) * 31 + source.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj)
 	{
-		if (obj instanceof BridgeListener)
+		if (obj instanceof BridgeListener other)
 		{
-			BridgeListener other = (BridgeListener) obj;
-			return id.equals(other.id) && variableBridgeFacet.equals(other.variableBridgeFacet);
+			return id.equals(other.id)
+				&& variableBridgeFacet.equals(other.variableBridgeFacet)
+				&& source.equals(other.source);
 		}
 		return false;
 	}

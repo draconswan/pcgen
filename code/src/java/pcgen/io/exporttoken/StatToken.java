@@ -22,10 +22,11 @@
 package pcgen.io.exporttoken;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import pcgen.cdom.util.SortKeyComparator;
+import pcgen.cdom.base.SortKeyRequired;
 import pcgen.core.PCStat;
 import pcgen.core.PlayerCharacter;
 import pcgen.core.SettingsHandler;
@@ -59,22 +60,16 @@ public class StatToken extends Token
 {
 	public static final String TOKENNAME = "STAT";
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getTokenName()
-	 */
 	@Override
 	public String getTokenName()
 	{
 		return TOKENNAME;
 	}
 
-	/**
-	 * @see pcgen.io.exporttoken.Token#getToken(java.lang.String, pcgen.core.PlayerCharacter, pcgen.io.ExportHandler)
-	 */
 	@Override
 	public String getToken(String tokenSource, PlayerCharacter pc, ExportHandler eh)
 	{
-		String retString = "";
+		String retString;
 		StringTokenizer aTok = new StringTokenizer(tokenSource, ".");
 		if (aTok.countTokens() < 2)
 		{
@@ -90,7 +85,7 @@ public class StatToken extends Token
 			return "";
 		}
 		List<PCStat> statList = new ArrayList<>(pc.getDisplay().getStatSet());
-		statList.sort(SortKeyComparator.getInstance());
+		statList.sort(Comparator.comparing(SortKeyRequired::getSortKey));
 		PCStat stat = statList.get(indexOfStat);
 
 		String findType = "STAT";
@@ -195,21 +190,21 @@ public class StatToken extends Token
 		return retString;
 	}
 
-	public static String getStatToken(PlayerCharacter pc, PCStat stat, boolean useTemp, boolean useEquip,
-		boolean usePost, boolean useLevel, int aLevel)
+	private static String getStatToken(PlayerCharacter pc, PCStat stat, boolean useTemp, boolean useEquip,
+	                                   boolean usePost, boolean useLevel, int aLevel)
 	{
 		return getStatToken(pc, stat, useTemp, useEquip, usePost, useLevel, aLevel, true);
 	}
 
-	public static String getStatToken(PlayerCharacter pc, PCStat stat, boolean useTemp, boolean useEquip,
-		boolean usePost, boolean useLevel, int aLevel, final boolean checkGameMode)
+	private static String getStatToken(PlayerCharacter pc, PCStat stat, boolean useTemp, boolean useEquip,
+	                                   boolean usePost, boolean useLevel, int aLevel, final boolean checkGameMode)
 	{
 		if (pc.getDisplay().isNonAbility(stat))
 		{
 			return "*";
 		}
 
-		int aTotal = 0;
+		int aTotal;
 
 		if (useLevel)
 		{
@@ -233,13 +228,13 @@ public class StatToken extends Token
 
 		if (checkGameMode)
 		{
-			return SettingsHandler.getGame().getStatDisplayText(aTotal);
+			return SettingsHandler.getGameAsProperty().get().getStatDisplayText(aTotal);
 		}
 		return Integer.toString(aTotal);
 	}
 
-	public static String getModToken(PlayerCharacter pc, PCStat stat, boolean useTemp, boolean useEquip,
-		boolean usePost, boolean useLevel, int aLevel)
+	private static String getModToken(PlayerCharacter pc, PCStat stat, boolean useTemp, boolean useEquip,
+	                                  boolean usePost, boolean useLevel, int aLevel)
 	{
 		if (pc.getDisplay().isNonAbility(stat))
 		{
@@ -251,7 +246,7 @@ public class StatToken extends Token
 		return Delta.toString(temp);
 	}
 
-	public static String getBaseToken(PlayerCharacter pc, PCStat stat)
+	private static String getBaseToken(PlayerCharacter pc, PCStat stat)
 	{
 		if (pc.getDisplay().isNonAbility(stat))
 		{
@@ -260,7 +255,7 @@ public class StatToken extends Token
 		return Integer.toString(pc.getBaseStatFor(stat));
 	}
 
-	public static String getBaseModToken(PlayerCharacter pc, PCStat stat)
+	private static String getBaseModToken(PlayerCharacter pc, PCStat stat)
 	{
 		if (pc.getDisplay().isNonAbility(stat))
 		{
@@ -271,14 +266,4 @@ public class StatToken extends Token
 
 		return Delta.toString(temp);
 	}
-
-	/*
-	 * Wrapper functions for calls with old arguments
-	 */
-
-	public static String getModToken(PlayerCharacter pc, PCStat stat)
-	{
-		return getModToken(pc, stat, true, true, true, false, 0);
-	}
-
 }

@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import pcgen.facade.core.AbilityFacade;
 import pcgen.facade.core.CharacterFacade;
 import pcgen.facade.core.DataSetFacade;
@@ -32,8 +30,14 @@ import pcgen.gui2.util.treeview.TreeViewPath;
 import pcgen.system.LanguageBundle;
 import pcgen.util.Logging;
 
-public class AbilityTreeViews
+import org.apache.commons.lang3.StringUtils;
+
+public final class AbilityTreeViews
 {
+
+	private AbilityTreeViews()
+	{
+	}
 
 	public static List<TreeView<AbilityFacade>> createTreeViewList(CharacterFacade character)
 	{

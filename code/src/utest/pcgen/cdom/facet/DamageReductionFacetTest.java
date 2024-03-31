@@ -17,6 +17,9 @@
  */
 package pcgen.cdom.facet;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -33,6 +36,9 @@ import pcgen.cdom.testsupport.AbstractExtractingFacetTest;
 import pcgen.core.PCTemplate;
 import pcgen.core.Race;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 /**
  * This class tests the handling of DRs in PCGen
  */
@@ -44,8 +50,9 @@ public class DamageReductionFacetTest extends
 	private DamageReduction[] target;
 	private CDOMObject[] source;
 
+	@BeforeEach
 	@Override
-	public void setUp() throws Exception
+	public void setUp()
 	{
 		super.setUp();
 		CDOMObject cdo1 = new PCTemplate();
@@ -65,6 +72,7 @@ public class DamageReductionFacetTest extends
 	/**
 	 * Test the retrieval of the DR String
 	 */
+	@Test
 	public void testGetDRString()
 	{
 		DamageReductionFacet drFacet = new DamageReductionFacet();

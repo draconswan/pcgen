@@ -37,9 +37,9 @@ import pcgen.core.PlayerCharacter;
 import pcgen.core.SizeAdjustment;
 import pcgen.core.WeaponProf;
 import pcgen.core.character.WieldCategory;
-import pcgen.core.display.CharacterDisplay;
 import pcgen.io.ExportHandler;
 import pcgen.system.LanguageBundle;
+import pcgen.util.Logging;
 
 /**
  * {@code WeaponhToken}.
@@ -48,14 +48,8 @@ import pcgen.system.LanguageBundle;
 public class WeaponhToken extends WeaponToken
 {
 	/** Weaponh token */
-	public static final String TOKEN_NAME = "WEAPONH";
+	private static final String TOKEN_NAME = "WEAPONH";
 
-	/**
-	 * Gets the token name
-	 *
-	 * @return The token name.
-	 * @see	pcgen.io.exporttoken.Token#getTokenName()
-	 */
 	@Override
 	public String getTokenName()
 	{
@@ -70,7 +64,6 @@ public class WeaponhToken extends WeaponToken
 	 * @param eh The ExportHandler that is managing the export
 	 * 						(may be null for a once off conversion).
 	 * @return The value of the token.
-	 * @see pcgen.io.exporttoken.Token#getToken(java.lang.String, pcgen.core.PlayerCharacter, pcgen.io.ExportHandler)
 	 */
 	@Override
 	public String getToken(String tokenSource, PlayerCharacter pc, ExportHandler eh)
@@ -79,30 +72,18 @@ public class WeaponhToken extends WeaponToken
 		//Weapono Token
 		aTok.nextToken();
 
-		Equipment eq = getWeaponEquipment(pc.getDisplay());
+		Equipment eq = getWeaponEquipment(pc);
 
-		if (eq != null)
-		{
-			return getWeaponToken(pc, eq, aTok, tokenSource);
-		}
-		else if (eh != null && eh.getExistsOnly())
-		{
-			eh.setNoMoreItems(true);
-			if (eh.getCheckBefore())
-			{
-				eh.setCanWrite(false);
-			}
-		}
-		return "";
-	}
+        return getWeaponToken(pc, eq, aTok, tokenSource);
+    }
 
 	/**
 	 * Create a fake Unarmed Strike equipment so we don't need it in the .lst files anymore
 	 *
-	 * @param display The character used to generate the size.
+	 * @param pc The character used to generate the size.
 	 * @return The Unarmed Strike equipment.
 	 */
-	public static Equipment getWeaponEquipment(CharacterDisplay display)
+	private static Equipment getWeaponEquipment(PlayerCharacter pc)
 	{
 		// Creating a fake Unarmed Strike equipment so we
 		// don't need it in the .lst files anymore
@@ -133,7 +114,7 @@ public class WeaponhToken extends WeaponToken
 			.silentlyGetConstructedCDOMObject(WieldCategory.class, "Light");
 		if (lightWC == null)
 		{
-			// Error?
+			Logging.debugPrint("lightWC WieldCategory should not have been null?");
 		}
 		else
 		{
@@ -147,7 +128,7 @@ public class WeaponhToken extends WeaponToken
 		head.put(IntegerKey.CRIT_MULT, 2);
 		head.put(IntegerKey.CRIT_RANGE, 1);
 		eq.put(ObjectKey.MOD_CONTROL, EqModControl.NO);
-		SizeAdjustment sa = display.getSizeAdjustment();
+		SizeAdjustment sa = pc.getSizeAdjustment();
 		CDOMDirectSingleRef<SizeAdjustment> ref = CDOMDirectSingleRef.getRef(sa);
 		eq.put(ObjectKey.SIZE, ref);
 		eq.put(ObjectKey.BASESIZE, ref);

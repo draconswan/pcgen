@@ -20,6 +20,8 @@ package pcgen.gui2.util.treeview;
 
 import java.util.Arrays;
 
+import pcgen.base.util.ArrayUtilities;
+
 import org.apache.commons.lang3.StringUtils;
 
 public class TreeViewPath<E>
@@ -52,16 +54,15 @@ public class TreeViewPath<E>
 		this(new Object[]{pobj}, 1);
 	}
 
+	@SafeVarargs
 	public TreeViewPath(Object[] path, E... pobjs)
 	{
 		if (path == null || path.length == 0 || pobjs == null || pobjs.length == 0)
 		{
 			throw new IllegalArgumentException("path in TreePath must be non null and not empty.");
 		}
-		this.length = path.length + pobjs.length;
-		this.path = new Object[length];
-		System.arraycopy(path, 0, this.path, 0, path.length);
-		System.arraycopy(pobjs, 0, this.path, path.length, pobjs.length);
+		this.path = ArrayUtilities.mergeArray(Object.class, path, pobjs);
+		this.length = this.path.length;
 	}
 
 	private TreeViewPath(Object[] path, int length)
@@ -75,22 +76,11 @@ public class TreeViewPath<E>
 	}
 
 	/**
-	 * Returns an ordered array of Objects containing the components of this
-	 * TreePath. The first element (index 0) is the root.
-	 *
-	 * @return an array of Objects representing the TreePath
-	 */
-	public Object[] getPath()
-	{
-		return path.clone();
-	}
-
-	/**
 	 * Returns the number of elements in the path.
 	 *
 	 * @return an int giving a count of items the path
 	 */
-	public int getPathCount()
+	int getPathCount()
 	{
 		return length;
 	}
@@ -104,7 +94,7 @@ public class TreeViewPath<E>
 	 * @throws IllegalArgumentException if the index is beyond the length
 	 *         of the path
 	 */
-	public Object getPathComponent(int element)
+	Object getPathComponent(int element)
 	{
 		return path[element];
 	}
@@ -116,7 +106,7 @@ public class TreeViewPath<E>
 	 * @return the Object at the end of the path
 	 */
 	@SuppressWarnings("unchecked")
-	public E getLastPathComponent()
+	private E getLastPathComponent()
 	{
 		return (E) path[length - 1];
 	}
@@ -159,29 +149,6 @@ public class TreeViewPath<E>
 			return false;
 		}
 		return Arrays.equals(path, other.path);
-	}
-
-	/**
-	 * Returns a path containing all the elements of this object, except
-	 * the last path component.
-	 * @return the parent path
-	 */
-	public TreeViewPath<E> getParentPath()
-	{
-		return new TreeViewPath<>(path, length - 1);
-	}
-
-	public TreeViewPath<E> getParentPath(int lastElement)
-	{
-		return new TreeViewPath<>(path, lastElement + 1);
-	}
-
-	public TreeViewPath<E> pathByAddingParent(String singlePath)
-	{
-		Object[] parentPath = new Object[length + 1];
-		parentPath[0] = singlePath;
-		System.arraycopy(path, 0, parentPath, 1, length);
-		return new TreeViewPath<>(parentPath, length + 1);
 	}
 
 	@Override

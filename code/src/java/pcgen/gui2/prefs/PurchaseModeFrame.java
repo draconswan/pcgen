@@ -18,7 +18,6 @@
 package pcgen.gui2.prefs;
 
 import java.awt.Container;
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -29,12 +28,14 @@ import java.awt.event.FocusEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -56,57 +57,44 @@ import pcgen.core.RuleConstants;
 import pcgen.core.SettingsHandler;
 import pcgen.core.utils.MessageType;
 import pcgen.core.utils.ShowMessageDelegate;
-import pcgen.gui2.util.JComboBoxEx;
+import pcgen.gui3.GuiUtility;
+import pcgen.gui3.JFXPanelFromResource;
+import pcgen.gui3.component.OKCloseButtonBar;
+import pcgen.gui3.dialog.NewPurchaseMethodDialogController;
 import pcgen.rules.context.AbstractReferenceContext;
 import pcgen.system.LanguageBundle;
+
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.Tooltip;
 
 /**
  * The Class {@code PurchaseModeFrame} is responsible for displaying
  * the character stats purchase mode (aka point buy) configuration dialog.  
- * 
- * 
  */
 public final class PurchaseModeFrame extends JDialog
 {
-	private static final long serialVersionUID = -5244500546425680322L;
 	private static final String TITLE = LanguageBundle.getString("in_Prefs_purModConf"); //$NON-NLS-1$
 	private static final int STANDARD_MIN_PURCHASE_SCORE = 8;
 	private static final int STANDARD_MAX_PURCHASE_SCORE = 18;
-	private JButton removeMethodButton = null;
-	private JComboBoxEx currentPurchaseMethods = null;
+	private JButton removeMethodButton;
+	private JComboBox currentPurchaseMethods;
 	private JLabel statusBar;
 
 	private JScrollPane jScrollPane1;
 	private JTextField purchaseMethodPointsEdit;
 	private JTextField purchaseScoreMaxEdit;
 	private JTextField purchaseScoreMinEdit;
-	private PurchaseModel purchaseModel = null;
+	private PurchaseModel purchaseModel;
 
 	private int statMin = PurchaseModeFrame.STANDARD_MIN_PURCHASE_SCORE;
 	private int statMax = PurchaseModeFrame.STANDARD_MAX_PURCHASE_SCORE;
 
-	/** Creates new form PurchaseModeFrame */
-	private PurchaseModeFrame()
-	{
-		initComponents();
-	}
-
 	/** Creates new form PurchaseModeFrame
-	 * @param parent
-	 * */
-	PurchaseModeFrame(Dialog parent)
-	{
-		super(parent);
-
-		initComponents();
-	}
-
-	/**
-	 * @param args the command line arguments
 	 */
-	public static void main(String[] args)
+	PurchaseModeFrame()
 	{
-		new PurchaseModeFrame().setVisible(true);
+		initComponents();
 	}
 
 	//
@@ -114,19 +102,25 @@ public final class PurchaseModeFrame extends JDialog
 	//
 	private void addMethodButtonActionPerformed()
 	{
-		NewPurchaseMethodDialog npmd = new NewPurchaseMethodDialog(this, true);
-		npmd.setVisible(true);
+		var npmd = new JFXPanelFromResource<>(
+				NewPurchaseMethodDialogController.class,
+				"NewPurchaseMethodDialog.fxml"
+		);
 
-		if (!npmd.getWasCancelled())
+		// todo: i18n
+		npmd.showAndBlock("New Purchase Method");
+		npmd.getController().isCancelled();
+
+		if (!npmd.getController().isCancelled())
 		{
-			final String methodName = npmd.getEnteredName();
+			final String methodName = npmd.getController().getEnteredName();
 
-			if (SettingsHandler.getGame().getModeContext().getReferenceContext()
+			if (SettingsHandler.getGameAsProperty().get().getModeContext().getReferenceContext()
 				.silentlyGetConstructedCDOMObject(PointBuyMethod.class, methodName) == null)
 			{
 				PointBuyMethod pbm = new PointBuyMethod();
 				pbm.setName(methodName);
-				pbm.setPointFormula(Integer.toString(npmd.getEnteredPoints()));
+				pbm.setPointFormula(Integer.toString(npmd.getController().getEnteredPoints()));
 				currentPurchaseMethods.addItem(pbm);
 				currentPurchaseMethods.setSelectedItem(pbm);
 			}
@@ -191,8 +185,7 @@ public final class PurchaseModeFrame extends JDialog
 		purchaseScoreMinEdit = new JTextField(3);
 		purchaseScoreMaxEdit = new JTextField(3);
 		statusBar = new JLabel();
-		currentPurchaseMethods = new JComboBoxEx<>();
-		currentPurchaseMethods.setAutoSort(true);
+		currentPurchaseMethods = new JComboBox<>();
 		purchaseMethodPointsEdit = new JTextField(4);
 		removeMethodButton = new JButton();
 
@@ -387,27 +380,20 @@ public final class PurchaseModeFrame extends JDialog
 		bagConstraints.weightx = 1.0;
 		getContentPane().add(statusBar, bagConstraints);
 
-		Container jPanel3 = new JPanel();
-		jPanel3.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		OKCloseButtonBar buttonBar = new OKCloseButtonBar(
+				evt -> okButtonActionPerformed(),
+				evt -> cancelButtonActionPerformed()
+		);
 
-		okButton.setText(LanguageBundle.getString("in_Prefs_OK")); //$NON-NLS-1$
-		okButton.setToolTipText(LanguageBundle.getString("in_Prefs_OKTip")); //$NON-NLS-1$
+		Button resetButton = new Button();
+		resetButton.setText(LanguageBundle.getString("in_Prefs_Reset"));
+		resetButton.setOnAction(evt -> resetButtonActionPerformed());
+		resetButton.setTooltip(new Tooltip(LanguageBundle.getString("in_Prefs_ResetTip")));
+		ButtonBar.setButtonData(resetButton, ButtonBar.ButtonData.BACK_PREVIOUS);
+		buttonBar.getButtons().add(resetButton);
+		buttonBar.getOkButton().setTooltip(new Tooltip(LanguageBundle.getString("in_Prefs_OKTip")));
 		okButton.addActionListener(evt -> okButtonActionPerformed());
-
-		jPanel3.add(okButton);
-
-		AbstractButton resetButton = new JButton();
-		resetButton.setText(LanguageBundle.getString("in_Prefs_Reset")); //$NON-NLS-1$
-		resetButton.setToolTipText(LanguageBundle.getString("in_Prefs_ResetTip")); //$NON-NLS-1$
-		resetButton.addActionListener(evt -> resetButtonActionPerformed());
-
-		jPanel3.add(resetButton);
-		AbstractButton cancelButton = new JButton();
-		cancelButton.setText(LanguageBundle.getString("in_cancel")); //$NON-NLS-1$
-		cancelButton.setToolTipText(LanguageBundle.getString("in_Prefs_CancelTip")); //$NON-NLS-1$
-		cancelButton.addActionListener(evt -> cancelButtonActionPerformed());
-
-		jPanel3.add(cancelButton);
+		buttonBar.getCancelButton().setTooltip(new Tooltip(LanguageBundle.getString("in_Prefs_CancelTip")));
 
 		/////////////////////////////////////////////////
 		bagConstraints = new GridBagConstraints();
@@ -416,7 +402,7 @@ public final class PurchaseModeFrame extends JDialog
 		bagConstraints.fill = GridBagConstraints.HORIZONTAL;
 		bagConstraints.anchor = GridBagConstraints.EAST;
 		bagConstraints.weightx = 1.0;
-		getContentPane().add(jPanel3, bagConstraints);
+		getContentPane().add(GuiUtility.wrapParentAsJFXPanel(buttonBar), bagConstraints);
 
 		jScrollPane1.setViewportBorder(new BevelBorder(BevelBorder.LOWERED));
 		jScrollPane1.setPreferredSize(new Dimension(100, 200));
@@ -443,7 +429,7 @@ public final class PurchaseModeFrame extends JDialog
 		//
 		// Set up the current methods combo's contents
 		//
-		Collection<PointBuyMethod> methods = SettingsHandler.getGame().getModeContext().getReferenceContext()
+		Collection<PointBuyMethod> methods = SettingsHandler.getGameAsProperty().get().getModeContext().getReferenceContext()
 			.getConstructedCDOMObjects(PointBuyMethod.class);
 		if (!methods.isEmpty())
 		{
@@ -748,9 +734,9 @@ public final class PurchaseModeFrame extends JDialog
 		private final boolean[] canEdit = {false, true};
 		private final String[] columnHeaders = {LanguageBundle.getString("in_Prefs_abScore"), //$NON-NLS-1$
 			LanguageBundle.getString("in_Prefs_cost")}; //$NON-NLS-1$
-		private Object[][] currentValues = null;
-		private Object[][] savedValues = null;
-		private final Class<?>[] types = new Class[]{Integer.class, Integer.class};
+		private Object[][] currentValues;
+		private Object[][] savedValues;
+		private final Class<?>[] types = {Integer.class, Integer.class};
 		private int currentPurchaseScoreMax = 10;
 		private int currentPurchaseScoreMin = 10; // Start at the average stat
 		private int savedPurchaseScoreMax = 0;
@@ -862,13 +848,13 @@ public final class PurchaseModeFrame extends JDialog
 		private void initValues()
 		{
 			// get the ability score costs from settings
-			int[] scoreCosts = SettingsHandler.getGame().getAbilityScoreCost();
+			int[] scoreCosts = SettingsHandler.getGameAsProperty().get().getAbilityScoreCost();
 
 			if (scoreCosts != null)
 			{
 				// get the save values from the settings
-				savedPurchaseScoreMin = SettingsHandler.getGame().getPurchaseScoreMin();
-				savedPurchaseScoreMax = SettingsHandler.getGame().getPurchaseScoreMax();
+				savedPurchaseScoreMin = SettingsHandler.getGameAsProperty().get().getPurchaseScoreMin();
+				savedPurchaseScoreMax = SettingsHandler.getGameAsProperty().get().getPurchaseScoreMax();
 
 				savedValues = new Object[scoreCosts.length][2];
 
@@ -984,56 +970,46 @@ public final class PurchaseModeFrame extends JDialog
 		{
 			final int nrEntries = (currentPurchaseScoreMax - currentPurchaseScoreMin) + 1;
 
-			Object[][] newValues = new Object[nrEntries][2];
+			final int preLength = currentValues.length;
+			Object[][] newValues = Arrays.copyOf(currentValues, nrEntries);
 
-			if (nrRows < 0)
+			// Only happens if adding rows
+			for (int i = 0; i < nrRows; ++i)
 			{
-				// removing rows
-				System.arraycopy(currentValues, 0, newValues, 0, nrEntries);
-			}
-			else
-			{
-				// adding rows
-				System.arraycopy(currentValues, 0, newValues, 0, currentValues.length);
+				final int score = ((i + currentPurchaseScoreMax) - nrRows) + 1;
+				newValues[i + preLength][0] = score;
 
-				final int preLength = currentValues.length;
-
-				for (int i = 0; i < nrRows; ++i)
+				int preVal = -1;
+				if ((i + preLength) != 0)
 				{
-					final int score = ((i + currentPurchaseScoreMax) - nrRows) + 1;
-					newValues[i + preLength][0] = score;
-
-					int preVal = -1;
-					if ((i + preLength) != 0)
-					{
-						preVal = (Integer) newValues[(i + preLength) - 1][1];
-					}
-
-					newValues[i + preLength][1] = preVal + 1;
+					preVal = (Integer) newValues[(i + preLength) - 1][1];
 				}
+
+				newValues[i + preLength][1] = preVal + 1;
 			}
 
 			currentValues = newValues;
 		}
 
+		@SuppressWarnings("PMD.OneDeclarationPerLine")
 		private void keepNewValues()
 		{
 			// set the current values into the settings
-			SettingsHandler.getGame().clearPointBuyStatCosts();
+			SettingsHandler.getGameAsProperty().get().clearPointBuyStatCosts();
 
 			for (int i = currentPurchaseScoreMin; i <= currentPurchaseScoreMax; ++i)
 			{
 				PointBuyCost pbc = new PointBuyCost();
 				pbc.setName(Integer.toString(i));
 				pbc.setBuyCost((Integer) currentValues[i - currentPurchaseScoreMin][1]);
-				SettingsHandler.getGame().addPointBuyStatCost(pbc);
+				SettingsHandler.getGameAsProperty().get().addPointBuyStatCost(pbc);
 			}
 
-			AbstractReferenceContext ref = SettingsHandler.getGame().getModeContext().getReferenceContext();
+			AbstractReferenceContext ref = SettingsHandler.getGameAsProperty().get().getModeContext().getReferenceContext();
 			Collection<PointBuyMethod> methods = new ArrayList<>(ref.getConstructedCDOMObjects(PointBuyMethod.class));
 			for (int i = 0, x = currentPurchaseMethods.getItemCount(); i < x; ++i)
 			{
-				final PointBuyMethod pbm = (PointBuyMethod) currentPurchaseMethods.getItemAt(i);
+				final PointBuyMethod pbm = (PointBuyMethod)currentPurchaseMethods.getItemAt(i);
 				PointBuyMethod masterPBM = ref.silentlyGetConstructedCDOMObject(PointBuyMethod.class, pbm.getKeyName());
 				if (masterPBM == null)
 				{
@@ -1086,7 +1062,8 @@ public final class PurchaseModeFrame extends JDialog
 			int cost = 0;
 			for (int i = 0; i < currentValues.length; i++)
 			{
-				currentValues[i][1] = cost++;
+				currentValues[i][1] = cost;
+				cost++;
 			}
 		}
 	}

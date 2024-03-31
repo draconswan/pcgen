@@ -1,12 +1,14 @@
 package pcgen.cdom.testsupport;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import junit.framework.TestCase;
-
-import org.junit.Test;
 
 import pcgen.cdom.content.CNAbility;
 import pcgen.cdom.content.CNAbilityFactory;
@@ -15,64 +17,35 @@ import pcgen.cdom.enumeration.DataSetID;
 import pcgen.cdom.enumeration.Nature;
 import pcgen.cdom.enumeration.ObjectKey;
 import pcgen.cdom.facet.base.AbstractCNASEnforcingFacet;
-import pcgen.cdom.facet.event.DataFacetChangeEvent;
-import pcgen.cdom.facet.event.DataFacetChangeListener;
 import pcgen.cdom.helper.CNAbilitySelection;
 import pcgen.cdom.helper.CNAbilitySelectionUtilities;
 import pcgen.cdom.reference.CDOMDirectSingleRef;
 import pcgen.core.Ability;
 import pcgen.core.AbilityCategory;
+
 import plugin.lsttokens.testsupport.BuildUtilities;
 
-public abstract class AbstractCNASEnforcingFacetTest extends TestCase
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+public abstract class AbstractCNASEnforcingFacetTest
 {
 
-	CharID id;
-	CharID altid;
-	AbilityCategory feat;
-	AbilityCategory fighterfeat;
-	AbilityCategory specialty;
-	Ability nomult;
-	Ability multyes;
-	Ability stackyes;
-	Ability othernomult;
-
-	private Listener listener = new Listener();
-	protected Object oneSource = new Object();
-
-	private static class Listener implements
-			DataFacetChangeListener<CharID, CNAbilitySelection>
+	private CharID id;
+	private CharID altid;
+	private AbilityCategory feat;
+	private AbilityCategory fighterfeat;
+	private AbilityCategory specialty;
+	private Ability nomult;
+	private Ability multyes;
+	private Ability stackyes;
+	private Ability othernomult;
+	private TestFacetListener<CNAbilitySelection> listener;
+	
+	@BeforeEach
+	void setUp() throws Exception
 	{
-
-		public int addEventCount;
-		public int removeEventCount;
-
-		@Override
-		public void dataAdded(
-			DataFacetChangeEvent<CharID, CNAbilitySelection> dfce)
-		{
-			addEventCount++;
-		}
-
-		@Override
-		public void dataRemoved(
-			DataFacetChangeEvent<CharID, CNAbilitySelection> dfce)
-		{
-			removeEventCount++;
-		}
-
-	}
-
-	protected void assertEventCount(int a, int r)
-	{
-		assertEquals(a, listener.addEventCount);
-		assertEquals(r, listener.removeEventCount);
-	}
-
-	@Override
-	protected void setUp() throws Exception
-	{
-		super.setUp();
+		listener = new TestFacetListener<>();
 		getFacet().addDataFacetChangeListener(listener);
 		CNAbilityFactory.reset();
 		DataSetID cid = DataSetID.getID();
@@ -102,6 +75,8 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 		othernomult.setCDOMCategory(feat);
 	}
 
+	//TODO Tear Down
+	
 	@Test
 	public void testTypeUnsetZeroCount()
 	{
@@ -124,20 +99,14 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 	@Test
 	public void testTypeAddNull()
 	{
-		try
-		{
-			Object source1 = new Object();
-			getFacet().add(id, null, source1);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// Yep!
-		}
+		Object source1 = new Object();
+		assertThrows(NullPointerException.class,
+				() -> getFacet().add(id, null, source1)
+		);
 		testTypeUnsetZeroCount();
 		testTypeUnsetEmpty();
 		testTypeUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -145,20 +114,14 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 	{
 		//Remove to try to avoid any event being formed
 		getFacet().removeDataFacetChangeListener(listener);
-		try
-		{
-			Object source1 = new Object();
-			getFacet().add(null, getObject(), source1);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// Yep!
-		}
+		Object source1 = new Object();
+		assertThrows(NullPointerException.class,
+				() -> getFacet().add(null, getObject(), source1)
+		);
 		testTypeUnsetZeroCount();
 		testTypeUnsetEmpty();
 		testTypeUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -166,19 +129,13 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 	{
 		//Remove to try to avoid any event being formed
 		getFacet().removeDataFacetChangeListener(listener);
-		try
-		{
-			getFacet().add(id, getObject(), null);
-			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
-			// Yep!
-		}
+		assertThrows(NullPointerException.class,
+				() -> getFacet().add(id, null, null)
+		);
 		testTypeUnsetZeroCount();
 		testTypeUnsetEmpty();
 		testTypeUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -192,7 +149,7 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// No cross-pollution
 		assertEquals(0, getFacet().getCount(altid));
 		assertTrue(getFacet().isEmpty(altid));
@@ -211,7 +168,7 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, still only once in set (and only one event)
 		getFacet().add(id, t1, source1);
 		assertEquals(1, getFacet().getCount(id));
@@ -219,7 +176,7 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -234,7 +191,7 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Add same, still only once in set (and only one event)
 		getFacet().add(id, t1, source2);
 		assertEquals(1, getFacet().getCount(id));
@@ -242,7 +199,7 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -257,7 +214,7 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 		assertNotNull(setofone);
 		assertEquals(1, setofone.size());
 		assertEquals(t1, setofone.iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		CNAbilitySelection t2 = getMultObject("German");
 		getFacet().add(id, t2, source1);
 		assertEquals(2, getFacet().getCount(id));
@@ -267,7 +224,7 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 		assertEquals(2, setoftwo.size());
 		assertTrue(setoftwo.contains(t1));
 		assertTrue(setoftwo.contains(t2));
-		assertEventCount(2, 0);
+		listener.assertEventCount(2, 0);
 	}
 
 	@Test
@@ -275,20 +232,14 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 	{
 		//Remove to try to avoid any event being formed
 		getFacet().removeDataFacetChangeListener(listener);
-		try
-		{
-			Object source1 = new Object();
-			getFacet().add(null, getObject(), source1);
-			//ignored
-		}
-		catch (IllegalArgumentException e)
-		{
-			// Yep this is good too!
-		}
+		Object source1 = new Object();
+		assertThrows(NullPointerException.class,
+				() -> getFacet().add(null, getObject(), source1)
+		);
 		testTypeUnsetZeroCount();
 		testTypeUnsetEmpty();
 		testTypeUnsetEmptySet();
-		assertEventCount(0, 0);
+		listener.assertEventCount(0, 0);
 	}
 
 	@Test
@@ -302,7 +253,7 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		Object source2 = new Object();
 		getFacet().remove(id, t1, source2);
 		// No change (wrong source)
@@ -311,7 +262,7 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -325,14 +276,14 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Remove
 		getFacet().remove(id, t1, source1);
 		assertEquals(0, getFacet().getCount(id));
 		assertTrue(getFacet().isEmpty(id));
 		assertNotNull(getFacet().getSet(id));
 		assertTrue(getFacet().getSet(id).isEmpty());
-		assertEventCount(1, 1);
+		listener.assertEventCount(1, 1);
 	}
 
 	@Test
@@ -346,7 +297,7 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 		// Useless Remove
 		getFacet().remove(id, getMultObject("German"), source1);
 		assertEquals(1, getFacet().getCount(id));
@@ -354,7 +305,7 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 		assertNotNull(getFacet().getSet(id));
 		assertEquals(1, getFacet().getSet(id).size());
 		assertEquals(t1, getFacet().getSet(id).iterator().next());
-		assertEventCount(1, 0);
+		listener.assertEventCount(1, 0);
 	}
 
 	@Test
@@ -372,7 +323,7 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 		assertNotNull(setofone);
 		assertEquals(1, setofone.size());
 		assertTrue(setofone.contains(t2));
-		assertEventCount(2, 1);
+		listener.assertEventCount(2, 1);
 	}
 
 	@Test
@@ -888,7 +839,7 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 			.getCNAbility(BuildUtilities.getFeatCat(), Nature.VIRTUAL, a1));
 	}
 
-	protected CNAbilitySelection getMultObject(String tgt)
+	private static CNAbilitySelection getMultObject(String tgt)
 	{
 		Ability a1 = new Ability();
 		a1.setName("Abil");
@@ -899,5 +850,4 @@ public abstract class AbstractCNASEnforcingFacetTest extends TestCase
 	}
 
 	//TODO Need to test events :/
-
 }
